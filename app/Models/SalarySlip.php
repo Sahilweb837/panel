@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Employee;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class SalarySlip extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'employee_id',
+        'month',
+        'year',
+        'basic_salary',
+        'allowances',
+        'deductions',
+        'net_pay',
+        'payment_date',
+        'status',
+        'created_by',
+    ];
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+}

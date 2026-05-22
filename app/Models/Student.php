@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Attendance;
+use App\Models\Course;
+use App\Models\FeeInvoice;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Student extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'admission_no',
+        'roll_no',
+        'aadhar_number',
+        'first_name',
+        'last_name',
+        'guardian_name',
+        'email',
+        'phone',
+        'dob',
+        'gender',
+        'address',
+        'current_address',
+        'permanent_address',
+        'course_id',
+        'course_duration',
+        'student_type',
+        'class',
+        'section',
+        'admission_date',
+        'status',
+    ];
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function feeInvoices()
+    {
+        return $this->hasMany(FeeInvoice::class);
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+}

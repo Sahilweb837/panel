@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Student;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class FeeInvoice extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'student_id',
+        'invoice_no',
+        'fee_category',
+        'total_amount',
+        'paid_amount',
+        'discount',
+        'fine',
+        'due_amount',
+        'payment_date',
+        'payment_method',
+        'status',
+        'remarks',
+        'created_by',
+    ];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+}
