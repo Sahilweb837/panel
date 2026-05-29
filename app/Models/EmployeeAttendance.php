@@ -16,6 +16,7 @@ class EmployeeAttendance extends Model
         'employee_id',
         'status',
         'check_in_time',
+        'check_out_time',
         'attendance_date',
         'remarks',
     ];

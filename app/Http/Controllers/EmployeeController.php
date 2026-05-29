@@ -46,6 +46,7 @@ class EmployeeController extends Controller
             'joining_date' => ['nullable', 'date'],
             'address' => ['nullable', 'string'],
             'status' => ['nullable', 'boolean'],
+            'access' => ['nullable', 'array'],
         ]);
 
         $data['status'] = $request->boolean('status');
@@ -60,10 +61,11 @@ class EmployeeController extends Controller
                 'password' => $request->login_password ?: 'staff123',
                 'role_id' => $staffRole?->id,
                 'status' => $data['status'],
+                'access' => $request->input('access', []),
             ]);
         }
 
-        unset($data['staff_name'], $data['login_email'], $data['login_username'], $data['login_password']);
+        unset($data['staff_name'], $data['login_email'], $data['login_username'], $data['login_password'], $data['access']);
         $data['user_id'] = $user?->id;
 
         Employee::create($data);
@@ -101,6 +103,7 @@ class EmployeeController extends Controller
             'joining_date' => ['nullable', 'date'],
             'address' => ['nullable', 'string'],
             'status' => ['nullable', 'boolean'],
+            'access' => ['nullable', 'array'],
         ]);
 
         $data['status'] = $request->boolean('status');
@@ -109,6 +112,7 @@ class EmployeeController extends Controller
             'email' => $request->login_email,
             'username' => $request->login_username ?: $data['employee_code'],
             'status' => $data['status'],
+            'access' => $request->input('access', []),
         ];
 
         if ($request->filled('login_email')) {
@@ -127,7 +131,7 @@ class EmployeeController extends Controller
             }
         }
 
-        unset($data['staff_name'], $data['login_email'], $data['login_username'], $data['login_password']);
+        unset($data['staff_name'], $data['login_email'], $data['login_username'], $data['login_password'], $data['access']);
 
         $employee->update($data);
 
@@ -139,5 +143,67 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return back()->with('success', 'Employee deleted successfully.');
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $query = Employee::with('user');
+
+        if ($request->filled('search')) {
+            $query->where('employee_code', 'like', '%'.$request->search.'%')
+                ->orWhere('department', 'like', '%'.$request->search.'%')
+                ->orWhere('designation', 'like', '%'.$request->search.'%')
+                ->orWhere('phone', 'like', '%'.$request->search.'%');
+        }
+
+        $employees = $query->latest()->get();
+
+        $headers = [
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=employees_export_'.date('Ymd_His').'.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($employees) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, ['Employee Code', 'Staff Name', 'Login Email', 'Phone', 'Department', 'Designation', 'Salary', 'Joining Date', 'Status']);
+
+            foreach ($employees as $employee) {
+                fputcsv($file, [
+                    $employee->employee_code,
+                    $employee->user?->name ?? '-',
+                    $employee->user?->email ?? '-',
+                    $employee->phone ?? '-',
+                    $employee->department ?? '-',
+                    $employee->designation ?? '-',
+                    number_format($employee->salary, 2),
+                    $employee->joining_date ?? '-',
+                    $employee->status ? 'Active' : 'Inactive'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = Employee::with('user');
+
+        if ($request->filled('search')) {
+            $query->where('employee_code', 'like', '%'.$request->search.'%')
+                ->orWhere('department', 'like', '%'.$request->search.'%')
+                ->orWhere('designation', 'like', '%'.$request->search.'%')
+                ->orWhere('phone', 'like', '%'.$request->search.'%');
+        }
+
+        $employees = $query->latest()->get();
+
+        return view('employees.print', compact('employees'));
     }
 }

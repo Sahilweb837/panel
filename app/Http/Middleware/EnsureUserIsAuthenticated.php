@@ -29,8 +29,40 @@ class EnsureUserIsAuthenticated
 
         view()->share('currentUser', $user);
 
-        if ($user->role?->slug === 'staff' && ! $request->routeIs('dashboard', 'logout')) {
-            return redirect()->route('dashboard');
+        $roleSlug = $user->role?->slug;
+        $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
+
+        if (!$isSuperOrRoot) {
+            $allowed = false;
+            
+            if ($request->routeIs('dashboard', 'logout')) {
+                $allowed = true;
+            } else {
+                $access = $user->access ?? [];
+                $route = $request->route() ? $request->route()->getName() : '';
+                
+                if (str_starts_with($route, 'courses.') && in_array('courses', $access)) {
+                    $allowed = true;
+                } elseif (str_starts_with($route, 'students.') && in_array('students', $access)) {
+                    $allowed = true;
+                } elseif (str_starts_with($route, 'employees.') && in_array('employees', $access)) {
+                    $allowed = true;
+                } elseif (str_starts_with($route, 'employee-attendances.') && in_array('employee-attendances', $access)) {
+                    $allowed = true;
+                } elseif (str_starts_with($route, 'attendances.') && in_array('attendances', $access)) {
+                    $allowed = true;
+                } elseif (str_starts_with($route, 'fee_invoices.') && in_array('fee-invoices', $access)) {
+                    $allowed = true;
+                } elseif (str_starts_with($route, 'expenses.') && in_array('expenses', $access)) {
+                    $allowed = true;
+                } elseif (str_starts_with($route, 'salary_slips.') && in_array('salary-slips', $access)) {
+                    $allowed = true;
+                }
+            }
+
+            if (!$allowed) {
+                return redirect()->route('dashboard')->with('error', 'You do not have permission to access this module.');
+            }
         }
 
         return $next($request);

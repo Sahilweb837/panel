@@ -51,4 +51,10 @@ class SalarySlipController extends Controller
 
         return back()->with('success', 'Salary slip deleted successfully.');
     }
+
+    public function show(SalarySlip $salarySlip)
+    {
+        $salarySlip->load('employee.user', 'creator');
+        return view('salary_slips.show', compact('salarySlip'));
+    }
 }

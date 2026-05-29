@@ -22,6 +22,8 @@ class FeeInvoice extends Model
         'due_amount',
         'payment_date',
         'payment_method',
+        'transaction_id',
+        'utr_no',
         'status',
         'remarks',
         'created_by',

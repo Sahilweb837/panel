@@ -1,43 +1,240 @@
 @extends('layouts.app')
 
-@section('title', 'Record Attendance')
-
-@section('page-title', 'Record Attendance')
+@section('title', 'Record Student Attendance')
+@section('page-title', 'Record Daily Student Attendance')
 
 @section('content')
-    <div class="card form-card">
-        <form action="{{ route('attendances.store') }}" method="POST">
-            @csrf
+    <div class="attendance-container">
+        <!-- Lazy Loading Skeleton Overlay -->
+        <div class="skeleton-loader-overlay" id="page-skeleton">
+            <div class="card premium-stat-card mb-4" style="height: 120px;"></div>
+            <div class="card premium-form-card" style="max-width: 100%;">
+                <div class="sk-text heading"></div>
+                <div class="sk-row"><div class="sk-text"></div></div>
+                <div class="sk-row"><div class="sk-text"></div></div>
+                <div class="sk-row"><div class="sk-text"></div></div>
+            </div>
+        </div>
 
-            <div class="grid grid-2 gap-4">
-                <label>Student
-                    <select name="student_id" required>
-                        <option value="">Choose a student</option>
-                        @foreach($students as $student)
-                            <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
-                                {{ $student->admission_no }} - {{ $student->first_name }} {{ $student->last_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </label>
-                <label>Date<input type="date" name="attendance_date" value="{{ old('attendance_date', date('Y-m-d')) }}" required /></label>
+        <!-- Real Content -->
+        <div id="page-content" style="opacity: 0; transition: opacity 0.5s ease;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card premium-stat-card p-4">
+                        <form method="GET" action="{{ route('attendances.create') }}" id="date-select-form" class="d-flex align-items-end justify-content-between flex-wrap gap-3">
+                            <div style="flex: 1; min-width: 250px;">
+                                <label for="date-picker" class="form-label text-muted uppercase-bold mb-2">Select Attendance Date</label>
+                                <div class="input-group" style="position: relative; max-width: 320px;">
+                                    <span class="input-group-text bg-transparent border-end-0" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); z-index: 10;"><i class="fas fa-calendar-alt text-first"></i></span>
+                                    <input type="date" id="date-picker" name="date" class="form-input border-start-0" value="{{ $date }}" max="{{ date('Y-m-d') }}" onchange="document.getElementById('date-select-form').submit();" style="padding-left: 44px;" />
+                                </div>
+                                <small class="text-muted d-block mt-2">Changing the date will automatically load any previously recorded attendance for that day.</small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" onclick="markAll('Present')" class="button button-secondary px-3"><i class="fas fa-check-double me-2 text-success"></i>Mark All Present</button>
+                                <button type="button" onclick="markAll('Absent')" class="button button-secondary px-3" style="border-color: rgba(220, 53, 69, 0.3) !important; color: #dc3545 !important;"><i class="fas fa-times-circle me-2"></i>Mark All Absent</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
-            <div class="grid grid-2 gap-4">
-                <label>Status
-                    <select name="status" required>
-                        <option value="Present" {{ old('status') === 'Present' ? 'selected' : '' }}>Present</option>
-                        <option value="Absent" {{ old('status') === 'Absent' ? 'selected' : '' }}>Absent</option>
-                        <option value="Late" {{ old('status') === 'Late' ? 'selected' : '' }}>Late</option>
-                        <option value="Leave" {{ old('status') === 'Leave' ? 'selected' : '' }}>Leave</option>
-                    </select>
-                </label>
-                <label>Fine Amount<input type="number" name="fine" step="0.01" value="{{ old('fine', 0) }}" /></label>
-            </div>
+            @if($students->isEmpty())
+                <div class="card premium-stat-card text-center py-5">
+                    <i class="fas fa-users-slash fa-3x mb-3 text-muted"></i>
+                    <h4 class="fw-bold mb-2">No Active Students Found</h4>
+                    <p class="text-muted mb-3">Please register active students first under the Student Management section.</p>
+                    <a href="{{ route('students.create') }}" class="button button-primary">Register Student</a>
+                </div>
+            @else
+                <div class="card premium-stat-card p-0 table-card overflow-hidden">
+                    <form action="{{ route('attendances.store') }}" method="POST" id="attendance-log-form">
+                        @csrf
+                        <input type="hidden" name="attendance_date" value="{{ $date }}" />
 
-            <label>Remarks<textarea name="remarks">{{ old('remarks') }}</textarea></label>
+                        <div class="premium-card-header bg-transparent border-bottom p-4">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="fas fa-clipboard-check text-first"></i> Daily Students Roll Call Slate
+                            </h5>
+                        </div>
 
-            <button type="submit" class="button button-primary">Save Attendance</button>
-        </form>
+                        <div class="table-responsive">
+                            <table class="table premium-table align-middle mb-0">
+                                <thead>
+                                    <tr class="table-light-head">
+                                        <th class="ps-4" style="width: 25%;">Student</th>
+                                        <th style="width: 12%;">Admission No</th>
+                                        <th style="width: 25%;" class="text-center">Attendance Status</th>
+                                        <th style="width: 15%;" class="text-center">Check-in Time</th>
+                                        <th style="width: 15%;" class="text-center">Check-out Time</th>
+                                        <th style="width: 8%;" class="text-center">Fine (INR)</th>
+                                        <th class="pe-4" style="width: 15%;">Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($students as $student)
+                                         @php
+                                             $existing = $existingAttendances->get($student->id);
+                                             $status = $existing ? $existing->status : 'Present';
+                                             $remarks = $existing ? $existing->remarks : '';
+                                             $checkInTime = $existing ? $existing->check_in_time : '';
+                                             $checkOutTime = $existing ? $existing->check_out_time : '';
+                                             $fine = $existing ? $existing->fine : 0;
+                                         @endphp
+                                         <tr>
+                                             <td class="ps-4">
+                                                 <div class="d-flex align-items-center gap-3">
+                                                     <div class="avatar-circle-sm d-grid place-items-center" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255, 85, 50, 0.1); color: var(--first-color); font-weight: bold;">
+                                                         {{ strtoupper(substr($student->first_name ?? 'S', 0, 1)) }}
+                                                     </div>
+                                                     <div>
+                                                         <h6 class="mb-1 text-dark-title fw-bold" style="font-size: 0.95rem;">{{ $student->first_name }} {{ $student->last_name }}</h6>
+                                                         <small class="text-muted d-block" style="font-size: 0.8rem;">{{ $student->course?->name ?? 'No Course' }}</small>
+                                                     </div>
+                                                 </div>
+                                             </td>
+                                             <td>
+                                                 <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">{{ $student->admission_no }}</span>
+                                             </td>
+                                             <td class="text-center">
+                                                 <div class="d-inline-flex gap-1" role="group" aria-label="Attendance Status Toggle">
+                                                     <!-- Present -->
+                                                     <input type="radio" class="btn-check" name="attendance[{{ $student->id }}][status]" id="status_{{ $student->id }}_present" value="Present" {{ $status === 'Present' ? 'checked' : '' }} autocomplete="off" onchange="handleStatusChange({{ $student->id }}, 'Present')" />
+                                                     <label class="btn btn-outline-success btn-sm px-3 rounded-pill" style="font-size: 0.8rem; font-weight: 600;" for="status_{{ $student->id }}_present">Present</label>
+         
+                                                     <!-- Late -->
+                                                     <input type="radio" class="btn-check" name="attendance[{{ $student->id }}][status]" id="status_{{ $student->id }}_late" value="Late" {{ $status === 'Late' ? 'checked' : '' }} autocomplete="off" onchange="handleStatusChange({{ $student->id }}, 'Late')" />
+                                                     <label class="btn btn-outline-warning btn-sm px-3 rounded-pill" style="font-size: 0.8rem; font-weight: 600;" for="status_{{ $student->id }}_late">Late</label>
+         
+                                                     <!-- Absent -->
+                                                     <input type="radio" class="btn-check" name="attendance[{{ $student->id }}][status]" id="status_{{ $student->id }}_absent" value="Absent" {{ $status === 'Absent' ? 'checked' : '' }} autocomplete="off" onchange="handleStatusChange({{ $student->id }}, 'Absent')" />
+                                                     <label class="btn btn-outline-danger btn-sm px-3 rounded-pill" style="font-size: 0.8rem; font-weight: 600;" for="status_{{ $student->id }}_absent">Absent</label>
+         
+                                                     <!-- Leave -->
+                                                     <input type="radio" class="btn-check" name="attendance[{{ $student->id }}][status]" id="status_{{ $student->id }}_leave" value="Leave" {{ $status === 'Leave' ? 'checked' : '' }} autocomplete="off" onchange="handleStatusChange({{ $student->id }}, 'Leave')" />
+                                                     <label class="btn btn-outline-info btn-sm px-3 rounded-pill" style="font-size: 0.8rem; font-weight: 600;" for="status_{{ $student->id }}_leave">Leave</label>
+                                                 </div>
+                                             </td>
+                                             <td class="text-center">
+                                                 <div class="d-flex align-items-center justify-content-center gap-1">
+                                                     <input type="text" 
+                                                            name="attendance[{{ $student->id }}][check_in_time]" 
+                                                            id="time_{{ $student->id }}" 
+                                                            class="form-input text-center py-1" 
+                                                            placeholder="--:-- --" 
+                                                            value="{{ $checkInTime }}" 
+                                                            style="width: 100px; font-size: 0.8rem; font-weight: bold; background-color: var(--surface);" />
+                                                     <button type="button" 
+                                                             onclick="setCurrentTime({{ $student->id }})" 
+                                                             class="btn btn-outline-secondary btn-sm p-1 d-flex align-items-center justify-content-center" 
+                                                             title="Set Check-in Time" 
+                                                             style="width: 30px; height: 30px; border-radius: 6px;">
+                                                         <i class="fas fa-clock text-success"></i>
+                                                     </button>
+                                                 </div>
+                                             </td>
+                                             <td class="text-center">
+                                                 <div class="d-flex align-items-center justify-content-center gap-1">
+                                                     <input type="text" 
+                                                            name="attendance[{{ $student->id }}][check_out_time]" 
+                                                            id="timeout_{{ $student->id }}" 
+                                                            class="form-input text-center py-1" 
+                                                            placeholder="--:-- --" 
+                                                            value="{{ $checkOutTime }}" 
+                                                            style="width: 100px; font-size: 0.8rem; font-weight: bold; background-color: var(--surface);" />
+                                                     <button type="button" 
+                                                             onclick="setCurrentTimeout({{ $student->id }})" 
+                                                             class="btn btn-outline-secondary btn-sm p-1 d-flex align-items-center justify-content-center" 
+                                                             title="Set Check-out Time" 
+                                                             style="width: 30px; height: 30px; border-radius: 6px;">
+                                                         <i class="fas fa-clock text-danger"></i>
+                                                     </button>
+                                                 </div>
+                                             </td>
+                                             <td class="text-center">
+                                                 <input type="number" name="attendance[{{ $student->id }}][fine]" class="form-input text-center py-1" placeholder="0.00" step="0.01" value="{{ $fine }}" style="width: 70px; font-size: 0.8rem; font-weight: bold;" />
+                                             </td>
+                                             <td class="pe-4">
+                                                 <input type="text" name="attendance[{{ $student->id }}][remarks]" class="form-input py-1" placeholder="Add remarks..." value="{{ $remarks }}" style="font-size: 0.8rem; padding: 6px 10px;" />
+                                             </td>
+                                         </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card-footer p-4 border-top bg-light-orange bg-opacity-10 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="text-muted">
+                                <i class="fas fa-info-circle me-1 text-first"></i>
+                                <span>Clicking save will log records for <strong>{{ \Carbon\Carbon::parse($date)->format('M d, Y') }}</strong>.</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('attendances.index') }}" class="button button-secondary px-4">Cancel</a>
+                                <button type="submit" class="button button-primary px-5"><i class="fas fa-save me-2"></i>Save Daily Attendance</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            @endif
+        </div>
     </div>
+
+    <!-- Clock scripts -->
+    <script>
+        function getFormattedTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0'+minutes : minutes;
+            return hours + ':' + minutes + ' ' + ampm;
+        }
+
+        function setCurrentTime(id) {
+            const timeInput = document.getElementById('time_' + id);
+            if(timeInput) timeInput.value = getFormattedTime();
+        }
+
+        function setCurrentTimeout(id) {
+            const timeoutInput = document.getElementById('timeout_' + id);
+            if(timeoutInput) timeoutInput.value = getFormattedTime();
+        }
+
+        function handleStatusChange(id, status) {
+            const timeInput = document.getElementById('time_' + id);
+            const timeoutInput = document.getElementById('timeout_' + id);
+            if (status === 'Present' || status === 'Late') {
+                if (timeInput && !timeInput.value) {
+                    timeInput.value = getFormattedTime();
+                }
+            } else {
+                if(timeInput) timeInput.value = '';
+                if(timeoutInput) timeoutInput.value = '';
+            }
+        }
+
+        function markAll(status) {
+            const checks = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+            checks.forEach(radio => {
+                radio.checked = true;
+                const matches = radio.id.match(/status_(\d+)_/);
+                if (matches && matches[1]) {
+                    handleStatusChange(matches[1], status);
+                }
+            });
+        }
+
+        // Lazy loading transition script
+        document.addEventListener('DOMContentLoaded', () => {
+            const skeleton = document.getElementById('page-skeleton');
+            const content = document.getElementById('page-content');
+            
+            setTimeout(() => {
+                if (skeleton) skeleton.classList.add('fade-out');
+                if (content) content.style.opacity = '1';
+            }, 600);
+        });
+    </script>
 @endsection

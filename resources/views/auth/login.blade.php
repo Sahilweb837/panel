@@ -16,13 +16,14 @@
 
     <main class="login-container">
         <!-- Left Side - Branding & Features -->
-        <div class="login-left">
+        <div class="login-left" style="position: relative; overflow: hidden;">
             <!-- Glowing Space Orbs and Grid Overlay -->
             <div class="space-glow-orb space-glow-orb-1"></div>
             <div class="space-glow-orb space-glow-orb-2"></div>
             <div class="space-grid-overlay"></div>
+            <canvas id="login-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.7;"></canvas>
 
-            <div class="login-header-left">
+            <div class="login-header-left" style="position: relative; z-index: 2;">
                 <div class="login-logo-wrapper animate-float">
                     <img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="login-logo">
                 </div>
@@ -30,7 +31,7 @@
                 <p class="brand-tagline">Premium Institute Management Space</p>
             </div>
 
-            <div class="features-list">
+            <div class="features-list" style="position: relative; z-index: 2;">
                 <div class="feature-item glass-card animate-hover-lift">
                     <div class="feature-icon">
                         <i class="fas fa-chart-line"></i>
@@ -72,7 +73,7 @@
                 </div>
             </div>
 
-            <div class="login-footer-left">
+            <div class="login-footer-left" style="position: relative; z-index: 2;">
                 <p>&copy; 2026 Netcoder. All rights reserved.</p>
             </div>
         </div>
@@ -186,6 +187,88 @@
                 }
             });
         });
+
+        // Floating Canvas Particles Space Animation
+        (function() {
+            const canvas = document.getElementById('login-particles');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            
+            function resizeCanvas() {
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2.5 + 1;
+                    this.speedX = Math.random() * 0.3 - 0.15;
+                    this.speedY = Math.random() * 0.3 - 0.15;
+                    this.alpha = Math.random() * 0.6 + 0.2;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.x < 0 || this.x > canvas.width) this.speedX = -this.speedX;
+                    if (this.y < 0 || this.y > canvas.height) this.speedY = -this.speedY;
+                }
+                draw() {
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ff5532';
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = '#ff5532';
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            function init() {
+                particles = [];
+                const particleCount = Math.floor((canvas.width * canvas.height) / 9500);
+                for(let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            }
+            init();
+            window.addEventListener('resize', init);
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                
+                // Draw connecting threads between adjacent particles
+                for(let i = 0; i < particles.length; i++) {
+                    for(let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if(dist < 90) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(255, 85, 50, ${0.15 - dist/90})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
     </script>
 </body>
 </html>

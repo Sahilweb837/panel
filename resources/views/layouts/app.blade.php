@@ -4,6 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@yield('title', 'Fees Manager')</title>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('fees-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     @vite(['resources/css/app.css'])
@@ -51,41 +58,70 @@
                 <i class="fas fa-chart-line"></i>
                 <span>Dashboard</span>
             </a>
-            @if(($currentUser->role?->slug ?? null) !== 'staff')
-                @if(($currentUser->role?->slug ?? null) === 'superadmin')
-                    <a href="{{ route('sub-admins.index') }}" class="nav-link{{ request()->routeIs('sub-admins.*') ? ' active' : '' }}">
-                        <i class="fas fa-user-shield"></i>
-                        <span>Sub-Admins & Staff</span>
-                    </a>
-                @endif
+            
+            @php
+                $roleSlug = $currentUser->role?->slug ?? null;
+                $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
+                $access = $currentUser->access ?? [];
+            @endphp
+
+            @if($isSuperOrRoot)
+                <a href="{{ route('sub-admins.index') }}" class="nav-link{{ request()->routeIs('sub-admins.*') ? ' active' : '' }}">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Sub-Admins & Staff</span>
+                </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('courses', $access))
                 <a href="{{ route('courses.index') }}" class="nav-link{{ request()->routeIs('courses.*') ? ' active' : '' }}">
                     <i class="fas fa-book"></i>
                     <span>Courses</span>
                 </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('students', $access))
                 <a href="{{ route('students.index') }}" class="nav-link{{ request()->routeIs('students.*') ? ' active' : '' }}">
                     <i class="fas fa-users"></i>
                     <span>Students</span>
                 </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('employees', $access))
                 <a href="{{ route('employees.index') }}" class="nav-link{{ request()->routeIs('employees.*') ? ' active' : '' }}">
                     <i class="fas fa-person-chalkboard"></i>
                     <span>Staff</span>
                 </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('employee-attendances', $access))
                 <a href="{{ route('employee-attendances.index') }}" class="nav-link{{ request()->routeIs('employee-attendances.*') ? ' active' : '' }}">
                     <i class="fas fa-clipboard-user"></i>
                     <span>Staff Attendance</span>
                 </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('attendances', $access))
                 <a href="{{ route('attendances.index') }}" class="nav-link{{ request()->routeIs('attendances.*') ? ' active' : '' }}">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Student Attendance</span>
                 </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('fee-invoices', $access))
                 <a href="{{ route('fee_invoices.index') }}" class="nav-link{{ request()->routeIs('fee_invoices.*') ? ' active' : '' }}">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>Fee Invoices</span>
                 </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('expenses', $access))
                 <a href="{{ route('expenses.index') }}" class="nav-link{{ request()->routeIs('expenses.*') ? ' active' : '' }}">
                     <i class="fas fa-money-bill-wave"></i>
                     <span>Expenses</span>
                 </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('salary-slips', $access))
                 <a href="{{ route('salary_slips.index') }}" class="nav-link{{ request()->routeIs('salary_slips.*') ? ' active' : '' }}">
                     <i class="fas fa-wallet"></i>
                     <span>Salary Slips</span>

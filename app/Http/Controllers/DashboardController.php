@@ -38,6 +38,9 @@ class DashboardController extends Controller
             'dueInvoices' => FeeInvoice::where('status', '!=', 'Paid')->count(),
             'recentAttendances' => Attendance::with('student')->latest()->limit(5)->get(),
             'recentInvoices' => FeeInvoice::with('student')->latest()->limit(5)->get(),
+            'totalIncome' => FeeInvoice::sum('paid_amount'),
+            'totalExpense' => Expense::sum('amount'),
+            'totalPendingFees' => FeeInvoice::sum('due_amount'),
         ]);
     }
 }

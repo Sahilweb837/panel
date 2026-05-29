@@ -1,129 +1,231 @@
 @extends('layouts.app')
 
 @section('title', 'Create Fee Invoice')
-@section('page-title', 'Generate Fee Invoice')
+@section('page-title', 'Generate Student Fee Invoice')
 
 @section('content')
-    <div class="card" style="max-width: 700px;">
-        <form action="{{ route('fee_invoices.store') }}" method="POST" class="form-card">
-            @csrf
-
-            <div class="form-group">
-                <label for="student_id">
-                    <i class="fas fa-user-graduate"></i> Student
-                </label>
-                <select id="student_id" name="student_id" required class="form-input {{ $errors->has('student_id') ? 'is-invalid' : '' }}">
-                    <option value="">-- Select a student --</option>
-                    @foreach($students as $student)
-                        <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
-                            {{ $student->admission_no }} - {{ $student->first_name }} {{ $student->last_name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('student_id')
-                    <small style="color: var(--danger-text);">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="grid grid-2 gap-4">
-                <div class="form-group">
-                    <label for="invoice_no">
-                        <i class="fas fa-hashtag"></i> Invoice No (Optional)
-                    </label>
-                    <input type="text" id="invoice_no" name="invoice_no" value="{{ old('invoice_no') }}" placeholder="Auto-generated if empty" class="form-input" />
+    <div class="invoice-container">
+        <!-- Lazy Loading Skeleton Overlay -->
+        <div class="skeleton-loader-overlay" id="page-skeleton">
+            <div class="premium-form-card" style="max-width: 850px;">
+                <div class="sk-text heading"></div>
+                <div class="form-group-grid">
+                    <div>
+                        <div class="sk-text short"></div>
+                        <div class="sk-card" style="height: 48px;"></div>
+                    </div>
+                    <div>
+                        <div class="sk-text short"></div>
+                        <div class="sk-card" style="height: 48px;"></div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="fee_category">
-                        <i class="fas fa-tags"></i> Category
-                    </label>
-                    <input type="text" id="fee_category" name="fee_category" value="{{ old('fee_category') }}" placeholder="Tuition, Library, Lab, etc." class="form-input" />
+                <div class="form-group-grid mt-4">
+                    <div>
+                        <div class="sk-text short"></div>
+                        <div class="sk-card" style="height: 48px;"></div>
+                    </div>
+                    <div>
+                        <div class="sk-text short"></div>
+                        <div class="sk-card" style="height: 48px;"></div>
+                    </div>
+                </div>
+                <div class="form-actions-row">
+                    <div class="sk-button"></div>
+                    <div class="sk-button"></div>
                 </div>
             </div>
+        </div>
 
-            <div class="grid grid-2 gap-4">
-                <div class="form-group">
-                    <label for="total_amount">
-                        <i class="fas fa-money-bill-wave"></i> Total Amount
-                    </label>
-                    <input type="number" id="total_amount" name="total_amount" step="0.01" value="{{ old('total_amount', 0) }}" required placeholder="0.00" class="form-input {{ $errors->has('total_amount') ? 'is-invalid' : '' }}" />
-                    @error('total_amount')
-                        <small style="color: var(--danger-text);">{{ $message }}</small>
-                    @enderror
+        <!-- Real Content -->
+        <div id="page-content" style="opacity: 0; transition: opacity 0.5s ease;">
+            <div class="card premium-form-card" style="max-width: 850px;">
+                <div class="card-header bg-transparent border-bottom mb-4 pb-3">
+                    <h3 class="mb-0 fw-bold text-first">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Generate Student Fee Invoice
+                    </h3>
                 </div>
-                <div class="form-group">
-                    <label for="paid_amount">
-                        <i class="fas fa-check-circle"></i> Paid Amount
-                    </label>
-                    <input type="number" id="paid_amount" name="paid_amount" step="0.01" value="{{ old('paid_amount', 0) }}" required placeholder="0.00" class="form-input {{ $errors->has('paid_amount') ? 'is-invalid' : '' }}" />
-                    @error('paid_amount')
-                        <small style="color: var(--danger-text);">{{ $message }}</small>
-                    @enderror
-                </div>
-            </div>
 
-            <div class="grid grid-2 gap-4">
-                <div class="form-group">
-                    <label for="discount">
-                        <i class="fas fa-percent"></i> Discount
-                    </label>
-                    <input type="number" id="discount" name="discount" step="0.01" value="{{ old('discount', 0) }}" placeholder="0.00" class="form-input" />
-                </div>
-                <div class="form-group">
-                    <label for="fine">
-                        <i class="fas fa-exclamation-triangle"></i> Fine/Penalty
-                    </label>
-                    <input type="number" id="fine" name="fine" step="0.01" value="{{ old('fine', 0) }}" placeholder="0.00" class="form-input" />
-                </div>
-            </div>
+                <form action="{{ route('fee_invoices.store') }}" method="POST" class="form-card p-0">
+                    @csrf
 
-            <div class="grid grid-2 gap-4">
-                <div class="form-group">
-                    <label for="payment_date">
-                        <i class="fas fa-calendar"></i> Payment Date
-                    </label>
-                    <input type="date" id="payment_date" name="payment_date" value="{{ old('payment_date', date('Y-m-d')) }}" required class="form-input {{ $errors->has('payment_date') ? 'is-invalid' : '' }}" />
-                    @error('payment_date')
-                        <small style="color: var(--danger-text);">{{ $message }}</small>
-                    @enderror
-                </div>
-                <div class="form-group">
-                    <label for="payment_method">
-                        <i class="fas fa-credit-card"></i> Payment Method
-                    </label>
-                    <input type="text" id="payment_method" name="payment_method" value="{{ old('payment_method') }}" placeholder="Cash, Card, Bank, Online" class="form-input" />
-                </div>
-            </div>
+                    <!-- Section 1: Academic Identifier -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-user-graduate me-1"></i> Student Selection</h5>
+                    <div class="form-group mb-4" style="position: relative;">
+                        <label for="student_id" class="fw-semibold mb-2">
+                            <i class="fas fa-user text-first me-2"></i>Select Student Record
+                        </label>
+                        <div style="position: relative;">
+                            <span class="position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); z-index: 10;"><i class="fas fa-graduation-cap text-muted"></i></span>
+                            <select id="student_id" name="student_id" required class="form-input {{ $errors->has('student_id') ? 'is-invalid' : '' }}" style="padding-left: 38px;">
+                                <option value="">-- Choose student to invoice --</option>
+                                @foreach($students as $student)
+                                    <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
+                                        {{ $student->admission_no }} - {{ $student->first_name }} {{ $student->last_name }} ({{ $student->course?->name ?? 'No Course' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @error('student_id')
+                            <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                        @enderror
+                    </div>
 
-            <div class="form-group">
-                <label for="status">
-                    <i class="fas fa-info-circle"></i> Invoice Status
-                </label>
-                <select id="status" name="status" required class="form-input {{ $errors->has('status') ? 'is-invalid' : '' }}">
-                    <option value="">-- Select Status --</option>
-                    <option value="Paid" {{ old('status') === 'Paid' ? 'selected' : '' }}>✓ Paid</option>
-                    <option value="Partial" {{ old('status') === 'Partial' ? 'selected' : '' }}>◐ Partially Paid</option>
-                    <option value="Unpaid" {{ old('status') === 'Unpaid' ? 'selected' : '' }}>✗ Unpaid</option>
-                </select>
-                @error('status')
-                    <small style="color: var(--danger-text);">{{ $message }}</small>
-                @enderror
-            </div>
+                    <!-- Section 2: Invoice Setup -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Invoice Details</h5>
+                    <div class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="invoice_no" class="fw-semibold mb-2">
+                                <i class="fas fa-hashtag text-first me-2"></i>Invoice No (Optional)
+                            </label>
+                            <input type="text" id="invoice_no" name="invoice_no" value="{{ old('invoice_no') }}" placeholder="Auto-generated if left empty" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="fee_category" class="fw-semibold mb-2">
+                                <i class="fas fa-tags text-first me-2"></i>Fee Category
+                            </label>
+                            <input type="text" id="fee_category" name="fee_category" value="{{ old('fee_category') }}" placeholder="e.g. Course Fees, Library, Lab, Exam" class="form-input" />
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label for="remarks">
-                    <i class="fas fa-sticky-note"></i> Remarks (Optional)
-                </label>
-                <textarea id="remarks" name="remarks" placeholder="Add any notes about this invoice..." class="form-input" style="min-height: 100px; resize: vertical;">{{ old('remarks') }}</textarea>
-            </div>
+                    <!-- Section 3: Amounts -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-coins me-1"></i> Billing Summary (INR)</h5>
+                    <div class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="total_amount" class="fw-semibold mb-2">
+                                <i class="fas fa-money-bill-wave text-first me-2"></i>Total Invoice Amount
+                            </label>
+                            <input type="number" id="total_amount" name="total_amount" step="0.01" value="{{ old('total_amount', 0) }}" required placeholder="0.00" class="form-input {{ $errors->has('total_amount') ? 'is-invalid' : '' }}" />
+                            @error('total_amount')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label for="paid_amount" class="fw-semibold mb-2">
+                                <i class="fas fa-check-circle text-first me-2"></i>Amount Paid Already
+                            </label>
+                            <input type="number" id="paid_amount" name="paid_amount" step="0.01" value="{{ old('paid_amount', 0) }}" required placeholder="0.00" class="form-input {{ $errors->has('paid_amount') ? 'is-invalid' : '' }}" />
+                            @error('paid_amount')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 24px;">
-                <button type="submit" class="button button-primary" style="flex: 1;">
-                    <i class="fas fa-file-invoice"></i> Generate Invoice
-                </button>
-                <a href="{{ route('fee_invoices.index') }}" class="button button-secondary" style="flex: 1; text-align: center;">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
+                    <div class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="discount" class="fw-semibold mb-2">
+                                <i class="fas fa-percent text-first me-2"></i>Discount Applied
+                            </label>
+                            <input type="number" id="discount" name="discount" step="0.01" value="{{ old('discount', 0) }}" placeholder="0.00" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="fine" class="fw-semibold mb-2">
+                                <i class="fas fa-circle-exclamation text-first me-2"></i>Late Fine / Penalty
+                            </label>
+                            <input type="number" id="fine" name="fine" step="0.01" value="{{ old('fine', 0) }}" placeholder="0.00" class="form-input" />
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Payments and Status -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-wallet me-1"></i> Payment Verification</h5>
+                    <div class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="payment_date" class="fw-semibold mb-2">
+                                <i class="fas fa-calendar text-first me-2"></i>Transaction Date
+                            </label>
+                            <input type="date" id="payment_date" name="payment_date" value="{{ old('payment_date', date('Y-m-d')) }}" required class="form-input {{ $errors->has('payment_date') ? 'is-invalid' : '' }}" />
+                            @error('payment_date')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label for="payment_method" class="fw-semibold mb-2">
+                                <i class="fas fa-credit-card text-first me-2"></i>Payment Method
+                            </label>
+                            <select id="payment_method" name="payment_method" class="form-input" onchange="toggleOnlineFields()">
+                                <option value="Cash" {{ old('payment_method', 'Cash') === 'Cash' ? 'selected' : '' }}>Cash</option>
+                                <option value="Online" {{ old('payment_method') === 'Online' ? 'selected' : '' }}>Online</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Online Payment Fields (Transaction ID and UTR No) -->
+                    <div class="form-group-grid mb-4" id="online-details-grid" style="display: none;">
+                        <div class="form-group">
+                            <label for="transaction_id" class="fw-semibold mb-2">
+                                <i class="fas fa-hashtag text-first me-2"></i>Transaction ID
+                            </label>
+                            <input type="text" id="transaction_id" name="transaction_id" value="{{ old('transaction_id') }}" placeholder="Enter transaction reference ID" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="utr_no" class="fw-semibold mb-2">
+                                <i class="fas fa-receipt text-first me-2"></i>UTR Number
+                            </label>
+                            <input type="text" id="utr_no" name="utr_no" value="{{ old('utr_no') }}" placeholder="Enter 12-digit UTR number" class="form-input" />
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="status" class="fw-semibold mb-2">
+                            <i class="fas fa-circle-info text-first me-2"></i>Invoice Settlement Status
+                        </label>
+                        <select id="status" name="status" required class="form-input {{ $errors->has('status') ? 'is-invalid' : '' }}">
+                            <option value="">-- Choose Status --</option>
+                            <option value="Paid" {{ old('status') === 'Paid' ? 'selected' : '' }}>✓ Paid</option>
+                            <option value="Partial" {{ old('status') === 'Partial' ? 'selected' : '' }}>◐ Partially Paid</option>
+                            <option value="Unpaid" {{ old('status', 'Unpaid') === 'Unpaid' ? 'selected' : '' }}>✗ Unpaid / Outstanding</option>
+                        </select>
+                        @error('status')
+                            <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="remarks" class="fw-semibold mb-2">
+                            <i class="fas fa-sticky-note text-first me-2"></i>Remarks / Notes
+                        </label>
+                        <textarea id="remarks" name="remarks" placeholder="Add optional transaction references, memo, etc..." class="form-input" style="min-height: 80px; resize: vertical; padding: 12px;">{{ old('remarks') }}</textarea>
+                    </div>
+
+                    <div class="form-actions-row">
+                        <a href="{{ route('fee_invoices.index') }}" class="button button-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="button button-primary">
+                            <i class="fas fa-file-invoice me-2"></i>Generate Invoice
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
+
+    <!-- Script to simulate dynamic lazy loading and skeleton fading -->
+    <script>
+        function toggleOnlineFields() {
+            const method = document.getElementById('payment_method').value;
+            const onlineGrid = document.getElementById('online-details-grid');
+            if(onlineGrid) {
+                if(method === 'Online') {
+                    onlineGrid.style.display = 'grid';
+                } else {
+                    onlineGrid.style.display = 'none';
+                    document.getElementById('transaction_id').value = '';
+                    document.getElementById('utr_no').value = '';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const skeleton = document.getElementById('page-skeleton');
+            const content = document.getElementById('page-content');
+            
+            // Run toggle once to sync old value on error reload
+            toggleOnlineFields();
+
+            setTimeout(() => {
+                if (skeleton) skeleton.classList.add('fade-out');
+                if (content) content.style.opacity = '1';
+            }, 600);
+        });
+    </script>
 @endsection

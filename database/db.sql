@@ -81,12 +81,28 @@ CREATE TABLE attendances (
   student_id BIGINT UNSIGNED NOT NULL,
   status ENUM('Present','Absent','Late','Leave') NOT NULL DEFAULT 'Present',
   attendance_date DATE NOT NULL,
+  check_in_time VARCHAR(20) NULL,
+  check_out_time VARCHAR(20) NULL,
   fine DECIMAL(10,2) NOT NULL DEFAULT 0,
   remarks TEXT NULL,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
   UNIQUE KEY student_date (student_id, attendance_date),
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);
+
+CREATE TABLE employee_attendances (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  employee_id BIGINT UNSIGNED NOT NULL,
+  status ENUM('Present','Absent','Late','Leave') NOT NULL DEFAULT 'Present',
+  check_in_time VARCHAR(20) NULL,
+  check_out_time VARCHAR(20) NULL,
+  attendance_date DATE NOT NULL,
+  remarks TEXT NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  UNIQUE KEY employee_date (employee_id, attendance_date),
+  FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
 );
 
 CREATE TABLE fee_invoices (
@@ -101,6 +117,8 @@ CREATE TABLE fee_invoices (
   due_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
   payment_date DATE NULL,
   payment_method VARCHAR(120) NULL,
+  transaction_id VARCHAR(100) NULL,
+  utr_no VARCHAR(100) NULL,
   status ENUM('Paid','Partial','Unpaid') NOT NULL DEFAULT 'Unpaid',
   remarks TEXT NULL,
   created_by BIGINT UNSIGNED NULL,

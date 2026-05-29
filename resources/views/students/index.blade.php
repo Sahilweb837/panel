@@ -1,98 +1,154 @@
 @extends('layouts.app')
 
 @section('title', 'Students')
-
 @section('page-title', 'Student Management')
 
 @section('content')
-    <div class="toolbar">
-        <form class="filter-form" method="GET" action="{{ route('students.index') }}">
-            <input type="text" name="search" placeholder="Search students" value="{{ request('search') }}" />
-            <select name="course_id">
-                <option value="">All courses</option>
-                @foreach($courses as $course)
-                    <option value="{{ $course->id }}" {{ (string) request('course_id') === (string) $course->id ? 'selected' : '' }}>
-                        {{ $course->name }}
-                    </option>
-                @endforeach
-            </select>
-            <select name="course_duration">
-                <option value="">All durations</option>
-                @foreach($durations as $duration)
-                    <option value="{{ $duration }}" {{ request('course_duration') === $duration ? 'selected' : '' }}>{{ $duration }}</option>
-                @endforeach
-            </select>
-            <select name="status">
-                <option value="">All status</option>
-                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-            </select>
-            <button type="submit" class="button button-secondary">Filter</button>
-        </form>
-        <a href="{{ route('students.create') }}" class="button button-primary">Add Student</a>
-    </div>
-
-    <div>
-        <div class="student-card-grid">
-            @forelse($students as $student)
-                <article class="student-card">
-                    <div class="student-card-top">
-                        <div class="student-avatar">{{ strtoupper(substr($student->first_name, 0, 1)) }}</div>
-                        <div>
-                            <h3>{{ $student->first_name }} {{ $student->last_name }}</h3>
-                            <p>{{ $student->admission_no }}{{ $student->roll_no ? ' / '.$student->roll_no : '' }}</p>
-                        </div>
-                        <span class="status-pill {{ $student->status ? 'active' : 'inactive' }}">{{ $student->status ? 'Active' : 'Inactive' }}</span>
-                    </div>
-
-                    <dl class="student-card-details">
-                        <div>
-                            <dt>Course</dt>
-                            <dd>{{ optional($student->course)->name ?? $student->class ?? 'Not assigned' }}</dd>
-                        </div>
-                        <div>
-                            <dt>Type</dt>
-                            <dd>
-                                @if(($student->student_type ?? 'Regular (On Campus)') === 'Online')
-                                    <span class="badge bg-info-light text-info px-2 py-1" style="background-color: rgba(23, 162, 184, 0.1); font-size: 0.75rem; font-weight: 600; border-radius: 4px;">Online</span>
-                                @elseif(($student->student_type ?? 'Regular (On Campus)') === 'Regular (Internship)')
-                                    <span class="badge bg-purple-light text-purple px-2 py-1" style="background-color: rgba(111, 66, 193, 0.1); color: #6f42c1 !important; font-size: 0.75rem; font-weight: 600; border-radius: 4px;">Regular (Internship)</span>
-                                @else
-                                    <span class="badge bg-warning-light text-warning px-2 py-1" style="background-color: rgba(255, 85, 50, 0.1); color: var(--first-color) !important; font-size: 0.75rem; font-weight: 600; border-radius: 4px;">Regular (On Campus)</span>
-                                @endif
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>Duration</dt>
-                            <dd>{{ $student->course_duration ?? $student->section ?? 'Not set' }}</dd>
-                        </div>
-                        <div>
-                            <dt>Phone</dt>
-                            <dd>{{ $student->phone ?? 'Not added' }}</dd>
-                        </div>
-                        <div>
-                            <dt>Aadhar No</dt>
-                            <dd>{{ $student->aadhar_number ? implode(' ', str_split($student->aadhar_number, 4)) : 'Not added' }}</dd>
-                        </div>
-                        <div>
-                            <dt>Admission Date</dt>
-                            <dd>{{ $student->admission_date ?? 'Not added' }}</dd>
-                        </div>
-                    </dl>
-
-                    <div class="student-card-actions">
-                        <a href="{{ route('students.edit', $student) }}" class="button button-secondary small">Edit</a>
-                        <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-form" onsubmit="return confirm('Delete student?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="button button-danger small">Delete</button>
-                        </form>
-                    </div>
-                </article>
-            @empty
-                <div class="card">No students found.</div>
-            @endforelse
+    <div class="students-container">
+        <!-- Lazy Loading Skeleton Overlay -->
+        <div class="skeleton-loader-overlay" id="page-skeleton">
+            <div class="toolbar mb-4">
+                <div class="sk-card" style="width: 320px; height: 42px;"></div>
+                <div class="sk-card" style="width: 150px; height: 42px;"></div>
+                <div class="sk-card" style="width: 150px; height: 42px;"></div>
+                <div class="sk-card" style="width: 130px; height: 42px;"></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-12 col-md-6 col-xl-4"><div class="sk-card" style="height: 280px;"></div></div>
+                <div class="col-12 col-md-6 col-xl-4"><div class="sk-card" style="height: 280px;"></div></div>
+                <div class="col-12 col-md-6 col-xl-4"><div class="sk-card" style="height: 280px;"></div></div>
+            </div>
         </div>
-        <div class="pagination-wrapper">{{ $students->links() }}</div>
+
+        <!-- Real Content -->
+        <div id="page-content" style="opacity: 0; transition: opacity 0.5s ease;">
+            <div class="toolbar mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <form class="filter-form d-flex align-items-center gap-2 flex-grow-1 flex-wrap" method="GET" action="{{ route('students.index') }}">
+                    <div style="position: relative; flex: 1; min-width: 200px;">
+                        <input type="text" name="search" placeholder="Search by name or admission no..." value="{{ request('search') }}" class="form-input" style="padding-left: 36px;" />
+                        <i class="fas fa-search text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
+                    </div>
+                    <div style="position: relative; width: 160px;">
+                        <select name="course_id" class="form-input" style="padding-left: 36px;">
+                            <option value="">All Courses</option>
+                            @foreach($courses as $course)
+                                <option value="{{ $course->id }}" {{ (string) request('course_id') === (string) $course->id ? 'selected' : '' }}>
+                                    {{ $course->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <i class="fas fa-book text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
+                    </div>
+                    <div style="position: relative; width: 150px;">
+                        <select name="status" class="form-input" style="padding-left: 36px;">
+                            <option value="">All Status</option>
+                            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                        <i class="fas fa-circle-check text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
+                    </div>
+                    <button type="submit" class="button button-secondary px-4 py-2">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                    @if(request('search') || request('course_id') || request('status'))
+                        <a href="{{ route('students.index') }}" class="button button-secondary px-3 py-2">
+                            <i class="fas fa-undo"></i>
+                        </a>
+                    @endif
+                </form>
+                <a href="{{ route('students.create') }}" class="button button-primary py-2 px-4">
+                    <i class="fas fa-plus me-2"></i>Add Student
+                </a>
+            </div>
+
+            <div class="row g-4">
+                @forelse($students as $student)
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <article class="card premium-stat-card h-100 p-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="student-card-top mb-3 d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="student-avatar text-uppercase-bold d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 85, 50, 0.1); color: var(--first-color); font-size: 1.2rem; font-weight: 800;">
+                                            {{ strtoupper(substr($student->first_name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <h3 class="fw-bold mb-1 text-dark-title" style="font-size: 1.15rem; margin: 0;">{{ $student->first_name }} {{ $student->last_name }}</h3>
+                                            <p class="text-muted small mb-0"><i class="fas fa-id-card me-1"></i>{{ $student->admission_no }}{{ $student->roll_no ? ' / '.$student->roll_no : '' }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="status-pill {{ $student->status ? 'active' : 'inactive' }}" style="padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem;">
+                                        {{ $student->status ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </div>
+
+                                <dl class="student-card-details border-top border-bottom py-3 my-3">
+                                    <div class="mb-2">
+                                        <dt class="text-muted small mb-1" style="font-size: 0.75rem;">COURSE</dt>
+                                        <dd class="fw-bold text-dark-title" style="font-size: 0.9rem; margin: 0;">{{ optional($student->course)->name ?? $student->class ?? 'Not assigned' }}</dd>
+                                    </div>
+                                    <div class="mb-2">
+                                        <dt class="text-muted small mb-1" style="font-size: 0.75rem;">STUDENT TYPE</dt>
+                                        <dd style="margin: 0;">
+                                            @if(($student->student_type ?? 'Regular (On Campus)') === 'Online')
+                                                <span class="badge px-2 py-1" style="background-color: rgba(23, 162, 184, 0.1); color: #17a2b8; font-size: 0.75rem; font-weight: 600; border-radius: 4px;">Online</span>
+                                            @elseif(($student->student_type ?? 'Regular (On Campus)') === 'Regular (Internship)')
+                                                <span class="badge px-2 py-1" style="background-color: rgba(111, 66, 193, 0.1); color: #6f42c1; font-size: 0.75rem; font-weight: 600; border-radius: 4px;">Regular (Internship)</span>
+                                            @else
+                                                <span class="badge px-2 py-1" style="background-color: rgba(255, 85, 50, 0.1); color: var(--first-color); font-size: 0.75rem; font-weight: 600; border-radius: 4px;">Regular (On Campus)</span>
+                                            @endif
+                                        </dd>
+                                    </div>
+                                    <div class="mb-2">
+                                        <dt class="text-muted small mb-1" style="font-size: 0.75rem;">PHONE</dt>
+                                        <dd class="fw-bold text-dark-title" style="font-size: 0.9rem; margin: 0;">{{ $student->phone ?? 'Not added' }}</dd>
+                                    </div>
+                                    <div class="mb-0">
+                                        <dt class="text-muted small mb-1" style="font-size: 0.75rem;">AADHAR NUMBER</dt>
+                                        <dd class="fw-bold text-dark-title" style="font-size: 0.9rem; margin: 0;">{{ $student->aadhar_number ? implode(' ', str_split($student->aadhar_number, 4)) : 'Not added' }}</dd>
+                                    </div>
+                                </dl>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('students.edit', $student) }}" class="button button-secondary small flex-grow-1 py-2">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                                <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirm('Are you sure you want to delete this student record?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="button button-danger small w-100 py-2">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <div class="card premium-stat-card p-5 text-center text-muted">
+                            <i class="fas fa-user-graduate fa-3x text-muted mb-3 d-block"></i>
+                            No students registered matching the criteria. Click "Add Student" above to enroll.
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="pagination-wrapper mt-4">
+                {{ $students->links() }}
+            </div>
+        </div>
     </div>
+
+    <!-- Script to simulate dynamic lazy loading and skeleton fading -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const skeleton = document.getElementById('page-skeleton');
+            const content = document.getElementById('page-content');
+            
+            setTimeout(() => {
+                if (skeleton) skeleton.classList.add('fade-out');
+                if (content) content.style.opacity = '1';
+            }, 600);
+        });
+    </script>
 @endsection

@@ -49,7 +49,9 @@ class FeeInvoiceController extends Controller
             'discount' => ['nullable', 'numeric', 'min:0'],
             'fine' => ['nullable', 'numeric', 'min:0'],
             'payment_date' => ['required', 'date'],
-            'payment_method' => ['nullable', 'string', 'max:100'],
+            'payment_method' => ['nullable', 'string', 'in:Online,Cash'],
+            'transaction_id' => ['nullable', 'string', 'max:100'],
+            'utr_no' => ['nullable', 'string', 'max:100'],
             'status' => ['required', 'in:Paid,Partial,Unpaid'],
             'remarks' => ['nullable', 'string'],
         ]);
@@ -57,7 +59,7 @@ class FeeInvoiceController extends Controller
         $data['discount'] = $data['discount'] ?? 0;
         $data['fine'] = $data['fine'] ?? 0;
         $data['paid_amount'] = $data['paid_amount'] ?? 0;
-        $data['invoice_no'] = $data['invoice_no'] ?? 'INV-'.now()->format('YmdHis').'-'.uniqid();
+        $data['invoice_no'] = $data['invoice_no'] ?? 'nt_inv_'.now()->format('YmdHi').'_'.rand(1000, 9999);
         $data['due_amount'] = max(0, $data['total_amount'] + $data['fine'] - $data['paid_amount'] - $data['discount']);
         $data['created_by'] = session('user_id');
 
@@ -71,5 +73,11 @@ class FeeInvoiceController extends Controller
         $feeInvoice->delete();
 
         return back()->with('success', 'Fee invoice deleted successfully.');
+    }
+
+    public function show(FeeInvoice $feeInvoice)
+    {
+        $feeInvoice->load('student.course', 'creator');
+        return view('fee_invoices.show', compact('feeInvoice'));
     }
 }

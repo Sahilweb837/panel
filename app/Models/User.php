@@ -24,6 +24,7 @@ class User extends Authenticatable
         'username',
         'password',
         'role_id',
+        'access',
         'status',
         'profile_pic',
     ];
@@ -46,6 +47,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'status' => 'boolean',
+        'access' => 'array',
     ];
 
     public function role()

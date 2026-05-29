@@ -14,7 +14,8 @@ class SubAdminController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if (session('user_role_slug') !== 'superadmin') {
+            $roleSlug = session('user_role_slug');
+            if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin'])) {
                 return redirect()->route('dashboard')->with('error', 'Unauthorized access.');
             }
             return $next($request);
@@ -70,6 +71,7 @@ class SubAdminController extends Controller
             'password' => ['required', 'string', 'min:6', 'confirmed'],
             'role' => ['required', 'in:admin,staff'],
             'status' => ['required', 'boolean'],
+            'access' => ['nullable', 'array'],
         ]);
 
         // Get role
@@ -83,6 +85,7 @@ class SubAdminController extends Controller
             'password' => Hash::make($data['password']),
             'role_id' => $role->id,
             'status' => $data['status'],
+            'access' => $request->input('access', []),
         ]);
 
         // If staff role, create employee record
@@ -99,11 +102,10 @@ class SubAdminController extends Controller
     }
 
     /**
-     * Show edit form
+     * Show form to edit new sub-admin or employee
      */
     public function edit(User $subAdmin)
     {
-        $this->authorize('update', $subAdmin);
         $roles = Role::whereIn('slug', ['admin', 'staff'])->get();
         return view('sub_admins.edit', compact('subAdmin', 'roles'));
     }
@@ -113,21 +115,25 @@ class SubAdminController extends Controller
      */
     public function update(Request $request, User $subAdmin)
     {
-        $this->authorize('update', $subAdmin);
-
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'unique:users,email,'.$subAdmin->id],
             'username' => ['required', 'string', 'max:50', 'unique:users,username,'.$subAdmin->id],
+            'role' => ['required', 'in:admin,staff'],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
             'status' => ['required', 'boolean'],
+            'access' => ['nullable', 'array'],
         ]);
+
+        $role = Role::where('slug', $data['role'])->first();
 
         $updateData = [
             'name' => $data['name'],
             'email' => $data['email'],
             'username' => $data['username'],
+            'role_id' => $role->id,
             'status' => $data['status'],
+            'access' => $request->input('access', []),
         ];
 
         if ($data['password']) {
@@ -136,9 +142,22 @@ class SubAdminController extends Controller
 
         $subAdmin->update($updateData);
 
-        // Update employee status if staff
-        if ($subAdmin->role?->slug === 'staff' && $subAdmin->employee) {
-            $subAdmin->employee->update(['status' => $data['status']]);
+        // Manage employee profile lifecycle based on role selection
+        if ($data['role'] === 'staff') {
+            if (!$subAdmin->employee) {
+                Employee::create([
+                    'user_id' => $subAdmin->id,
+                    'employee_code' => 'EMP-'.$subAdmin->id,
+                    'designation' => 'Staff Member',
+                    'status' => $data['status'],
+                ]);
+            } else {
+                $subAdmin->employee->update(['status' => $data['status']]);
+            }
+        } elseif ($data['role'] === 'admin') {
+            if ($subAdmin->employee) {
+                $subAdmin->employee->delete();
+            }
         }
 
         return redirect()->route('sub-admins.index')->with('success', 'User updated successfully.');

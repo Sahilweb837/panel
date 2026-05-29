@@ -135,6 +135,103 @@ class StudentController extends Controller
         return back()->with('success', 'Student deleted successfully.');
     }
 
+    public function exportCsv(Request $request)
+    {
+        $query = Student::with('course');
+
+        if ($request->filled('search')) {
+            $query->where(function ($query) use ($request) {
+                $query->where('first_name', 'like', '%'.$request->search.'%')
+                    ->orWhere('last_name', 'like', '%'.$request->search.'%')
+                    ->orWhere('admission_no', 'like', '%'.$request->search.'%')
+                    ->orWhere('roll_no', 'like', '%'.$request->search.'%')
+                    ->orWhere('course_duration', 'like', '%'.$request->search.'%')
+                    ->orWhere('class', 'like', '%'.$request->search.'%')
+                    ->orWhere('section', 'like', '%'.$request->search.'%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status === 'active');
+        }
+
+        if ($request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+
+        if ($request->filled('course_duration')) {
+            $query->where('course_duration', $request->course_duration);
+        }
+
+        $students = $query->latest()->get();
+
+        $headers = [
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=students_export_'.date('Ymd_His').'.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($students) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, ['Admission No', 'Roll No', 'Full Name', 'Email', 'Phone', 'Course', 'Duration', 'Type', 'Status', 'Admission Date']);
+
+            foreach ($students as $student) {
+                fputcsv($file, [
+                    $student->admission_no,
+                    $student->roll_no ?? '-',
+                    $student->first_name . ' ' . $student->last_name,
+                    $student->email ?? '-',
+                    $student->phone ?? '-',
+                    $student->course?->name ?? '-',
+                    $student->course_duration ?? '-',
+                    $student->student_type ?? '-',
+                    $student->status ? 'Active' : 'Inactive',
+                    $student->admission_date ?? '-'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = Student::with('course');
+
+        if ($request->filled('search')) {
+            $query->where(function ($query) use ($request) {
+                $query->where('first_name', 'like', '%'.$request->search.'%')
+                    ->orWhere('last_name', 'like', '%'.$request->search.'%')
+                    ->orWhere('admission_no', 'like', '%'.$request->search.'%')
+                    ->orWhere('roll_no', 'like', '%'.$request->search.'%')
+                    ->orWhere('course_duration', 'like', '%'.$request->search.'%')
+                    ->orWhere('class', 'like', '%'.$request->search.'%')
+                    ->orWhere('section', 'like', '%'.$request->search.'%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status === 'active');
+        }
+
+        if ($request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+
+        if ($request->filled('course_duration')) {
+            $query->where('course_duration', $request->course_duration);
+        }
+
+        $students = $query->latest()->get();
+
+        return view('students.print', compact('students'));
+    }
+
     private function courseDurations(): array
     {
         return ['45 Days', '1 Month', '6 Months', '1 Year'];
