@@ -35,9 +35,15 @@
                         </a>
                     @endif
                 </form>
-                <a href="{{ route('courses.create') }}" class="button button-primary py-2 px-4">
-                    <i class="fas fa-plus me-2"></i>Add Course
-                </a>
+                @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin']))
+                    <a href="{{ route('courses.create') }}" class="button button-primary py-2 px-4">
+                        <i class="fas fa-plus me-2"></i>Add Course
+                    </a>
+                @else
+                    <span class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 border" style="background: rgba(255, 85, 50, 0.05); border-color: rgba(255, 85, 50, 0.2) !important; color: var(--first-color); font-weight: 700; font-size: 0.85rem;">
+                        <i class="fas fa-eye"></i> View Only Mode
+                    </span>
+                @endif
             </div>
 
             <div class="row g-4">
@@ -69,15 +75,24 @@
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-end">
-                                    <form action="{{ route('courses.destroy', $course) }}" method="POST" onsubmit="return confirm('Delete this course? Registered students will preserve their current records.');" class="w-100">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="button button-danger small w-100 py-2">
-                                            <i class="fas fa-trash me-2"></i>Delete Course
-                                        </button>
-                                    </form>
-                                </div>
+                                @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin']))
+                                    <div class="d-flex align-items-center gap-2 w-100">
+                                        <a href="{{ route('courses.edit', $course) }}" class="button button-secondary small py-2 text-center flex-grow-1" style="font-size: 0.8rem; font-weight: 700;">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </a>
+                                        <form action="{{ route('courses.destroy', $course) }}" method="POST" onsubmit="return confirm('Delete this course? Registered students will preserve their current records.');" class="flex-grow-1">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="button button-danger small py-2 w-100" style="font-size: 0.8rem; font-weight: 700;">
+                                                <i class="fas fa-trash me-1"></i>Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <div class="text-center pt-2 border-top">
+                                        <span class="text-muted small fw-semibold"><i class="fas fa-lock me-1"></i>Management Restrained</span>
+                                    </div>
+                                @endif
                             </div>
                         </article>
                     </div>

@@ -44,7 +44,7 @@ class CourseController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150', 'unique:courses,name'],
             'code' => ['nullable', 'string', 'max:50', 'unique:courses,code'],
-            'duration' => ['nullable', 'in:45 Days,1 Month,6 Months,1 Year'],
+            'duration' => ['nullable', 'string', 'max:50'],
             'fee' => ['nullable', 'numeric', 'min:0'],
             'status' => ['nullable', 'boolean'],
         ]);
@@ -77,7 +77,7 @@ class CourseController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150', 'unique:courses,name,' . $course->id],
             'code' => ['nullable', 'string', 'max:50', 'unique:courses,code,' . $course->id],
-            'duration' => ['nullable', 'in:45 Days,1 Month,6 Months,1 Year'],
+            'duration' => ['nullable', 'string', 'max:50'],
             'fee' => ['nullable', 'numeric', 'min:0'],
             'status' => ['nullable', 'boolean'],
         ]);
