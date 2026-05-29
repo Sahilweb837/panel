@@ -63,6 +63,7 @@
                                 <option value="Marketing & Advertising" {{ old('category') === 'Marketing & Advertising' ? 'selected' : '' }}>Marketing & Advertising</option>
                                 <option value="Repairs & Maintenance" {{ old('category') === 'Repairs & Maintenance' ? 'selected' : '' }}>Repairs & Maintenance</option>
                                 <option value="Office Events & Catering" {{ old('category') === 'Office Events & Catering' ? 'selected' : '' }}>Office Events & Catering</option>
+                                <option value="Travel Expenses" {{ old('category') === 'Travel Expenses' ? 'selected' : '' }}>Travel Expenses</option>
                                 <option value="Miscellaneous" {{ old('category') === 'Miscellaneous' ? 'selected' : '' }}>Miscellaneous</option>
                             </select>
                             @error('category')
