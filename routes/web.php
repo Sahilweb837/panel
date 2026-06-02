@@ -1,5 +1,7 @@
 <?php
 
+
+use App\Http\Controllers\StudentExpenseController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CourseController;
@@ -23,6 +25,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('student-expenses', [StudentExpenseController::class, 'index'])->name('student_expenses.index');
     
     // Export CSV and PDF routes (must be defined BEFORE resource controllers so they aren't caught by wildcard resource routes)
     Route::get('students/export/csv', [StudentController::class, 'exportCsv'])->name('students.export.csv');

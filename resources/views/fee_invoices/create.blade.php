@@ -80,10 +80,17 @@
                             <input type="text" id="invoice_no" name="invoice_no" value="{{ old('invoice_no') }}" placeholder="Auto-generated if left empty" class="form-input" />
                         </div>
                         <div class="form-group">
-                            <label for="fee_category" class="fw-semibold mb-2">
+                            <label for="fee_category_select" class="fw-semibold mb-2">
                                 <i class="fas fa-tags text-first me-2"></i>Fee Category
                             </label>
-                            <input type="text" id="fee_category" name="fee_category" value="{{ old('fee_category') }}" placeholder="e.g. Course Fees, Library, Lab, Exam" class="form-input" />
+                            <select id="fee_category_select" name="fee_category" class="form-input" onchange="toggleOtherFeeCategory()">
+                                <option value="Regular Fees" {{ old('fee_category') == 'Regular Fees' ? 'selected' : '' }}>Regular Fees</option>
+                                <option value="Monthly Fees" {{ old('fee_category') == 'Monthly Fees' ? 'selected' : '' }}>Monthly Fees</option>
+                                <option value="Fine" {{ old('fee_category') == 'Fine' ? 'selected' : '' }}>Fine</option>
+                                <option value="Seminar" {{ old('fee_category') == 'Seminar' ? 'selected' : '' }}>Seminar</option>
+                                <option value="Other" {{ (!in_array(old('fee_category'), ['Regular Fees', 'Monthly Fees', 'Fine', 'Seminar', null, ''])) ? 'selected' : '' }}>Other</option>
+                            </select>
+                            <input type="text" id="fee_category_other" name="fee_category_other" value="{{ (!in_array(old('fee_category'), ['Regular Fees', 'Monthly Fees', 'Fine', 'Seminar', null, ''])) ? old('fee_category') : '' }}" class="form-input mt-2" style="{{ (!in_array(old('fee_category'), ['Regular Fees', 'Monthly Fees', 'Fine', 'Seminar', null, ''])) ? 'display: block;' : 'display: none;' }}" placeholder="Enter custom fee category" />
                         </div>
                     </div>
 
@@ -215,12 +222,29 @@
             }
         }
 
+        function toggleOtherFeeCategory() {
+            const select = document.getElementById('fee_category_select');
+            const otherInput = document.getElementById('fee_category_other');
+            if (select.value === 'Other') {
+                select.removeAttribute('name');
+                otherInput.setAttribute('name', 'fee_category');
+                otherInput.style.display = 'block';
+                otherInput.required = true;
+            } else {
+                select.setAttribute('name', 'fee_category');
+                otherInput.removeAttribute('name');
+                otherInput.style.display = 'none';
+                otherInput.required = false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('page-skeleton');
             const content = document.getElementById('page-content');
             
             // Run toggle once to sync old value on error reload
             toggleOnlineFields();
+            toggleOtherFeeCategory();
 
             setTimeout(() => {
                 if (skeleton) skeleton.classList.add('fade-out');

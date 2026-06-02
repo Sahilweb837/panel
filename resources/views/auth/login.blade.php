@@ -140,6 +140,7 @@
                                 required 
                                 class="form-input"
                                 placeholder="Enter your password"
+                                autocomplete="new-password"
                             />
                             <span class="input-icon toggle-password" data-toggle="password">
                                 <i class="fas fa-eye"></i>
@@ -163,10 +164,10 @@
                             <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--first-color); letter-spacing: 0.05em;">
                                 <i class="fas fa-wand-magic-sparkles me-1 animate-pulse" style="animation: pulse 2s infinite;"></i> Demo Quick-Fill
                             </span>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 4px;">Click to Fill</span>
+                            <!-- <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 4px;">Click to Fill</span> -->
                         </div>
-                        <p class="mb-1 text-muted small" style="font-size: 0.8rem;"><strong class="text-white-50">Email:</strong> superadmin@example.com</p>
-                        <p class="mb-0 text-muted small" style="font-size: 0.8rem;"><strong class="text-white-50">Password:</strong> admin123</p>
+                        <!-- <p class="mb-1 text-muted small" style="font-size: 0.8rem;"><strong class="text-white-50">Email:</strong> superadmin@example.com</p>
+                        <p class="mb-0 text-muted small" style="font-size: 0.8rem;"><strong class="text-white-50">Password:</strong> admin123</p> -->
                     </div>
                 </form>
             </div>
