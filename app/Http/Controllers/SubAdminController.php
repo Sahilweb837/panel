@@ -181,4 +181,46 @@ class SubAdminController extends Controller
 
         return redirect()->route('sub-admins.index')->with('success', "User '$name' deleted successfully.");
     }
+
+    /**
+     * Display soft-deleted sub-admins and employees
+     */
+    public function trash(Request $request)
+    {
+        $query = User::onlyTrashed()->with(['role', 'employee' => function($q) {
+            $q->withTrashed();
+        }]);
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%')
+                ->orWhere('email', 'like', '%'.$request->search.'%')
+                ->orWhere('username', 'like', '%'.$request->search.'%');
+        }
+
+        $users = $query->whereIn('role_id', function ($q) {
+                $q->select('id')->from('roles')->whereIn('slug', ['admin', 'staff']);
+            })
+            ->latest('deleted_at')->paginate(12)->withQueryString();
+
+        return view('sub_admins.trash', compact('users'));
+    }
+
+    /**
+     * Restore soft-deleted sub-admin or employee
+     */
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        
+        // Restore associated employee record if exists
+        $employee = Employee::onlyTrashed()->where('user_id', $user->id)->first();
+        if ($employee) {
+            $employee->restore();
+        }
+
+        $user->restore();
+
+        return redirect()->route('sub-admins.trash')->with('success', "User '{$user->name}' restored successfully.");
+    }
+
 }

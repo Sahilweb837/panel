@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Sub-Admins & Staff')
-@section('page-title', 'Sub-Admins & Staff')
+@section('title', 'Recycle Bin: Sub-Admins & Staff')
+@section('page-title', 'Recycle Bin: Sub-Admins & Staff')
 
 @section('content')
     <div class="staff-container">
@@ -24,34 +24,23 @@
         <!-- Real Content -->
         <div id="page-content" style="opacity: 0; transition: opacity 0.5s ease;">
             <div class="toolbar mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <form method="GET" action="{{ route('sub-admins.index') }}" class="filter-form d-flex align-items-center gap-2 flex-grow-1">
+                <form method="GET" action="{{ route('sub-admins.trash') }}" class="filter-form d-flex align-items-center gap-2 flex-grow-1">
                     <div style="position: relative; flex: 1;">
                         <input type="text" name="search" placeholder="Search by name, email, or username..." value="{{ request('search') }}" class="form-input" style="padding-left: 36px;" />
                         <i class="fas fa-search text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
                     </div>
-                    <div style="position: relative; width: 180px;">
-                        <select name="role" class="form-input" style="padding-left: 36px;">
-                            <option value="">All Roles</option>
-                            <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="staff" {{ request('role') === 'staff' ? 'selected' : '' }}>Staff</option>
-                        </select>
-                        <i class="fas fa-user-shield text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
-                    </div>
                     <button type="submit" class="button button-secondary px-4 py-2">
                         <i class="fas fa-filter me-2"></i>Filter
                     </button>
-                    @if(request('search') || request('role'))
-                        <a href="{{ route('sub-admins.index') }}" class="button button-secondary px-3 py-2">
+                    @if(request('search'))
+                        <a href="{{ route('sub-admins.trash') }}" class="button button-secondary px-3 py-2">
                             <i class="fas fa-undo"></i>
                         </a>
                     @endif
                 </form>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('sub-admins.trash') }}" class="button button-secondary py-2 px-4">
-                        <i class="fas fa-trash-restore me-2"></i>Recycle Bin
-                    </a>
-                    <a href="{{ route('sub-admins.create') }}" class="button button-primary py-2 px-4">
-                        <i class="fas fa-plus me-2"></i>Create New
+                    <a href="{{ route('sub-admins.index') }}" class="button button-secondary py-2 px-4">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Users
                     </a>
                 </div>
             </div>
@@ -70,7 +59,7 @@
                                 <th><i class="fas fa-envelope me-1"></i> Email</th>
                                 <th><i class="fas fa-user-tag me-1"></i> Role</th>
                                 <th><i class="fas fa-toggle-on me-1"></i> Status</th>
-                                <th><i class="fas fa-calendar me-1"></i> Created</th>
+                                <th><i class="fas fa-calendar-times me-1"></i> Deleted Date</th>
                                 <th class="text-end pe-4"><i class="fas fa-cogs me-1"></i> Actions</th>
                             </tr>
                         </thead>
@@ -99,15 +88,12 @@
                                             {{ $user->status ? 'Active' : 'Inactive' }}
                                         </span>
                                     </td>
-                                    <td class="text-muted">{{ $user->created_at->format('M d, Y') }}</td>
+                                    <td class="text-danger">{{ $user->deleted_at->format('M d, Y') }}</td>
                                     <td class="text-end pe-4 action-cell">
-                                        <a href="{{ route('sub-admins.edit', $user) }}" class="button button-secondary small py-1.5 px-3">
-                                            <i class="fas fa-edit me-1"></i>Edit
-                                        </a>
-                                        <form action="{{ route('sub-admins.destroy', $user) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="button button-danger small py-1.5 px-3">
-                                                <i class="fas fa-trash me-1"></i>Delete
+                                        <form action="{{ route('sub-admins.restore', $user->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to restore this user?');">
+                                            @csrf
+                                            <button type="submit" class="button button-success small py-1.5 px-3">
+                                                <i class="fas fa-trash-restore me-1"></i>Restore
                                             </button>
                                         </form>
                                     </td>
@@ -115,8 +101,8 @@
                             @empty
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
-                                        <i class="fas fa-user-slash fa-2x mb-3 d-block text-muted"></i>
-                                        No sub-admins or staff members registered.
+                                        <i class="fas fa-trash-restore fa-2x mb-3 d-block text-muted"></i>
+                                        Recycle bin is empty.
                                     </td>
                                 </tr>
                             @endforelse

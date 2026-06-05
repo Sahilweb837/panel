@@ -37,6 +37,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('employee-attendances/export/csv', [EmployeeAttendanceController::class, 'exportCsv'])->name('employee-attendances.export.csv');
     Route::get('employee-attendances/export/pdf', [EmployeeAttendanceController::class, 'exportPdf'])->name('employee-attendances.export.pdf');
 
+    Route::get('sub-admins/trash', [SubAdminController::class, 'trash'])->name('sub-admins.trash');
+    Route::post('sub-admins/{id}/restore', [SubAdminController::class, 'restore'])->name('sub-admins.restore');
     Route::resource('sub-admins', SubAdminController::class)->except(['show']);
     Route::resource('courses', CourseController::class)->except(['show']);
     Route::resource('students', StudentController::class)->except(['show']);

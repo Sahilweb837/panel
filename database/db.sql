@@ -23,6 +23,7 @@ CREATE TABLE users (
   remember_token VARCHAR(100) NULL,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
+  deleted_at TIMESTAMP NULL,
   FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 );
 
@@ -39,6 +40,7 @@ CREATE TABLE employees (
   status TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
+  deleted_at TIMESTAMP NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -164,11 +166,30 @@ INSERT INTO roles (role_name, slug, description) VALUES
 ('Admin', 'admin', 'Institute operations administrator'),
 ('Staff', 'staff', 'Teaching or office staff');
 
-INSERT INTO courses (name, code, duration, fee, status, created_at, updated_at) VALUES
-('Web Development', 'WEB', '6 Months', 18000.00, 1, NOW(), NOW()),
-('Graphic Design', 'GD', '45 Days', 7000.00, 1, NOW(), NOW()),
-('Digital Marketing', 'DM', '1 Month', 9000.00, 1, NOW(), NOW()),
-('Full Stack Development', 'FSD', '1 Year', 42000.00, 1, NOW(), NOW());
+INSERT INTO `courses` (`id`, `name`, `code`, `duration`, `fee`, `status`, `created_at`, `updated_at`) VALUES
+(1,	'Web Development',	'WEB',	'6 Months',	18000.00,	1,	'2026-05-29 00:49:00',	'2026-05-29 00:49:00'),
+(2,	'Graphic Design',	'GD',	'6 Months',	35000.00,	1,	'2026-05-29 00:49:00',	'2026-05-29 08:12:45'),
+(3,	'Digital Marketing',	'CIDM',	'6 Months',	35000.00,	1,	'2026-05-29 00:49:00',	'2026-05-29 08:13:15'),
+(4,	'Full Stack Development',	'FSD',	'1 Year',	80000.00,	1,	'2026-05-29 00:49:00',	'2026-05-29 08:15:49'),
+(5,	'Data Science AI',	'DIDSA',	'1 Month',	105000.00,	1,	'2026-05-29 08:14:20',	'2026-05-29 08:16:57'),
+(6,	'Software Engineering with Python',	'SEIP',	'1 Year',	85000.00,	1,	'2026-05-29 08:15:35',	'2026-05-29 08:15:35'),
+(7,	'Diploma in Cyber Security',	'DICS',	'1 Year',	95000.00,	1,	'2026-05-29 08:16:35',	'2026-05-29 08:16:35'),
+(8,	'Certificate in Data Analytics',	'CIDA',	'6 Months',	45000.00,	1,	'2026-05-29 08:17:41',	'2026-05-29 08:17:41'),
+(9,	'Certificate in Ethical Hacking',	'CIEH',	'6 Months',	45000.00,	1,	'2026-05-29 08:18:23',	'2026-05-29 08:18:23'),
+(10,	'Diploma in Data Science & Business Analytics',	'DIDSBA',	'1 Year',	95000.00,	1,	'2026-05-29 08:19:15',	'2026-05-29 08:19:15'),
+(11,	'Certificate in UI/UX Design',	'CIUIUX',	'6 Months',	35000.00,	1,	'2026-05-29 08:20:15',	'2026-05-29 08:20:15'),
+(12,	'Certificate in Web Design',	'CIWD',	'6 Months',	35000.00,	1,	'2026-05-29 08:21:21',	'2026-05-29 08:21:21'),
+(13,	'Diploma in 2D & 3D Animation',	'DIA',	'1 Year',	85000.00,	1,	'2026-05-29 08:22:03',	'2026-05-29 08:22:03'),
+(14,	'Diploma in Graphic & Web Designing',	'DIGWD',	'1 Year',	70000.00,	1,	'2026-05-29 08:22:50',	'2026-05-29 08:22:50'),
+(15,	'Diploma in Auto CAD',	'DICAD',	'6 Months',	35000.00,	1,	'2026-05-29 08:23:52',	'2026-05-29 08:23:52'),
+(16,	'Certificate in Auto CAD',	'CICAD',	'3 Months',	15000.00,	1,	'2026-05-29 08:24:24',	'2026-05-29 08:24:24'),
+(17,	'Diploma in Digital Content Creation',	'DIDCC',	'6 Months',	40000.00,	1,	'2026-05-29 08:25:21',	'2026-05-29 08:25:21'),
+(18,	'Certificate in Motion Graphics',	'CIMG',	'6 Months',	40000.00,	1,	'2026-05-29 08:26:03',	'2026-05-29 08:26:03'),
+(19,	'Certificate in Social Media Marketing',	'CISMM',	'6 Months',	35000.00,	1,	'2026-05-29 08:26:58',	'2026-05-29 08:26:58'),
+(20,	'Certificate in SEO',	'CISEO',	'6 Months',	35000.00,	1,	'2026-05-29 08:27:40',	'2026-05-29 08:27:40'),
+(21,	'Diploma in DevOps',	'DIDOPS',	'1 Year',	95000.00,	1,	'2026-05-29 08:30:56',	'2026-05-29 08:30:56'),
+(22,	'Algorithms & Data Structures (DSA) in Python',	'DSAIP',	'3 Months',	30000.00,	1,	'2026-05-29 08:31:41',	'2026-05-29 08:31:41'),
+(23,	'System Design & Operating System',	'SD&OS',	'6 Months',	55000.00,	1,	'2026-05-29 08:32:30',	'2026-05-29 08:32:30');
 
 INSERT INTO users (name, email, username, password, role_id, status, created_at, updated_at)
 VALUES
