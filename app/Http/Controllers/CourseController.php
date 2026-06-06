@@ -11,6 +11,10 @@ class CourseController extends Controller
     {
         $query = Course::query();
 
+        if ($request->has('trashed') && $request->trashed == '1') {
+            $query->onlyTrashed();
+        }
+
         if ($request->filled('search')) {
             $query->where(function ($query) use ($request) {
                 $query->where('name', 'like', '%'.$request->search.'%')
@@ -100,5 +104,18 @@ class CourseController extends Controller
         $course->delete();
 
         return back()->with('success', 'Course deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $roleSlug = session('user_role_slug');
+        if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin'])) {
+            return redirect()->route('courses.index')->with('error', 'Only administrators can manage courses.');
+        }
+
+        $course = Course::onlyTrashed()->findOrFail($id);
+        $course->restore();
+
+        return back()->with('success', 'Course restored successfully.');
     }
 }

@@ -56,9 +56,19 @@
                         </a>
                     @endif
                 </form>
-                <a href="{{ route('students.create') }}" class="button button-primary py-2 px-4">
-                    <i class="fas fa-plus me-2"></i>Add Student
-                </a>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="form-check form-switch me-3 d-flex align-items-center gap-2">
+                        <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggleTrash" 
+                               {{ request('trashed') ? 'checked' : '' }} 
+                               onchange="window.location.href='{{ request()->fullUrlWithQuery(['trashed' => request('trashed') ? null : '1']) }}'">
+                        <label class="form-check-label fw-bold text-dark-title" for="toggleTrash" style="cursor: pointer; margin-top: 2px;">
+                            Show Recycle Bin Data
+                        </label>
+                    </div>
+                    <a href="{{ route('students.create') }}" class="button button-primary py-2 px-4">
+                        <i class="fas fa-plus me-2"></i>Add Student
+                    </a>
+                </div>
             </div>
 
             <div class="row g-4">
@@ -72,7 +82,7 @@
                                             {{ strtoupper(substr($student->first_name, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <h3 class="fw-bold mb-1 text-dark-title" style="font-size: 1.15rem; margin: 0;">{{ $student->first_name }} {{ $student->last_name }}</h3>
+                                            <h3 class="fw-bold mb-1 text-dark-title" style="font-size: 1.15rem; margin: 0; {{ request('trashed') ? 'text-decoration: line-through; color: #dc3545;' : '' }}">{{ $student->first_name }} {{ $student->last_name }}</h3>
                                             <p class="text-muted small mb-0"><i class="fas fa-id-card me-1"></i>{{ $student->admission_no }}{{ $student->roll_no ? ' / '.$student->roll_no : '' }}</p>
                                         </div>
                                     </div>
@@ -110,16 +120,25 @@
                             </div>
 
                             <div class="d-flex gap-2">
-                                <a href="{{ route('students.edit', $student) }}" class="button button-secondary small flex-grow-1 py-2">
-                                    <i class="fas fa-edit me-1"></i>Edit
-                                </a>
-                                <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirm('Are you sure you want to delete this student record?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="button button-danger small w-100 py-2">
-                                        <i class="fas fa-trash me-1"></i>Delete
-                                    </button>
-                                </form>
+                                @if($student->trashed())
+                                    <form action="{{ route('students.restore', $student->id) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirm('Restore this student?');">
+                                        @csrf
+                                        <button type="submit" class="button button-success small w-100 py-2">
+                                            <i class="fas fa-trash-restore me-1"></i>Restore
+                                        </button>
+                                    </form>
+                                @else
+                                    <a href="{{ route('students.edit', $student) }}" class="button button-secondary small flex-grow-1 py-2">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirm('Are you sure you want to delete this student record?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="button button-danger small w-100 py-2">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </article>
                     </div>

@@ -12,6 +12,10 @@ class StudentController extends Controller
     {
         $query = Student::with('course');
 
+        if ($request->has('trashed') && $request->trashed == '1') {
+            $query->onlyTrashed();
+        }
+
         if ($request->filled('search')) {
             $query->where(function ($query) use ($request) {
                 $query->where('first_name', 'like', '%'.$request->search.'%')
@@ -133,6 +137,14 @@ class StudentController extends Controller
         $student->delete();
 
         return back()->with('success', 'Student deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $student = Student::onlyTrashed()->findOrFail($id);
+        $student->restore();
+
+        return back()->with('success', 'Student restored successfully.');
     }
 
     public function exportCsv(Request $request)

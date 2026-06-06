@@ -36,9 +36,19 @@
                     @endif
                 </form>
                 @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin']))
-                    <a href="{{ route('courses.create') }}" class="button button-primary py-2 px-4">
-                        <i class="fas fa-plus me-2"></i>Add Course
-                    </a>
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="form-check form-switch me-3 d-flex align-items-center gap-2">
+                            <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggleTrash" 
+                                   {{ request('trashed') ? 'checked' : '' }} 
+                                   onchange="window.location.href='{{ request()->fullUrlWithQuery(['trashed' => request('trashed') ? null : '1']) }}'">
+                            <label class="form-check-label fw-bold text-dark-title" for="toggleTrash" style="cursor: pointer; margin-top: 2px;">
+                                Show Recycle Bin Data
+                            </label>
+                        </div>
+                        <a href="{{ route('courses.create') }}" class="button button-primary py-2 px-4">
+                            <i class="fas fa-plus me-2"></i>Add Course
+                        </a>
+                    </div>
                 @else
                     <span class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 border" style="background: rgba(255, 85, 50, 0.05); border-color: rgba(255, 85, 50, 0.2) !important; color: var(--first-color); font-weight: 700; font-size: 0.85rem;">
                         <i class="fas fa-eye"></i> View Only Mode
@@ -59,7 +69,7 @@
                                         {{ $course->status ? 'Active' : 'Inactive' }}
                                     </span>
                                 </div>
-                                <h3 class="fw-bold mb-2 text-dark-title" style="font-size: 1.25rem;">{{ $course->name }}</h3>
+                                <h3 class="fw-bold mb-2 text-dark-title" style="font-size: 1.25rem; {{ request('trashed') ? 'text-decoration: line-through; color: #dc3545;' : '' }}">{{ $course->name }}</h3>
                                 <p class="text-muted small mb-3"><i class="fas fa-clock me-1"></i>Duration: {{ $course->duration ?? 'Flexible duration' }}</p>
                             </div>
 
@@ -77,16 +87,25 @@
 
                                 @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin']))
                                     <div class="d-flex align-items-center gap-2 w-100">
-                                        <a href="{{ route('courses.edit', $course) }}" class="button button-secondary small py-2 text-center flex-grow-1" style="font-size: 0.8rem; font-weight: 700;">
-                                            <i class="fas fa-edit me-1"></i>Edit
-                                        </a>
-                                        <form action="{{ route('courses.destroy', $course) }}" method="POST" onsubmit="return confirm('Delete this course? Registered students will preserve their current records.');" class="flex-grow-1">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="button button-danger small py-2 w-100" style="font-size: 0.8rem; font-weight: 700;">
-                                                <i class="fas fa-trash me-1"></i>Delete
-                                            </button>
-                                        </form>
+                                        @if($course->trashed())
+                                            <form action="{{ route('courses.restore', $course->id) }}" method="POST" onsubmit="return confirm('Restore this course?');" class="flex-grow-1">
+                                                @csrf
+                                                <button type="submit" class="button button-success small py-2 w-100" style="font-size: 0.8rem; font-weight: 700;">
+                                                    <i class="fas fa-trash-restore me-1"></i>Restore
+                                                </button>
+                                            </form>
+                                        @else
+                                            <a href="{{ route('courses.edit', $course) }}" class="button button-secondary small py-2 text-center flex-grow-1" style="font-size: 0.8rem; font-weight: 700;">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                            <form action="{{ route('courses.destroy', $course) }}" method="POST" onsubmit="return confirm('Delete this course? Registered students will preserve their current records.');" class="flex-grow-1">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="button button-danger small py-2 w-100" style="font-size: 0.8rem; font-weight: 700;">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 @else
                                     <div class="text-center pt-2 border-top">

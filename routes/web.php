@@ -40,13 +40,24 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('sub-admins/trash', [SubAdminController::class, 'trash'])->name('sub-admins.trash');
     Route::post('sub-admins/{id}/restore', [SubAdminController::class, 'restore'])->name('sub-admins.restore');
     Route::resource('sub-admins', SubAdminController::class)->except(['show']);
+    
+    Route::get('backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');
+    Route::post('backups/create', [\App\Http\Controllers\BackupController::class, 'create'])->name('backups.create');
+    Route::get('backups/{fileName}/download', [\App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
+    Route::delete('backups/{fileName}', [\App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
+    Route::post('backups/{fileName}/restore', [\App\Http\Controllers\BackupController::class, 'restore'])->name('backups.restore');
     Route::post('employees/{id}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
     Route::resource('employees', EmployeeController::class)->except(['show']);
+    Route::post('courses/{id}/restore', [CourseController::class, 'restore'])->name('courses.restore');
     Route::resource('courses', CourseController::class)->except(['show']);
+    Route::post('students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
     Route::resource('students', StudentController::class)->except(['show']);
     Route::resource('attendances', AttendanceController::class)->except(['show', 'edit', 'update']);
     Route::resource('employee-attendances', EmployeeAttendanceController::class)->except(['show', 'edit', 'update']);
+    Route::post('expenses/{id}/restore', [ExpenseController::class, 'restore'])->name('expenses.restore');
     Route::resource('expenses', ExpenseController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::post('fee_invoices/{id}/restore', [FeeInvoiceController::class, 'restore'])->name('fee_invoices.restore');
     Route::resource('fee_invoices', FeeInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
+    Route::post('salary_slips/{id}/restore', [SalarySlipController::class, 'restore'])->name('salary_slips.restore');
     Route::resource('salary_slips', SalarySlipController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 });

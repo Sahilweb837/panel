@@ -11,6 +11,10 @@ class ExpenseController extends Controller
     {
         $query = Expense::query();
 
+        if ($request->has('trashed') && $request->trashed == '1') {
+            $query->onlyTrashed();
+        }
+
         if ($request->filled('search')) {
             $query->where('category', 'like', '%'.$request->search.'%')
                 ->orWhere('description', 'like', '%'.$request->search.'%');
@@ -51,5 +55,13 @@ class ExpenseController extends Controller
         $expense->delete();
 
         return back()->with('success', 'Expense deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $expense = Expense::onlyTrashed()->findOrFail($id);
+        $expense->restore();
+
+        return back()->with('success', 'Expense restored successfully.');
     }
 }

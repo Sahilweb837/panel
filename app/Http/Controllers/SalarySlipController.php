@@ -10,7 +10,21 @@ class SalarySlipController extends Controller
 {
     public function index(Request $request)
     {
-        $salarySlips = SalarySlip::with('employee')->latest()->paginate(12);
+        $query = SalarySlip::with('employee');
+
+        if ($request->has('trashed') && $request->trashed == '1') {
+            $query->onlyTrashed();
+        }
+
+        if ($request->filled('search')) {
+            $query->whereHas('employee.user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            })->orWhereHas('employee', function ($q) use ($request) {
+                $q->where('employee_code', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $salarySlips = $query->latest()->paginate(12)->withQueryString();
 
         return view('salary_slips.index', compact('salarySlips'));
     }
@@ -56,5 +70,13 @@ class SalarySlipController extends Controller
     {
         $salarySlip->load('employee.user', 'creator');
         return view('salary_slips.show', compact('salarySlip'));
+    }
+
+    public function restore($id)
+    {
+        $salarySlip = SalarySlip::onlyTrashed()->findOrFail($id);
+        $salarySlip->restore();
+
+        return back()->with('success', 'Salary slip restored successfully.');
     }
 }

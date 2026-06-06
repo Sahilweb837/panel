@@ -47,9 +47,19 @@
                         </a>
                     @endif
                 </form>
-                <a href="{{ route('fee_invoices.create') }}" class="button button-primary py-2 px-4">
-                    <i class="fas fa-plus me-2"></i>Create Invoice
-                </a>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="form-check form-switch me-3 d-flex align-items-center gap-2">
+                        <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggleTrash" 
+                               {{ request('trashed') ? 'checked' : '' }} 
+                               onchange="window.location.href='{{ request()->fullUrlWithQuery(['trashed' => request('trashed') ? null : '1']) }}'">
+                        <label class="form-check-label fw-bold text-dark-title" for="toggleTrash" style="cursor: pointer; margin-top: 2px;">
+                            Show Recycle Bin Data
+                        </label>
+                    </div>
+                    <a href="{{ route('fee_invoices.create') }}" class="button button-primary py-2 px-4">
+                        <i class="fas fa-plus me-2"></i>Create Invoice
+                    </a>
+                </div>
             </div>
 
             <div class="card premium-stat-card p-0 table-card overflow-hidden">
@@ -75,7 +85,7 @@
                             @forelse($invoices as $invoice)
                                 <tr>
                                     <td class="ps-4">
-                                        <span class="badge bg-light text-dark border p-2 fw-bold" style="font-size: 0.8rem;">
+                                        <span class="badge bg-light text-dark border p-2 fw-bold" style="font-size: 0.8rem; {{ request('trashed') ? 'text-decoration: line-through; color: #dc3545 !important;' : '' }}">
                                             {{ $invoice->invoice_no }}
                                         </span>
                                     </td>
@@ -105,15 +115,24 @@
                                     </td>
                                     <td class="text-muted">{{ $invoice->payment_date ? \Carbon\Carbon::parse($invoice->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                     <td class="text-end pe-4 action-cell">
-                                        <a href="{{ route('fee_invoices.show', $invoice) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
-                                            <i class="fas fa-print me-1"></i>Print
-                                        </a>
-                                        <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="button button-danger small py-1.5 px-3">
-                                                <i class="fas fa-trash me-1"></i>Delete
-                                            </button>
-                                        </form>
+                                        @if($invoice->trashed())
+                                            <form action="{{ route('fee_invoices.restore', $invoice->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Restore this invoice?');">
+                                                @csrf
+                                                <button type="submit" class="button button-success small py-1.5 px-3">
+                                                    <i class="fas fa-trash-restore me-1"></i>Restore
+                                                </button>
+                                            </form>
+                                        @else
+                                            <a href="{{ route('fee_invoices.show', $invoice) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
+                                                <i class="fas fa-print me-1"></i>Print
+                                            </a>
+                                            <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="button button-danger small py-1.5 px-3">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

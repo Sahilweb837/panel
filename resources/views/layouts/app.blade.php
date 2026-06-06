@@ -127,6 +127,13 @@
                     <span>Salary Slips</span>
                 </a>
             @endif
+
+            @if($isSuperOrRoot)
+                <a href="{{ route('backups.index') }}" class="nav-link{{ request()->routeIs('backups.*') ? ' active' : '' }}">
+                    <i class="fas fa-database"></i>
+                    <span>Backups</span>
+                </a>
+            @endif
         </nav>
 
         <div class="sidebar-footer">

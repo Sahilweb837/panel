@@ -12,6 +12,10 @@ class FeeInvoiceController extends Controller
     {
         $query = FeeInvoice::with('student');
 
+        if ($request->has('trashed') && $request->trashed == '1') {
+            $query->onlyTrashed();
+        }
+
         if ($request->filled('search')) {
             $query->where('invoice_no', 'like', '%'.$request->search.'%')
                 ->orWhere('fee_category', 'like', '%'.$request->search.'%')
@@ -79,5 +83,13 @@ class FeeInvoiceController extends Controller
     {
         $feeInvoice->load('student.course', 'creator');
         return view('fee_invoices.show', compact('feeInvoice'));
+    }
+
+    public function restore($id)
+    {
+        $invoice = FeeInvoice::onlyTrashed()->findOrFail($id);
+        $invoice->restore();
+
+        return back()->with('success', 'Fee invoice restored successfully.');
     }
 }

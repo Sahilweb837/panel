@@ -52,7 +52,8 @@ CREATE TABLE courses (
   fee DECIMAL(10,2) NOT NULL DEFAULT 0,
   status TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NULL,
-  updated_at TIMESTAMP NULL
+  updated_at TIMESTAMP NULL,
+  deleted_at TIMESTAMP NULL
 );
 
 CREATE TABLE students (
@@ -75,6 +76,7 @@ CREATE TABLE students (
   status TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
+  deleted_at TIMESTAMP NULL,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE SET NULL
 );
 
@@ -126,6 +128,7 @@ CREATE TABLE fee_invoices (
   created_by BIGINT UNSIGNED NULL,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
+  deleted_at TIMESTAMP NULL,
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
@@ -139,6 +142,7 @@ CREATE TABLE expenses (
   created_by BIGINT UNSIGNED NULL,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
+  deleted_at TIMESTAMP NULL,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
@@ -156,6 +160,7 @@ CREATE TABLE salary_slips (
   created_by BIGINT UNSIGNED NULL,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
+  deleted_at TIMESTAMP NULL,
   FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );

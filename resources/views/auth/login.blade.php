@@ -155,20 +155,9 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="button button-login">
+                    <button type="submit" class="button button-login mt-4">
                         <i class="fas fa-sign-in-alt"></i> Sign In
                     </button>
-
-                    <div class="demo-credentials-card mt-4 p-3 rounded-3 border text-start" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 85, 50, 0.15) !important; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);" id="demo-credentials-trigger" title="Click to instantly auto-fill credentials">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--first-color); letter-spacing: 0.05em;">
-                                <i class="fas fa-wand-magic-sparkles me-1 animate-pulse" style="animation: pulse 2s infinite;"></i> Demo Quick-Fill
-                            </span>
-                            <!-- <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 4px;">Click to Fill</span> -->
-                        </div>
-                        <!-- <p class="mb-1 text-muted small" style="font-size: 0.8rem;"><strong class="text-white-50">Email:</strong> superadmin@example.com</p>
-                        <p class="mb-0 text-muted small" style="font-size: 0.8rem;"><strong class="text-white-50">Password:</strong> admin123</p> -->
-                    </div>
                 </form>
             </div>
         </div>
@@ -312,29 +301,6 @@
             animate();
         })();
 
-        // Click to auto-fill demo credentials helper
-        const demoTrigger = document.getElementById('demo-credentials-trigger');
-        if (demoTrigger) {
-            demoTrigger.addEventListener('click', () => {
-                const emailInput = document.getElementById('email');
-                const passwordInput = document.getElementById('password');
-                const typeSelect = document.getElementById('account_type');
-
-                if (emailInput && passwordInput && typeSelect) {
-                    emailInput.value = 'superadmin@example.com';
-                    passwordInput.value = 'admin123';
-                    typeSelect.value = 'institute';
-
-                    // Add subtle click scale transition
-                    demoTrigger.style.transform = 'scale(0.97)';
-                    demoTrigger.style.backgroundColor = 'rgba(255, 85, 50, 0.08)';
-                    setTimeout(() => {
-                        demoTrigger.style.transform = 'none';
-                        demoTrigger.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-                    }, 180);
-                }
-            });
-        }
     </script>
 </body>
 </html>

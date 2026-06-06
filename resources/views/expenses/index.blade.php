@@ -42,9 +42,19 @@
                         </a>
                     @endif
                 </form>
-                <a href="{{ route('expenses.create') }}" class="button button-primary py-2 px-4">
-                    <i class="fas fa-plus me-2"></i>Add Expense
-                </a>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="form-check form-switch me-3 d-flex align-items-center gap-2">
+                        <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggleTrash" 
+                               {{ request('trashed') ? 'checked' : '' }} 
+                               onchange="window.location.href='{{ request()->fullUrlWithQuery(['trashed' => request('trashed') ? null : '1']) }}'">
+                        <label class="form-check-label fw-bold text-dark-title" for="toggleTrash" style="cursor: pointer; margin-top: 2px;">
+                            Show Recycle Bin Data
+                        </label>
+                    </div>
+                    <a href="{{ route('expenses.create') }}" class="button button-primary py-2 px-4">
+                        <i class="fas fa-plus me-2"></i>Add Expense
+                    </a>
+                </div>
             </div>
 
             <div class="card premium-stat-card p-0 table-card overflow-hidden">
@@ -68,7 +78,7 @@
                             @forelse($expenses as $expense)
                                 <tr>
                                     <td class="fw-bold ps-4">
-                                        <span class="badge" style="background: rgba(255, 85, 50, 0.1); color: var(--first-color); padding: 6px 12px; border-radius: 6px;">
+                                        <span class="badge" style="background: rgba(255, 85, 50, 0.1); color: var(--first-color); padding: 6px 12px; border-radius: 6px; {{ request('trashed') ? 'text-decoration: line-through;' : '' }}">
                                             {{ $expense->category }}
                                         </span>
                                     </td>
@@ -78,13 +88,22 @@
                                         {{ $expense->description ?: '-' }}
                                     </td>
                                     <td class="text-end pe-4 action-cell">
-                                        <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this expense record?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="button button-danger small py-1.5 px-3">
-                                                <i class="fas fa-trash me-1"></i>Delete
-                                            </button>
-                                        </form>
+                                        @if($expense->trashed())
+                                            <form action="{{ route('expenses.restore', $expense->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Restore this expense?');">
+                                                @csrf
+                                                <button type="submit" class="button button-success small py-1.5 px-3">
+                                                    <i class="fas fa-trash-restore me-1"></i>Restore
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this expense record?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="button button-danger small py-1.5 px-3">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
