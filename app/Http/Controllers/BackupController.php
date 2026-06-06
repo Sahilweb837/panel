@@ -100,30 +100,12 @@ class BackupController extends Controller
             return back()->with('error', 'Backup file not found.');
         }
 
-        $database = env('DB_DATABASE');
-        $username = env('DB_USERNAME');
-        $password = env('DB_PASSWORD');
-        $host = env('DB_HOST', '127.0.0.1');
-
-        $passwordParam = $password ? "-p{$password}" : "";
-        
-        $command = "mysql --user={$username} {$passwordParam} --host={$host} {$database} < \"{$filePath}\" 2>&1";
-
-        $output = [];
-        $returnVar = null;
-        exec($command, $output, $returnVar);
-
-        if ($returnVar === 0) {
+        try {
+            $sql = file_get_contents($filePath);
+            \Illuminate\Support\Facades\DB::unprepared($sql);
             return back()->with('success', 'Database restored successfully.');
-        } else {
-            // Try alternative path
-            $xamppCommand = "d:\\xammp1\\mysql\\bin\\mysql.exe --user={$username} {$passwordParam} --host={$host} {$database} < \"{$filePath}\" 2>&1";
-            exec($xamppCommand, $output, $returnVar);
-            
-            if ($returnVar === 0) {
-                return back()->with('success', 'Database restored successfully.');
-            }
-            return back()->with('error', 'Failed to restore database. Error code: ' . $returnVar . ' Output: ' . implode("\n", $output));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to restore database. Error: ' . $e->getMessage());
         }
     }
 
