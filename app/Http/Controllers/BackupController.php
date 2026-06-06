@@ -64,7 +64,7 @@ class BackupController extends Controller
         $filePath = 'backups/' . $fileName;
 
         if (Storage::disk('local')->exists($filePath)) {
-            return Storage::disk('local')->download($filePath);
+            return response()->download(storage_path('app/' . $filePath));
         }
 
         return back()->with('error', 'Backup file not found.');
