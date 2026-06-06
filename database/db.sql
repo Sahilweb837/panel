@@ -193,4 +193,4 @@ INSERT INTO `courses` (`id`, `name`, `code`, `duration`, `fee`, `status`, `creat
 
 INSERT INTO users (name, email, username, password, role_id, status, created_at, updated_at)
 VALUES
-('Super Admin', 'superadmin@example.com', 'superadmin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 1, NOW(), NOW());
+('Super Admin', 'superadmin@example.com', 'superadmin', '$2y$10$8zHd5f0Xg5rgQPbrj6q4WuLWi9m5mJPHvcnRTjhT0U/4dudIIacYS', 1, 1, NOW(), NOW());

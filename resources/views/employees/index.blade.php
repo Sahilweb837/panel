@@ -38,9 +38,19 @@
                         </a>
                     @endif
                 </form>
-                <a href="{{ route('employees.create') }}" class="button button-primary py-2 px-4">
-                    <i class="fas fa-user-plus me-2"></i>Add Staff Member
-                </a>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="form-check form-switch me-3 d-flex align-items-center gap-2">
+                        <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggleTrash" 
+                               {{ request('trashed') ? 'checked' : '' }} 
+                               onchange="window.location.href='{{ request()->fullUrlWithQuery(['trashed' => request('trashed') ? null : '1']) }}'">
+                        <label class="form-check-label fw-bold text-dark-title" for="toggleTrash" style="cursor: pointer; margin-top: 2px;">
+                            Show Recycle Bin Data
+                        </label>
+                    </div>
+                    <a href="{{ route('employees.create') }}" class="button button-primary py-2 px-4">
+                        <i class="fas fa-user-plus me-2"></i>Add Staff Member
+                    </a>
+                </div>
             </div>
 
             <div class="card premium-stat-card p-0 table-card overflow-hidden">
@@ -77,7 +87,7 @@
                                                 {{ strtoupper(substr($employee->user?->name ?? 'S', 0, 1)) }}
                                             </div>
                                             <div>
-                                                <strong class="text-dark-title">{{ $employee->user?->name ?? 'No Login Account' }}</strong>
+                                                <strong class="text-dark-title" style="{{ request('trashed') ? 'text-decoration: line-through; color: #dc3545;' : '' }}">{{ $employee->user?->name ?? 'No Login Account' }}</strong>
                                                 <p class="text-muted small">{{ $employee->user?->username ?? 'unlinked' }}</p>
                                             </div>
                                         </div>
@@ -93,15 +103,24 @@
                                         </span>
                                     </td>
                                     <td class="text-end pe-4 action-cell">
-                                        <a href="{{ route('employees.edit', $employee) }}" class="button button-secondary small py-1.5 px-3">
-                                            <i class="fas fa-edit me-1"></i>Edit
-                                        </a>
-                                        <form action="{{ route('employees.destroy', $employee) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this staff record?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="button button-danger small py-1.5 px-3">
-                                                <i class="fas fa-trash me-1"></i>Delete
-                                            </button>
-                                        </form>
+                                        @if($employee->trashed())
+                                            <form action="{{ route('employees.restore', $employee->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to restore this employee?');">
+                                                @csrf
+                                                <button type="submit" class="button button-success small py-1.5 px-3">
+                                                    <i class="fas fa-trash-restore me-1"></i>Restore
+                                                </button>
+                                            </form>
+                                        @else
+                                            <a href="{{ route('employees.edit', $employee) }}" class="button button-secondary small py-1.5 px-3">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                            <form action="{{ route('employees.destroy', $employee) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this staff record?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="button button-danger small py-1.5 px-3">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Super Admin',
                 'username' => 'superadmin',
-                'password' => 'admin123',
+                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
                 'role_id' => $superAdmin?->id,
                 'status' => true,
             ]

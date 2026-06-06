@@ -46,10 +46,15 @@
                         </a>
                     @endif
                 </form>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('sub-admins.trash') }}" class="button button-secondary py-2 px-4">
-                        <i class="fas fa-trash-restore me-2"></i>Recycle Bin
-                    </a>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="form-check form-switch me-3 d-flex align-items-center gap-2">
+                        <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggleTrash" 
+                               {{ request('trashed') ? 'checked' : '' }} 
+                               onchange="window.location.href='{{ request()->fullUrlWithQuery(['trashed' => request('trashed') ? null : '1']) }}'">
+                        <label class="form-check-label fw-bold text-dark-title" for="toggleTrash" style="cursor: pointer; margin-top: 2px;">
+                            Show Recycle Bin Data
+                        </label>
+                    </div>
                     <a href="{{ route('sub-admins.create') }}" class="button button-primary py-2 px-4">
                         <i class="fas fa-plus me-2"></i>Create New
                     </a>
@@ -70,7 +75,7 @@
                                 <th><i class="fas fa-envelope me-1"></i> Email</th>
                                 <th><i class="fas fa-user-tag me-1"></i> Role</th>
                                 <th><i class="fas fa-toggle-on me-1"></i> Status</th>
-                                <th><i class="fas fa-calendar me-1"></i> Created</th>
+                                <th><i class="fas fa-{{ request('trashed') ? 'calendar-times' : 'calendar' }} me-1"></i> {{ request('trashed') ? 'Deleted' : 'Created' }}</th>
                                 <th class="text-end pe-4"><i class="fas fa-cogs me-1"></i> Actions</th>
                             </tr>
                         </thead>
@@ -99,17 +104,28 @@
                                             {{ $user->status ? 'Active' : 'Inactive' }}
                                         </span>
                                     </td>
-                                    <td class="text-muted">{{ $user->created_at->format('M d, Y') }}</td>
+                                    <td class="{{ request('trashed') ? 'text-danger' : 'text-muted' }}">
+                                        {{ request('trashed') ? $user->deleted_at->format('M d, Y') : $user->created_at->format('M d, Y') }}
+                                    </td>
                                     <td class="text-end pe-4 action-cell">
-                                        <a href="{{ route('sub-admins.edit', $user) }}" class="button button-secondary small py-1.5 px-3">
-                                            <i class="fas fa-edit me-1"></i>Edit
-                                        </a>
-                                        <form action="{{ route('sub-admins.destroy', $user) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="button button-danger small py-1.5 px-3">
-                                                <i class="fas fa-trash me-1"></i>Delete
-                                            </button>
-                                        </form>
+                                        @if($user->trashed())
+                                            <form action="{{ route('sub-admins.restore', $user->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to restore this user?');">
+                                                @csrf
+                                                <button type="submit" class="button button-success small py-1.5 px-3">
+                                                    <i class="fas fa-trash-restore me-1"></i>Restore
+                                                </button>
+                                            </form>
+                                        @else
+                                            <a href="{{ route('sub-admins.edit', $user) }}" class="button button-secondary small py-1.5 px-3">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                            <form action="{{ route('sub-admins.destroy', $user) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="button button-danger small py-1.5 px-3">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

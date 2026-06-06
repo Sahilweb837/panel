@@ -29,10 +29,16 @@ class SubAdminController extends Controller
     {
         $query = User::with('role', 'employee');
 
+        if ($request->has('trashed') && $request->trashed == '1') {
+            $query->onlyTrashed();
+        }
+
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%')
-                ->orWhere('email', 'like', '%'.$request->search.'%')
-                ->orWhere('username', 'like', '%'.$request->search.'%');
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%'.$request->search.'%')
+                  ->orWhere('email', 'like', '%'.$request->search.'%')
+                  ->orWhere('username', 'like', '%'.$request->search.'%');
+            });
         }
 
         if ($request->filled('role')) {
@@ -45,7 +51,9 @@ class SubAdminController extends Controller
             ->whereIn('role_id', function ($q) {
                 $q->select('id')->from('roles')->whereIn('slug', ['admin', 'staff']);
             })
-            ->latest()->paginate(12)->withQueryString();
+            ->latest($request->has('trashed') && $request->trashed == '1' ? 'deleted_at' : 'created_at')
+            ->paginate(12)
+            ->withQueryString();
 
         return view('sub_admins.index', compact('users'));
     }

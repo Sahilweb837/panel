@@ -14,14 +14,22 @@ class EmployeeController extends Controller
     {
         $query = Employee::with('user');
 
-        if ($request->filled('search')) {
-            $query->where('employee_code', 'like', '%'.$request->search.'%')
-                ->orWhere('department', 'like', '%'.$request->search.'%')
-                ->orWhere('designation', 'like', '%'.$request->search.'%')
-                ->orWhere('phone', 'like', '%'.$request->search.'%');
+        if ($request->has('trashed') && $request->trashed == '1') {
+            $query->onlyTrashed();
         }
 
-        $employees = $query->latest()->paginate(12)->withQueryString();
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('employee_code', 'like', '%'.$request->search.'%')
+                  ->orWhere('department', 'like', '%'.$request->search.'%')
+                  ->orWhere('designation', 'like', '%'.$request->search.'%')
+                  ->orWhere('phone', 'like', '%'.$request->search.'%');
+            });
+        }
+
+        $employees = $query->latest($request->has('trashed') && $request->trashed == '1' ? 'deleted_at' : 'created_at')
+            ->paginate(12)
+            ->withQueryString();
 
         return view('employees.index', compact('employees'));
     }
@@ -58,7 +66,7 @@ class EmployeeController extends Controller
                 'name' => $request->staff_name ?: $data['employee_code'],
                 'email' => $request->login_email,
                 'username' => $request->login_username ?: $data['employee_code'],
-                'password' => $request->login_password ?: 'staff123',
+                'password' => $request->login_password ? \Illuminate\Support\Facades\Hash::make($request->login_password) : \Illuminate\Support\Facades\Hash::make('staff123'),
                 'role_id' => $staffRole?->id,
                 'status' => $data['status'],
                 'access' => $request->input('access', []),
@@ -120,12 +128,12 @@ class EmployeeController extends Controller
 
             if ($employee->user) {
                 if ($request->filled('login_password')) {
-                    $userData['password'] = $request->login_password;
+                    $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->login_password);
                 }
 
                 $employee->user->update($userData);
             } else {
-                $userData['password'] = $request->login_password ?: 'staff123';
+                $userData['password'] = $request->login_password ? \Illuminate\Support\Facades\Hash::make($request->login_password) : \Illuminate\Support\Facades\Hash::make('staff123');
                 $userData['role_id'] = $staffRole?->id;
                 $data['user_id'] = User::create($userData)->id;
             }
@@ -143,6 +151,22 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return back()->with('success', 'Employee deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $employee = Employee::onlyTrashed()->findOrFail($id);
+        
+        if ($employee->user_id) {
+            $user = User::onlyTrashed()->where('id', $employee->user_id)->first();
+            if ($user) {
+                $user->restore();
+            }
+        }
+
+        $employee->restore();
+
+        return back()->with('success', "Employee restored successfully.");
     }
 
     public function exportCsv(Request $request)
