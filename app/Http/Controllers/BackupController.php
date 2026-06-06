@@ -54,8 +54,9 @@ class BackupController extends Controller
         }
     }
 
-    public function download($fileName)
+    public function download($fileNameEncoded)
     {
+        $fileName = base64_decode($fileNameEncoded);
         $roleSlug = session('user_role_slug');
         if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin'])) {
             return redirect()->route('dashboard')->with('error', 'Only administrators can access backups.');
@@ -70,8 +71,9 @@ class BackupController extends Controller
         return back()->with('error', 'Backup file not found.');
     }
 
-    public function destroy($fileName)
+    public function destroy($fileNameEncoded)
     {
+        $fileName = base64_decode($fileNameEncoded);
         $roleSlug = session('user_role_slug');
         if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin'])) {
             return redirect()->route('dashboard')->with('error', 'Only administrators can access backups.');
@@ -87,8 +89,9 @@ class BackupController extends Controller
         return back()->with('error', 'Backup file not found.');
     }
 
-    public function restore($fileName)
+    public function restore($fileNameEncoded)
     {
+        $fileName = base64_decode($fileNameEncoded);
         $roleSlug = session('user_role_slug');
         if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin'])) {
             return redirect()->route('dashboard')->with('error', 'Only administrators can access backups.');

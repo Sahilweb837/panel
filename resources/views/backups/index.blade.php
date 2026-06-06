@@ -61,18 +61,18 @@
                                     <td class="fw-semibold text-muted">{{ $backup['size'] }}</td>
                                     <td class="text-muted">{{ \Carbon\Carbon::parse($backup['date'])->format('M d, Y h:i A') }}</td>
                                     <td class="text-end pe-4 action-cell">
-                                        <a href="{{ route('backups.download', $backup['name']) }}" class="button button-success small py-1.5 px-3 me-1">
+                                        <a href="{{ route('backups.download', base64_encode($backup['name'])) }}" class="button button-success small py-1.5 px-3 me-1">
                                             <i class="fas fa-download me-1"></i>Download
                                         </a>
                                         
-                                        <form action="{{ route('backups.restore', $backup['name']) }}" method="POST" class="inline-form d-inline me-1" onsubmit="return confirm('WARNING: This will overwrite the current database with this backup. Are you absolutely sure?');">
+                                        <form action="{{ route('backups.restore', base64_encode($backup['name'])) }}" method="POST" class="inline-form d-inline me-1" onsubmit="return confirm('WARNING: This will overwrite the current database with this backup. Are you absolutely sure?');">
                                             @csrf
                                             <button type="submit" class="button button-secondary small py-1.5 px-3">
                                                 <i class="fas fa-history me-1"></i>Restore
                                             </button>
                                         </form>
 
-                                        <form action="{{ route('backups.destroy', $backup['name']) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this backup file?');">
+                                        <form action="{{ route('backups.destroy', base64_encode($backup['name'])) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this backup file?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="button button-danger small py-1.5 px-3">
