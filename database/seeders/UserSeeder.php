@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         $superAdmin = Role::where('slug', 'super-admin')->first();
 
         User::updateOrCreate(
-            ['email' => 'superadmin@example.com'],
+            ['email' => 'superadmin@gmail.com'],
             [
                 'name' => 'Super Admin',
                 'username' => 'superadmin',
