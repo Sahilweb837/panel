@@ -218,7 +218,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         captureCanvas.width = video.videoWidth;
         captureCanvas.height = video.videoHeight;
-        captureCanvas.getContext('2d').drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+        const ctx = captureCanvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+        
+        // Add Live Timestamp Watermark
+        const now = new Date();
+        const timestamp = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'medium' });
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Semi-transparent black background
+        ctx.fillRect(10, captureCanvas.height - 40, captureCanvas.width - 20, 30);
+        
+        ctx.font = '20px monospace';
+        ctx.fillStyle = '#00ff00'; // Matrix green text
+        ctx.fillText("LIVE CAPTURE: " + timestamp, 20, captureCanvas.height - 18);
+
         const imageData = captureCanvas.toDataURL('image/jpeg', 0.5);
         
         stream.getTracks().forEach(track => track.stop());
