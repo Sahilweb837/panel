@@ -44,6 +44,11 @@ Route::get('/clear-all', function () {
     return 'All caches completely cleared! Try logging in now.';
 });
 
+Route::get('/run-migrations', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return 'Migrations ran successfully! You can now use the biometric features.';
+});
+
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/clear-cache', [DashboardController::class, 'clearCache'])->name('clear-cache');

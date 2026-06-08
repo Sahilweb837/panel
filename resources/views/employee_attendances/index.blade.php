@@ -155,7 +155,7 @@
                                             <div class="user-info">
                                                 <div class="avatar" style="font-weight: 700; background: rgba(255, 85, 50, 0.1); color: var(--first-color); display: flex; align-items: center; justify-content: center; overflow: hidden;">
                                                     @if($attendance->photo_path)
-                                                        <img src="{{ asset($attendance->photo_path) }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                        <img src="{{ Storage::url($attendance->photo_path) }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover;" />
                                                     @else
                                                         {{ strtoupper(substr($attendance->employee?->user?->name ?? 'S', 0, 1)) }}
                                                     @endif

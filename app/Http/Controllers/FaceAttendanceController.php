@@ -80,6 +80,7 @@ class FaceAttendanceController extends Controller
             Attendance::create([
                 'student_id' => $request->id,
                 'attendance_date' => date('Y-m-d'),
+                'check_in_time' => date('H:i:s'),
                 'status' => 'Present',
                 'photo_path' => $path,
                 'device_name' => 'Web Portal AI Camera',
@@ -88,6 +89,7 @@ class FaceAttendanceController extends Controller
             EmployeeAttendance::create([
                 'employee_id' => $request->id,
                 'attendance_date' => date('Y-m-d'),
+                'check_in_time' => date('H:i:s'),
                 'status' => 'Present',
                 'photo_path' => $path,
                 'device_name' => 'Web Portal AI Camera',
