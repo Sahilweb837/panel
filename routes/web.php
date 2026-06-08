@@ -20,6 +20,12 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+// ZKTeco ADMS (Push) Webhook Routes
+Route::get('/iclock/cdata', [\App\Http\Controllers\ZKTecoADMSController::class, 'handshake']);
+Route::post('/iclock/cdata', [\App\Http\Controllers\ZKTecoADMSController::class, 'receiveData']);
+Route::get('/iclock/getrequest', [\App\Http\Controllers\ZKTecoADMSController::class, 'getRequest']);
+Route::post('/iclock/devicecmd', [\App\Http\Controllers\ZKTecoADMSController::class, 'deviceCmd']);
+
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

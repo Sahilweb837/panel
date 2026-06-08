@@ -46,10 +46,21 @@
                 
                 <i class="fas fa-fingerprint fa-5x text-muted mb-4 opacity-50"></i>
                 
-                <h4 class="fw-bold">Pull Attendance Logs</h4>
-                <p class="text-muted">Connect to the ZKTeco hardware over the local network and download all pending attendance logs into the web application.</p>
+                <h4 class="fw-bold">Pull Attendance Logs (Or ADMS)</h4>
+                <p class="text-muted">If using Cloud ADMS, the machine connects automatically. If using local network, click Sync Now.</p>
                 
-                <p class="small text-muted mb-4">Last Synced: <strong>{{ $device->last_sync ? \Carbon\Carbon::parse($device->last_sync)->diffForHumans() : 'Never' }}</strong></p>
+                @php
+                    $isAdmsConnected = $device->last_sync && \Carbon\Carbon::parse($device->last_sync)->diffInMinutes(now()) < 5;
+                @endphp
+
+                <div class="mb-4">
+                    <p class="small text-muted mb-1">Last Synced: <strong>{{ $device->last_sync ? \Carbon\Carbon::parse($device->last_sync)->diffForHumans() : 'Never' }}</strong></p>
+                    @if($isAdmsConnected)
+                        <span class="badge bg-success py-2 px-3"><i class="fas fa-satellite-dish blink-animation me-1"></i> ADMS Cloud Connected</span>
+                    @else
+                        <span class="badge bg-secondary py-2 px-3"><i class="fas fa-satellite-dish me-1"></i> ADMS Disconnected</span>
+                    @endif
+                </div>
 
                 <div class="d-flex gap-2 w-100 justify-content-center">
                     <form action="{{ route('biometric.test') }}" method="POST">

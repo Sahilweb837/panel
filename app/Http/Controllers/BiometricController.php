@@ -15,7 +15,18 @@ class BiometricController extends Controller
 {
     public function index()
     {
-        $device = BiometricDevice::first();
+        try {
+            $device = BiometricDevice::first();
+        } catch (\Illuminate\Database\QueryException $e) {
+            // If table does not exist, automatically run migrations on the live server
+            if (str_contains($e->getMessage(), '1146')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                $device = BiometricDevice::first();
+            } else {
+                throw $e;
+            }
+        }
+
         if (!$device) {
             $device = BiometricDevice::create([
                 'name' => 'Main Entrance Machine',
