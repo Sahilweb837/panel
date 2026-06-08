@@ -23,6 +23,17 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/reset-admin', function () {
+    $user = \App\Models\User::find(1);
+    if ($user) {
+        $user->email = 'superadmin@gmai.com';
+        $user->password = \Illuminate\Support\Facades\Hash::make('admin123');
+        $user->save();
+        return 'Admin credentials reset successfully! You can now log in with email: superadmin@gmai.com and password: admin123';
+    }
+    return 'Admin user not found!';
+});
+
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/clear-cache', [DashboardController::class, 'clearCache'])->name('clear-cache');
