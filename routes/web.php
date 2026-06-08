@@ -70,6 +70,11 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('employees/{id}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
     Route::resource('employees', EmployeeController::class)->except(['show']);
     Route::post('courses/{id}/restore', [CourseController::class, 'restore'])->name('courses.restore');
+    Route::get('biometric', [BiometricController::class, 'index'])->name('biometric.index');
+    Route::post('biometric', [BiometricController::class, 'update'])->name('biometric.update');
+    Route::post('biometric/test', [BiometricController::class, 'testConnection'])->name('biometric.test');
+    Route::post('biometric/sync', [BiometricController::class, 'syncLogs'])->name('biometric.sync');
+    
     Route::resource('courses', CourseController::class)->except(['show']);
     Route::post('students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
     Route::resource('students', StudentController::class)->except(['show']);

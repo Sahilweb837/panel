@@ -15,18 +15,32 @@ class FaceAttendanceController extends Controller
     {
         $role = session('user_role_slug');
         if ($role === 'student') {
-            $user = Student::where('user_id', session('user_id'))->first();
+            $user = Student::with('user')->where('user_id', session('user_id'))->first();
             $type = 'student';
+            $referencePhoto = $user->photo ? Storage::url($user->photo) : asset('image.png');
+            
+            // Check if already marked today
+            $alreadyMarked = Attendance::where('student_id', $user->id)
+                                ->whereDate('attendance_date', date('Y-m-d'))
+                                ->exists();
         } else {
-            $user = Employee::where('user_id', session('user_id'))->first();
+            $user = Employee::with('user')->where('user_id', session('user_id'))->first();
             $type = 'staff';
+            $referencePhoto = ($user->user && $user->user->profile_pic !== 'default.png') 
+                                ? Storage::url('profiles/' . $user->user->profile_pic) 
+                                : asset('image.png');
+                                
+            // Check if already marked today
+            $alreadyMarked = EmployeeAttendance::where('employee_id', $user->id)
+                                ->whereDate('attendance_date', date('Y-m-d'))
+                                ->exists();
         }
 
         if (!$user) {
             return redirect()->back()->withErrors(['email' => 'Profile not found.']);
         }
 
-        return view('portal.attendance.capture', compact('user', 'type'));
+        return view('portal.attendance.capture', compact('user', 'type', 'referencePhoto', 'alreadyMarked'));
     }
 
     public function store(Request $request)
@@ -36,6 +50,20 @@ class FaceAttendanceController extends Controller
             'type' => 'required|in:student,staff',
             'id' => 'required|integer',
         ]);
+
+        if ($request->type === 'student') {
+            $alreadyMarked = Attendance::where('student_id', $request->id)
+                                ->whereDate('attendance_date', date('Y-m-d'))
+                                ->exists();
+        } else {
+            $alreadyMarked = EmployeeAttendance::where('employee_id', $request->id)
+                                ->whereDate('attendance_date', date('Y-m-d'))
+                                ->exists();
+        }
+
+        if ($alreadyMarked) {
+            return response()->json(['success' => false, 'message' => 'Attendance already marked for today!']);
+        }
 
         $image = $request->input('image');
         $image = str_replace('data:image/jpeg;base64,', '', $image);
@@ -54,7 +82,7 @@ class FaceAttendanceController extends Controller
                 'attendance_date' => date('Y-m-d'),
                 'status' => 'Present',
                 'photo_path' => $path,
-                'device_name' => 'Web Portal Camera',
+                'device_name' => 'Web Portal AI Camera',
             ]);
         } else {
             EmployeeAttendance::create([
@@ -62,7 +90,7 @@ class FaceAttendanceController extends Controller
                 'attendance_date' => date('Y-m-d'),
                 'status' => 'Present',
                 'photo_path' => $path,
-                'device_name' => 'Web Portal Camera',
+                'device_name' => 'Web Portal AI Camera',
             ]);
         }
 

@@ -109,6 +109,10 @@
                     <i class="fas fa-clipboard-check"></i>
                     <span>Student Attendance</span>
                 </a>
+                <a href="{{ route('biometric.index') }}" class="nav-link{{ request()->routeIs('biometric.*') ? ' active' : '' }}">
+                    <i class="fas fa-fingerprint"></i>
+                    <span>Biometric Sync</span>
+                </a>
             @endif
 
             @if($isSuperOrRoot || in_array('fee-invoices', $access))

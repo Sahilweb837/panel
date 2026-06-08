@@ -82,6 +82,7 @@ class StudentController extends Controller
             'section' => ['nullable', 'string', 'max:50'],
             'admission_date' => ['nullable', 'date'],
             'status' => ['nullable', 'boolean'],
+            'biometric_id' => ['nullable', 'string', 'max:50'],
         ]);
 
         $data['status'] = $request->boolean('status');
@@ -138,6 +139,7 @@ class StudentController extends Controller
             'section' => ['nullable', 'string', 'max:50'],
             'admission_date' => ['nullable', 'date'],
             'status' => ['nullable', 'boolean'],
+            'biometric_id' => ['nullable', 'string', 'max:50'],
         ]);
 
         $data['status'] = $request->boolean('status');

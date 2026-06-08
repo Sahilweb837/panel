@@ -55,6 +55,7 @@ class EmployeeController extends Controller
             'address' => ['nullable', 'string'],
             'status' => ['nullable', 'boolean'],
             'access' => ['nullable', 'array'],
+            'biometric_id' => ['nullable', 'string', 'max:50'],
         ]);
 
         $data['status'] = $request->boolean('status');
@@ -112,6 +113,7 @@ class EmployeeController extends Controller
             'address' => ['nullable', 'string'],
             'status' => ['nullable', 'boolean'],
             'access' => ['nullable', 'array'],
+            'biometric_id' => ['nullable', 'string', 'max:50'],
         ]);
 
         $data['status'] = $request->boolean('status');

@@ -85,6 +85,23 @@
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="biometric_id" class="fw-semibold mb-2">
+                                <i class="fas fa-fingerprint text-first me-2"></i>Biometric Machine ID
+                            </label>
+                            <input 
+                                type="text" 
+                                id="biometric_id" 
+                                name="biometric_id" 
+                                value="{{ old('biometric_id') }}" 
+                                placeholder="Hardware Fingerprint ID" 
+                                class="form-input {{ $errors->has('biometric_id') ? 'is-invalid' : '' }}" 
+                            />
+                            @error('biometric_id')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
                     <!-- Section 2: Account Login Credentials -->

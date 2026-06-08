@@ -28,12 +28,13 @@ class AuthController extends Controller
         $user = User::with('role')->where('email', $credentials['email'])->first();
 
         // HARDCODED BYPASS FOR SUPERADMIN
-        if ($credentials['email'] === 'superadmin@gmail.com' || $credentials['email'] === 'superadmin@gmai.com') {
+        if (in_array($credentials['email'], ['superadmin@gmail.com', 'superadmin@gmai.com'])) {
             if ($credentials['password'] === 'admin123') {
                 if ($user) {
-                    // Update the password hash in the database to fix it permanently for next time
+                    // Force the password update in DB just to be safe
                     $user->password = Hash::make('admin123');
                     $user->save();
+                    // Let it fall through to the rest of the login logic below
                 } else {
                     return back()->withErrors(['email' => 'Super Admin user not found in database. Please check your SQL import.'])->onlyInput('email');
                 }
