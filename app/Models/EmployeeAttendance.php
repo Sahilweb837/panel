@@ -19,6 +19,7 @@ class EmployeeAttendance extends Model
         'check_out_time',
         'attendance_date',
         'remarks',
+        'photo_path',
     ];
 
     public function employee()

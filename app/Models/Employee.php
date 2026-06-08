@@ -22,6 +22,7 @@ class Employee extends Model
         'joining_date',
         'address',
         'status',
+        'biometric_id',
     ];
 
     public function user()

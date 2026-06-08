@@ -52,23 +52,43 @@ class AttendanceController extends Controller
             'attendance.*.check_out_time' => ['nullable', 'string'],
             'attendance.*.fine' => ['nullable', 'numeric', 'min:0'],
             'attendance.*.remarks' => ['nullable', 'string', 'max:255'],
+            'attendance.*.photo' => ['nullable', 'string'],
         ]);
 
         $date = $request->attendance_date;
 
         foreach ($request->attendance as $studentId => $data) {
+            $photoPath = null;
+            if (isset($data['photo']) && !empty($data['photo'])) {
+                $image_parts = explode(";base64,", $data['photo']);
+                if (count($image_parts) == 2) {
+                    $image_type_aux = explode("image/", $image_parts[0]);
+                    $image_type = $image_type_aux[1] ?? 'jpeg';
+                    $image_base64 = base64_decode($image_parts[1]);
+                    $fileName = 'attendance_faces/student_' . $studentId . '_' . uniqid() . '.' . $image_type;
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $image_base64);
+                    $photoPath = 'storage/' . $fileName;
+                }
+            }
+
+            $updateData = [
+                'status' => $data['status'],
+                'check_in_time' => $data['check_in_time'] ?? null,
+                'check_out_time' => $data['check_out_time'] ?? null,
+                'fine' => $data['fine'] ?? 0,
+                'remarks' => $data['remarks'] ?? null,
+            ];
+
+            if ($photoPath) {
+                $updateData['photo_path'] = $photoPath;
+            }
+
             Attendance::updateOrCreate(
                 [
                     'student_id' => $studentId,
                     'attendance_date' => $date,
                 ],
-                [
-                    'status' => $data['status'],
-                    'check_in_time' => $data['check_in_time'] ?? null,
-                    'check_out_time' => $data['check_out_time'] ?? null,
-                    'fine' => $data['fine'] ?? 0,
-                    'remarks' => $data['remarks'] ?? null,
-                ]
+                $updateData
             );
         }
 

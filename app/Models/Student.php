@@ -34,6 +34,7 @@ class Student extends Model
         'section',
         'admission_date',
         'status',
+        'biometric_id',
     ];
 
     public function attendances()

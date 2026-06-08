@@ -17,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/zkteco/attendance', [\App\Http\Controllers\Api\ZktecoController::class, 'receivePush']);
+Route::get('/zkteco/attendance', [\App\Http\Controllers\Api\ZktecoController::class, 'handleDeviceCheck']);

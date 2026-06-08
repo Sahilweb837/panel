@@ -67,8 +67,9 @@
                                         <th style="width: 25%;" class="text-center">Attendance Status</th>
                                         <th style="width: 15%;" class="text-center">Check-in Time</th>
                                         <th style="width: 15%;" class="text-center">Check-out Time</th>
+                                        <th style="width: 8%;" class="text-center">Photo</th>
                                         <th style="width: 8%;" class="text-center">Fine (INR)</th>
-                                        <th class="pe-4" style="width: 15%;">Remarks</th>
+                                        <th class="pe-4" style="width: 12%;">Remarks</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -152,6 +153,13 @@
                                                  </div>
                                              </td>
                                              <td class="text-center">
+                                                 <input type="hidden" name="attendance[{{ $student->id }}][photo]" id="photo_input_{{ $student->id }}" value="" />
+                                                 <img id="photo_preview_{{ $student->id }}" src="" style="display:none; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--first-color); margin: 0 auto 5px;" />
+                                                 <button type="button" onclick="openCamera({{ $student->id }})" class="btn btn-outline-first btn-sm p-1" title="Take Photo" style="width: 30px; height: 30px; border-radius: 6px;">
+                                                     <i class="fas fa-camera"></i>
+                                                 </button>
+                                             </td>
+                                             <td class="text-center">
                                                  <input type="number" name="attendance[{{ $student->id }}][fine]" class="form-input text-center py-1" placeholder="0.00" step="0.01" value="{{ $fine }}" style="width: 70px; font-size: 0.8rem; font-weight: bold;" />
                                              </td>
                                              <td class="pe-4">
@@ -179,8 +187,76 @@
         </div>
     </div>
 
-    <!-- Clock scripts -->
+    <!-- Camera Modal -->
+    <div id="cameraModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1050; align-items: center; justify-content: center;">
+        <div style="background: #fff; padding: 20px; border-radius: 12px; width: 400px; max-width: 90%; text-align: center;">
+            <h5 class="mb-3 fw-bold">Capture Photo</h5>
+            <video id="webcam-feed" autoplay playsinline style="width: 100%; border-radius: 8px; background: #000;"></video>
+            <canvas id="webcam-canvas" style="display: none;"></canvas>
+            <div class="mt-4 d-flex justify-content-between gap-2">
+                <button type="button" class="button button-secondary" onclick="closeCamera()">Cancel</button>
+                <button type="button" class="button button-primary flex-grow-1" onclick="capturePhoto()"><i class="fas fa-camera me-2"></i>Capture</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clock & Camera scripts -->
     <script>
+        let currentCaptureId = null;
+        let videoStream = null;
+
+        function openCamera(id) {
+            currentCaptureId = id;
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('webcam-feed');
+            modal.style.display = 'flex';
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+                .then(stream => {
+                    videoStream = stream;
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    alert('Error accessing camera: ' + err.message);
+                    closeCamera();
+                });
+        }
+
+        function closeCamera() {
+            const modal = document.getElementById('cameraModal');
+            modal.style.display = 'none';
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            currentCaptureId = null;
+        }
+
+        function capturePhoto() {
+            if (!currentCaptureId) return;
+            const video = document.getElementById('webcam-feed');
+            const canvas = document.getElementById('webcam-canvas');
+            const context = canvas.getContext('2d');
+
+            // Set canvas dimensions to a reasonable size (e.g., 320x240) to keep KB size small
+            canvas.width = 320;
+            canvas.height = 240;
+            
+            // Draw video frame on canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Compress to JPEG with 0.5 quality (~10-30KB)
+            const base64Data = canvas.toDataURL('image/jpeg', 0.5);
+            
+            // Set data to hidden input and update preview
+            document.getElementById('photo_input_' + currentCaptureId).value = base64Data;
+            const preview = document.getElementById('photo_preview_' + currentCaptureId);
+            preview.src = base64Data;
+            preview.style.display = 'block';
+
+            closeCamera();
+        }
+
         function getFormattedTime() {
             const now = new Date();
             let hours = now.getHours();

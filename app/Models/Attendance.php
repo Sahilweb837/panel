@@ -18,6 +18,7 @@ class Attendance extends Model
         'attendance_date',
         'fine',
         'remarks',
+        'photo_path',
     ];
 
     public function student()
