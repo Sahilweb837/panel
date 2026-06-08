@@ -107,6 +107,7 @@
                         <select id="account_type" name="account_type" required class="form-input">
                             <option value="institute" {{ old('account_type', 'institute') === 'institute' ? 'selected' : '' }}>Institute / Admin</option>
                             <option value="staff" {{ old('account_type') === 'staff' ? 'selected' : '' }}>Staff</option>
+                            <option value="student" {{ old('account_type') === 'student' ? 'selected' : '' }}>Student</option>
                         </select>
                     </div>
 

@@ -86,9 +86,24 @@ class StudentController extends Controller
 
         $data['status'] = $request->boolean('status');
 
-        Student::create($data);
+        $student = Student::create($data);
 
-        return redirect()->route('students.index')->with('success', 'Student created successfully.');
+        // Auto-create user account
+        $role = \App\Models\Role::where('slug', 'student')->first();
+        if ($role) {
+            $user = \App\Models\User::create([
+                'name' => trim($student->first_name . ' ' . $student->last_name),
+                'email' => $student->email ?? ($student->admission_no . '@student.com'),
+                'username' => strtolower(str_replace(' ', '', $student->first_name)) . $student->admission_no,
+                'password' => \Illuminate\Support\Facades\Hash::make($student->dob ?? $student->admission_no),
+                'role_id' => $role->id,
+                'status' => true,
+            ]);
+            $student->user_id = $user->id;
+            $student->save();
+        }
+
+        return redirect()->route('students.index')->with('success', 'Student created successfully. Login generated.');
     }
 
     public function edit(Student $student)

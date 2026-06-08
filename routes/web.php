@@ -26,12 +26,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/reset-admin', function () {
     $user = \App\Models\User::find(1);
     if ($user) {
-        $user->email = 'superadmin@gmai.com';
+        $user->email = 'superadmin@gmail.com';
         $user->password = \Illuminate\Support\Facades\Hash::make('admin123');
         $user->save();
-        return 'Admin credentials reset successfully! You can now log in with email: superadmin@gmai.com and password: admin123';
+        return 'Admin credentials reset successfully! You can now log in with email: superadmin@gmail.com and password: admin123';
     }
     return 'Admin user not found!';
+});
+
+Route::get('/clear-all', function () {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    \Illuminate\Support\Facades\Artisan::call('route:clear');
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    return 'All caches completely cleared! Try logging in now.';
 });
 
 Route::middleware(['auth.custom'])->group(function () {
@@ -64,6 +73,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::resource('courses', CourseController::class)->except(['show']);
     Route::post('students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
     Route::resource('students', StudentController::class)->except(['show']);
+    Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
     Route::resource('attendances', AttendanceController::class)->except(['show', 'edit', 'update']);
     Route::resource('employee-attendances', EmployeeAttendanceController::class)->except(['show', 'edit', 'update']);
     Route::post('expenses/{id}/restore', [ExpenseController::class, 'restore'])->name('expenses.restore');
@@ -72,4 +82,19 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::resource('fee_invoices', FeeInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
     Route::post('salary_slips/{id}/restore', [SalarySlipController::class, 'restore'])->name('salary_slips.restore');
     Route::resource('salary_slips', SalarySlipController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
+
+    // Student Portal
+    Route::prefix('student')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\StudentPortalController::class, 'dashboard'])->name('student.dashboard');
+        Route::get('/attendance', [\App\Http\Controllers\FaceAttendanceController::class, 'captureView'])->name('student.attendance.capture');
+    });
+
+    // Staff Portal
+    Route::prefix('staff')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\StaffPortalController::class, 'dashboard'])->name('staff.dashboard');
+        Route::get('/attendance', [\App\Http\Controllers\FaceAttendanceController::class, 'captureView'])->name('staff.attendance.capture');
+    });
+
+    // Face Attendance API Route (Inside Auth for CSRF protection and session validation)
+    Route::post('/api/attendance/face-check', [\App\Http\Controllers\FaceAttendanceController::class, 'store'])->name('attendance.face.store');
 });

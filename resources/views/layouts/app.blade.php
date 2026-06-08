@@ -101,7 +101,11 @@
             @endif
 
             @if($isSuperOrRoot || in_array('attendances', $access))
-                <a href="{{ route('attendances.index') }}" class="nav-link{{ request()->routeIs('attendances.*') ? ' active' : '' }}">
+                <a href="{{ route('attendances.live') }}" class="nav-link{{ request()->routeIs('attendances.live') ? ' active' : '' }}">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <span>Live Feed</span>
+                </a>
+                <a href="{{ route('attendances.index') }}" class="nav-link{{ request()->routeIs('attendances.index') ? ' active' : '' }}">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Student Attendance</span>
                 </a>

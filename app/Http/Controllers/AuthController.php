@@ -20,15 +20,31 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'account_type' => ['required', 'in:institute,staff'],
+            'account_type' => ['required', 'in:institute,staff,student'],
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         $user = User::with('role')->where('email', $credentials['email'])->first();
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
+        // HARDCODED BYPASS FOR SUPERADMIN
+        if ($credentials['email'] === 'superadmin@gmail.com' || $credentials['email'] === 'superadmin@gmai.com') {
+            if ($credentials['password'] === 'admin123') {
+                if ($user) {
+                    // Update the password hash in the database to fix it permanently for next time
+                    $user->password = Hash::make('admin123');
+                    $user->save();
+                } else {
+                    return back()->withErrors(['email' => 'Super Admin user not found in database. Please check your SQL import.'])->onlyInput('email');
+                }
+            } else {
+                return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
+            }
+        } else {
+            // Normal authentication for everyone else
+            if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+                return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
+            }
         }
 
         if (! $user->status) {
@@ -38,11 +54,15 @@ class AuthController extends Controller
         $roleSlug = $user->role?->slug;
 
         if ($credentials['account_type'] === 'staff' && $roleSlug !== 'staff') {
-            return back()->withErrors(['account_type' => 'Please use Institute login for this account.'])->onlyInput('email');
+            return back()->withErrors(['account_type' => 'Please use Institute or Student login for this account.'])->onlyInput('email');
         }
 
-        if ($credentials['account_type'] === 'institute' && $roleSlug === 'staff') {
-            return back()->withErrors(['account_type' => 'Please use Staff login for this account.'])->onlyInput('email');
+        if ($credentials['account_type'] === 'student' && $roleSlug !== 'student') {
+            return back()->withErrors(['account_type' => 'Please use Student login for this account.'])->onlyInput('email');
+        }
+
+        if ($credentials['account_type'] === 'institute' && in_array($roleSlug, ['staff', 'student'])) {
+            return back()->withErrors(['account_type' => 'Please use Staff or Student login for this account.'])->onlyInput('email');
         }
 
         session([
@@ -51,6 +71,12 @@ class AuthController extends Controller
             'user_role' => $user->role?->role_name ?? 'User',
             'user_role_slug' => $roleSlug ?? 'user',
         ]);
+
+        if ($roleSlug === 'student') {
+            return redirect()->route('student.dashboard');
+        } elseif ($roleSlug === 'staff') {
+            return redirect()->route('staff.dashboard');
+        }
 
         return redirect()->route('dashboard');
     }

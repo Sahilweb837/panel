@@ -30,6 +30,53 @@ class AttendanceController extends Controller
         return view('attendances.index', compact('attendances', 'students'));
     }
 
+    public function live()
+    {
+        // Get today's attendances for both students and staff
+        $studentAttendances = Attendance::with('student')->whereDate('attendance_date', date('Y-m-d'))->latest()->get();
+        $staffAttendances = \App\Models\EmployeeAttendance::with('employee')->whereDate('attendance_date', date('Y-m-d'))->latest()->get();
+
+        $allAttendances = collect();
+        
+        foreach ($studentAttendances as $a) {
+            $allAttendances->push((object)[
+                'id' => 's_'.$a->id,
+                'name' => $a->student->first_name . ' ' . $a->student->last_name,
+                'role' => 'Student',
+                'time' => $a->created_at->format('h:i A'),
+                'timestamp' => $a->created_at,
+                'status' => $a->status,
+                'photo' => $a->photo_path,
+                'device' => $a->device_name,
+                'fine' => $a->fine
+            ]);
+        }
+
+        foreach ($staffAttendances as $a) {
+            $allAttendances->push((object)[
+                'id' => 'e_'.$a->id,
+                'name' => $a->employee->staff_name ?? $a->employee->employee_code,
+                'role' => 'Staff',
+                'time' => $a->created_at->format('h:i A'),
+                'timestamp' => $a->created_at,
+                'status' => $a->status,
+                'photo' => $a->photo_path,
+                'device' => $a->device_name,
+                'fine' => 0
+            ]);
+        }
+
+        $allAttendances = $allAttendances->sortByDesc('timestamp')->values();
+
+        // Dashboard stats
+        $presentToday = $allAttendances->where('status', 'Present')->count();
+        $absentToday = $allAttendances->where('status', 'Absent')->count();
+        $lateToday = $allAttendances->where('status', 'Late')->count();
+        $faceCaptures = $allAttendances->whereNotNull('photo')->count();
+
+        return view('attendances.live', compact('allAttendances', 'presentToday', 'absentToday', 'lateToday', 'faceCaptures'));
+    }
+
     public function create(Request $request)
     {
         $date = $request->input('date', \Carbon\Carbon::today()->toDateString());
