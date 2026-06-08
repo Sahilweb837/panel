@@ -83,6 +83,9 @@ class StudentController extends Controller
             'admission_date' => ['nullable', 'date'],
             'status' => ['nullable', 'boolean'],
             'biometric_id' => ['nullable', 'string', 'max:50'],
+            'discount' => ['nullable', 'numeric', 'min:0'],
+            'registration_fee' => ['nullable', 'numeric', 'min:0'],
+            'prospectus_fee' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $data['status'] = $request->boolean('status');
@@ -102,6 +105,51 @@ class StudentController extends Controller
             ]);
             $student->user_id = $user->id;
             $student->save();
+        }
+
+        // Auto-generate Fee Invoices
+        $now = now();
+        $baseInvNo = 'INV-' . $now->format('ymdHi') . '-' . $student->id;
+
+        // 1. Course Fee
+        if ($student->course) {
+            $courseFee = $student->course->fee;
+            $discount = $student->discount ?? 0;
+            $finalCourseFee = max(0, $courseFee - $discount);
+
+            \App\Models\FeeInvoice::create([
+                'student_id' => $student->id,
+                'invoice_no' => $baseInvNo . '-C',
+                'fee_category' => 'Course Fee',
+                'total_amount' => $courseFee,
+                'discount' => $discount,
+                'due_amount' => $finalCourseFee,
+                'status' => 'Unpaid',
+            ]);
+        }
+
+        // 2. Registration Fee
+        if ($student->registration_fee > 0) {
+            \App\Models\FeeInvoice::create([
+                'student_id' => $student->id,
+                'invoice_no' => $baseInvNo . '-R',
+                'fee_category' => 'Registration Fee',
+                'total_amount' => $student->registration_fee,
+                'due_amount' => $student->registration_fee,
+                'status' => 'Unpaid',
+            ]);
+        }
+
+        // 3. Prospectus Fee
+        if ($student->prospectus_fee > 0) {
+            \App\Models\FeeInvoice::create([
+                'student_id' => $student->id,
+                'invoice_no' => $baseInvNo . '-P',
+                'fee_category' => 'Prospectus Fee',
+                'total_amount' => $student->prospectus_fee,
+                'due_amount' => $student->prospectus_fee,
+                'status' => 'Unpaid',
+            ]);
         }
 
         return redirect()->route('students.index')->with('success', 'Student created successfully. Login generated.');
@@ -140,6 +188,9 @@ class StudentController extends Controller
             'admission_date' => ['nullable', 'date'],
             'status' => ['nullable', 'boolean'],
             'biometric_id' => ['nullable', 'string', 'max:50'],
+            'discount' => ['nullable', 'numeric', 'min:0'],
+            'registration_fee' => ['nullable', 'numeric', 'min:0'],
+            'prospectus_fee' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $data['status'] = $request->boolean('status');

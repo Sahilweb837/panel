@@ -35,6 +35,9 @@ class Student extends Model
         'admission_date',
         'status',
         'biometric_id',
+        'discount',
+        'registration_fee',
+        'prospectus_fee',
     ];
 
     public function attendances()
