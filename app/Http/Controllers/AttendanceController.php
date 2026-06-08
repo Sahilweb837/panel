@@ -74,6 +74,19 @@ class AttendanceController extends Controller
         $lateToday = $allAttendances->where('status', 'Late')->count();
         $faceCaptures = $allAttendances->whereNotNull('photo')->count();
 
+        if (request()->ajax()) {
+            $html = view('attendances.partials.live_table', compact('allAttendances'))->render();
+            return response()->json([
+                'html' => $html,
+                'stats' => [
+                    'present' => $presentToday,
+                    'absent' => $absentToday,
+                    'late' => $lateToday,
+                    'face' => $faceCaptures
+                ]
+            ]);
+        }
+
         return view('attendances.live', compact('allAttendances', 'presentToday', 'absentToday', 'lateToday', 'faceCaptures'));
     }
 

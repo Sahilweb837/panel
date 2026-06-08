@@ -51,6 +51,8 @@ class EnsureUserIsAuthenticated
                     $allowed = true;
                 } elseif (str_starts_with($route, 'attendances.') && in_array('attendances', $access)) {
                     $allowed = true;
+                } elseif (str_starts_with($route, 'biometric.') && in_array('attendances', $access)) {
+                    $allowed = true;
                 } elseif (str_starts_with($route, 'fee_invoices.') && in_array('fee-invoices', $access)) {
                     $allowed = true;
                 } elseif (str_starts_with($route, 'expenses.') && in_array('expenses', $access)) {

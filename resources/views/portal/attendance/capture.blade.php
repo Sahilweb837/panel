@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         captureCanvas.width = video.videoWidth;
         captureCanvas.height = video.videoHeight;
         captureCanvas.getContext('2d').drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
-        const imageData = captureCanvas.toDataURL('image/jpeg', 0.8);
+        const imageData = captureCanvas.toDataURL('image/jpeg', 0.5);
         
         stream.getTracks().forEach(track => track.stop());
         

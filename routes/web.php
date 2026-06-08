@@ -13,6 +13,7 @@ use App\Http\Controllers\FeeInvoiceController;
 use App\Http\Controllers\SalarySlipController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubAdminController;
+use App\Http\Controllers\BiometricController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
