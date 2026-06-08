@@ -20,9 +20,9 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label fw-bold">IP Address</label>
+                        <label class="form-label fw-bold">IP Address or Domain</label>
                         <input type="text" name="ip_address" class="form-control" value="{{ old('ip_address', $device->ip_address) }}" required>
-                        <div class="form-text">The local IP address of your ZKTeco device (e.g., 192.168.1.201).</div>
+                        <div class="form-text">The local IP address or remote domain of your ZKTeco device (e.g., 192.168.1.201 or myzkteco.dyndns.org).</div>
                     </div>
                     
                     <div class="mb-4">

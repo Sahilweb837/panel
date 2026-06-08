@@ -31,7 +31,7 @@ class BiometricController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'ip_address' => 'required|ip',
+            'ip_address' => 'required|string',
             'port' => 'required|numeric'
         ]);
 
