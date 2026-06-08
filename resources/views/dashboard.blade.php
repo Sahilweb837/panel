@@ -347,6 +347,13 @@
                                 <i class="fas fa-book"></i>
                                 <span>Add Course</span>
                             </a>
+                            <form action="{{ route('clear-cache') }}" method="POST" class="d-inline-block w-100" style="grid-column: span 2;">
+                                @csrf
+                                <button type="submit" class="shortcut-btn w-100 flex-row" style="padding: 12px; background: rgba(255, 85, 50, 0.05);">
+                                    <i class="fas fa-broom text-first"></i>
+                                    <span class="text-first">Clear Application Cache</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

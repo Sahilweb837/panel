@@ -25,6 +25,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/clear-cache', [DashboardController::class, 'clearCache'])->name('clear-cache');
     Route::get('student-expenses', [StudentExpenseController::class, 'index'])->name('student_expenses.index');
     
     // Export CSV and PDF routes (must be defined BEFORE resource controllers so they aren't caught by wildcard resource routes)

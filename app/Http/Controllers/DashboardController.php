@@ -43,4 +43,11 @@ class DashboardController extends Controller
             'totalPendingFees' => FeeInvoice::sum('due_amount'),
         ]);
     }
+
+    public function clearCache()
+    {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        
+        return back()->with('success', 'Application cache cleared successfully.');
+    }
 }
