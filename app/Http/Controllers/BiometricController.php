@@ -122,7 +122,7 @@ class BiometricController extends Controller
                         $newRecords++;
                     } else {
                         if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
-                            if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
+                            if (!$attendance->check_out_time) {
                                 $attendance->update(['check_out_time' => $punchTime]);
                                 $newRecords++;
                             }
@@ -150,7 +150,7 @@ class BiometricController extends Controller
                         $newRecords++;
                     } else {
                         if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
-                            if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
+                            if (!$attendance->check_out_time) {
                                 $attendance->update(['check_out_time' => $punchTime]);
                                 $newRecords++;
                             }
