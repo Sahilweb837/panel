@@ -72,13 +72,14 @@
 
                         <div class="form-group">
                             <label for="staff_name" class="fw-semibold mb-2">
-                                <i class="fas fa-user text-first me-2"></i>Full Name
+                                <i class="fas fa-user text-first me-2"></i>Full Name <span class="text-danger">*</span>
                             </label>
                             <input 
                                 type="text" 
                                 id="staff_name" 
                                 name="staff_name" 
                                 value="{{ old('staff_name', $employee->user?->name) }}" 
+                                required 
                                 placeholder="Enter staff member name" 
                                 class="form-input {{ $errors->has('staff_name') ? 'is-invalid' : '' }}" 
                             />
