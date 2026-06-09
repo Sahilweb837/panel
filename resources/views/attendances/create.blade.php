@@ -31,6 +31,7 @@
                                 <small class="text-muted d-block mt-2">Changing the date will automatically load any previously recorded attendance for that day.</small>
                             </div>
                             <div class="d-flex gap-2">
+                                <button type="button" onclick="markUnpunchedAbsent()" class="button button-secondary px-3" style="border-color: rgba(220, 53, 69, 0.3) !important; color: #dc3545 !important;" title="Mark students who haven't punched today as Absent"><i class="fas fa-user-times me-2"></i>Mark Unpunched Absent</button>
                                 <button type="button" onclick="markAll('Present')" class="button button-secondary px-3"><i class="fas fa-check-double me-2 text-success"></i>Mark All Present</button>
                                 <button type="button" onclick="markAll('Absent')" class="button button-secondary px-3" style="border-color: rgba(220, 53, 69, 0.3) !important; color: #dc3545 !important;"><i class="fas fa-times-circle me-2"></i>Mark All Absent</button>
                             </div>
@@ -298,6 +299,27 @@
                 const matches = radio.id.match(/status_(\d+)_/);
                 if (matches && matches[1]) {
                     handleStatusChange(matches[1], status);
+                }
+            });
+        }
+
+        function markUnpunchedAbsent() {
+            // Find all time inputs for check_in_time
+            const timeInputs = document.querySelectorAll('input[name$="[check_in_time]"]');
+            timeInputs.forEach(input => {
+                // If there's no check-in time recorded
+                if (!input.value || input.value.trim() === '') {
+                    const idMatch = input.id.match(/time_(\d+)/);
+                    if (idMatch && idMatch[1]) {
+                        const studentId = idMatch[1];
+                        const absentRadio = document.getElementById(`status_${studentId}_absent`);
+                        if (absentRadio) {
+                            absentRadio.checked = true;
+                            // Clear any automatically populated time by handleStatusChange
+                            const timeField = document.getElementById(`time_${studentId}`);
+                            if(timeField) timeField.value = '';
+                        }
+                    }
                 }
             });
         }
