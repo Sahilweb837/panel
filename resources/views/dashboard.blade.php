@@ -296,6 +296,45 @@
                 </div>
             </div>
 
+            <!-- Biometric Connection Status -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card premium-stat-card p-4">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                @php
+                                    $isAdmsConnected = isset($biometricDevice) && $biometricDevice->last_sync && \Carbon\Carbon::parse($biometricDevice->last_sync)->diffInMinutes(now()) < 5;
+                                @endphp
+                                <div class="stat-circle-box" style="width: 50px; height: 50px; background: {{ $isAdmsConnected ? 'rgba(16, 185, 129, 0.1)' : 'rgba(108, 117, 125, 0.1)' }}; border-radius: 50%;">
+                                    <i class="fas fa-satellite-dish {{ $isAdmsConnected ? 'text-success' : 'text-secondary' }} fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1 text-dark-title">ZKTeco Biometric Connection</h5>
+                                    @if($isAdmsConnected)
+                                        <span class="badge bg-success"><i class="fas fa-circle blink-animation me-1"></i> Online & Live</span>
+                                        <small class="text-muted ms-2">Syncing punches automatically. Last ping: {{ \Carbon\Carbon::parse($biometricDevice->last_sync)->diffForHumans() }}</small>
+                                    @else
+                                        <span class="badge bg-secondary"><i class="fas fa-circle me-1"></i> Offline</span>
+                                        <small class="text-muted ms-2">
+                                            @if(isset($biometricDevice) && $biometricDevice->last_sync)
+                                                Last seen: {{ \Carbon\Carbon::parse($biometricDevice->last_sync)->diffForHumans() }}
+                                            @else
+                                                Device has never connected to ADMS.
+                                            @endif
+                                        </small>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('biometric.index') }}" class="button button-secondary py-2 px-4">
+                                    <i class="fas fa-cog me-2"></i>Hardware Setup Guide
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Financial Summary Cashflow Deck -->
             <div class="row g-4 mb-4">
                 <div class="col-12 col-lg-8">

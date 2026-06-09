@@ -41,6 +41,7 @@ class DashboardController extends Controller
             'totalIncome' => FeeInvoice::sum('paid_amount'),
             'totalExpense' => Expense::sum('amount'),
             'totalPendingFees' => FeeInvoice::sum('due_amount'),
+            'biometricDevice' => \App\Models\BiometricDevice::first(),
         ]);
     }
 
