@@ -84,8 +84,8 @@ class ZKTecoADMSController extends Controller
                             $checkInTimestamp = strtotime($attendance->check_in_time);
                             $punchTimestamp = strtotime($punchTime);
                             
-                            // Prevent accidental double punches: Only update Check-Out if punch is at least 15 minutes (900 seconds) after Check-In
-                            if (($punchTimestamp - $checkInTimestamp) > 900) {
+                            // Prevent accidental double punches: Only update Check-Out if punch is at least 1 minute (60 seconds) after Check-In
+                            if (($punchTimestamp - $checkInTimestamp) > 60) {
                                 if (!$attendance->check_out_time || $punchTimestamp > strtotime($attendance->check_out_time)) {
                                     $attendance->update(['check_out_time' => $punchTime]);
                                 }
@@ -113,8 +113,8 @@ class ZKTecoADMSController extends Controller
                             $checkInTimestamp = strtotime($attendance->check_in_time);
                             $punchTimestamp = strtotime($punchTime);
                             
-                            // Prevent accidental double punches: Only update Check-Out if punch is at least 15 minutes (900 seconds) after Check-In
-                            if (($punchTimestamp - $checkInTimestamp) > 900) {
+                            // Prevent accidental double punches: Only update Check-Out if punch is at least 1 minute (60 seconds) after Check-In
+                            if (($punchTimestamp - $checkInTimestamp) > 60) {
                                 if (!$attendance->check_out_time || $punchTimestamp > strtotime($attendance->check_out_time)) {
                                     $attendance->update(['check_out_time' => $punchTime]);
                                 }

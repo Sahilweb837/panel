@@ -82,6 +82,7 @@
                                              $checkInTime = $existing ? $existing->check_in_time : '';
                                              $checkOutTime = $existing ? $existing->check_out_time : '';
                                              $fine = $existing ? $existing->fine : 0;
+                                             $photo = $existing ? $existing->photo_path : '';
                                          @endphp
                                          <tr>
                                              <td class="ps-4">
@@ -155,7 +156,11 @@
                                              </td>
                                              <td class="text-center">
                                                  <input type="hidden" name="attendance[{{ $student->id }}][photo]" id="photo_input_{{ $student->id }}" value="" />
-                                                 <img id="photo_preview_{{ $student->id }}" src="" style="display:none; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--first-color); margin: 0 auto 5px;" />
+                                                 @if($photo)
+                                                     <img id="photo_preview_{{ $student->id }}" src="{{ asset($photo) }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--first-color); margin: 0 auto 5px;" />
+                                                 @else
+                                                     <img id="photo_preview_{{ $student->id }}" src="" style="display:none; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--first-color); margin: 0 auto 5px;" />
+                                                 @endif
                                                  <button type="button" onclick="openCamera({{ $student->id }})" class="btn btn-outline-first btn-sm p-1" title="Take Photo" style="width: 30px; height: 30px; border-radius: 6px;">
                                                      <i class="fas fa-camera"></i>
                                                  </button>
