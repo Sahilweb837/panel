@@ -65,8 +65,7 @@
                                 <th class="ps-4"><i class="fas fa-user me-1"></i> Student</th>
                                 <th><i class="fas fa-calendar-day me-1"></i> Date</th>
                                 <th class="text-center"><i class="fas fa-toggle-on me-1"></i> Status</th>
-                                <th class="text-center"><i class="fas fa-arrow-right-to-bracket me-1"></i> Check-in</th>
-                                <th class="text-center"><i class="fas fa-arrow-right-from-bracket me-1"></i> Check-out</th>
+                                <th class="text-center"><i class="fas fa-clock me-1"></i> Check-In / Out</th>
                                 <th class="text-end"><i class="fas fa-sack-dollar me-1"></i> Fine</th>
                                 <th><i class="fas fa-comment-dots me-1"></i> Remarks</th>
                                 <th class="text-end pe-4"><i class="fas fa-cogs me-1"></i> Actions</th>
@@ -97,22 +96,20 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        @if($attendance->check_in_time)
-                                            <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                                                <i class="far fa-clock text-success me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_in_time)->format('h:i A') }}
-                                            </span>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($attendance->check_out_time)
-                                            <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                                                <i class="far fa-clock text-danger me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_out_time)->format('h:i A') }}
-                                            </span>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
+                                        <div class="d-flex flex-column align-items-center gap-1 justify-content-center">
+                                            @if($attendance->check_in_time)
+                                                <span class="badge bg-light text-success border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
+                                                    <i class="fas fa-sign-in-alt me-1 text-success"></i>{{ \Carbon\Carbon::parse($attendance->check_in_time)->format('h:i A') }}
+                                                </span>
+                                            @endif
+                                            @if($attendance->check_out_time)
+                                                <span class="badge bg-light text-danger border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
+                                                    <i class="fas fa-sign-out-alt me-1 text-danger"></i>{{ \Carbon\Carbon::parse($attendance->check_out_time)->format('h:i A') }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted small" style="font-size: 0.75rem;">No Out Punch</span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="text-end fw-semibold text-dark-title">₹{{ number_format($attendance->fine, 2) }}</td>
                                     <td class="text-muted" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">

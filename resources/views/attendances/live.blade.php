@@ -62,8 +62,7 @@
                         <th>Name</th>
                         <th>Role</th>
                         <th>Status</th>
-                        <th class="text-center"><i class="fas fa-arrow-right-to-bracket me-1"></i>Check-in</th>
-                        <th class="text-center"><i class="fas fa-arrow-right-from-bracket me-1"></i>Check-out</th>
+                        <th class="text-center"><i class="fas fa-clock me-1"></i>Check-In / Out</th>
                         <th>Device</th>
                     </tr>
                 </thead>

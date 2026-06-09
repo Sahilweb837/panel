@@ -21,22 +21,20 @@
             </span>
         </td>
         <td class="text-center">
-            @if($attendance->check_in)
-                <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                    <i class="far fa-clock text-success me-1"></i>{{ $attendance->check_in }}
-                </span>
-            @else
-                <span class="text-muted">-</span>
-            @endif
-        </td>
-        <td class="text-center">
-            @if($attendance->check_out)
-                <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                    <i class="far fa-clock text-danger me-1"></i>{{ $attendance->check_out }}
-                </span>
-            @else
-                <span class="text-muted">-</span>
-            @endif
+            <div class="d-flex flex-column align-items-center gap-1 justify-content-center">
+                @if($attendance->check_in)
+                    <span class="badge bg-light text-success border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
+                        <i class="fas fa-sign-in-alt me-1 text-success"></i>{{ $attendance->check_in }}
+                    </span>
+                @endif
+                @if($attendance->check_out)
+                    <span class="badge bg-light text-danger border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
+                        <i class="fas fa-sign-out-alt me-1 text-danger"></i>{{ $attendance->check_out }}
+                    </span>
+                @else
+                    <span class="text-muted small" style="font-size: 0.75rem;">No Out Punch</span>
+                @endif
+            </div>
         </td>
         <td class="text-muted small">
             <i class="fas {{ str_contains(strtolower($attendance->device ?? ''), 'web') ? 'fa-laptop' : 'fa-fingerprint' }} me-1"></i> 
