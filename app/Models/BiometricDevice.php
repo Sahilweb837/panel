@@ -9,5 +9,5 @@ class BiometricDevice extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'ip_address', 'port', 'status', 'last_sync'];
 }
