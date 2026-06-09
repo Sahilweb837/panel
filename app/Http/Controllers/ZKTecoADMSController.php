@@ -21,9 +21,11 @@ class ZKTecoADMSController extends Controller
         if ($device) {
             $device->update(['last_sync' => now()]);
         }
-        
+        date_default_timezone_set('Asia/Kolkata');
+        $currentTime = date('Y-m-d H:i:s');
+
         // ZKTeco expects GET_OPTION or OK responses during init
-        return response("GET OPTION FROM: {$sn}\nStamp=9999\nOpStamp=9999\nErrorDelay=60\nDelay=10\nTransTimes=00:00;14:00\nTransInterval=1\nTransFlag=1111000000\nTimeZone=5.5\nRealtime=1\nEncrypt=0\nServerVer=2.2.14\n", 200)
+        return response("GET OPTION FROM: {$sn}\nStamp=9999\nOpStamp=9999\nErrorDelay=60\nDelay=10\nTransTimes=00:00;14:00\nTransInterval=1\nTransFlag=1111000000\nTimeZone=5.5\nRealtime=1\nEncrypt=0\nServerVer=2.2.14\nTime={$currentTime}\n", 200)
                 ->header('Content-Type', 'text/plain');
     }
 
@@ -41,6 +43,8 @@ class ZKTecoADMSController extends Controller
         $body = $request->getContent();
         Log::info("ADMS Webhook [$table] from $sn: \n" . $body);
 
+        date_default_timezone_set('Asia/Kolkata');
+
         if ($table === 'ATTLOG') {
             $lines = explode("\n", trim($body));
             $count = 0;
@@ -57,6 +61,9 @@ class ZKTecoADMSController extends Controller
                     $punchDate = date('Y-m-d', strtotime($time));
                     $punchTime = date('H:i:s', strtotime($time));
 
+                    // Check for Late (e.g. after 09:15:00 AM)
+                    $punchStatus = (strtotime($punchTime) > strtotime('09:15:00')) ? 'Late' : 'Present';
+
                     // 1. Try to find if it's a student
                     $student = Student::where('biometric_id', $pin)->first();
                     if ($student) {
@@ -69,14 +76,13 @@ class ZKTecoADMSController extends Controller
                                 'student_id' => $student->id,
                                 'attendance_date' => $punchDate,
                                 'check_in_time' => $punchTime,
-                                'status' => 'Present',
+                                'status' => $punchStatus,
                                 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')',
                                 'created_at' => $time
                             ]);
                             $count++;
                         } else {
                             if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
-                                // If check_out_time is null or punch is later than current check_out_time
                                 if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
                                     $attendance->update(['check_out_time' => $punchTime]);
                                     $count++;
@@ -98,7 +104,7 @@ class ZKTecoADMSController extends Controller
                                 'employee_id' => $employee->id,
                                 'attendance_date' => $punchDate,
                                 'check_in_time' => $punchTime,
-                                'status' => 'Present',
+                                'status' => $punchStatus,
                                 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')',
                                 'created_at' => $time
                             ]);

@@ -155,7 +155,7 @@
                                             <div class="user-info">
                                                 <div class="avatar" style="font-weight: 700; background: rgba(255, 85, 50, 0.1); color: var(--first-color); display: flex; align-items: center; justify-content: center; overflow: hidden;">
                                                     @if($attendance->photo_path)
-                                                        <img src="{{ Storage::url($attendance->photo_path) }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                        <img src="{{ asset($attendance->photo_path) }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover;" />
                                                     @else
                                                         {{ strtoupper(substr($attendance->employee?->user?->name ?? 'S', 0, 1)) }}
                                                     @endif
@@ -180,7 +180,7 @@
                                         <td class="text-center">
                                             @if($attendance->check_in_time)
                                                 <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                                                    <i class="far fa-clock text-success me-1"></i>{{ $attendance->check_in_time }}
+                                                    <i class="far fa-clock text-success me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_in_time)->format('h:i A') }}
                                                 </span>
                                             @else
                                                 <span class="text-muted">-</span>
@@ -189,7 +189,7 @@
                                         <td class="text-center">
                                             @if($attendance->check_out_time)
                                                 <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                                                    <i class="far fa-clock text-danger me-1"></i>{{ $attendance->check_out_time }}
+                                                    <i class="far fa-clock text-danger me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_out_time)->format('h:i A') }}
                                                 </span>
                                             @else
                                                 <span class="text-muted">-</span>
