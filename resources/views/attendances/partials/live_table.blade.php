@@ -5,7 +5,7 @@
         </td>
         <td>
             @if($attendance->photo)
-                <img src="{{ Storage::url($attendance->photo) }}" width="45" height="45" class="rounded-circle shadow-sm" style="object-fit: cover; cursor: pointer;" onclick="showImageModal('{{ Storage::url($attendance->photo) }}', '{{ $attendance->name }}')">
+                <img src="{{ asset($attendance->photo) }}" width="45" height="45" class="rounded-circle shadow-sm" style="object-fit: cover; cursor: pointer;" onclick="showImageModal('{{ asset($attendance->photo) }}', '{{ $attendance->name }}')">
             @else
                 <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted border" style="width: 45px; height: 45px;">
                     <i class="fas fa-user"></i>
