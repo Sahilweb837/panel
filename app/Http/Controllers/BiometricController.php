@@ -98,19 +98,27 @@ class BiometricController extends Controller
                 $student = Student::where('biometric_id', $log['id'])->first();
                 if ($student) {
                     // Check if already marked for this date
-                    $exists = Attendance::where('student_id', $student->id)
+                    $attendance = Attendance::where('student_id', $student->id)
                                 ->whereDate('attendance_date', $punchDate)
-                                ->exists();
+                                ->first();
                     
-                    if (!$exists) {
+                    if (!$attendance) {
                         Attendance::create([
                             'student_id' => $student->id,
                             'attendance_date' => $punchDate,
+                            'check_in_time' => $punchTime,
                             'status' => 'Present', // Basic check-in. Could add Late logic here based on time.
                             'device_name' => 'Biometric Device (' . $device->ip_address . ')',
                             'created_at' => $log['timestamp']
                         ]);
                         $newRecords++;
+                    } else {
+                        if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
+                            if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
+                                $attendance->update(['check_out_time' => $punchTime]);
+                                $newRecords++;
+                            }
+                        }
                     }
                     continue; // Done with this log
                 }
@@ -118,19 +126,27 @@ class BiometricController extends Controller
                 // 2. Try to find if it's an employee
                 $employee = Employee::where('biometric_id', $log['id'])->first();
                 if ($employee) {
-                    $exists = EmployeeAttendance::where('employee_id', $employee->id)
+                    $attendance = EmployeeAttendance::where('employee_id', $employee->id)
                                 ->whereDate('attendance_date', $punchDate)
-                                ->exists();
+                                ->first();
                     
-                    if (!$exists) {
+                    if (!$attendance) {
                         EmployeeAttendance::create([
                             'employee_id' => $employee->id,
                             'attendance_date' => $punchDate,
+                            'check_in_time' => $punchTime,
                             'status' => 'Present',
                             'device_name' => 'Biometric Device (' . $device->ip_address . ')',
                             'created_at' => $log['timestamp']
                         ]);
                         $newRecords++;
+                    } else {
+                        if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
+                            if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
+                                $attendance->update(['check_out_time' => $punchTime]);
+                                $newRecords++;
+                            }
+                        }
                     }
                 }
             }

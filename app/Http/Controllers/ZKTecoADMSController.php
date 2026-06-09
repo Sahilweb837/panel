@@ -60,11 +60,11 @@ class ZKTecoADMSController extends Controller
                     // 1. Try to find if it's a student
                     $student = Student::where('biometric_id', $pin)->first();
                     if ($student) {
-                        $exists = Attendance::where('student_id', $student->id)
+                        $attendance = Attendance::where('student_id', $student->id)
                                     ->whereDate('attendance_date', $punchDate)
-                                    ->exists();
+                                    ->first();
                         
-                        if (!$exists) {
+                        if (!$attendance) {
                             Attendance::create([
                                 'student_id' => $student->id,
                                 'attendance_date' => $punchDate,
@@ -74,6 +74,14 @@ class ZKTecoADMSController extends Controller
                                 'created_at' => $time
                             ]);
                             $count++;
+                        } else {
+                            if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
+                                // If check_out_time is null or punch is later than current check_out_time
+                                if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
+                                    $attendance->update(['check_out_time' => $punchTime]);
+                                    $count++;
+                                }
+                            }
                         }
                         continue;
                     }
@@ -81,11 +89,11 @@ class ZKTecoADMSController extends Controller
                     // 2. Try to find if it's an employee
                     $employee = Employee::where('biometric_id', $pin)->first();
                     if ($employee) {
-                        $exists = EmployeeAttendance::where('employee_id', $employee->id)
+                        $attendance = EmployeeAttendance::where('employee_id', $employee->id)
                                     ->whereDate('attendance_date', $punchDate)
-                                    ->exists();
+                                    ->first();
                         
-                        if (!$exists) {
+                        if (!$attendance) {
                             EmployeeAttendance::create([
                                 'employee_id' => $employee->id,
                                 'attendance_date' => $punchDate,
@@ -95,6 +103,13 @@ class ZKTecoADMSController extends Controller
                                 'created_at' => $time
                             ]);
                             $count++;
+                        } else {
+                            if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
+                                if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
+                                    $attendance->update(['check_out_time' => $punchTime]);
+                                    $count++;
+                                }
+                            }
                         }
                     }
                 }
