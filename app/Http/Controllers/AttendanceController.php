@@ -34,16 +34,21 @@ class AttendanceController extends Controller
     {
         // Get today's attendances for both students and staff
         $studentAttendances = Attendance::with('student')->whereDate('attendance_date', date('Y-m-d'))->latest()->get();
-        $staffAttendances = \App\Models\EmployeeAttendance::with('employee')->whereDate('attendance_date', date('Y-m-d'))->latest()->get();
+        $staffAttendances = \App\Models\EmployeeAttendance::with('employee.user')->whereDate('attendance_date', date('Y-m-d'))->latest()->get();
 
         $allAttendances = collect();
         
         foreach ($studentAttendances as $a) {
+            $checkIn = $a->check_in_time ? \Carbon\Carbon::parse($a->check_in_time)->format('h:i A') : null;
+            $checkOut = $a->check_out_time ? \Carbon\Carbon::parse($a->check_out_time)->format('h:i A') : null;
+            
             $allAttendances->push((object)[
                 'id' => 's_'.$a->id,
                 'name' => $a->student->first_name . ' ' . $a->student->last_name,
                 'role' => 'Student',
-                'time' => $a->created_at->format('h:i A'),
+                'check_in' => $checkIn,
+                'check_out' => $checkOut,
+                'time' => $checkIn ?? $a->created_at->format('h:i A'),
                 'timestamp' => $a->created_at,
                 'status' => $a->status,
                 'photo' => $a->photo_path,
@@ -53,11 +58,16 @@ class AttendanceController extends Controller
         }
 
         foreach ($staffAttendances as $a) {
+            $checkIn = $a->check_in_time ? \Carbon\Carbon::parse($a->check_in_time)->format('h:i A') : null;
+            $checkOut = $a->check_out_time ? \Carbon\Carbon::parse($a->check_out_time)->format('h:i A') : null;
+            
             $allAttendances->push((object)[
                 'id' => 'e_'.$a->id,
-                'name' => $a->employee->staff_name ?? $a->employee->employee_code,
+                'name' => $a->employee?->user?->name ?? $a->employee?->employee_code ?? 'N/A',
                 'role' => 'Staff',
-                'time' => $a->created_at->format('h:i A'),
+                'check_in' => $checkIn,
+                'check_out' => $checkOut,
+                'time' => $checkIn ?? $a->created_at->format('h:i A'),
                 'timestamp' => $a->created_at,
                 'status' => $a->status,
                 'photo' => $a->photo_path,

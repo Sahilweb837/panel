@@ -58,11 +58,12 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-4">Time</th>
-                        <th>Photo</th>
+                        <th class="ps-4">Photo</th>
                         <th>Name</th>
                         <th>Role</th>
                         <th>Status</th>
+                        <th class="text-center"><i class="fas fa-arrow-right-to-bracket me-1"></i>Check-in</th>
+                        <th class="text-center"><i class="fas fa-arrow-right-from-bracket me-1"></i>Check-out</th>
                         <th>Device</th>
                     </tr>
                 </thead>

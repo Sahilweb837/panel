@@ -1,14 +1,11 @@
 @forelse($allAttendances as $attendance)
     <tr>
-        <td class="ps-4 fw-medium text-muted">
-            <i class="far fa-clock me-1"></i> {{ $attendance->time }}
-        </td>
-        <td>
+        <td class="ps-4">
             @if($attendance->photo)
-                <img src="{{ asset($attendance->photo) }}" width="45" height="45" class="rounded-circle shadow-sm" style="object-fit: cover; cursor: pointer;" onclick="showImageModal('{{ asset($attendance->photo) }}', '{{ $attendance->name }}')">
+                <img src="{{ asset($attendance->photo) }}" width="45" height="45" class="rounded-circle shadow-sm" style="object-fit: cover; cursor: pointer; border: 2px solid var(--first-color, #ff5532);" onclick="showImageModal('{{ asset($attendance->photo) }}', '{{ $attendance->name }}')">
             @else
-                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted border" style="width: 45px; height: 45px;">
-                    <i class="fas fa-user"></i>
+                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 45px; height: 45px; background: linear-gradient(135deg, #ff5532, #ff8a65); font-size: 1.1rem;">
+                    {{ strtoupper(substr($attendance->name, 0, 1)) }}
                 </div>
             @endif
         </td>
@@ -23,14 +20,32 @@
                 {{ $attendance->status }}
             </span>
         </td>
+        <td class="text-center">
+            @if($attendance->check_in)
+                <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
+                    <i class="far fa-clock text-success me-1"></i>{{ $attendance->check_in }}
+                </span>
+            @else
+                <span class="text-muted">-</span>
+            @endif
+        </td>
+        <td class="text-center">
+            @if($attendance->check_out)
+                <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
+                    <i class="far fa-clock text-danger me-1"></i>{{ $attendance->check_out }}
+                </span>
+            @else
+                <span class="text-muted">-</span>
+            @endif
+        </td>
         <td class="text-muted small">
-            <i class="fas {{ str_contains(strtolower($attendance->device), 'web') ? 'fa-laptop' : 'fa-mobile-alt' }} me-1"></i> 
+            <i class="fas {{ str_contains(strtolower($attendance->device ?? ''), 'web') ? 'fa-laptop' : 'fa-fingerprint' }} me-1"></i> 
             {{ $attendance->device ?? 'System' }}
         </td>
     </tr>
 @empty
     <tr>
-        <td colspan="6" class="text-center py-5 text-muted">
+        <td colspan="7" class="text-center py-5 text-muted">
             <i class="fas fa-inbox fa-3x mb-3 opacity-50"></i>
             <h5>No attendance records today</h5>
             <p>Records will appear here automatically when students/staff check in.</p>
