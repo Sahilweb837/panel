@@ -67,61 +67,48 @@ class ZKTecoADMSController extends Controller
                     // 1. Try to find if it's a student
                     $student = Student::where('biometric_id', $pin)->first();
                     if ($student) {
-                        $attendance = Attendance::where('student_id', $student->id)
-                                    ->whereDate('attendance_date', $punchDate)
-                                    ->first();
-                        
-                        if (!$attendance) {
-                            Attendance::create([
-                                'student_id' => $student->id,
-                                'attendance_date' => $punchDate,
+                        $attendance = Attendance::firstOrCreate(
+                            ['student_id' => $student->id, 'attendance_date' => $punchDate],
+                            [
                                 'check_in_time' => $punchTime,
                                 'status' => $punchStatus,
                                 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')',
                                 'created_at' => $time
-                            ]);
-                            $count++;
-                        } else {
-                            if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
-                                if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
-                                    $attendance->update(['check_out_time' => $punchTime]);
-                                    $count++;
-                                }
-                            }
+                            ]
+                        );
+                        
+                        // If it already existed but check_in_time was null (e.g. photo arrived first)
+                        if (!$attendance->check_in_time) {
+                            $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
                         }
-                        continue;
+                        // User explicitly requested NOT to update time if it already came once.
+                        // So we completely ignore any second punches (no check-out update).
                     }
 
                     // 2. Try to find if it's an employee
                     $employee = Employee::where('biometric_id', $pin)->first();
                     if ($employee) {
-                        $attendance = EmployeeAttendance::where('employee_id', $employee->id)
-                                    ->whereDate('attendance_date', $punchDate)
-                                    ->first();
-                        
-                        if (!$attendance) {
-                            EmployeeAttendance::create([
-                                'employee_id' => $employee->id,
-                                'attendance_date' => $punchDate,
+                        $attendance = EmployeeAttendance::firstOrCreate(
+                            ['employee_id' => $employee->id, 'attendance_date' => $punchDate],
+                            [
                                 'check_in_time' => $punchTime,
                                 'status' => $punchStatus,
                                 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')',
                                 'created_at' => $time
-                            ]);
-                            $count++;
-                        } else {
-                            if (strtotime($punchTime) > strtotime($attendance->check_in_time)) {
-                                if (!$attendance->check_out_time || strtotime($punchTime) > strtotime($attendance->check_out_time)) {
-                                    $attendance->update(['check_out_time' => $punchTime]);
-                                    $count++;
-                                }
-                            }
+                            ]
+                        );
+                        
+                        // If it already existed but check_in_time was null
+                        if (!$attendance->check_in_time) {
+                            $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
                         }
+                        // User explicitly requested NOT to update time if it already came once.
+                        // So we completely ignore any second punches (no check-out update).
                     }
                 }
             }
-            // Return OK: count to clear records from the device
-            return response("OK: {$count}\n", 200)->header('Content-Type', 'text/plain');
+            // Always return plain OK to acknowledge all lines and clear them from the device queue
+            return response("OK\n", 200)->header('Content-Type', 'text/plain');
         }
 
         if ($table === 'ATTPHOTO' || $table === 'realtimephoto' || strpos($table, 'photo') !== false) {
@@ -144,17 +131,19 @@ class ZKTecoADMSController extends Controller
 
                 $student = Student::where('biometric_id', $pin)->first();
                 if ($student) {
-                    $attendance = Attendance::where('student_id', $student->id)->whereDate('attendance_date', $today)->first();
-                    if ($attendance) {
-                        $attendance->update(['photo_path' => $photoUrl]);
-                    }
+                    $attendance = Attendance::firstOrCreate(
+                        ['student_id' => $student->id, 'attendance_date' => $today],
+                        ['status' => 'Present', 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')']
+                    );
+                    $attendance->update(['photo_path' => $photoUrl]);
                 } else {
                     $employee = Employee::where('biometric_id', $pin)->first();
                     if ($employee) {
-                        $attendance = EmployeeAttendance::where('employee_id', $employee->id)->whereDate('attendance_date', $today)->first();
-                        if ($attendance) {
-                            $attendance->update(['photo_path' => $photoUrl]);
-                        }
+                        $attendance = EmployeeAttendance::firstOrCreate(
+                            ['employee_id' => $employee->id, 'attendance_date' => $today],
+                            ['status' => 'Present', 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')']
+                        );
+                        $attendance->update(['photo_path' => $photoUrl]);
                     }
                 }
             }
