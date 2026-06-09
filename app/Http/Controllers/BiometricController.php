@@ -57,6 +57,10 @@ class BiometricController extends Controller
 
     public function testConnection()
     {
+        if (!class_exists('\Rats\Zkteco\Lib\ZKTeco')) {
+            return back()->withErrors(['connection' => 'Manual socket connection is disabled on live cloud servers. Your system is configured for automatic ADMS syncing.']);
+        }
+
         $device = BiometricDevice::first();
         $zk = new ZKTeco($device->ip_address, $device->port);
         
@@ -70,6 +74,10 @@ class BiometricController extends Controller
 
     public function syncLogs()
     {
+        if (!class_exists('\Rats\Zkteco\Lib\ZKTeco')) {
+            return back()->withErrors(['connection' => 'Manual socket connection is disabled on live cloud servers. Your system is configured for automatic ADMS syncing.']);
+        }
+
         $device = BiometricDevice::first();
         $zk = new ZKTeco($device->ip_address, $device->port);
         
