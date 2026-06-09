@@ -594,15 +594,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <strong>{{ $feeInvoice->fee_category ?? 'Course Fees' }}</strong>
-                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-                                    Standard billing course fee items for academic semester term.
-                                </div>
-                            </td>
-                            <td>{{ number_format($feeInvoice->total_amount, 2) }}</td>
-                        </tr>
+                        @if($feeInvoice->fee_items && is_array($feeInvoice->fee_items) && count($feeInvoice->fee_items) > 0)
+                            @foreach($feeInvoice->fee_items as $item)
+                                <tr>
+                                    <td>
+                                        <strong>{{ $item['category'] }}</strong>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                                            Fee category charge item.
+                                        </div>
+                                    </td>
+                                    <td>{{ number_format($item['amount'], 2) }}</td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td>
+                                    <strong>{{ $feeInvoice->fee_category ?? 'Course Fees' }}</strong>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                                        Standard billing course fee items for academic semester term.
+                                    </div>
+                                </td>
+                                <td>{{ number_format($feeInvoice->total_amount, 2) }}</td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -611,7 +625,7 @@
             <div class="summary-block">
                 <div class="summary-card">
                     <div class="summary-row">
-                        <span>Course Gross Fee:</span>
+                        <span>Total Gross Amount:</span>
                         <strong>{{ number_format($feeInvoice->total_amount, 2) }}</strong>
                     </div>
                     <div class="summary-row">

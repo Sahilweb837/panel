@@ -84,6 +84,7 @@
                                 <i class="fas fa-tags text-first me-2"></i>Fee Category
                             </label>
                             <select id="fee_category_select" name="fee_category" class="form-input" onchange="toggleOtherFeeCategory()">
+                                <option value="" {{ old('fee_category') === '' ? 'selected' : '' }}>-- Auto-generate from selected items --</option>
                                 <option value="Regular Fees" {{ old('fee_category') == 'Regular Fees' ? 'selected' : '' }}>Regular Fees</option>
                                 <option value="Monthly Fees" {{ old('fee_category') == 'Monthly Fees' ? 'selected' : '' }}>Monthly Fees</option>
                                 <option value="Fine" {{ old('fee_category') == 'Fine' ? 'selected' : '' }}>Fine</option>
@@ -94,6 +95,34 @@
                         </div>
                     </div>
 
+                    <!-- Section: Fee Itemization -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-list-ol me-1"></i> Fee Items Breakdown</h5>
+                    <div class="card p-4 mb-4 border" style="background: var(--surface); border-radius: 12px;">
+                        <p class="text-muted mb-3" style="font-size: 0.85rem;">Select which fee types to include in this invoice slip. You can adjust the amounts or add custom fee rows.</p>
+                        
+                        <div class="table-responsive">
+                            <table class="table align-middle table-sm" id="fee-breakdown-table" style="font-size: 0.9rem; width: 100%;">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th style="width: 10%;" class="text-center">Select</th>
+                                        <th style="width: 55%;">Fee Category / Name</th>
+                                        <th style="width: 25%;">Amount (INR)</th>
+                                        <th style="width: 10%;" class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fee-items-tbody">
+                                    <!-- Dynamic rows will be generated here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="d-flex justify-content-start mt-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="addCustomFeeRow()" style="border-radius: 8px; font-weight: 600; border: 1px solid var(--primary); color: var(--primary); background: transparent;">
+                                <i class="fas fa-plus me-1"></i> Add Custom Fee Row
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Section 3: Amounts -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-coins me-1"></i> Billing Summary (INR)</h5>
                     <div class="form-group-grid mb-4">
@@ -101,7 +130,7 @@
                             <label for="total_amount" class="fw-semibold mb-2">
                                 <i class="fas fa-money-bill-wave text-first me-2"></i>Total Invoice Amount
                             </label>
-                            <input type="number" id="total_amount" name="total_amount" step="0.01" value="{{ old('total_amount', 0) }}" required placeholder="0.00" class="form-input {{ $errors->has('total_amount') ? 'is-invalid' : '' }}" />
+                            <input type="number" id="total_amount" name="total_amount" step="0.01" value="{{ old('total_amount', 0) }}" required readonly placeholder="0.00" class="form-input {{ $errors->has('total_amount') ? 'is-invalid' : '' }}" style="background-color: var(--border);" />
                             @error('total_amount')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
@@ -217,25 +246,152 @@
             ]];
         })->toJson() !!};
 
-        function autoCalculateFees() {
+        const oldFeeItems = {!! old('fee_items') ? json_encode(old('fee_items')) : 'null' !!};
+
+        function populateFeeItems() {
             const studentId = document.getElementById('student_id').value;
-            const category = document.getElementById('fee_category_select').value;
+            const tbody = document.getElementById('fee-items-tbody');
+            tbody.innerHTML = '';
             
-            if (!studentId || !studentsData[studentId]) return;
+            if (!studentId || !studentsData[studentId]) {
+                updateFeeItemsNamesAndTotal();
+                return;
+            }
             
             const data = studentsData[studentId];
             
-            if (category === 'Regular Fees') {
-                const total = parseFloat(data.course_fee) + parseFloat(data.registration_fee) + parseFloat(data.prospectus_fee);
-                const discount = parseFloat(data.discount);
+            if (oldFeeItems && oldFeeItems.length > 0) {
+                // Populate from old input
+                oldFeeItems.forEach((item, index) => {
+                    const isDefault = ['Course Fee', 'Registration Fee', 'Prospectus Fee'].includes(item.category);
+                    if (isDefault) {
+                        tbody.appendChild(createDefaultRow(item.category, item.amount, true));
+                    } else {
+                        tbody.appendChild(createCustomRow(item.category, item.amount, true));
+                    }
+                });
                 
-                document.getElementById('total_amount').value = total ? total.toFixed(2) : '';
-                document.getElementById('discount').value = discount ? discount.toFixed(2) : '';
+                // Render other default fees as unchecked if they were not in old input
+                const categoriesInOld = oldFeeItems.map(item => item.category);
+                if (!categoriesInOld.includes('Course Fee') && parseFloat(data.course_fee) > 0) {
+                    tbody.appendChild(createDefaultRow('Course Fee', data.course_fee, false));
+                }
+                if (!categoriesInOld.includes('Registration Fee') && parseFloat(data.registration_fee) > 0) {
+                    tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, false));
+                }
+                if (!categoriesInOld.includes('Prospectus Fee') && parseFloat(data.prospectus_fee) > 0) {
+                    tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, false));
+                }
+            } else {
+                // Populate default student fees
+                if (parseFloat(data.course_fee) > 0) {
+                    tbody.appendChild(createDefaultRow('Course Fee', data.course_fee, true));
+                }
+                if (parseFloat(data.registration_fee) > 0) {
+                    tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, true));
+                }
+                if (parseFloat(data.prospectus_fee) > 0) {
+                    tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, true));
+                }
+                
+                // Set default student discount
+                if (parseFloat(data.discount) > 0) {
+                    document.getElementById('discount').value = parseFloat(data.discount).toFixed(2);
+                }
             }
+            
+            updateFeeItemsNamesAndTotal();
         }
 
-        document.getElementById('student_id').addEventListener('change', autoCalculateFees);
-        document.getElementById('fee_category_select').addEventListener('change', autoCalculateFees);
+        function createDefaultRow(category, amount, checked) {
+            const tr = document.createElement('tr');
+            tr.className = 'fee-row default-row';
+            tr.innerHTML = `
+                <td class="text-center">
+                    <input type="checkbox" class="fee-include-chk form-check-input" ${checked ? 'checked' : ''} onchange="updateFeeItemsNamesAndTotal()">
+                </td>
+                <td>
+                    <span class="fw-semibold text-dark-title">${category}</span>
+                    <input type="hidden" class="fee-category-input" value="${category}">
+                </td>
+                <td>
+                    <input type="number" step="0.01" class="form-input py-1 fee-amount-input" value="${parseFloat(amount).toFixed(2)}" oninput="updateFeeItemsNamesAndTotal()" style="padding: 6px 10px; font-size: 0.85rem; height: auto;">
+                </td>
+                <td class="text-center">
+                    <span class="text-muted" style="font-size: 0.8rem;">-</span>
+                </td>
+            `;
+            return tr;
+        }
+
+        function createCustomRow(category = '', amount = '', checked = true) {
+            const tr = document.createElement('tr');
+            tr.className = 'fee-row custom-row';
+            tr.innerHTML = `
+                <td class="text-center">
+                    <input type="checkbox" class="fee-include-chk form-check-input" ${checked ? 'checked' : ''} onchange="updateFeeItemsNamesAndTotal()">
+                </td>
+                <td>
+                    <input type="text" class="form-input py-1 fee-category-input" placeholder="e.g. Exam Fee" value="${category}" required oninput="updateFeeItemsNamesAndTotal()" style="padding: 6px 10px; font-size: 0.85rem; height: auto;">
+                </td>
+                <td>
+                    <input type="number" step="0.01" class="form-input py-1 fee-amount-input" placeholder="0.00" value="${amount}" required oninput="updateFeeItemsNamesAndTotal()" style="padding: 6px 10px; font-size: 0.85rem; height: auto;">
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-outline-danger btn-sm p-1" onclick="removeCustomFeeRow(this)" style="border-radius: 6px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-color: rgba(220, 53, 69, 0.3) !important; color: #dc3545 !important;">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+            return tr;
+        }
+
+        function addCustomFeeRow() {
+            const tbody = document.getElementById('fee-items-tbody');
+            tbody.appendChild(createCustomRow('', '', true));
+            updateFeeItemsNamesAndTotal();
+        }
+
+        function removeCustomFeeRow(btn) {
+            const row = btn.closest('tr');
+            row.remove();
+            updateFeeItemsNamesAndTotal();
+        }
+
+        function updateFeeItemsNamesAndTotal() {
+            const rows = document.querySelectorAll('#fee-items-tbody .fee-row');
+            let total = 0;
+            let index = 0;
+            
+            rows.forEach(row => {
+                const chk = row.querySelector('.fee-include-chk');
+                const catInput = row.querySelector('.fee-category-input');
+                const amtInput = row.querySelector('.fee-amount-input');
+                
+                if (chk.checked) {
+                    // Set names for submission
+                    catInput.name = `fee_items[${index}][category]`;
+                    amtInput.name = `fee_items[${index}][amount]`;
+                    
+                    const amount = parseFloat(amtInput.value) || 0;
+                    total += amount;
+                    index++;
+                    
+                    // Style active row slightly differently
+                    row.style.opacity = '1';
+                } else {
+                    // Remove names so they aren't submitted
+                    catInput.removeAttribute('name');
+                    amtInput.removeAttribute('name');
+                    
+                    row.style.opacity = '0.5';
+                }
+            });
+            
+            document.getElementById('total_amount').value = total.toFixed(2);
+        }
+
+        document.getElementById('student_id').addEventListener('change', populateFeeItems);
 
         function toggleOnlineFields() {
             const method = document.getElementById('payment_method').value;
@@ -270,6 +426,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('page-skeleton');
             const content = document.getElementById('page-content');
+            
+            // Populate fee items if a student is already selected (e.g. old inputs)
+            populateFeeItems();
             
             // Run toggle once to sync old value on error reload
             toggleOnlineFields();

@@ -58,6 +58,9 @@ class FeeInvoiceController extends Controller
             'utr_no' => ['nullable', 'string', 'max:100'],
             'status' => ['required', 'in:Paid,Partial,Unpaid'],
             'remarks' => ['nullable', 'string'],
+            'fee_items' => ['nullable', 'array'],
+            'fee_items.*.category' => ['required_with:fee_items', 'string', 'max:100'],
+            'fee_items.*.amount' => ['required_with:fee_items', 'numeric', 'min:0'],
         ]);
 
         $data['discount'] = $data['discount'] ?? 0;
@@ -66,6 +69,17 @@ class FeeInvoiceController extends Controller
         $data['invoice_no'] = $data['invoice_no'] ?? 'nt_inv_'.now()->format('YmdHi').'_'.rand(1000, 9999);
         $data['due_amount'] = max(0, $data['total_amount'] + $data['fine'] - $data['paid_amount'] - $data['discount']);
         $data['created_by'] = session('user_id');
+
+        // If fee_items are present, and fee_category is empty, generate fee_category
+        if (empty($data['fee_category']) && !empty($data['fee_items'])) {
+            $categories = array_map(function($item) {
+                return $item['category'];
+            }, $data['fee_items']);
+            $data['fee_category'] = implode(', ', array_slice($categories, 0, 3));
+            if (count($categories) > 3) {
+                $data['fee_category'] .= '...';
+            }
+        }
 
         FeeInvoice::create($data);
 
