@@ -208,6 +208,35 @@
 
     <!-- Script to simulate dynamic lazy loading and skeleton fading -->
     <script>
+        const studentsData = {!! $students->mapWithKeys(function($s) {
+            return [$s->id => [
+                'course_fee' => $s->course ? $s->course->fee : 0,
+                'registration_fee' => $s->registration_fee ?: 0,
+                'prospectus_fee' => $s->prospectus_fee ?: 0,
+                'discount' => $s->discount ?: 0,
+            ]];
+        })->toJson() !!};
+
+        function autoCalculateFees() {
+            const studentId = document.getElementById('student_id').value;
+            const category = document.getElementById('fee_category_select').value;
+            
+            if (!studentId || !studentsData[studentId]) return;
+            
+            const data = studentsData[studentId];
+            
+            if (category === 'Regular Fees') {
+                const total = parseFloat(data.course_fee) + parseFloat(data.registration_fee) + parseFloat(data.prospectus_fee);
+                const discount = parseFloat(data.discount);
+                
+                document.getElementById('total_amount').value = total ? total.toFixed(2) : '';
+                document.getElementById('discount').value = discount ? discount.toFixed(2) : '';
+            }
+        }
+
+        document.getElementById('student_id').addEventListener('change', autoCalculateFees);
+        document.getElementById('fee_category_select').addEventListener('change', autoCalculateFees);
+
         function toggleOnlineFields() {
             const method = document.getElementById('payment_method').value;
             const onlineGrid = document.getElementById('online-details-grid');

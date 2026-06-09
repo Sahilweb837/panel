@@ -38,7 +38,7 @@ class FeeInvoiceController extends Controller
     public function create()
     {
         return view('fee_invoices.create', [
-            'students' => Student::orderBy('first_name')->get(),
+            'students' => Student::with('course')->orderBy('first_name')->get(),
         ]);
     }
 

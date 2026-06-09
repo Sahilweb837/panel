@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class BiometricDevice extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['name'];
 }

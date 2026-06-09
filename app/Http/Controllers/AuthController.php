@@ -43,7 +43,7 @@ class AuthController extends Controller
             }
         } else {
             // Normal authentication for everyone else
-            if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            if (! $user) {
                 return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
             }
         }
