@@ -118,6 +118,44 @@ class ZKTecoADMSController extends Controller
             return response("OK: {$count}\n", 200)->header('Content-Type', 'text/plain');
         }
 
+        if ($table === 'ATTPHOTO' || $table === 'realtimephoto' || strpos($table, 'photo') !== false) {
+            $pin = $request->query('PIN');
+            
+            // Generate a filename
+            $filename = 'punch_' . ($pin ?? 'unknown') . '_' . time() . '.jpg';
+            $path = public_path('storage/biometric_photos/' . $filename);
+            
+            if (!file_exists(public_path('storage/biometric_photos'))) {
+                mkdir(public_path('storage/biometric_photos'), 0777, true);
+            }
+            
+            file_put_contents($path, $body);
+
+            // If we have a PIN, attach it to today's attendance record
+            if ($pin) {
+                $today = date('Y-m-d');
+                $photoUrl = 'storage/biometric_photos/' . $filename;
+
+                $student = Student::where('biometric_id', $pin)->first();
+                if ($student) {
+                    $attendance = Attendance::where('student_id', $student->id)->whereDate('attendance_date', $today)->first();
+                    if ($attendance) {
+                        $attendance->update(['photo_path' => $photoUrl]);
+                    }
+                } else {
+                    $employee = Employee::where('biometric_id', $pin)->first();
+                    if ($employee) {
+                        $attendance = EmployeeAttendance::where('employee_id', $employee->id)->whereDate('attendance_date', $today)->first();
+                        if ($attendance) {
+                            $attendance->update(['photo_path' => $photoUrl]);
+                        }
+                    }
+                }
+            }
+
+            return response("OK\n", 200)->header('Content-Type', 'text/plain');
+        }
+
         return response("OK\n", 200)->header('Content-Type', 'text/plain');
     }
 

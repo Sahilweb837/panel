@@ -20,6 +20,7 @@ class EmployeeAttendance extends Model
         'attendance_date',
         'remarks',
         'photo_path',
+        'device_name',
     ];
 
     public function employee()

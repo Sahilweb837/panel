@@ -99,7 +99,7 @@
                                     <td class="text-center">
                                         @if($attendance->check_in_time)
                                             <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                                                <i class="far fa-clock text-success me-1"></i>{{ $attendance->check_in_time }}
+                                                <i class="far fa-clock text-success me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_in_time)->format('h:i A') }}
                                             </span>
                                         @else
                                             <span class="text-muted">-</span>
@@ -108,7 +108,7 @@
                                     <td class="text-center">
                                         @if($attendance->check_out_time)
                                             <span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">
-                                                <i class="far fa-clock text-danger me-1"></i>{{ $attendance->check_out_time }}
+                                                <i class="far fa-clock text-danger me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_out_time)->format('h:i A') }}
                                             </span>
                                         @else
                                             <span class="text-muted">-</span>
