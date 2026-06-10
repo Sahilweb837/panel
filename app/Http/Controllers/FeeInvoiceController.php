@@ -96,7 +96,20 @@ class FeeInvoiceController extends Controller
     public function show(FeeInvoice $feeInvoice)
     {
         $feeInvoice->load('student.course', 'creator');
-        return view('fee_invoices.show', compact('feeInvoice'));
+
+        // Fetch student's payment history
+        $studentHistory = FeeInvoice::where('student_id', $feeInvoice->student_id)
+            ->where('id', '!=', $feeInvoice->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate overall totals for the student
+        $allInvoices = FeeInvoice::where('student_id', $feeInvoice->student_id)->get();
+        $overallTotal = $allInvoices->sum('total_amount') + $allInvoices->sum('fine') - $allInvoices->sum('discount');
+        $overallPaid = $allInvoices->sum('paid_amount');
+        $overallDue = max(0, $overallTotal - $overallPaid);
+
+        return view('fee_invoices.show', compact('feeInvoice', 'studentHistory', 'overallTotal', 'overallPaid', 'overallDue'));
     }
 
     public function restore($id)

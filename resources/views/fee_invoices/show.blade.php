@@ -651,6 +651,64 @@
                 </div>
             </div>
 
+            <!-- Overall Student Summary -->
+            <div style="margin-bottom: 35px; z-index: 2; position: relative;">
+                <h4 style="font-size: 1rem; font-weight: 800; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                    <i class="fas fa-user-circle"></i> Overall Account Summary
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <div style="background: rgba(28, 24, 22, 0.02); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Total Fees</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--text-main);">{{ number_format($overallTotal ?? 0, 2) }}</div>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 15px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--success); text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Total Deducted / Paid</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">{{ number_format($overallPaid ?? 0, 2) }}</div>
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 15px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--danger); text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Overall Remaining Due</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--danger);">{{ number_format($overallDue ?? 0, 2) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History -->
+            @if(isset($studentHistory) && count($studentHistory) > 0)
+            <div class="table-wrapper" style="margin-bottom: 45px;">
+                <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-main); margin-bottom: 15px;">
+                    <i class="fas fa-history"></i> Previous Payment History
+                </h4>
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Date</th>
+                            <th style="width: 25%;">Invoice No</th>
+                            <th style="width: 25%;">Paid Amount</th>
+                            <th style="width: 25%; text-align: right;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($studentHistory as $history)
+                        <tr>
+                            <td>{{ $history->created_at->format('M d, Y') }}</td>
+                            <td>#{{ $history->invoice_no }}</td>
+                            <td style="color: var(--success); font-weight: 600;">{{ number_format($history->paid_amount, 2) }}</td>
+                            <td style="text-align: right;">
+                                @if($history->status === 'Paid')
+                                    <span style="color: var(--success); font-weight: 700;">Paid</span>
+                                @elseif($history->status === 'Partial')
+                                    <span style="color: var(--warning); font-weight: 700;">Partial</span>
+                                @else
+                                    <span style="color: var(--danger); font-weight: 700;">Unpaid</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endif
+
             <!-- Notes & Signatures footer -->
             <footer class="invoice-footer">
                 <div class="notes-block">
