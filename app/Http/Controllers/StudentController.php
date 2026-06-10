@@ -107,48 +107,56 @@ class StudentController extends Controller
             $student->save();
         }
 
-        // Auto-generate Fee Invoices
-        $now = now();
-        $baseInvNo = 'INV-' . $now->format('ymdHi') . '-' . $student->id;
+        // Auto-generate Fee Invoice
+        $feeItems = [];
+        $totalAmount = 0;
 
-        // 1. Course Fee
-        if ($student->course) {
-            $courseFee = $student->course->fee;
-            $discount = $student->discount ?? 0;
-            $finalCourseFee = max(0, $courseFee - $discount);
-
-            \App\Models\FeeInvoice::create([
-                'student_id' => $student->id,
-                'invoice_no' => $baseInvNo . '-C',
-                'fee_category' => 'Course Fee',
-                'total_amount' => $courseFee,
-                'discount' => $discount,
-                'due_amount' => $finalCourseFee,
-                'status' => 'Unpaid',
-            ]);
+        if ($student->course && $student->course->fee > 0) {
+            $feeItems[] = [
+                'category' => 'Course Fee',
+                'amount' => $student->course->fee,
+            ];
+            $totalAmount += $student->course->fee;
         }
 
-        // 2. Registration Fee
         if ($student->registration_fee > 0) {
-            \App\Models\FeeInvoice::create([
-                'student_id' => $student->id,
-                'invoice_no' => $baseInvNo . '-R',
-                'fee_category' => 'Registration Fee',
-                'total_amount' => $student->registration_fee,
-                'due_amount' => $student->registration_fee,
-                'status' => 'Unpaid',
-            ]);
+            $feeItems[] = [
+                'category' => 'Registration Fee',
+                'amount' => $student->registration_fee,
+            ];
+            $totalAmount += $student->registration_fee;
         }
 
-        // 3. Prospectus Fee
         if ($student->prospectus_fee > 0) {
+            $feeItems[] = [
+                'category' => 'Prospectus Fee',
+                'amount' => $student->prospectus_fee,
+            ];
+            $totalAmount += $student->prospectus_fee;
+        }
+
+        if (!empty($feeItems)) {
+            $discount = $student->discount ?? 0;
+            $dueAmount = max(0, $totalAmount - $discount);
+
+            $categories = array_column($feeItems, 'category');
+            $feeCategory = implode(', ', array_slice($categories, 0, 3));
+            if (count($categories) > 3) {
+                $feeCategory .= '...';
+            }
+
             \App\Models\FeeInvoice::create([
                 'student_id' => $student->id,
-                'invoice_no' => $baseInvNo . '-P',
-                'fee_category' => 'Prospectus Fee',
-                'total_amount' => $student->prospectus_fee,
-                'due_amount' => $student->prospectus_fee,
+                'invoice_no' => 'INV-' . now()->format('ymdHi') . '-' . $student->id,
+                'fee_category' => $feeCategory,
+                'fee_items' => $feeItems,
+                'total_amount' => $totalAmount,
+                'paid_amount' => 0,
+                'discount' => $discount,
+                'fine' => 0,
+                'due_amount' => $dueAmount,
                 'status' => 'Unpaid',
+                'created_by' => session('user_id'),
             ]);
         }
 
