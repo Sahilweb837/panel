@@ -92,11 +92,11 @@
                                     <td>
                                         <div class="user-info">
                                             <div class="avatar" style="font-weight: 700; background: rgba(255, 85, 50, 0.1); color: var(--first-color);">
-                                                {{ strtoupper(substr($invoice->student->first_name ?? 'S', 0, 1)) }}
+                                                {{ strtoupper(substr($invoice->student?->first_name ?? 'S', 0, 1)) }}
                                             </div>
                                             <div>
-                                                <strong class="text-dark-title">{{ $invoice->student->first_name }} {{ $invoice->student->last_name }}</strong>
-                                                <p class="text-muted small">Adm: {{ $invoice->student->admission_no }}</p>
+                                                <strong class="text-dark-title">{{ $invoice->student?->first_name ?? 'Unknown' }} {{ $invoice->student?->last_name }}</strong>
+                                                <p class="text-muted small">Adm: {{ $invoice->student?->admission_no ?? 'N/A' }}</p>
                                             </div>
                                         </div>
                                     </td>
