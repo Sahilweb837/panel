@@ -6,20 +6,7 @@ const applyTheme = (theme) => {
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
         const icon = button.querySelector('i');
         if (icon) {
-            const isEyeBtn = button.classList.contains('eye-protection-btn');
-            if (theme === 'dark') {
-                if (isEyeBtn) {
-                    icon.className = 'fas fa-eye';
-                } else {
-                    icon.className = 'fas fa-sun';
-                }
-            } else {
-                if (isEyeBtn) {
-                    icon.className = 'fas fa-eye-slash';
-                } else {
-                    icon.className = 'fas fa-moon';
-                }
-            }
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         } else {
             // Fallback for text-based toggle
             button.textContent = theme === 'dark' ? 'Light' : 'Dark';

@@ -32,9 +32,9 @@
                 <h1 class="brand-title-sm mb-0">Netcoder Fees</h1>
             </div>
         </div>
-        <button type="button" class="eye-protection-btn theme-toggle me-2 px-3 py-1" style="height: auto; border-radius: 20px; font-size: 0.8rem;" data-theme-toggle title="Toggle Eye Protection Theme">
-            <span class="eye-icon-wrapper" style="width: 14px; height: 14px; font-size: 0.8rem;"><i class="fas fa-eye-slash"></i></span>
-            <span class="btn-text d-none d-sm-inline">Eye Protection</span>
+        <button type="button" class="theme-toggle me-2 px-3 py-1" style="height: auto; border-radius: 20px; font-size: 0.8rem;" data-theme-toggle title="Toggle Dark/Light Mode">
+            <span class="theme-icon-wrapper" style="width: 14px; height: 14px; font-size: 0.8rem;"><i class="fas fa-moon"></i></span>
+            <span class="btn-text d-none d-sm-inline">Theme</span>
         </button>
     </header>
 
@@ -162,9 +162,8 @@
                 <h2>@yield('page-title', 'Management')</h2>
                 <p class="page-subtitle">Manage courses, students, fees, attendance, salaries and expenses.</p>
             </div>
-            <button type="button" class="eye-protection-btn" data-theme-toggle title="Toggle Eye Protection Theme">
-                <span class="eye-icon-wrapper"><i class="fas fa-eye-slash"></i></span>
-                <span class="btn-text">Eye Protection</span>
+            <button type="button" class="theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
+                <span class="theme-icon-wrapper"><i class="fas fa-moon"></i></span>
             </button>
         </header>
 

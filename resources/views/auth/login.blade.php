@@ -9,9 +9,8 @@
     @vite(['resources/css/app.css'])
 </head>
 <body class="login-page">
-    <button type="button" class="eye-protection-btn login-theme-toggle" data-theme-toggle title="Toggle Eye Protection Theme">
-        <span class="eye-icon-wrapper"><i class="fas fa-eye-slash"></i></span>
-        <span class="btn-text">Eye Protection</span>
+    <button type="button" class="theme-toggle login-theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
+        <span class="theme-icon-wrapper"><i class="fas fa-moon"></i></span>
     </button>
 
     <main class="login-container">
