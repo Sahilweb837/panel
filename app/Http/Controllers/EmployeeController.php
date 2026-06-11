@@ -115,6 +115,11 @@ class EmployeeController extends Controller
             'status' => ['nullable', 'boolean'],
             'access' => ['nullable', 'array'],
             'biometric_id' => ['nullable', 'string', 'max:50'],
+            // Bank details for payroll
+            'bank_account_no'       => ['nullable', 'string', 'max:30'],
+            'bank_ifsc'             => ['nullable', 'string', 'max:15'],
+            'bank_name'             => ['nullable', 'string', 'max:100'],
+            'account_holder_name'   => ['nullable', 'string', 'max:150'],
         ]);
 
         $data['status'] = $request->boolean('status');

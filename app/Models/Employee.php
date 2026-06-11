@@ -23,6 +23,13 @@ class Employee extends Model
         'address',
         'status',
         'biometric_id',
+        // Bank details for payroll
+        'bank_account_no',
+        'bank_ifsc',
+        'bank_name',
+        'account_holder_name',
+        'razorpay_contact_id',
+        'razorpay_fund_account_id',
     ];
 
     public function user()

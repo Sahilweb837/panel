@@ -15,7 +15,11 @@ use App\Http\Controllers\SubAdminController;
 use App\Http\Controllers\BiometricController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientInvoiceController;
+use App\Http\Controllers\PayrollController;
 use Illuminate\Support\Facades\Route;
+
+// Razorpay Webhook — must be OUTSIDE auth middleware
+Route::post('payroll/webhook', [PayrollController::class, 'webhookHandler'])->name('payroll.webhook');
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -108,6 +112,12 @@ Route::middleware(['auth.custom'])->group(function () {
     // Client Invoices
     Route::post('client_invoices/{id}/restore', [ClientInvoiceController::class, 'restore'])->name('client_invoices.restore');
     Route::resource('client_invoices', ClientInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
+
+    // Payroll & Razorpay Payout
+    Route::get('payroll/settings', [PayrollController::class, 'settings'])->name('payroll.settings');
+    Route::post('payroll/settings', [PayrollController::class, 'saveSettings'])->name('payroll.settings.save');
+    Route::post('payroll/bulk-payout', [PayrollController::class, 'bulkPayout'])->name('payroll.bulk-payout');
+    Route::post('payroll/{salarySlip}/payout', [PayrollController::class, 'initiatePayout'])->name('payroll.payout');
 
     // Student Portal
     Route::prefix('student')->group(function () {

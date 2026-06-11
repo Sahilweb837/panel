@@ -156,6 +156,13 @@
                     <span>Client Invoices</span>
                 </a>
             @endif
+
+            @if($isSuperOrRoot)
+                <a href="{{ route('payroll.settings') }}" class="nav-link{{ request()->routeIs('payroll.*') ? ' active' : '' }}">
+                    <i class="fas fa-money-check-alt"></i>
+                    <span>Payroll Settings</span>
+                </a>
+            @endif
         </nav>
 
         <div class="sidebar-footer">

@@ -280,6 +280,49 @@
                         <small style="color: var(--muted); margin-left: 28px;" class="d-block mt-1">Activate the staff member's credentials and records immediately on registration.</small>
                     </div>
 
+                    <!-- Section 5: Bank Details for Payroll -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3 mt-2" style="font-size: 0.75rem;">
+                        <i class="fas fa-building-columns me-1 text-first"></i> Bank Details (for Salary Payroll)
+                    </h5>
+                    <div class="p-3 mb-4 rounded" style="background:rgba(255,85,50,0.05); border:1px solid rgba(255,85,50,0.15);">
+                        <small class="text-muted d-block mb-3">
+                            <i class="fas fa-info-circle me-1"></i>
+                            These details are used by <strong>Razorpay Payouts</strong> to transfer salary directly to this employee's bank account.
+                        </small>
+                        <div class="form-group-grid mb-3">
+                            <div class="form-group">
+                                <label class="fw-semibold mb-2"><i class="fas fa-user text-first me-2"></i>Account Holder Name</label>
+                                <input type="text" name="account_holder_name" class="form-input"
+                                    value="{{ old('account_holder_name', $employee->account_holder_name) }}"
+                                    placeholder="Name as on bank account" />
+                            </div>
+                            <div class="form-group">
+                                <label class="fw-semibold mb-2"><i class="fas fa-hashtag text-first me-2"></i>Bank Account Number</label>
+                                <input type="text" name="bank_account_no" class="form-input"
+                                    value="{{ old('bank_account_no', $employee->bank_account_no) }}"
+                                    placeholder="e.g. 1234567890123456" />
+                            </div>
+                            <div class="form-group">
+                                <label class="fw-semibold mb-2"><i class="fas fa-code text-first me-2"></i>IFSC Code</label>
+                                <input type="text" name="bank_ifsc" class="form-input"
+                                    value="{{ old('bank_ifsc', $employee->bank_ifsc) }}"
+                                    placeholder="e.g. HDFC0001234" style="text-transform:uppercase;" />
+                            </div>
+                            <div class="form-group">
+                                <label class="fw-semibold mb-2"><i class="fas fa-landmark text-first me-2"></i>Bank Name</label>
+                                <input type="text" name="bank_name" class="form-input"
+                                    value="{{ old('bank_name', $employee->bank_name) }}"
+                                    placeholder="e.g. HDFC Bank, SBI" />
+                            </div>
+                        </div>
+                        @if($employee->razorpay_contact_id)
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>Razorpay Contact Linked</span>
+                            <small class="text-muted">{{ $employee->razorpay_contact_id }}</small>
+                        </div>
+                        @endif
+                    </div>
+
                     <div class="form-actions-row">
                         <a href="{{ route('employees.index') }}" class="button button-secondary">
                             <i class="fas fa-times me-2"></i>Cancel
