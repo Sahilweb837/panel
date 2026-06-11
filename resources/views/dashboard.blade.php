@@ -348,7 +348,7 @@
                                     <tbody>
                                         @forelse($recentAttendances as $attendance)
                                             <tr>
-                                                <td class="fw-medium ps-4">{{ $attendance->student->first_name }} {{ $attendance->student->last_name }}</td>
+                                                <td class="fw-medium ps-4">{{ $attendance->student?->first_name ?? 'Unknown' }} {{ $attendance->student?->last_name }}</td>
                                                 <td class="text-muted small">{{ $attendance->attendance_date }}</td>
                                                 <td class="text-center">
                                                     <span class="badge bg-{{ strtolower($attendance->status) === 'present' ? 'success' : (strtolower($attendance->status) === 'absent' ? 'danger' : 'warning') }} rounded-pill">
@@ -397,7 +397,7 @@
                                         @forelse($recentInvoices as $invoice)
                                             <tr>
                                                 <td class="fw-bold text-first ps-4">{{ $invoice->invoice_no }}</td>
-                                                <td class="fw-medium">{{ $invoice->student->first_name }} {{ $invoice->student->last_name }}</td>
+                                                <td class="fw-medium">{{ $invoice->student?->first_name ?? 'Unknown' }} {{ $invoice->student?->last_name }}</td>
                                                 <td class="text-center">
                                                     <span class="badge bg-{{ strtolower($invoice->status) === 'paid' ? 'success' : (strtolower($invoice->status) === 'unpaid' ? 'danger' : 'warning') }} rounded-pill">
                                                         {{ $invoice->status }}
