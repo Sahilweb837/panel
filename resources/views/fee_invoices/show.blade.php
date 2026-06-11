@@ -536,19 +536,19 @@
                     </div>
                     <div class="info-details">
                         <span class="info-label">Admission No:</span>
-                        <span class="info-value">{{ $feeInvoice->student->admission_no }}</span>
+                        <span class="info-value">{{ $feeInvoice->student?->admission_no ?? '-' }}</span>
 
                         <span class="info-label">Roll Number:</span>
-                        <span class="info-value">{{ $feeInvoice->student->roll_no ?? '-' }}</span>
+                        <span class="info-value">{{ $feeInvoice->student?->roll_no ?? '-' }}</span>
 
                         <span class="info-label">Full Name:</span>
-                        <span class="info-value">{{ $feeInvoice->student->first_name }} {{ $feeInvoice->student->last_name }}</span>
+                        <span class="info-value">{{ $feeInvoice->student?->first_name ?? 'Unknown' }} {{ $feeInvoice->student?->last_name }}</span>
 
                         <span class="info-label">Enroll Course:</span>
-                        <span class="info-value">{{ $feeInvoice->student->course?->name ?? '-' }}</span>
+                        <span class="info-value">{{ $feeInvoice->student?->course?->name ?? '-' }}</span>
 
                         <span class="info-label">Course duration:</span>
-                        <span class="info-value">{{ $feeInvoice->student->course_duration ?? '-' }}</span>
+                        <span class="info-value">{{ $feeInvoice->student?->course_duration ?? '-' }}</span>
                     </div>
                 </div>
 
