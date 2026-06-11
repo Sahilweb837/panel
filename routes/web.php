@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\StudentExpenseController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
@@ -14,6 +13,8 @@ use App\Http\Controllers\SalarySlipController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubAdminController;
 use App\Http\Controllers\BiometricController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientInvoiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -99,6 +100,14 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::resource('fee_invoices', FeeInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
     Route::post('salary_slips/{id}/restore', [SalarySlipController::class, 'restore'])->name('salary_slips.restore');
     Route::resource('salary_slips', SalarySlipController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
+
+    // Client Management
+    Route::post('clients/{id}/restore', [ClientController::class, 'restore'])->name('clients.restore');
+    Route::resource('clients', ClientController::class);
+
+    // Client Invoices
+    Route::post('client_invoices/{id}/restore', [ClientInvoiceController::class, 'restore'])->name('client_invoices.restore');
+    Route::resource('client_invoices', ClientInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 
     // Student Portal
     Route::prefix('student')->group(function () {

@@ -142,6 +142,20 @@
                     <span>Backups</span>
                 </a>
             @endif
+
+            @if($isSuperOrRoot || in_array('clients', $access))
+                <a href="{{ route('clients.index') }}" class="nav-link{{ request()->routeIs('clients.*') ? ' active' : '' }}">
+                    <i class="fas fa-handshake"></i>
+                    <span>Clients</span>
+                </a>
+            @endif
+
+            @if($isSuperOrRoot || in_array('client-invoices', $access))
+                <a href="{{ route('client_invoices.index') }}" class="nav-link{{ request()->routeIs('client_invoices.*') ? ' active' : '' }}">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Client Invoices</span>
+                </a>
+            @endif
         </nav>
 
         <div class="sidebar-footer">
