@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Slip - {{ $feeInvoice->invoice_no }}</title>
+    <title>Fee Receipt - {{ $feeInvoice->invoice_no }}</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for Premium Icons -->
@@ -473,11 +473,11 @@
         <!-- Interactive screen controls -->
         <div class="action-bar">
             <a href="{{ route('fee_invoices.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Invoices
+                <i class="fas fa-arrow-left"></i> Back to Receipts
             </a>
             
             <button class="btn btn-primary" onclick="window.print()">
-                <i class="fas fa-print"></i> Print Invoice / Slip
+                <i class="fas fa-print"></i> Print Receipt / Slip
             </button>
         </div>
 
@@ -506,8 +506,8 @@
                 </div>
                 <div class="invoice-meta-right">
                     <div>
-                        <div class="invoice-title">FEES SLIP</div>
-                        <div class="invoice-no-label">#{{ $feeInvoice->invoice_no }}</div>
+                        <div class="invoice-title">FEE RECEIPT</div>
+                        <div class="invoice-no-label">Receipt #{{ $feeInvoice->invoice_no }}</div>
                     </div>
                     <div>
                         @if($feeInvoice->status === 'Paid')
@@ -691,7 +691,7 @@
                         @foreach($studentHistory as $history)
                         <tr>
                             <td>{{ $history->created_at->format('M d, Y') }}</td>
-                            <td>#{{ $history->invoice_no }}</td>
+                            <td>Receipt #{{ $history->invoice_no }}</td>
                             <td style="color: var(--success); font-weight: 600;">{{ number_format($history->paid_amount, 2) }}</td>
                             <td style="text-align: right;">
                                 @if($history->status === 'Paid')
@@ -713,7 +713,7 @@
             <footer class="invoice-footer">
                 <div class="notes-block">
                     <h4>Important Instructions</h4>
-                    <p style="margin-bottom: 6px;">1. This invoice serves as an official receipt when stamped and accompanied by transaction reference validation details.</p>
+                    <p style="margin-bottom: 6px;">1. This receipt serves as an official payment record when stamped and accompanied by transaction reference validation details.</p>
                     <p style="margin-bottom: 6px;">2. Payment due amounts should be settled before late fees penalties kick in. Kindly contact Accounts Office for billing queries.</p>
                     <p>3. Checks should be drawn in favor of <strong>Netcoder Technology Solutions Pvt Ltd</strong>.</p>
                 </div>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Create Fee Invoice')
-@section('page-title', 'Generate Student Fee Invoice')
+@section('title', 'Create Fee Receipt')
+@section('page-title', 'Generate Student Fee Receipt')
 
 @section('content')
     <div class="invoice-container">
@@ -41,7 +41,7 @@
             <div class="card premium-form-card" style="max-width: 850px;">
                 <div class="card-header bg-transparent border-bottom mb-4 pb-3">
                     <h3 class="mb-0 fw-bold text-first">
-                        <i class="fas fa-file-invoice-dollar me-2"></i>Generate Student Fee Invoice
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Generate Student Fee Receipt
                     </h3>
                 </div>
 
@@ -70,12 +70,12 @@
                         @enderror
                     </div>
 
-                    <!-- Section 2: Invoice Setup -->
-                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Invoice Details</h5>
+                    <!-- Section 2: Receipt Setup -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Receipt Details</h5>
                     <div class="form-group-grid mb-4">
                         <div class="form-group">
                             <label for="invoice_no" class="fw-semibold mb-2">
-                                <i class="fas fa-hashtag text-first me-2"></i>Invoice No (Optional)
+                                <i class="fas fa-hashtag text-first me-2"></i>Receipt No (Optional)
                             </label>
                             <input type="text" id="invoice_no" name="invoice_no" value="{{ old('invoice_no') }}" placeholder="Auto-generated if left empty" class="form-input" />
                         </div>
@@ -98,7 +98,7 @@
                     <!-- Section: Fee Itemization -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-list-ol me-1"></i> Fee Items Breakdown</h5>
                     <div class="card p-4 mb-4 border" style="background: var(--surface); border-radius: 12px;">
-                        <p class="text-muted mb-3" style="font-size: 0.85rem;">Select which fee types to include in this invoice slip. You can adjust the amounts or add custom fee rows.</p>
+                        <p class="text-muted mb-3" style="font-size: 0.85rem;">Select which fee types to include in this receipt slip. You can adjust the amounts or add custom fee rows.</p>
                         
                         <div class="table-responsive">
                             <table class="table align-middle table-sm" id="fee-breakdown-table" style="font-size: 0.9rem; width: 100%;">
@@ -128,7 +128,7 @@
                     <div class="form-group-grid mb-4">
                         <div class="form-group">
                             <label for="total_amount" class="fw-semibold mb-2">
-                                <i class="fas fa-money-bill-wave text-first me-2"></i>Total Invoice Amount
+                                <i class="fas fa-money-bill-wave text-first me-2"></i>Total Amount
                             </label>
                             <input type="number" id="total_amount" name="total_amount" step="0.01" value="{{ old('total_amount', 0) }}" required readonly placeholder="0.00" class="form-input {{ $errors->has('total_amount') ? 'is-invalid' : '' }}" style="background-color: var(--border);" />
                             @error('total_amount')
@@ -202,7 +202,7 @@
 
                     <div class="form-group mb-4">
                         <label for="status" class="fw-semibold mb-2">
-                            <i class="fas fa-circle-info text-first me-2"></i>Invoice Settlement Status
+                            <i class="fas fa-circle-info text-first me-2"></i>Receipt Settlement Status
                         </label>
                         <select id="status" name="status" required class="form-input {{ $errors->has('status') ? 'is-invalid' : '' }}">
                             <option value="">-- Choose Status --</option>
@@ -227,7 +227,7 @@
                             <i class="fas fa-times me-2"></i>Cancel
                         </a>
                         <button type="submit" class="button button-primary">
-                            <i class="fas fa-file-invoice me-2"></i>Generate Invoice
+                            <i class="fas fa-file-invoice me-2"></i>Generate Receipt
                         </button>
                     </div>
                 </form>
