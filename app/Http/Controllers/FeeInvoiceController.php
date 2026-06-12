@@ -117,6 +117,13 @@ class FeeInvoiceController extends Controller
         $invoice = FeeInvoice::onlyTrashed()->findOrFail($id);
         $invoice->restore();
 
-        return back()->with('success', 'Fee invoice restored successfully.');
+        return back()->with('success', 'Fee receipt restored successfully.');
+    }
+
+    public function restoreAll()
+    {
+        FeeInvoice::onlyTrashed()->restore();
+
+        return back()->with('success', 'All trashed fee receipts restored successfully.');
     }
 }

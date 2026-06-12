@@ -56,6 +56,14 @@
                             Show Recycle Bin Data
                         </label>
                     </div>
+                    @if(request('trashed') && $invoices->count() > 0)
+                        <form action="{{ route('fee_invoices.restore_all') }}" method="POST" class="d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to restore all trashed receipts?');">
+                            @csrf
+                            <button type="submit" class="button button-success py-2 px-4" style="background-color: #10b981;">
+                                <i class="fas fa-trash-restore me-2"></i>Restore All
+                            </button>
+                        </form>
+                    @endif
                     <a href="{{ route('fee_invoices.create') }}" class="button button-primary py-2 px-4">
                         <i class="fas fa-plus me-2"></i>Create Receipt
                     </a>

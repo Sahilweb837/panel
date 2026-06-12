@@ -44,4 +44,14 @@ class Employee extends Model
     {
         return $this->hasMany(EmployeeAttendance::class);
     }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    public function dailyUpdates()
+    {
+        return $this->hasMany(DailyUpdate::class);
+    }
 }
