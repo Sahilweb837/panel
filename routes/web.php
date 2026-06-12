@@ -128,4 +128,14 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Face Attendance API Route (Inside Auth for CSRF protection and session validation)
     Route::post('/api/attendance/face-check', [\App\Http\Controllers\FaceAttendanceController::class, 'store'])->name('attendance.face.store');
+
+    // Chatbot query route
+    Route::get('/api/chatbot/query', [\App\Http\Controllers\ChatbotController::class, 'query'])->name('api.chatbot.query');
+
+    // Tasks routes
+    Route::post('/tasks/{id}/status', [\App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.update_status');
+    Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show', 'edit', 'update']);
+
+    // Daily Updates routes
+    Route::resource('daily-updates', \App\Http\Controllers\DailyUpdateController::class)->only(['index', 'store']);
 });

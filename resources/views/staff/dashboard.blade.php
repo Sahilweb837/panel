@@ -230,7 +230,7 @@
             </div>
 
             <!-- Profile & Salary Slips Grid -->
-            <div class="row g-4">
+            <div class="row g-4 mb-4">
                 <!-- My Profile -->
                 <div class="col-12 col-lg-5">
                     <div class="card premium-stat-card h-100">
@@ -255,7 +255,7 @@
                     <div class="card premium-stat-card h-100">
                         <div class="premium-card-header bg-transparent">
                             <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                                <i class="fas fa-wallet text-first"></i> My Salary Slips
+                                <i class="fas fa-wallet text-first"></i> My Recent Salary Slips
                             </h5>
                         </div>
                         <div class="card-body p-0">
@@ -293,10 +293,106 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Tasks & Daily Work Updates Grid -->
+            <div class="row g-4 mt-2">
+                <!-- My Assigned Tasks -->
+                <div class="col-12 col-lg-7">
+                    <div class="card premium-stat-card h-100">
+                        <div class="premium-card-header bg-transparent">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="fas fa-tasks text-first"></i> My Assigned Tasks
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table premium-table table-hover align-middle mb-0" style="min-width: auto;">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">Task</th>
+                                            <th>Priority</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                            <th class="pe-4 text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($assignedTasks as $task)
+                                            <tr id="task-row-{{ $task->id }}">
+                                                <td class="ps-4">
+                                                    <div class="fw-bold text-dark-title">{{ $task->title }}</div>
+                                                    <div class="text-muted small">{{ $task->description ?? 'No details' }}</div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ $task->priority === 'High' ? 'danger' : ($task->priority === 'Medium' ? 'warning' : 'info') }} px-2 py-1">
+                                                        {{ $task->priority }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ $task->due_date ? $task->due_date->format('M d, Y') : 'No due date' }}</td>
+                                                <td>
+                                                    <span id="task-status-{{ $task->id }}" class="status-badge status-{{ str_replace(' ', '-', strtolower($task->status)) }}" style="padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem;">
+                                                        {{ $task->status }}
+                                                    </span>
+                                                </td>
+                                                <td class="pe-4 text-end">
+                                                    <div class="d-flex gap-1 justify-content-end">
+                                                        <button type="button" onclick="updateTaskStatus({{ $task->id }}, 'In Progress')" class="button button-secondary btn-sm py-1 px-2 text-warning border-warning btn-start-task" style="font-size: 0.75rem;" {{ $task->status === 'In Progress' || $task->status === 'Completed' ? 'disabled' : '' }}>
+                                                            <i class="fas fa-play me-1"></i>Start
+                                                        </button>
+                                                        <button type="button" onclick="updateTaskStatus({{ $task->id }}, 'Completed')" class="button button-secondary btn-sm py-1 px-2 text-success border-success btn-complete-task" style="font-size: 0.75rem;" {{ $task->status === 'Completed' ? 'disabled' : '' }}>
+                                                            <i class="fas fa-check me-1"></i>Complete
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-5 ps-4">
+                                                    <i class="fas fa-check-circle fa-2x mb-3 d-block text-success"></i>
+                                                    No pending tasks assigned to you.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Daily Update -->
+                <div class="col-12 col-lg-5">
+                    <div class="card premium-stat-card h-100">
+                        <div class="premium-card-header bg-transparent">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="fas fa-edit text-first"></i> Log Daily Work Update
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form action="{{ route('daily-updates.store') }}" method="POST">
+                                @csrf
+                                <div class="form-group mb-3">
+                                    <label for="update_text" class="fw-semibold mb-2 text-muted small">Describe the work you completed today:</label>
+                                    <textarea name="update_text" id="update_text" required minlength="10" placeholder="Describe the tasks done, issues resolved, or status of your work today..." class="form-input" style="min-height: 120px; resize: vertical; padding: 12px;">{{ old('update_text', $todayUpdate?->update_text) }}</textarea>
+                                </div>
+                                @if($todayUpdate)
+                                    <div class="alert alert-info py-2 px-3 mb-3" style="font-size: 0.85rem;">
+                                        <i class="fas fa-info-circle me-1"></i> You already logged a work update today. Submitting again will update today's log.
+                                    </div>
+                                @endif
+                                <button type="submit" class="button button-primary w-100 py-2.5">
+                                    <i class="fas fa-save me-2"></i> {{ $todayUpdate ? 'Update Daily Log' : 'Submit Daily Log' }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Script to simulate lazy loading -->
+    <!-- Script to simulate lazy loading & handle AJAX status updates -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('dashboard-skeleton');
@@ -307,5 +403,62 @@
                 content.style.opacity = '1';
             }, 600);
         });
+
+        function updateTaskStatus(taskId, status) {
+            fetch(`/tasks/${taskId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    const badge = document.getElementById(`task-status-${taskId}`);
+                    badge.innerText = status;
+                    badge.className = `status-badge status-${status.toLowerCase().replace(' ', '-')}`;
+                    
+                    const row = document.getElementById(`task-row-${taskId}`);
+                    const startBtn = row.querySelector('.btn-start-task');
+                    const completeBtn = row.querySelector('.btn-complete-task');
+                    
+                    if(status === 'In Progress') {
+                        startBtn.disabled = true;
+                        completeBtn.disabled = false;
+                    } else if(status === 'Completed') {
+                        startBtn.disabled = true;
+                        completeBtn.disabled = true;
+                    }
+                    
+                    Swal.fire({
+                        title: 'Task Updated!',
+                        text: `Task status set to "${status}".`,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: document.documentElement.dataset.theme === 'dark' ? '#1e1714' : '#ffffff',
+                        color: document.documentElement.dataset.theme === 'dark' ? '#f5eae4' : '#1c1816'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.error || 'Failed to update status',
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred while updating the task status.',
+                    icon: 'error'
+                });
+            });
+        }
     </script>
 @endsection

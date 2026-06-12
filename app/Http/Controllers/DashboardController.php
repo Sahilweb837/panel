@@ -20,6 +20,19 @@ class DashboardController extends Controller
         if ($user?->role?->slug === 'staff') {
             $employee = $user->employee;
 
+            $assignedTasks = $employee
+                ? \App\Models\Task::where('assigned_to', $employee->id)
+                    ->orderByRaw("FIELD(status, 'In Progress', 'Pending', 'Completed')")
+                    ->orderBy('due_date', 'asc')
+                    ->get()
+                : collect();
+
+            $todayUpdate = $employee
+                ? \App\Models\DailyUpdate::where('employee_id', $employee->id)
+                    ->whereDate('date', now()->toDateString())
+                    ->first()
+                : null;
+
             return view('staff.dashboard', [
                 'employee' => $employee,
                 'salarySlips' => $employee
@@ -27,6 +40,8 @@ class DashboardController extends Controller
                     : collect(),
                 'attendanceCount' => Attendance::count(),
                 'studentCount' => Student::count(),
+                'assignedTasks' => $assignedTasks,
+                'todayUpdate' => $todayUpdate,
             ]);
         }
 

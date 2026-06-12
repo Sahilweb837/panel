@@ -199,6 +199,14 @@
                     <i class="fas fa-database"></i>
                     <span>Backups</span>
                 </a>
+                <a href="{{ route('tasks.index') }}" class="nav-link{{ request()->routeIs('tasks.*') ? ' active' : '' }}">
+                    <i class="fas fa-tasks"></i>
+                    <span>Tasks Assigned</span>
+                </a>
+                <a href="{{ route('daily-updates.index') }}" class="nav-link{{ request()->routeIs('daily-updates.*') ? ' active' : '' }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Daily Work Logs</span>
+                </a>
             @endif
 
             @if($isSuperOrRoot || in_array('clients', $access))
@@ -305,6 +313,172 @@
             });
             return false;
         };
+    </script>
+
+    <!-- Chatbot Floating Button -->
+    <div id="chatbot-trigger" style="position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--first-color); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; box-shadow: 0 10px 30px rgba(255, 85, 50, 0.3); z-index: 9999; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+        <i class="fas fa-robot fa-lg"></i>
+    </div>
+
+    <!-- Chatbot Glassmorphic Panel/Drawer -->
+    <div id="chatbot-drawer" style="position: fixed; top: 0; right: -420px; width: 420px; height: 100vh; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-left: 1px solid rgba(255, 255, 255, 0.4); z-index: 10000; box-shadow: -10px 0 40px rgba(0,0,0,0.05); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;">
+        <!-- Header -->
+        <div style="padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.5);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--first-color-light); display: flex; align-items: center; justify-content: center; color: var(--first-color);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h5 style="margin: 0; font-weight: 700;">ERP Assistant</h5>
+                    <small class="text-muted"><span style="color: #10b981;">●</span> Online</small>
+                </div>
+            </div>
+            <button type="button" id="close-chatbot" style="background: transparent; border: none; font-size: 1.2rem; color: var(--muted); cursor: pointer;"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Message Body -->
+        <div id="chat-messages" style="flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+            <!-- Welcome message -->
+            <div style="align-self: flex-start; max-width: 80%; background: var(--surface); border-radius: 16px 16px 16px 4px; padding: 12px 16px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                <p style="margin: 0; font-size: 0.92rem; line-height: 1.5;">Hello! I am your ERP system assistant. I can run health checks, look up outstanding fees, or check device connectivity. Try clicking one of the options below:</p>
+            </div>
+            
+            <!-- Quick Options -->
+            <div class="quick-options" style="display: flex; flex-direction: column; gap: 8px;">
+                <button type="button" onclick="sendQuickQuery('Show pending fees')" style="text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--first-color)'; this.style.color='var(--first-color)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='inherit'">
+                    💵 Which students have pending fees?
+                </button>
+                <button type="button" onclick="sendQuickQuery('Check biometric status')" style="text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--first-color)'; this.style.color='var(--first-color)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='inherit'">
+                    📡 Show ADMS Connection Status
+                </button>
+                <button type="button" onclick="sendQuickQuery('Check system diagnostics')" style="text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--first-color)'; this.style.color='var(--first-color)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='inherit'">
+                    🏥 Check System Health & Errors
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div style="padding: 16px 24px; border-top: 1px solid var(--border); background: rgba(255, 255, 255, 0.5);">
+            <form id="chat-input-form" onsubmit="handleChatSubmit(event)" style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="chat-user-input" placeholder="Type a message..." style="flex: 1; padding: 10px 14px; border: 1px solid var(--input-border); border-radius: 10px; background: var(--surface); font-size: 0.9rem;" required autocomplete="off">
+                <button type="submit" style="width: 42px; height: 42px; border-radius: 10px; background: var(--first-color); color: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 0.2s;"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trigger = document.getElementById('chatbot-trigger');
+            const drawer = document.getElementById('chatbot-drawer');
+            const closeBtn = document.getElementById('close-chatbot');
+            
+            if (trigger && drawer && closeBtn) {
+                trigger.addEventListener('click', () => {
+                    drawer.style.right = drawer.style.right === '0px' ? '-420px' : '0px';
+                });
+                closeBtn.addEventListener('click', () => {
+                    drawer.style.right = '-420px';
+                });
+            }
+        });
+
+        // Dark mode adaptation for chatbot drawer
+        window.addEventListener('theme-color-changed', () => {
+            syncChatbotTheme();
+        });
+        
+        function syncChatbotTheme() {
+            const drawer = document.getElementById('chatbot-drawer');
+            if(drawer) {
+                if (document.documentElement.dataset.theme === 'dark') {
+                    drawer.style.background = 'rgba(30, 23, 20, 0.85)';
+                    drawer.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                    drawer.style.color = '#f5eae4';
+                } else {
+                    drawer.style.background = 'rgba(255, 255, 255, 0.75)';
+                    drawer.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+                    drawer.style.color = '#1c1816';
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', syncChatbotTheme);
+
+        function sendQuickQuery(text) {
+            appendMessage(text, 'user');
+            fetchQuery(text);
+        }
+
+        function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-user-input');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            appendMessage(text, 'user');
+            input.value = '';
+            fetchQuery(text);
+        }
+
+        function appendMessage(text, type) {
+            const chatMessages = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            
+            if (type === 'user') {
+                msgDiv.style.alignSelf = 'flex-end';
+                msgDiv.style.maxWidth = '80%';
+                msgDiv.style.background = 'var(--first-color)';
+                msgDiv.style.color = '#fff';
+                msgDiv.style.borderRadius = '16px 16px 4px 16px';
+                msgDiv.style.padding = '12px 16px';
+                msgDiv.style.boxShadow = '0 4px 12px rgba(255, 85, 50, 0.15)';
+            } else {
+                msgDiv.style.alignSelf = 'flex-start';
+                msgDiv.style.maxWidth = '80%';
+                msgDiv.style.background = 'var(--surface)';
+                msgDiv.style.color = 'var(--text)';
+                msgDiv.style.borderRadius = '16px 16px 16px 4px';
+                msgDiv.style.padding = '12px 16px';
+                msgDiv.style.border = '1px solid var(--border)';
+                msgDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)';
+            }
+            
+            const formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            msgDiv.innerHTML = `<p style="margin: 0; font-size: 0.92rem; line-height: 1.5;">${formattedText}</p>`;
+            
+            const options = chatMessages.querySelector('.quick-options');
+            if (options) options.remove();
+
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function fetchQuery(query) {
+            const chatMessages = document.getElementById('chat-messages');
+            const indicator = document.createElement('div');
+            indicator.id = 'typing-indicator';
+            indicator.style.alignSelf = 'flex-start';
+            indicator.style.background = 'var(--surface)';
+            indicator.style.borderRadius = '16px';
+            indicator.style.padding = '12px 16px';
+            indicator.style.border = '1px solid var(--border)';
+            indicator.innerHTML = `<span style="font-size: 0.85rem; color: var(--muted);"><i class="fas fa-ellipsis-h fa-pulse"></i> Assistant is typing...</span>`;
+            chatMessages.appendChild(indicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            fetch(`/api/chatbot/query?query=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    const ind = document.getElementById('typing-indicator');
+                    if(ind) ind.remove();
+                    appendMessage(data.response, 'bot');
+                })
+                .catch(err => {
+                    const ind = document.getElementById('typing-indicator');
+                    if(ind) ind.remove();
+                    appendMessage("⚠️ **Error:** Unable to connect to assistant service. Check your connection.", 'bot');
+                });
+        }
     </script>
 </body>
 </html>

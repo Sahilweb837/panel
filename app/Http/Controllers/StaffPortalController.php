@@ -26,8 +26,19 @@ class StaffPortalController extends Controller
 
         $attendancePercentage = $totalDays > 0 ? round(($presentDays / $totalDays) * 100) : 0;
 
+        // Fetch assigned tasks sorted by priority & status
+        $assignedTasks = \App\Models\Task::where('assigned_to', $employee->id)
+            ->orderByRaw("FIELD(status, 'In Progress', 'Pending', 'Completed')")
+            ->orderBy('due_date', 'asc')
+            ->get();
+
+        // Fetch today's logged work update
+        $todayUpdate = \App\Models\DailyUpdate::where('employee_id', $employee->id)
+            ->whereDate('date', now()->toDateString())
+            ->first();
+
         return view('portal.staff.dashboard', compact(
-            'employee', 'attendances', 'presentDays', 'absentDays', 'lateDays', 'attendancePercentage'
+            'employee', 'attendances', 'presentDays', 'absentDays', 'lateDays', 'attendancePercentage', 'assignedTasks', 'todayUpdate'
         ));
     }
 }
