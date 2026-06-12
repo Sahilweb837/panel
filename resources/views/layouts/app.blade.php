@@ -119,7 +119,7 @@
             @if($isSuperOrRoot || in_array('fee-invoices', $access))
                 <a href="{{ route('fee_invoices.index') }}" class="nav-link{{ request()->routeIs('fee_invoices.*') ? ' active' : '' }}">
                     <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Fee Invoices</span>
+                    <span>Fee Receipts</span>
                 </a>
             @endif
 

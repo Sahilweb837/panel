@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Fee Invoices')
-@section('page-title', 'Fee Invoice Management')
+@section('title', 'Fee Receipts')
+@section('page-title', 'Fee Receipt Management')
 
 @section('content')
     <div class="invoice-container">
@@ -26,7 +26,7 @@
             <div class="toolbar mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <form method="GET" action="{{ route('fee_invoices.index') }}" class="filter-form d-flex align-items-center gap-2 flex-grow-1">
                     <div style="position: relative; flex: 1;">
-                        <input type="text" name="search" placeholder="Search by invoice number or student name..." value="{{ request('search') }}" class="form-input" style="padding-left: 36px;" />
+                        <input type="text" name="search" placeholder="Search by receipt number or student name..." value="{{ request('search') }}" class="form-input" style="padding-left: 36px;" />
                         <i class="fas fa-search text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
                     </div>
                     <div style="position: relative; width: 180px;">
@@ -57,7 +57,7 @@
                         </label>
                     </div>
                     <a href="{{ route('fee_invoices.create') }}" class="button button-primary py-2 px-4">
-                        <i class="fas fa-plus me-2"></i>Create Invoice
+                        <i class="fas fa-plus me-2"></i>Create Receipt
                     </a>
                 </div>
             </div>
@@ -65,14 +65,14 @@
             <div class="card premium-stat-card p-0 table-card overflow-hidden">
                 <div class="premium-card-header bg-transparent border-bottom p-4">
                     <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fas fa-file-invoice text-first"></i> Student Fee Invoices & Receipts
+                        <i class="fas fa-file-invoice text-first"></i> Student Fee Receipts
                     </h5>
                 </div>
                 <div class="card-body p-0">
                     <table class="table premium-table table-hover align-middle mb-0">
                         <thead>
                             <tr class="table-light-head">
-                                <th class="ps-4"><i class="fas fa-hashtag me-1"></i> Invoice No</th>
+                                <th class="ps-4"><i class="fas fa-hashtag me-1"></i> Receipt No</th>
                                 <th><i class="fas fa-user-graduate me-1"></i> Student</th>
                                 <th><i class="fas fa-coins me-1"></i> Total (INR)</th>
                                 <th><i class="fas fa-toggle-on me-1"></i> Status</th>
@@ -116,7 +116,7 @@
                                     <td class="text-muted">{{ $invoice->payment_date ? \Carbon\Carbon::parse($invoice->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                     <td class="text-end pe-4 action-cell">
                                         @if($invoice->trashed())
-                                            <form action="{{ route('fee_invoices.restore', $invoice->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Restore this invoice?');">
+                                            <form action="{{ route('fee_invoices.restore', $invoice->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Restore this receipt?');">
                                                 @csrf
                                                 <button type="submit" class="button button-success small py-1.5 px-3">
                                                     <i class="fas fa-trash-restore me-1"></i>Restore
@@ -126,7 +126,7 @@
                                             <a href="{{ route('fee_invoices.show', $invoice) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
                                                 <i class="fas fa-print me-1"></i>Print
                                             </a>
-                                            <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this invoice?');">
+                                            <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this receipt?');">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="button button-danger small py-1.5 px-3">
                                                     <i class="fas fa-trash me-1"></i>Delete
@@ -139,7 +139,7 @@
                                 <tr>
                                     <td colspan="7" class="text-center py-5 text-muted">
                                         <i class="fas fa-file-invoice-dollar fa-2x mb-3 d-block text-muted"></i>
-                                        No student fee invoices registered.
+                                        No student fee receipts registered.
                                     </td>
                                 </tr>
                             @endforelse

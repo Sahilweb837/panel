@@ -36,7 +36,7 @@
             background: linear-gradient(90deg, var(--surface-soft) 25%, var(--border) 50%, var(--surface-soft) 75%);
             background-size: 200% 100%;
             animation: loadingSkeleton 1.5s infinite linear;
-            border-radius: 12px;
+            border-radius: 16px;
             border: 1px solid var(--border);
         }
 
@@ -45,24 +45,126 @@
             100% { background-position: -200% 0; }
         }
 
+        /* Premium Glassmorphic Cards */
         .stat-card {
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             background: var(--surface);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
             position: relative;
         }
 
+        html[data-theme="dark"] .stat-card {
+            background: rgba(31, 41, 55, 0.45);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
         .stat-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border-color: var(--first-color);
+        }
+
+        html[data-theme="dark"] .stat-card:hover {
+            box-shadow: 0 20px 40px rgba(255, 85, 50, 0.15);
+            border-color: rgba(255, 85, 50, 0.4);
+        }
+
+        /* Gradient Accents for Stat Cards */
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            transition: background 0.3s ease;
+        }
+
+        .stat-card.card-students::after {
+            background: linear-gradient(90deg, #ff5532, #ff8a00);
+        }
+        .stat-card.card-staff::after {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        .stat-card.card-attendance::after {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        .stat-card.card-receipts::after {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        /* Glowing Background Highlights */
+        .glow-dot {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            top: -20px;
+            right: -20px;
+            z-index: 0;
+            transition: opacity 0.3s ease;
+        }
+        html[data-theme="dark"] .glow-dot {
+            opacity: 0.25;
+        }
+        .stat-card:hover .glow-dot {
+            opacity: 0.35;
+        }
+
+        .bg-glow-students { background: #ff5532; }
+        .bg-glow-staff { background: #10b981; }
+        .bg-glow-attendance { background: #f59e0b; }
+        .bg-glow-receipts { background: #ef4444; }
+
+        /* Icon Wrapper styling */
+        .stat-icon-wrapper {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover .stat-icon-wrapper {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .stat-icon-students { background: rgba(255, 85, 50, 0.1); color: #ff5532; }
+        .stat-icon-staff { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .stat-icon-attendance { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .stat-icon-receipts { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        .stat-card h3 {
+            position: relative;
+            z-index: 1;
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
         }
 
         .card-header-clean {
             border-bottom: 1px solid var(--border);
-            padding: 16px 20px;
+            padding: 20px 24px;
             background: var(--surface-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        html[data-theme="dark"] .card-header-clean {
+            background: rgba(55, 65, 81, 0.2);
+            border-color: rgba(255, 255, 255, 0.05);
         }
 
         .progress-bar-clean {
@@ -70,56 +172,105 @@
             background-color: var(--border);
             border-radius: 999px;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        html[data-theme="dark"] .progress-bar-clean {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .progress-fill {
             height: 100%;
             border-radius: 999px;
+            transition: width 0.6s ease;
         }
 
         .table-clean th {
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--muted);
             background-color: var(--surface-soft);
             border-bottom: 2px solid var(--border) !important;
-            padding: 12px 16px;
+            padding: 14px 20px;
+            letter-spacing: 0.5px;
+        }
+        html[data-theme="dark"] .table-clean th {
+            background-color: rgba(55, 65, 81, 0.3);
+            border-color: rgba(255, 255, 255, 0.05) !important;
         }
 
         .table-clean td {
-            padding: 14px 16px;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--border);
+        }
+        html[data-theme="dark"] .table-clean td {
+            border-color: rgba(255, 255, 255, 0.05);
         }
 
         .shortcut-btn {
             border: 1px solid var(--border);
             background: var(--surface);
-            border-radius: 8px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 20px 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+        html[data-theme="dark"] .shortcut-btn {
+            background: rgba(31, 41, 55, 0.3);
+            border-color: rgba(255, 255, 255, 0.05);
         }
 
         .shortcut-btn:hover {
             border-color: var(--first-color);
             color: var(--first-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 85, 50, 0.08);
+            background: rgba(255, 85, 50, 0.02);
         }
 
         .shortcut-btn i {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             color: var(--muted);
+            transition: all 0.3s ease;
         }
 
         .shortcut-btn:hover i {
             color: var(--first-color);
+            transform: scale(1.1);
+        }
+
+        /* ADMS live pulse animation */
+        .blink-animation {
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Cashflow overview metrics styling */
+        .financial-stat-box {
+            padding: 15px;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+        }
+        .financial-stat-box:hover {
+            background: var(--surface-soft);
+        }
+        html[data-theme="dark"] .financial-stat-box:hover {
+            background: rgba(255, 255, 255, 0.02);
         }
     </style>
 
@@ -144,13 +295,17 @@
             <div class="row g-4 mb-4">
                 <!-- Students Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4">
+                    <div class="card stat-card card-students h-100">
+                        <div class="glow-dot bg-glow-students"></div>
+                        <div class="card-body p-4 position-relative" style="z-index: 1;">
+                            <div class="stat-icon-wrapper stat-icon-students">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Students Enrolled</span>
-                            <h3 class="display-6 fw-bold mb-3">{{ $studentCount }}</h3>
+                            <h3 class="fw-bold mb-3 text-dark-title">{{ $studentCount }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 82%; background-color: var(--first-color);"></div>
+                                    <div class="progress-fill" style="width: 82%; background: linear-gradient(90deg, #ff5532, #ff8a00);"></div>
                                 </div>
                             </div>
                             <span class="text-success small fw-semibold"><i class="fas fa-arrow-up me-1"></i>Active accounts</span>
@@ -160,13 +315,17 @@
 
                 <!-- Staff Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4">
+                    <div class="card stat-card card-staff h-100">
+                        <div class="glow-dot bg-glow-staff"></div>
+                        <div class="card-body p-4 position-relative" style="z-index: 1;">
+                            <div class="stat-icon-wrapper stat-icon-staff">
+                                <i class="fas fa-users-cog"></i>
+                            </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Active Staff</span>
-                            <h3 class="display-6 fw-bold mb-3">{{ $employeeCount }}</h3>
+                            <h3 class="fw-bold mb-3 text-dark-title">{{ $employeeCount }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 95%; background-color: #10b981;"></div>
+                                    <div class="progress-fill" style="width: 95%; background: linear-gradient(90deg, #10b981, #059669);"></div>
                                 </div>
                             </div>
                             <span class="text-success small fw-semibold"><i class="fas fa-check-circle me-1"></i>Fully Verified</span>
@@ -176,13 +335,17 @@
 
                 <!-- Attendance Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4">
+                    <div class="card stat-card card-attendance h-100">
+                        <div class="glow-dot bg-glow-attendance"></div>
+                        <div class="card-body p-4 position-relative" style="z-index: 1;">
+                            <div class="stat-icon-wrapper stat-icon-attendance">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Attendance Today</span>
-                            <h3 class="display-6 fw-bold mb-3">{{ $attendanceCount }}</h3>
+                            <h3 class="fw-bold mb-3 text-dark-title">{{ $attendanceCount }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 74%; background-color: #f59e0b;"></div>
+                                    <div class="progress-fill" style="width: 74%; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
                                 </div>
                             </div>
                             <span class="text-warning small fw-semibold"><i class="fas fa-clock me-1"></i>Daily Logged</span>
@@ -190,15 +353,19 @@
                     </div>
                 </div>
 
-                <!-- Pending Invoices Stat -->
+                <!-- Pending Receipts Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4">
-                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Pending Invoices</span>
-                            <h3 class="display-6 fw-bold mb-3">{{ $dueInvoices }}</h3>
+                    <div class="card stat-card card-receipts h-100">
+                        <div class="glow-dot bg-glow-receipts"></div>
+                        <div class="card-body p-4 position-relative" style="z-index: 1;">
+                            <div class="stat-icon-wrapper stat-icon-receipts">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Pending Receipts</span>
+                            <h3 class="fw-bold mb-3 text-dark-title">{{ $dueInvoices }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 38%; background-color: #ef4444;"></div>
+                                    <div class="progress-fill" style="width: 38%; background: linear-gradient(90deg, #ef4444, #dc2626);"></div>
                                 </div>
                             </div>
                             <span class="text-danger small fw-semibold"><i class="fas fa-exclamation-circle me-1"></i>Needs Attention</span>
@@ -210,14 +377,14 @@
             <!-- Biometric Connection Status -->
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="card stat-card">
+                    <div class="card stat-card" style="border-radius: 16px;">
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                                 <div class="d-flex align-items-center gap-3">
                                     @php
                                         $isAdmsConnected = isset($biometricDevice) && $biometricDevice->last_sync && \Carbon\Carbon::parse($biometricDevice->last_sync)->diffInMinutes(now()) < 5;
                                     @endphp
-                                    <div style="width: 48px; height: 48px; background: {{ $isAdmsConnected ? 'rgba(16, 185, 129, 0.1)' : 'rgba(108, 117, 125, 0.1)' }}; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 48px; height: 48px; background: {{ $isAdmsConnected ? 'rgba(16, 185, 129, 0.1)' : 'rgba(108, 117, 125, 0.1)' }}; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                                         <i class="fas fa-satellite-dish {{ $isAdmsConnected ? 'text-success' : 'text-secondary' }} fs-5"></i>
                                     </div>
                                     <div>
@@ -238,7 +405,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('biometric.index') }}" class="btn btn-outline-secondary">
+                                    <a href="{{ route('biometric.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2">
                                         <i class="fas fa-cog me-2"></i>Hardware Setup
                                     </a>
                                 </div>
@@ -251,27 +418,27 @@
             <!-- Financial Summary Cashflow Deck -->
             <div class="row g-4 mb-4">
                 <div class="col-12 col-lg-8">
-                    <div class="card stat-card h-100">
-                        <div class="card-header-clean d-flex align-items-center justify-content-between">
-                            <h5 class="fw-bold mb-0"><i class="fas fa-chart-pie text-first me-2"></i>Financial Overview</h5>
+                    <div class="card stat-card h-100" style="border-radius: 16px;">
+                        <div class="card-header-clean">
+                            <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-chart-pie text-first me-2"></i>Financial Overview</h5>
                             <span class="badge bg-light border text-dark">System Calculated</span>
                         </div>
                         <div class="card-body p-4">
                             <div class="row g-4">
-                                <div class="col-12 col-md-4 border-end">
+                                <div class="col-12 col-md-4 border-end financial-stat-box">
                                     <span class="text-muted d-block small fw-bold mb-1 text-uppercase">Total Income Received</span>
                                     <h3 class="fw-bold text-success mb-2">₹{{ number_format($totalIncome, 2) }}</h3>
-                                    <small class="text-muted">Paid student fee invoices</small>
+                                    <small class="text-muted">Paid student fee receipts</small>
                                 </div>
-                                <div class="col-12 col-md-4 border-end">
+                                <div class="col-12 col-md-4 border-end financial-stat-box">
                                     <span class="text-muted d-block small fw-bold mb-1 text-uppercase">Total Expenditure</span>
                                     <h3 class="fw-bold text-danger mb-2">₹{{ number_format($totalExpense, 2) }}</h3>
                                     <small class="text-muted">Recorded corporate expenses</small>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <span class="text-muted d-block small fw-bold mb-1 text-uppercase">Pending Fees</span>
+                                <div class="col-12 col-md-4 financial-stat-box">
+                                    <span class="text-muted d-block small fw-bold mb-1 text-uppercase">Outstanding Fees</span>
                                     <h3 class="fw-bold text-warning mb-2">₹{{ number_format($totalPendingFees, 2) }}</h3>
-                                    <small class="text-muted">Outstanding student invoices</small>
+                                    <small class="text-muted">Outstanding student receipts</small>
                                 </div>
                             </div>
                         </div>
@@ -280,9 +447,9 @@
 
                 <!-- Core Shortcuts Panel -->
                 <div class="col-12 col-lg-4">
-                    <div class="card stat-card h-100">
+                    <div class="card stat-card h-100" style="border-radius: 16px;">
                         <div class="card-header-clean">
-                            <h5 class="fw-bold mb-0"><i class="fas fa-bolt text-first me-2"></i>Quick Actions</h5>
+                            <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-bolt text-first me-2"></i>Quick Actions</h5>
                         </div>
                         <div class="card-body p-4">
                             <div class="row g-2">
@@ -329,10 +496,10 @@
             <div class="row g-4">
                 <!-- Recent Attendance -->
                 <div class="col-12 col-lg-6">
-                    <div class="card stat-card h-100">
-                        <div class="card-header-clean d-flex align-items-center justify-content-between">
-                            <h5 class="mb-0 fw-bold"><i class="fas fa-clock text-first me-2"></i>Recent Attendance Logs</h5>
-                            <a href="{{ route('attendances.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <div class="card stat-card h-100" style="border-radius: 16px; padding: 0;">
+                        <div class="card-header-clean">
+                            <h5 class="mb-0 fw-bold text-dark-title"><i class="fas fa-clock text-first me-2"></i>Recent Attendance Logs</h5>
+                            <a href="{{ route('attendances.index') }}" class="btn btn-xs btn-outline-secondary rounded-pill px-3">View All</a>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
@@ -348,14 +515,14 @@
                                     <tbody>
                                         @forelse($recentAttendances as $attendance)
                                             <tr>
-                                                <td class="fw-medium ps-4">{{ $attendance->student?->first_name ?? 'Unknown' }} {{ $attendance->student?->last_name }}</td>
+                                                <td class="fw-medium ps-4 text-dark-title">{{ $attendance->student?->first_name ?? 'Unknown' }} {{ $attendance->student?->last_name }}</td>
                                                 <td class="text-muted small">{{ $attendance->attendance_date }}</td>
                                                 <td class="text-center">
                                                     <span class="badge bg-{{ strtolower($attendance->status) === 'present' ? 'success' : (strtolower($attendance->status) === 'absent' ? 'danger' : 'warning') }} rounded-pill">
                                                         {{ $attendance->status }}
                                                     </span>
                                                 </td>
-                                                <td class="text-end fw-bold pe-4">
+                                                <td class="text-end fw-bold pe-4 text-dark-title">
                                                     @if($attendance->fine > 0)
                                                         ₹{{ number_format($attendance->fine, 2) }}
                                                     @else
@@ -375,41 +542,41 @@
                     </div>
                 </div>
 
-                <!-- Latest Invoices -->
+                <!-- Latest Fee Receipts -->
                 <div class="col-12 col-lg-6">
-                    <div class="card stat-card h-100">
-                        <div class="card-header-clean d-flex align-items-center justify-content-between">
-                            <h5 class="mb-0 fw-bold"><i class="fas fa-receipt text-first me-2"></i>Latest Fee Invoices</h5>
-                            <a href="{{ route('fee_invoices.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <div class="card stat-card h-100" style="border-radius: 16px; padding: 0;">
+                        <div class="card-header-clean">
+                            <h5 class="mb-0 fw-bold text-dark-title"><i class="fas fa-receipt text-first me-2"></i>Latest Fee Receipts</h5>
+                            <a href="{{ route('fee_invoices.index') }}" class="btn btn-xs btn-outline-secondary rounded-pill px-3">View All</a>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-clean table-hover align-middle mb-0">
                                     <thead>
                                         <tr>
-                                            <th class="ps-4">Invoice</th>
+                                            <th class="ps-4">Receipt</th>
                                             <th>Student</th>
                                             <th class="text-center">Status</th>
-                                            <th class="text-end pe-4">Due Amount</th>
+                                            <th class="text-end pe-4">Total Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($recentInvoices as $invoice)
                                             <tr>
                                                 <td class="fw-bold text-first ps-4">{{ $invoice->invoice_no }}</td>
-                                                <td class="fw-medium">{{ $invoice->student?->first_name ?? 'Unknown' }} {{ $invoice->student?->last_name }}</td>
+                                                <td class="fw-medium text-dark-title">{{ $invoice->student?->first_name ?? 'Unknown' }} {{ $invoice->student?->last_name }}</td>
                                                 <td class="text-center">
                                                     <span class="badge bg-{{ strtolower($invoice->status) === 'paid' ? 'success' : (strtolower($invoice->status) === 'unpaid' ? 'danger' : 'warning') }} rounded-pill">
                                                         {{ $invoice->status }}
                                                     </span>
                                                 </td>
-                                                <td class="text-end fw-bold pe-4">
+                                                <td class="text-end fw-bold pe-4 text-dark-title">
                                                     ₹{{ number_format($invoice->due_amount, 2) }}
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="4" class="text-center text-muted py-4">No recent fee invoices.</td>
+                                                <td colspan="4" class="text-center text-muted py-4">No recent fee receipts.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
