@@ -9,7 +9,64 @@
             const savedTheme = localStorage.getItem('fees-theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             document.documentElement.dataset.theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            
+            const savedColor = localStorage.getItem('fees-primary-color');
+            if (savedColor) {
+                try {
+                    const colors = JSON.parse(savedColor);
+                    document.documentElement.style.setProperty('--first-color', colors.primary);
+                    document.documentElement.style.setProperty('--first-color-dark', colors.dark);
+                    document.documentElement.style.setProperty('--first-color-light', colors.light);
+                    document.documentElement.style.setProperty('--input-focus', colors.focus);
+                } catch(e) {
+                    console.error('Error parsing theme colors', e);
+                }
+            }
         })();
+
+        window.applyPrimaryColor = function(primary, dark, light, focus) {
+            document.documentElement.style.setProperty('--first-color', primary);
+            document.documentElement.style.setProperty('--first-color-dark', dark);
+            document.documentElement.style.setProperty('--first-color-light', light);
+            document.documentElement.style.setProperty('--input-focus', focus);
+            localStorage.setItem('fees-primary-color', JSON.stringify({ primary, dark, light, focus }));
+            window.dispatchEvent(new Event('theme-color-changed'));
+        };
+
+        window.resetTheme = function() {
+            localStorage.removeItem('fees-theme');
+            localStorage.removeItem('fees-primary-color');
+            
+            document.documentElement.style.removeProperty('--first-color');
+            document.documentElement.style.removeProperty('--first-color-dark');
+            document.documentElement.style.removeProperty('--first-color-light');
+            document.documentElement.style.removeProperty('--input-focus');
+            
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const targetTheme = prefersDark ? 'dark' : 'light';
+            document.documentElement.dataset.theme = targetTheme;
+            
+            document.querySelectorAll('[data-theme-toggle]').forEach(t => {
+                const n = t.querySelector('i');
+                if(n) n.className = targetTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            });
+            
+            window.dispatchEvent(new Event('theme-color-changed'));
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Theme Reset!',
+                    text: 'The dashboard theme has been reset to defaults.',
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: document.documentElement.dataset.theme === 'dark' ? '#1e1714' : '#ffffff',
+                    color: document.documentElement.dataset.theme === 'dark' ? '#f5eae4' : '#1c1816'
+                });
+            }
+        };
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />

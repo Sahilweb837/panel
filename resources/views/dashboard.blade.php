@@ -272,6 +272,24 @@
         html[data-theme="dark"] .financial-stat-box:hover {
             background: rgba(255, 255, 255, 0.02);
         }
+
+        /* Color Picker Styling */
+        .color-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0 0 1px var(--border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .color-dot:hover {
+            transform: scale(1.15);
+        }
+        .color-dot.active-accent {
+            box-shadow: 0 0 0 2px var(--first-color);
+            transform: scale(1.1);
+        }
     </style>
 
     <div class="dashboard-container">
@@ -445,46 +463,106 @@
                     </div>
                 </div>
 
-                <!-- Core Shortcuts Panel -->
+                <!-- Core Shortcuts Panel & Theme settings -->
                 <div class="col-12 col-lg-4">
-                    <div class="card stat-card h-100" style="border-radius: 16px;">
-                        <div class="card-header-clean">
-                            <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-bolt text-first me-2"></i>Quick Actions</h5>
+                    <div class="d-flex flex-column gap-4 h-100">
+                        <!-- Quick Actions -->
+                        <div class="card stat-card" style="border-radius: 16px; flex: 1;">
+                            <div class="card-header-clean">
+                                <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-bolt text-first me-2"></i>Quick Actions</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <a href="{{ route('students.create') }}" class="shortcut-btn w-100 h-100">
+                                            <i class="fas fa-user-plus"></i>
+                                            <span>Add Student</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ route('attendances.create') }}" class="shortcut-btn w-100 h-100">
+                                            <i class="fas fa-calendar-check"></i>
+                                            <span>Attendance</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ route('expenses.create') }}" class="shortcut-btn w-100 h-100">
+                                            <i class="fas fa-receipt"></i>
+                                            <span>Expense</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ route('courses.create') }}" class="shortcut-btn w-100 h-100">
+                                            <i class="fas fa-book"></i>
+                                            <span>Add Course</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <form action="{{ route('clear-cache') }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="shortcut-btn w-100 flex-row p-2" style="background: rgba(255, 85, 50, 0.05);">
+                                                <i class="fas fa-broom text-first"></i>
+                                                <span class="text-first">Clear Application Cache</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <a href="{{ route('students.create') }}" class="shortcut-btn w-100 h-100">
-                                        <i class="fas fa-user-plus"></i>
-                                        <span>Add Student</span>
-                                    </a>
+
+                        <!-- Theme Settings -->
+                        <div class="card stat-card" style="border-radius: 16px;">
+                            <div class="card-header-clean">
+                                <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-palette text-first me-2"></i>Theme Settings</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="text-muted small mb-3">Personalize your system workspace color accent and light/dark appearance.</p>
+                                
+                                <div class="mb-4">
+                                    <label class="fw-bold small text-muted text-uppercase d-block mb-2">Accent Color</label>
+                                    <div class="d-flex flex-wrap gap-2" id="accent-picker">
+                                        <!-- Orange -->
+                                        <button type="button" class="color-dot" style="background: #ff5532;" 
+                                                onclick="selectAccentColor(this, '#ff5532', '#d63a1f', 'rgba(255, 85, 50, 0.12)', 'rgba(255, 85, 50, 0.22)')" title="Sunset Orange"></button>
+                                        <!-- Blue -->
+                                        <button type="button" class="color-dot" style="background: #3b82f6;" 
+                                                onclick="selectAccentColor(this, '#3b82f6', '#1d4ed8', 'rgba(59, 130, 246, 0.12)', 'rgba(59, 130, 246, 0.22)')" title="Ocean Blue"></button>
+                                        <!-- Green -->
+                                        <button type="button" class="color-dot" style="background: #10b981;" 
+                                                onclick="selectAccentColor(this, '#10b981', '#059669', 'rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.22)')" title="Emerald Green"></button>
+                                        <!-- Purple -->
+                                        <button type="button" class="color-dot" style="background: #8b5cf6;" 
+                                                onclick="selectAccentColor(this, '#8b5cf6', '#6d28d9', 'rgba(139, 92, 246, 0.12)', 'rgba(139, 92, 246, 0.22)')" title="Royal Purple"></button>
+                                        <!-- Pink -->
+                                        <button type="button" class="color-dot" style="background: #ec4899;" 
+                                                onclick="selectAccentColor(this, '#ec4899', '#be185d', 'rgba(236, 72, 153, 0.12)', 'rgba(236, 72, 153, 0.22)')" title="Deep Pink"></button>
+                                        <!-- Crimson -->
+                                        <button type="button" class="color-dot" style="background: #e11d48;" 
+                                                onclick="selectAccentColor(this, '#e11d48', '#9f1239', 'rgba(225, 29, 72, 0.12)', 'rgba(225, 29, 72, 0.22)')" title="Classic Crimson"></button>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <a href="{{ route('attendances.create') }}" class="shortcut-btn w-100 h-100">
-                                        <i class="fas fa-calendar-check"></i>
-                                        <span>Attendance</span>
-                                    </a>
+
+                                <div class="mb-4">
+                                    <label class="fw-bold small text-muted text-uppercase d-block mb-2">Display Theme</label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-outline-secondary w-100 btn-sm py-2 px-3 d-flex align-items-center justify-content-center gap-2" onclick="setThemeMode('light')">
+                                                <i class="fas fa-sun"></i> Light Mode
+                                            </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-outline-secondary w-100 btn-sm py-2 px-3 d-flex align-items-center justify-content-center gap-2" onclick="setThemeMode('dark')">
+                                                <i class="fas fa-moon"></i> Dark Mode
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <a href="{{ route('expenses.create') }}" class="shortcut-btn w-100 h-100">
-                                        <i class="fas fa-receipt"></i>
-                                        <span>Expense</span>
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <a href="{{ route('courses.create') }}" class="shortcut-btn w-100 h-100">
-                                        <i class="fas fa-book"></i>
-                                        <span>Add Course</span>
-                                    </a>
-                                </div>
-                                <div class="col-12 mt-2">
-                                    <form action="{{ route('clear-cache') }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="shortcut-btn w-100 flex-row p-2" style="background: rgba(255, 85, 50, 0.05);">
-                                            <i class="fas fa-broom text-first"></i>
-                                            <span class="text-first">Clear Application Cache</span>
-                                        </button>
-                                    </form>
+
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                    <button type="button" class="btn btn-link text-danger text-decoration-none p-0 small fw-bold" onclick="window.resetTheme()">
+                                        <i class="fas fa-undo me-1"></i> Reset Settings
+                                    </button>
+                                    <span class="text-muted small" style="font-size: 0.75rem;"><i class="fas fa-cloud-upload-alt me-1"></i> Autosaved</span>
                                 </div>
                             </div>
                         </div>
@@ -589,7 +667,7 @@
         </div>
     </div>
 
-    <!-- Script to simulate dynamic lazy loading and skeleton fading -->
+    <!-- Script to simulate dynamic lazy loading and skeleton fading, and theme management -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('dashboard-skeleton');
@@ -601,5 +679,91 @@
                 if (content) content.style.opacity = '1';
             }, 600);
         });
+
+        // Theme settings color picker and synchronization logic
+        function selectAccentColor(btn, primary, dark, light, focus) {
+            document.querySelectorAll('#accent-picker .color-dot').forEach(el => {
+                el.classList.remove('active-accent');
+            });
+            btn.classList.add('active-accent');
+            window.applyPrimaryColor(primary, dark, light, focus);
+        }
+        
+        function setThemeMode(mode) {
+            document.documentElement.dataset.theme = mode;
+            localStorage.setItem('fees-theme', mode);
+            
+            // Sync side navbar icons / top buttons
+            document.querySelectorAll('[data-theme-toggle]').forEach(t => {
+                const n = t.querySelector('i');
+                if(n) n.className = mode === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            });
+        }
+        
+        // Synchronize UI elements on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedColor = localStorage.getItem('fees-primary-color');
+            const buttons = document.querySelectorAll('#accent-picker .color-dot');
+            if (savedColor) {
+                try {
+                    const colors = JSON.parse(savedColor);
+                    buttons.forEach(btn => {
+                        const styleBg = btn.style.backgroundColor;
+                        const hex = rgb2hex(styleBg);
+                        if (hex === colors.primary.toLowerCase()) {
+                            btn.classList.add('active-accent');
+                        } else {
+                            btn.classList.remove('active-accent');
+                        }
+                    });
+                } catch(e) {
+                    console.error(e);
+                }
+            } else {
+                // Default orange is active
+                const orangeBtn = document.querySelector('#accent-picker .color-dot[title="Sunset Orange"]');
+                if(orangeBtn) orangeBtn.classList.add('active-accent');
+            }
+        });
+        
+        // Listen to reset / external theme changes
+        window.addEventListener('theme-color-changed', () => {
+            const savedColor = localStorage.getItem('fees-primary-color');
+            const buttons = document.querySelectorAll('#accent-picker .color-dot');
+            if (!savedColor) {
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('title') === 'Sunset Orange') {
+                        btn.classList.add('active-accent');
+                    } else {
+                        btn.classList.remove('active-accent');
+                    }
+                });
+            } else {
+                try {
+                    const colors = JSON.parse(savedColor);
+                    buttons.forEach(btn => {
+                        const styleBg = btn.style.backgroundColor;
+                        const hex = rgb2hex(styleBg);
+                        if (hex === colors.primary.toLowerCase()) {
+                            btn.classList.add('active-accent');
+                        } else {
+                            btn.classList.remove('active-accent');
+                        }
+                    });
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+        });
+
+        function rgb2hex(rgb) {
+            if (!rgb) return '';
+            if (rgb.search("rgb") == -1) return rgb.toLowerCase();
+            rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+            function hex(x) {
+                return ("0" + parseInt(x).toString(16)).slice(-2);
+            }
+            return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+        }
     </script>
 @endsection
