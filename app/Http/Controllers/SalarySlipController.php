@@ -29,6 +29,45 @@ class SalarySlipController extends Controller
         return view('salary_slips.index', compact('salarySlips'));
     }
 
+    public function calculateDeduction(Request $request)
+    {
+        $request->validate([
+            'employee_id' => ['required', 'exists:employees,id'],
+            'month' => ['required', 'string'],
+            'year' => ['required', 'digits:4'],
+        ]);
+
+        $employee = Employee::findOrFail($request->employee_id);
+        
+        $monthStr = $request->month;
+        $year = $request->year;
+        $monthNum = date('m', strtotime($monthStr . ' 1 ' . $year));
+
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNum, $year);
+
+        // Calculate present days
+        $attendances = \App\Models\EmployeeAttendance::where('employee_id', $employee->id)
+            ->whereMonth('attendance_date', $monthNum)
+            ->whereYear('attendance_date', $year)
+            ->where('status', 'Present')
+            ->count();
+
+        $absentDays = max(0, $daysInMonth - $attendances);
+        
+        $basicSalary = $employee->salary ?? 0;
+        $perDaySalary = $basicSalary / $daysInMonth;
+        
+        $deduction = round($absentDays * $perDaySalary, 2);
+        
+        return response()->json([
+            'basic_salary' => $basicSalary,
+            'deduction' => $deduction,
+            'attended_days' => $attendances,
+            'total_days' => $daysInMonth,
+            'absent_days' => $absentDays,
+        ]);
+    }
+
     public function create()
     {
         return view('salary_slips.create', [

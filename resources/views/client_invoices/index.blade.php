@@ -91,7 +91,7 @@
                         <td class="text-muted small">{{ $invoice->due_date ? $invoice->due_date->format('M d, Y') : '—' }}</td>
                         <td class="text-end pe-4">
                             @if($invoice->trashed())
-                                <form action="{{ route('client_invoices.restore', $invoice->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Restore this invoice?')">
+                                <form action="{{ route('client_invoices.restore', $invoice->id) }}" method="POST" class="d-inline" onsubmit="return confirmAction(event, 'Restore this invoice?');">
                                     @csrf
                                     <button class="button button-secondary small py-1 px-3"><i class="fas fa-trash-restore me-1"></i>Restore</button>
                                 </form>
@@ -99,7 +99,7 @@
                                 <a href="{{ route('client_invoices.show', $invoice) }}" class="button button-secondary small py-1 px-3" target="_blank">
                                     <i class="fas fa-print me-1"></i>Print
                                 </a>
-                                <form action="{{ route('client_invoices.destroy', $invoice) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this invoice?')">
+                                <form action="{{ route('client_invoices.destroy', $invoice) }}" method="POST" class="d-inline" onsubmit="return confirmAction(event, 'Delete this invoice?');">
                                     @csrf @method('DELETE')
                                     <button class="button button-danger small py-1 px-3"><i class="fas fa-trash"></i></button>
                                 </form>

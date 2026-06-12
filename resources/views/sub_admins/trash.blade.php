@@ -90,7 +90,7 @@
                                     </td>
                                     <td class="text-danger">{{ $user->deleted_at->format('M d, Y') }}</td>
                                     <td class="text-end pe-4 action-cell">
-                                        <form action="{{ route('sub-admins.restore', $user->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to restore this user?');">
+                                        <form action="{{ route('sub-admins.restore', $user->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to restore this user?');">
                                             @csrf
                                             <button type="submit" class="button button-success small py-1.5 px-3">
                                                 <i class="fas fa-trash-restore me-1"></i>Restore

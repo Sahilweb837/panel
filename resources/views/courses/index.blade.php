@@ -88,7 +88,7 @@
                                 @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin']))
                                     <div class="d-flex align-items-center gap-2 w-100">
                                         @if($course->trashed())
-                                            <form action="{{ route('courses.restore', $course->id) }}" method="POST" onsubmit="return confirm('Restore this course?');" class="flex-grow-1">
+                                            <form action="{{ route('courses.restore', $course->id) }}" method="POST" onsubmit="return confirmAction(event, 'Restore this course?');" class="flex-grow-1">
                                                 @csrf
                                                 <button type="submit" class="button button-success small py-2 w-100" style="font-size: 0.8rem; font-weight: 700;">
                                                     <i class="fas fa-trash-restore me-1"></i>Restore
@@ -98,7 +98,7 @@
                                             <a href="{{ route('courses.edit', $course) }}" class="button button-secondary small py-2 text-center flex-grow-1" style="font-size: 0.8rem; font-weight: 700;">
                                                 <i class="fas fa-edit me-1"></i>Edit
                                             </a>
-                                            <form action="{{ route('courses.destroy', $course) }}" method="POST" onsubmit="return confirm('Delete this course? Registered students will preserve their current records.');" class="flex-grow-1">
+                                            <form action="{{ route('courses.destroy', $course) }}" method="POST" onsubmit="return confirmAction(event, 'Delete this course? Registered students will preserve their current records.');" class="flex-grow-1">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="button button-danger small py-2 w-100" style="font-size: 0.8rem; font-weight: 700;">

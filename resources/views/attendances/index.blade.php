@@ -116,7 +116,7 @@
                                         {{ $attendance->remarks ?: '-' }}
                                     </td>
                                     <td class="text-end pe-4 action-cell">
-                                        <form action="{{ route('attendances.destroy', $attendance) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this attendance record?');">
+                                        <form action="{{ route('attendances.destroy', $attendance) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this attendance record?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="button button-danger small py-1.5 px-3">

@@ -109,7 +109,7 @@
                                     </td>
                                     <td class="text-end pe-4 action-cell">
                                         @if($user->trashed())
-                                            <form action="{{ route('sub-admins.restore', $user->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to restore this user?');">
+                                            <form action="{{ route('sub-admins.restore', $user->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to restore this user?');">
                                                 @csrf
                                                 <button type="submit" class="button button-success small py-1.5 px-3">
                                                     <i class="fas fa-trash-restore me-1"></i>Restore
@@ -119,7 +119,7 @@
                                             <a href="{{ route('sub-admins.edit', $user) }}" class="button button-secondary small py-1.5 px-3">
                                                 <i class="fas fa-edit me-1"></i>Edit
                                             </a>
-                                            <form action="{{ route('sub-admins.destroy', $user) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            <form action="{{ route('sub-admins.destroy', $user) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this user?');">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="button button-danger small py-1.5 px-3">
                                                     <i class="fas fa-trash me-1"></i>Delete

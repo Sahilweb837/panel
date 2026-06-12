@@ -89,14 +89,14 @@
                                     </td>
                                     <td class="text-end pe-4 action-cell">
                                         @if($expense->trashed())
-                                            <form action="{{ route('expenses.restore', $expense->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Restore this expense?');">
+                                            <form action="{{ route('expenses.restore', $expense->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Restore this expense?');">
                                                 @csrf
                                                 <button type="submit" class="button button-success small py-1.5 px-3">
                                                     <i class="fas fa-trash-restore me-1"></i>Restore
                                                 </button>
                                             </form>
                                         @else
-                                            <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this expense record?');">
+                                            <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this expense record?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="button button-danger small py-1.5 px-3">

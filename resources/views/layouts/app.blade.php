@@ -13,6 +13,7 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css'])
 </head>
 <body class="app-shell">
@@ -157,12 +158,7 @@
                 </a>
             @endif
 
-            @if($isSuperOrRoot)
-                <a href="{{ route('payroll.settings') }}" class="nav-link{{ request()->routeIs('payroll.*') ? ' active' : '' }}">
-                    <i class="fas fa-money-check-alt"></i>
-                    <span>Payroll Settings</span>
-                </a>
-            @endif
+
         </nav>
 
         <div class="sidebar-footer">
@@ -228,6 +224,30 @@
             if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
             if (overlay) overlay.addEventListener('click', toggleSidebar);
         });
+
+        // Global function to replace native confirm() with SweetAlert2
+        window.confirmAction = function(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            if(!form) return false;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary, #ff5532)',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, proceed!',
+                background: document.documentElement.dataset.theme === 'dark' ? '#1e1714' : '#ffffff',
+                color: document.documentElement.dataset.theme === 'dark' ? '#f5eae4' : '#1c1816'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            return false;
+        };
     </script>
 </body>
 </html>

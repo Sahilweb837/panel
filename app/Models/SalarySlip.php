@@ -23,12 +23,6 @@ class SalarySlip extends Model
         'payment_date',
         'status',
         'created_by',
-        // Razorpay payout tracking
-        'razorpay_payout_id',
-        'payout_status',
-        'payout_mode',
-        'payout_initiated_at',
-        'payout_response',
     ];
 
     public function employee()

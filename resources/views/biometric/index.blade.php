@@ -70,7 +70,7 @@
                         </button>
                     </form>
                     
-                    <form action="{{ route('biometric.sync') }}" method="POST" onsubmit="return confirm('This will pull all logs from the biometric device. Ensure the device is powered on. Continue?');">
+                    <form action="{{ route('biometric.sync') }}" method="POST" onsubmit="return confirmAction(event, 'This will pull all logs from the biometric device. Ensure the device is powered on. Continue?');">
                         @csrf
                         <button type="submit" class="btn btn-success rounded-pill px-4">
                             <i class="fas fa-download me-2"></i> Sync Now

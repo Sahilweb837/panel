@@ -116,7 +116,7 @@
                                     <td class="text-muted">{{ $invoice->payment_date ? \Carbon\Carbon::parse($invoice->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                     <td class="text-end pe-4 action-cell">
                                         @if($invoice->trashed())
-                                            <form action="{{ route('fee_invoices.restore', $invoice->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Restore this invoice?');">
+                                            <form action="{{ route('fee_invoices.restore', $invoice->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Restore this invoice?');">
                                                 @csrf
                                                 <button type="submit" class="button button-success small py-1.5 px-3">
                                                     <i class="fas fa-trash-restore me-1"></i>Restore
@@ -126,7 +126,7 @@
                                             <a href="{{ route('fee_invoices.show', $invoice) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
                                                 <i class="fas fa-print me-1"></i>Print
                                             </a>
-                                            <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
+                                            <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this invoice?');">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="button button-danger small py-1.5 px-3">
                                                     <i class="fas fa-trash me-1"></i>Delete

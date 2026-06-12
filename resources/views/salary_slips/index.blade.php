@@ -67,7 +67,7 @@
                                 <th><i class="fas fa-calendar-days me-1"></i> Payroll Period</th>
                                 <th><i class="fas fa-coins me-1"></i> Net Pay (INR)</th>
                                 <th><i class="fas fa-toggle-on me-1"></i> Status</th>
-                                <th><i class="fas fa-paper-plane me-1"></i> Payout Status</th>
+
                                 <th><i class="fas fa-calendar-check me-1"></i> Payment Date</th>
                                 <th class="text-end pe-4"><i class="fas fa-cogs me-1"></i> Actions</th>
                             </tr>
@@ -97,29 +97,11 @@
                                             {{ $slip->status }}
                                         </span>
                                     </td>
-                                    <td>
-                                        @if($slip->payout_status)
-                                            @php
-                                                $ps = strtolower($slip->payout_status);
-                                                $pb = match($ps) {
-                                                    'processed' => 'success',
-                                                    'processing','queued' => 'warning',
-                                                    'failed','reversed' => 'danger',
-                                                    default => 'secondary',
-                                                };
-                                            @endphp
-                                            <span class="badge bg-{{ $pb }} rounded-pill">{{ $slip->payout_status }}</span>
-                                            @if($slip->payout_initiated_at)
-                                                <br><small class="text-muted">{{ \Carbon\Carbon::parse($slip->payout_initiated_at)->diffForHumans() }}</small>
-                                            @endif
-                                        @else
-                                            <span class="text-muted small">Not initiated</span>
-                                        @endif
-                                    </td>
+
                                     <td class="text-muted">{{ $slip->payment_date ? \Carbon\Carbon::parse($slip->payment_date)->format('M d, Y') : 'Not Paid / Pending' }}</td>
                                     <td class="text-end pe-4 action-cell">
                                         @if($slip->trashed())
-                                            <form action="{{ route('salary_slips.restore', $slip->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Restore this salary slip?');">
+                                            <form action="{{ route('salary_slips.restore', $slip->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Restore this salary slip?');">
                                                 @csrf
                                                 <button type="submit" class="button button-success small py-1.5 px-3">
                                                     <i class="fas fa-trash-restore me-1"></i>Restore
@@ -129,18 +111,8 @@
                                             <a href="{{ route('salary_slips.show', $slip) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
                                                 <i class="fas fa-print me-1"></i>Print
                                             </a>
-                                            @if($slip->status !== 'Paid' && !in_array($slip->payout_status, ['processing','processed']))
-                                                <form action="{{ route('payroll.payout', $slip) }}" method="POST" class="inline-form d-inline"
-                                                    onsubmit="return confirm('Initiate Razorpay bank transfer of ₹{{ number_format($slip->net_pay,2) }} to {{ $slip->employee->user?->name }}?');">
-                                                    @csrf
-                                                    <button type="submit" class="button small py-1.5 px-3"
-                                                        style="background:var(--first-color);color:#fff;"
-                                                        {{ $slip->employee->bank_account_no ? '' : 'disabled title="Bank details missing"' }}>
-                                                        <i class="fas fa-paper-plane me-1"></i>Pay Now
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            <form action="{{ route('salary_slips.destroy', $slip) }}" method="POST" class="inline-form d-inline" onsubmit="return confirm('Are you sure you want to delete this salary slip record?');">
+
+                                            <form action="{{ route('salary_slips.destroy', $slip) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this salary slip record?');">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="button button-danger small py-1.5 px-3">
                                                     <i class="fas fa-trash me-1"></i>Delete

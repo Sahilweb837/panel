@@ -121,7 +121,7 @@
 
                             <div class="d-flex gap-2">
                                 @if($student->trashed())
-                                    <form action="{{ route('students.restore', $student->id) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirm('Restore this student?');">
+                                    <form action="{{ route('students.restore', $student->id) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirmAction(event, 'Restore this student?');">
                                         @csrf
                                         <button type="submit" class="button button-success small w-100 py-2">
                                             <i class="fas fa-trash-restore me-1"></i>Restore
@@ -131,7 +131,7 @@
                                     <a href="{{ route('students.edit', $student) }}" class="button button-secondary small flex-grow-1 py-2">
                                         <i class="fas fa-edit me-1"></i>Edit
                                     </a>
-                                    <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirm('Are you sure you want to delete this student record?');">
+                                    <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirmAction(event, 'Are you sure you want to delete this student record?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="button button-danger small w-100 py-2">

@@ -18,9 +18,6 @@ use App\Http\Controllers\ClientInvoiceController;
 use App\Http\Controllers\PayrollController;
 use Illuminate\Support\Facades\Route;
 
-// Razorpay Webhook — must be OUTSIDE auth middleware
-Route::post('payroll/webhook', [PayrollController::class, 'webhookHandler'])->name('payroll.webhook');
-
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
@@ -113,11 +110,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('client_invoices/{id}/restore', [ClientInvoiceController::class, 'restore'])->name('client_invoices.restore');
     Route::resource('client_invoices', ClientInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 
-    // Payroll & Razorpay Payout
-    Route::get('payroll/settings', [PayrollController::class, 'settings'])->name('payroll.settings');
-    Route::post('payroll/settings', [PayrollController::class, 'saveSettings'])->name('payroll.settings.save');
-    Route::post('payroll/bulk-payout', [PayrollController::class, 'bulkPayout'])->name('payroll.bulk-payout');
-    Route::post('payroll/{salarySlip}/payout', [PayrollController::class, 'initiatePayout'])->name('payroll.payout');
+    // Salary Calculation API
+    Route::get('salary_slips/calculate_deduction', [SalarySlipController::class, 'calculateDeduction'])->name('salary_slips.calculate_deduction');
 
     // Student Portal
     Route::prefix('student')->group(function () {

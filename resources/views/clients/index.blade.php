@@ -107,7 +107,7 @@
                         </td>
                         <td class="text-end pe-4">
                             @if($client->trashed())
-                                <form action="{{ route('clients.restore', $client->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Restore this client?')">
+                                <form action="{{ route('clients.restore', $client->id) }}" method="POST" class="d-inline" onsubmit="return confirmAction(event, 'Restore this client?');">
                                     @csrf
                                     <button class="button button-secondary small py-1 px-3"><i class="fas fa-trash-restore me-1"></i>Restore</button>
                                 </form>
@@ -115,7 +115,7 @@
                                 <a href="{{ route('clients.show', $client) }}" class="button button-secondary small py-1 px-3"><i class="fas fa-eye me-1"></i>View</a>
                                 <a href="{{ route('client_invoices.create', ['client_id' => $client->id]) }}" class="button button-secondary small py-1 px-3"><i class="fas fa-file-invoice me-1"></i>Invoice</a>
                                 <a href="{{ route('clients.edit', $client) }}" class="button button-secondary small py-1 px-3"><i class="fas fa-edit me-1"></i>Edit</a>
-                                <form action="{{ route('clients.destroy', $client) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this client?')">
+                                <form action="{{ route('clients.destroy', $client) }}" method="POST" class="d-inline" onsubmit="return confirmAction(event, 'Delete this client?');">
                                     @csrf @method('DELETE')
                                     <button class="button button-danger small py-1 px-3"><i class="fas fa-trash"></i></button>
                                 </form>
