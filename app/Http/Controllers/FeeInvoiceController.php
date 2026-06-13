@@ -126,4 +126,66 @@ class FeeInvoiceController extends Controller
 
         return back()->with('success', 'All trashed fee receipts restored successfully.');
     }
+
+    public function studentFeeInfo($id)
+    {
+        $student = Student::with('course')->findOrFail($id);
+        
+        // 1. Fetch Past Payment History (last 5 receipts)
+        $pastPayments = FeeInvoice::where('student_id', $id)
+            ->latest('payment_date')
+            ->limit(5)
+            ->get()
+            ->map(function ($invoice) {
+                return [
+                    'invoice_no' => $invoice->invoice_no,
+                    'date' => $invoice->payment_date ? $invoice->payment_date->format('M d, Y') : '',
+                    'category' => $invoice->fee_category,
+                    'total' => number_format($invoice->total_amount, 2),
+                    'paid' => number_format($invoice->paid_amount, 2),
+                    'due' => number_format($invoice->due_amount, 2),
+                    'status' => $invoice->status,
+                ];
+            });
+
+        // 2. Fetch Unpaid Fines from Attendances (Current Month)
+        // We look for 'Absent' records this month.
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+        
+        // Let's assume an automatic fine of 50 per absent day if no explicit fine is set, 
+        // OR we just pull the explicit fine amount saved in the database.
+        $attendances = \App\Models\Attendance::where('student_id', $id)
+            ->whereBetween('attendance_date', [$startOfMonth, $endOfMonth])
+            ->where(function($query) {
+                $query->where('status', 'Absent')
+                      ->orWhere('fine', '>', 0);
+            })
+            ->get();
+            
+        $automaticFine = 0;
+        $fineDetails = [];
+        
+        foreach ($attendances as $att) {
+            $fineAmount = $att->fine > 0 ? (float)$att->fine : 50; // default 50 per absent day
+            if ($att->status === 'Absent' || $att->fine > 0) {
+                $automaticFine += $fineAmount;
+                $fineDetails[] = 'Absent on ' . \Carbon\Carbon::parse($att->attendance_date)->format('M d') . ' (₹' . $fineAmount . ')';
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'past_payments' => $pastPayments,
+            'attendance_fine' => $automaticFine,
+            'fine_details' => implode(', ', $fineDetails),
+            'student_data' => [
+                'course_fee' => $student->course ? $student->course->fee : 0,
+                'course_duration' => $student->course_duration ?: '',
+                'registration_fee' => $student->registration_fee ?: 0,
+                'prospectus_fee' => $student->prospectus_fee ?: 0,
+                'discount' => $student->discount ?: 0,
+            ]
+        ]);
+    }
 }

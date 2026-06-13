@@ -70,6 +70,11 @@
                         @enderror
                     </div>
 
+                    <!-- Section 1.5: Dynamic Payment History -->
+                    <div id="payment-history-container" class="mb-4">
+                        <!-- Populated by JS -->
+                    </div>
+
                     <!-- Section 2: Receipt Setup -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Receipt Details</h5>
                     <div class="form-group-grid mb-4">
@@ -244,18 +249,8 @@
         </div>
     </div>
 
-    <!-- Script to simulate dynamic lazy loading and skeleton fading -->
+    <!-- Script to simulate dynamic lazy loading and async fetches -->
     <script>
-        const studentsData = {!! $students->mapWithKeys(function($s) {
-            return [$s->id => [
-                'course_fee' => $s->course ? $s->course->fee : 0,
-                'course_duration' => $s->course_duration ?: '',
-                'registration_fee' => $s->registration_fee ?: 0,
-                'prospectus_fee' => $s->prospectus_fee ?: 0,
-                'discount' => $s->discount ?: 0,
-            ]];
-        })->toJson() !!};
-
         const oldFeeItems = {!! old('fee_items') ? json_encode(old('fee_items')) : 'null' !!};
 
         function getMonthsFromDuration(duration) {
@@ -268,73 +263,149 @@
             return 1;
         }
 
-        function populateFeeItems() {
+        async function populateFeeItems() {
             const studentId = document.getElementById('student_id').value;
             const tenureMode = document.getElementById('tenure_mode').value;
             const tbody = document.getElementById('fee-items-tbody');
-            tbody.innerHTML = '';
+            const historyContainer = document.getElementById('payment-history-container');
             
-            if (!studentId || !studentsData[studentId]) {
+            tbody.innerHTML = '';
+            if (historyContainer) historyContainer.innerHTML = '';
+            
+            if (!studentId) {
                 updateFeeItemsNamesAndTotal();
                 return;
             }
             
-            const data = studentsData[studentId];
-            
-            // Calculate adjusted course fee based on tenure mode
-            let adjustedCourseFee = parseFloat(data.course_fee) || 0;
-            if (tenureMode === 'Monthly' && adjustedCourseFee > 0) {
-                const months = getMonthsFromDuration(data.course_duration);
-                adjustedCourseFee = adjustedCourseFee / months;
-            }
-            
-            if (oldFeeItems && oldFeeItems.length > 0) {
-                // Populate from old input
-                oldFeeItems.forEach((item, index) => {
-                    const isDefault = ['Course Fee', 'Registration Fee', 'Prospectus Fee', 'Monthly Course Fee'].includes(item.category);
-                    if (isDefault) {
-                        tbody.appendChild(createDefaultRow(item.category, item.amount, true));
+            try {
+                if (historyContainer) {
+                    historyContainer.innerHTML = '<div class="text-center p-3 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading student fee profile...</div>';
+                }
+
+                const response = await fetch(`/api/students/${studentId}/fee-info`);
+                const json = await response.json();
+                
+                if (!json.success) return;
+                
+                const data = json.student_data;
+                const pastPayments = json.past_payments || [];
+                const attendanceFine = parseFloat(json.attendance_fine) || 0;
+                const fineDetails = json.fine_details || '';
+
+                // Render Payment History
+                if (historyContainer) {
+                    if (pastPayments.length > 0) {
+                        let historyHtml = `
+                            <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-clock-rotate-left me-1"></i> Recent Payment History</h5>
+                            <div class="table-responsive border rounded" style="background: var(--surface);">
+                                <table class="table table-sm align-middle mb-0" style="font-size: 0.85rem;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Receipt No</th>
+                                            <th>Category</th>
+                                            <th class="text-end">Paid (INR)</th>
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        pastPayments.forEach(payment => {
+                            let badgeClass = payment.status === 'Paid' ? 'bg-success' : (payment.status === 'Partial' ? 'bg-warning' : 'bg-danger');
+                            historyHtml += `
+                                        <tr>
+                                            <td class="text-muted">${payment.date}</td>
+                                            <td class="fw-semibold">${payment.invoice_no}</td>
+                                            <td>${payment.category || '-'}</td>
+                                            <td class="text-end fw-semibold text-dark-title">₹${payment.paid}</td>
+                                            <td class="text-center"><span class="badge ${badgeClass}">${payment.status}</span></td>
+                                        </tr>
+                            `;
+                        });
+                        historyHtml += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        historyContainer.innerHTML = historyHtml;
                     } else {
-                        tbody.appendChild(createCustomRow(item.category, item.amount, true));
+                        historyContainer.innerHTML = `
+                            <div class="p-3 border rounded text-center text-muted" style="background: var(--surface); font-size: 0.85rem;">
+                                <i class="fas fa-info-circle me-1"></i> No past payment records found for this student.
+                            </div>
+                        `;
                     }
-                });
+                }
+
+                // Calculate adjusted course fee based on tenure mode
+                let adjustedCourseFee = parseFloat(data.course_fee) || 0;
+                if (tenureMode === 'Monthly' && adjustedCourseFee > 0) {
+                    const months = getMonthsFromDuration(data.course_duration);
+                    adjustedCourseFee = adjustedCourseFee / months;
+                }
                 
-                // Render other default fees as unchecked if they were not in old input
-                const categoriesInOld = oldFeeItems.map(item => item.category);
-                const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
-                if (!categoriesInOld.includes(feeLabel) && adjustedCourseFee > 0) {
-                    tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, false));
-                }
-                if (!categoriesInOld.includes('Registration Fee') && parseFloat(data.registration_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, false));
-                }
-                if (!categoriesInOld.includes('Prospectus Fee') && parseFloat(data.prospectus_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, false));
-                }
-            } else {
-                // Populate default student fees
-                if (adjustedCourseFee > 0) {
+                if (oldFeeItems && oldFeeItems.length > 0) {
+                    // Populate from old input
+                    oldFeeItems.forEach((item, index) => {
+                        const isDefault = ['Course Fee', 'Registration Fee', 'Prospectus Fee', 'Monthly Course Fee', 'Attendance Fine'].includes(item.category);
+                        if (isDefault) {
+                            tbody.appendChild(createDefaultRow(item.category, item.amount, true));
+                        } else {
+                            tbody.appendChild(createCustomRow(item.category, item.amount, true));
+                        }
+                    });
+                    
+                    // Render other default fees as unchecked if they were not in old input
+                    const categoriesInOld = oldFeeItems.map(item => item.category);
                     const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
-                    tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, true));
+                    if (!categoriesInOld.includes(feeLabel) && adjustedCourseFee > 0) {
+                        tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, false));
+                    }
+                    if (!categoriesInOld.includes('Registration Fee') && parseFloat(data.registration_fee) > 0) {
+                        tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, false));
+                    }
+                    if (!categoriesInOld.includes('Prospectus Fee') && parseFloat(data.prospectus_fee) > 0) {
+                        tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, false));
+                    }
+                    if (!categoriesInOld.includes('Attendance Fine') && attendanceFine > 0) {
+                        tbody.appendChild(createDefaultRow('Attendance Fine', attendanceFine, false));
+                    }
+                } else {
+                    // Populate default student fees
+                    if (adjustedCourseFee > 0) {
+                        const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
+                        tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, true));
+                    }
+                    
+                    if (parseFloat(data.registration_fee) > 0) {
+                        tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, tenureMode !== 'Monthly'));
+                    }
+                    if (parseFloat(data.prospectus_fee) > 0) {
+                        tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, tenureMode !== 'Monthly'));
+                    }
+                    
+                    // Add automatic attendance fine
+                    if (attendanceFine > 0) {
+                        tbody.appendChild(createDefaultRow('Attendance Fine', attendanceFine, true));
+                        // Show fine details in remarks
+                        const remarksInput = document.getElementById('remarks');
+                        if (remarksInput && !remarksInput.value) {
+                            remarksInput.value = `Auto-calculated attendance fine: ${fineDetails}`;
+                        }
+                    }
+                    
+                    // Set default student discount
+                    if (parseFloat(data.discount) > 0) {
+                        document.getElementById('discount').value = parseFloat(data.discount).toFixed(2);
+                    }
                 }
                 
-                // Only show registration & prospectus if Full Payment, or if it's their first time maybe?
-                // By default, let's include them, but if they want "Monthly", they might not want them every month.
-                // But the user can uncheck them manually. Let's populate them anyway.
-                if (parseFloat(data.registration_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, tenureMode !== 'Monthly'));
-                }
-                if (parseFloat(data.prospectus_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, tenureMode !== 'Monthly'));
-                }
-                
-                // Set default student discount
-                if (parseFloat(data.discount) > 0) {
-                    document.getElementById('discount').value = parseFloat(data.discount).toFixed(2);
-                }
+                updateFeeItemsNamesAndTotal();
+            } catch (err) {
+                console.error("Failed to fetch student fee info:", err);
+                if (historyContainer) historyContainer.innerHTML = '<div class="text-danger p-3"><i class="fas fa-exclamation-triangle me-1"></i> Failed to load history.</div>';
+                updateFeeItemsNamesAndTotal();
             }
-            
-            updateFeeItemsNamesAndTotal();
         }
 
         function createDefaultRow(category, amount, checked) {
