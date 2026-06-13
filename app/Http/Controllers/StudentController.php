@@ -114,11 +114,14 @@ class StudentController extends Controller
         }
 
         // Auto-generate Admission Invoice (Registration + Prospectus)
-        if ($request->boolean('generate_admission_invoice')) {
+        $includeRegistration = $request->boolean('include_registration_invoice');
+        $includeProspectus = $request->boolean('include_prospectus_invoice');
+        
+        if ($includeRegistration || $includeProspectus) {
             $admissionFeeItems = [];
             $admissionTotal = 0;
             
-            if ($student->registration_fee > 0) {
+            if ($includeRegistration && $student->registration_fee > 0) {
                 $admissionFeeItems[] = [
                     'category' => 'Registration Fee',
                     'amount' => $student->registration_fee,
@@ -126,7 +129,7 @@ class StudentController extends Controller
                 $admissionTotal += $student->registration_fee;
             }
 
-            if ($student->prospectus_fee > 0) {
+            if ($includeProspectus && $student->prospectus_fee > 0) {
                 $admissionFeeItems[] = [
                     'category' => 'Prospectus Fee',
                     'amount' => $student->prospectus_fee,

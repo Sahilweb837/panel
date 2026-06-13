@@ -288,20 +288,40 @@
                         </div>
                     </div>
 
-                    <div class="form-group checkbox-group mb-4">
-                        <label class="checkbox-label" style="cursor: pointer;">
-                            <input 
-                                type="checkbox" 
-                                name="generate_admission_invoice" 
-                                value="1" 
-                                checked 
-                                class="checkbox-input"
-                            />
-                            <span class="fw-semibold">
-                                <i class="fas fa-file-invoice text-first me-1"></i>Generate One-Time Admission Invoice (Reg & Prospectus)
-                            </span>
-                        </label>
-                        <small style="color: var(--muted); margin-left: 28px;" class="d-block mt-1">If checked, a separate invoice for Registration & Prospectus fees will be generated alongside the Course Fee invoice.</small>
+                    <div class="form-group-grid mb-4" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input 
+                                    type="checkbox" 
+                                    name="include_registration_invoice" 
+                                    id="include_registration_invoice"
+                                    value="1" 
+                                    checked 
+                                    class="checkbox-input"
+                                />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-file-invoice text-first me-1"></i>Generate Registration Fee Invoice
+                                </span>
+                            </label>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input 
+                                    type="checkbox" 
+                                    name="include_prospectus_invoice" 
+                                    id="include_prospectus_invoice"
+                                    value="1" 
+                                    checked 
+                                    class="checkbox-input"
+                                />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-file-invoice text-first me-1"></i>Generate Prospectus Fee Invoice
+                                </span>
+                            </label>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <small style="color: var(--muted); margin-left: 28px;" class="d-block mt-1">If checked, a separate admission invoice containing these fees will be generated alongside the regular Course Fee invoice.</small>
+                        </div>
                     </div>
 
                     <!-- Section 5: Address Details -->
@@ -423,8 +443,11 @@
                 const selectedOption = courseSelect.options[courseSelect.selectedIndex];
                 const courseFee = parseFloat(selectedOption?.getAttribute('data-fee')) || 0;
                 
-                const regFee = parseFloat(regFeeInput.value) || 0;
-                const prosFee = parseFloat(prosFeeInput.value) || 0;
+                const includeReg = document.getElementById('include_registration_invoice')?.checked;
+                const includePros = document.getElementById('include_prospectus_invoice')?.checked;
+
+                const regFee = includeReg ? (parseFloat(regFeeInput.value) || 0) : 0;
+                const prosFee = includePros ? (parseFloat(prosFeeInput.value) || 0) : 0;
                 const discount = parseFloat(discountInput.value) || 0;
                 
                 const tenure = tenureSelect ? tenureSelect.value : '';
@@ -464,6 +487,11 @@
             discountInput.addEventListener('input', calculateFees);
             if(tenureSelect) tenureSelect.addEventListener('change', calculateFees);
             if(durationSelect) durationSelect.addEventListener('change', calculateFees);
+            
+            const includeRegCheck = document.getElementById('include_registration_invoice');
+            const includeProsCheck = document.getElementById('include_prospectus_invoice');
+            if (includeRegCheck) includeRegCheck.addEventListener('change', calculateFees);
+            if (includeProsCheck) includeProsCheck.addEventListener('change', calculateFees);
             
             // Initial calculation on load
             calculateFees();
