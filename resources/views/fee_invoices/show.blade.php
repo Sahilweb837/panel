@@ -541,11 +541,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($feeInvoice->fee_items && is_array($feeInvoice->fee_items) && count($feeInvoice->fee_items) > 0)
-                                @foreach($feeInvoice->fee_items as $item)
+                            @php
+                                $items = $feeInvoice->fee_items;
+                                if (is_string($items)) {
+                                    $items = json_decode($items, true);
+                                }
+                            @endphp
+
+                            @if($items && is_array($items) && count($items) > 0)
+                                @foreach($items as $item)
                                     <tr>
-                                        <td><strong>{{ $item['category'] }}</strong></td>
-                                        <td>{{ number_format($item['amount'], 2) }}</td>
+                                        <td><strong>{{ $item['category'] ?? 'Fee Item' }}</strong></td>
+                                        <td>{{ number_format(isset($item['amount']) ? (float)$item['amount'] : 0, 2) }}</td>
                                     </tr>
                                 @endforeach
                             @else
