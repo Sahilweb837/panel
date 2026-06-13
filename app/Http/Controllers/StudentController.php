@@ -48,7 +48,12 @@ class StudentController extends Controller
         $courses = Course::where('status', true)->orderBy('name')->get();
         $durations = $this->courseDurations();
 
-        return view('students.index', compact('students', 'courses', 'durations'));
+        $totalStudents = \App\Models\Student::count();
+        $activeStudents = \App\Models\Student::where('status', true)->count();
+        $inactiveStudents = \App\Models\Student::where('status', false)->count();
+        $onlineStudents = \App\Models\Student::where('student_type', 'Online')->count();
+
+        return view('students.index', compact('students', 'courses', 'durations', 'totalStudents', 'activeStudents', 'inactiveStudents', 'onlineStudents'));
     }
 
     public function create()

@@ -315,94 +315,494 @@
         };
     </script>
 
-    <!-- Chatbot Floating Button -->
-    <div id="chatbot-trigger" style="position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--first-color); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; box-shadow: 0 10px 30px rgba(255, 85, 50, 0.3); z-index: 9999; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+    <!-- Chatbot Floating Button with Notification Pulse -->
+    <div id="chatbot-trigger" class="chatbot-fab">
         <i class="fas fa-robot fa-lg"></i>
+        <span class="chatbot-fab-pulse"></span>
     </div>
 
     <!-- Chatbot Glassmorphic Panel/Drawer -->
-    <div id="chatbot-drawer" style="position: fixed; top: 0; right: -420px; width: 420px; height: 100vh; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-left: 1px solid rgba(255, 255, 255, 0.4); z-index: 10000; box-shadow: -10px 0 40px rgba(0,0,0,0.05); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;">
+    <div id="chatbot-drawer" class="chatbot-drawer">
         <!-- Header -->
-        <div style="padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.5);">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--first-color-light); display: flex; align-items: center; justify-content: center; color: var(--first-color);">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <div class="chatbot-avatar">
                     <i class="fas fa-robot"></i>
+                    <span class="chatbot-status-dot"></span>
                 </div>
                 <div>
-                    <h5 style="margin: 0; font-weight: 700;">ERP Assistant</h5>
-                    <small class="text-muted"><span style="color: #10b981;">●</span> Online</small>
+                    <h5 class="chatbot-title">ERP Assistant</h5>
+                    <small class="chatbot-subtitle"><span class="chatbot-online-dot">●</span> Online — Netcoder ERP</small>
                 </div>
             </div>
-            <button type="button" id="close-chatbot" style="background: transparent; border: none; font-size: 1.2rem; color: var(--muted); cursor: pointer;"><i class="fas fa-times"></i></button>
+            <div class="chatbot-header-actions">
+                <button type="button" id="clear-chat" class="chatbot-header-btn" title="Clear Chat">
+                    <i class="fas fa-broom"></i>
+                </button>
+                <button type="button" id="close-chatbot" class="chatbot-header-btn" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Message Body -->
-        <div id="chat-messages" style="flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+        <div id="chat-messages" class="chatbot-messages">
             <!-- Welcome message -->
-            <div style="align-self: flex-start; max-width: 80%; background: var(--surface); border-radius: 16px 16px 16px 4px; padding: 12px 16px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
-                <p style="margin: 0; font-size: 0.92rem; line-height: 1.5;">Hello! I am your ERP system assistant. I can run health checks, look up outstanding fees, or check device connectivity. Try clicking one of the options below:</p>
+            <div class="chat-msg chat-msg-bot">
+                <div class="chat-msg-avatar"><i class="fas fa-robot"></i></div>
+                <div class="chat-msg-bubble chat-msg-bubble-bot">
+                    <p>👋 Hello, <strong>{{ session('user_name', 'there') }}</strong>! I'm your ERP assistant.</p>
+                    <p>I can look up <strong>student fees</strong>, <strong>recent admissions</strong>, <strong>staff tasks</strong>, <strong>attendance</strong>, run <strong>system diagnostics</strong>, and more!</p>
+                    <p>Click a quick action below or type a question:</p>
+                </div>
             </div>
             
-            <!-- Quick Options -->
-            <div class="quick-options" style="display: flex; flex-direction: column; gap: 8px;">
-                <button type="button" onclick="sendQuickQuery('Show pending fees')" style="text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--first-color)'; this.style.color='var(--first-color)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='inherit'">
-                    💵 Which students have pending fees?
+            <!-- Quick Options Grid -->
+            <div class="quick-options-grid" id="quick-options">
+                <button type="button" onclick="sendQuickQuery('Show pending fees')" class="quick-option-btn">
+                    <i class="fas fa-money-bill-wave"></i> Pending Fees
                 </button>
-                <button type="button" onclick="sendQuickQuery('Check biometric status')" style="text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--first-color)'; this.style.color='var(--first-color)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='inherit'">
-                    📡 Show ADMS Connection Status
+                <button type="button" onclick="sendQuickQuery('Show new students')" class="quick-option-btn">
+                    <i class="fas fa-user-graduate"></i> New Students
                 </button>
-                <button type="button" onclick="sendQuickQuery('Check system diagnostics')" style="text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--first-color)'; this.style.color='var(--first-color)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='inherit'">
-                    🏥 Check System Health & Errors
+                <button type="button" onclick="sendQuickQuery('Show notifications')" class="quick-option-btn">
+                    <i class="fas fa-bell"></i> Notifications
+                </button>
+                <button type="button" onclick="sendQuickQuery('Task summary')" class="quick-option-btn">
+                    <i class="fas fa-tasks"></i> Task Summary
+                </button>
+                <button type="button" onclick="sendQuickQuery('Check biometric status')" class="quick-option-btn">
+                    <i class="fas fa-fingerprint"></i> Device Status
+                </button>
+                <button type="button" onclick="sendQuickQuery('Check system health')" class="quick-option-btn">
+                    <i class="fas fa-heartbeat"></i> System Health
+                </button>
+                <button type="button" onclick="sendQuickQuery('Revenue report')" class="quick-option-btn">
+                    <i class="fas fa-chart-line"></i> Revenue
+                </button>
+                <button type="button" onclick="sendQuickQuery('Show help')" class="quick-option-btn">
+                    <i class="fas fa-question-circle"></i> All Commands
                 </button>
             </div>
         </div>
 
         <!-- Chat Input Footer -->
-        <div style="padding: 16px 24px; border-top: 1px solid var(--border); background: rgba(255, 255, 255, 0.5);">
-            <form id="chat-input-form" onsubmit="handleChatSubmit(event)" style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="chat-user-input" placeholder="Type a message..." style="flex: 1; padding: 10px 14px; border: 1px solid var(--input-border); border-radius: 10px; background: var(--surface); font-size: 0.9rem;" required autocomplete="off">
-                <button type="submit" style="width: 42px; height: 42px; border-radius: 10px; background: var(--first-color); color: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 0.2s;"><i class="fas fa-paper-plane"></i></button>
+        <div class="chatbot-footer">
+            <form id="chat-input-form" onsubmit="handleChatSubmit(event)" class="chatbot-input-form">
+                <input type="text" id="chat-user-input" placeholder="Ask me anything about your ERP..." required autocomplete="off" class="chatbot-input">
+                <button type="submit" class="chatbot-send-btn" title="Send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </form>
+            <div class="chatbot-footer-hint">
+                <i class="fas fa-lightbulb"></i> Try: "pending fees", "new students", "staff overview"
+            </div>
         </div>
     </div>
+
+    <style>
+        /* ---- Chatbot FAB (Floating Action Button) ---- */
+        .chatbot-fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--first-color), var(--first-color-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(255, 85, 50, 0.35);
+            z-index: 9999;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .chatbot-fab:hover {
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 85, 50, 0.45);
+        }
+        .chatbot-fab-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--first-color);
+            opacity: 0.4;
+            animation: fabPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            pointer-events: none;
+        }
+        @keyframes fabPulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.3); opacity: 0; }
+        }
+
+        /* ---- Chatbot Drawer ---- */
+        .chatbot-drawer {
+            position: fixed;
+            top: 0;
+            right: -440px;
+            width: 420px;
+            max-width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 10000;
+            box-shadow: -12px 0 48px rgba(0, 0, 0, 0.08);
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .chatbot-drawer.open {
+            right: 0;
+        }
+
+        /* Dark mode drawer */
+        [data-theme="dark"] .chatbot-drawer {
+            background: rgba(28, 22, 18, 0.92);
+            border-left-color: rgba(255, 255, 255, 0.06);
+            box-shadow: -12px 0 48px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ---- Header ---- */
+        .chatbot-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .chatbot-header {
+            background: rgba(40, 30, 25, 0.6);
+        }
+        .chatbot-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chatbot-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--first-color-light), rgba(255, 85, 50, 0.15));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--first-color);
+            font-size: 1.1rem;
+            position: relative;
+        }
+        .chatbot-status-dot {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            border: 2px solid var(--surface);
+        }
+        .chatbot-title {
+            margin: 0;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        .chatbot-subtitle {
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+        .chatbot-online-dot {
+            color: #10b981;
+            font-size: 0.7rem;
+        }
+        .chatbot-header-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .chatbot-header-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .chatbot-header-btn:hover {
+            background: var(--surface-soft);
+            color: var(--first-color);
+        }
+
+        /* ---- Messages ---- */
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            scroll-behavior: smooth;
+        }
+        .chatbot-messages::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chatbot-messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        /* Chat message layout */
+        .chat-msg {
+            display: flex;
+            gap: 10px;
+            animation: msgSlideIn 0.3s ease-out;
+        }
+        .chat-msg-user {
+            flex-direction: row-reverse;
+        }
+        .chat-msg-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--first-color-light);
+            color: var(--first-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .chat-msg-user .chat-msg-avatar {
+            background: var(--first-color);
+            color: #fff;
+        }
+        .chat-msg-bubble {
+            max-width: 82%;
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            word-break: break-word;
+        }
+        .chat-msg-bubble p {
+            margin: 0 0 6px 0;
+        }
+        .chat-msg-bubble p:last-child {
+            margin-bottom: 0;
+        }
+        .chat-msg-bubble-bot {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px 16px 16px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .chat-msg-bubble-user {
+            background: linear-gradient(135deg, var(--first-color), var(--first-color-dark));
+            color: #fff;
+            border-radius: 16px 4px 16px 16px;
+            box-shadow: 0 4px 14px rgba(255, 85, 50, 0.2);
+        }
+
+        @keyframes msgSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---- Quick Options ---- */
+        .quick-options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 4px 0;
+        }
+        .quick-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+        }
+        .quick-option-btn i {
+            color: var(--first-color);
+            font-size: 0.85rem;
+            width: 16px;
+            text-align: center;
+        }
+        .quick-option-btn:hover {
+            border-color: var(--first-color);
+            background: var(--first-color-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 85, 50, 0.1);
+        }
+
+        /* ---- Typing Indicator ---- */
+        .typing-indicator {
+            display: flex;
+            gap: 10px;
+            animation: msgSlideIn 0.3s ease-out;
+        }
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 14px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px 16px 16px 16px;
+        }
+        .typing-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--muted);
+            animation: typingBounce 1.4s ease-in-out infinite;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        /* ---- Footer / Input ---- */
+        .chatbot-footer {
+            padding: 14px 20px 12px;
+            border-top: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .chatbot-footer {
+            background: rgba(40, 30, 25, 0.6);
+        }
+        .chatbot-input-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .chatbot-input {
+            flex: 1;
+            padding: 11px 16px;
+            border: 1.5px solid var(--input-border);
+            border-radius: 12px;
+            background: var(--surface);
+            font-size: 0.88rem;
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .chatbot-input::placeholder {
+            color: var(--muted);
+        }
+        .chatbot-input:focus {
+            border-color: var(--first-color);
+            box-shadow: 0 0 0 3px var(--input-focus);
+        }
+        .chatbot-send-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--first-color), var(--first-color-dark));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .chatbot-send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 14px rgba(255, 85, 50, 0.3);
+        }
+        .chatbot-footer-hint {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+        .chatbot-footer-hint i {
+            color: #f59e0b;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 480px) {
+            .chatbot-drawer {
+                width: 100vw;
+                right: -100vw;
+            }
+            .chatbot-fab {
+                bottom: 18px;
+                right: 18px;
+                width: 52px;
+                height: 52px;
+            }
+        }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const trigger = document.getElementById('chatbot-trigger');
             const drawer = document.getElementById('chatbot-drawer');
             const closeBtn = document.getElementById('close-chatbot');
+            const clearBtn = document.getElementById('clear-chat');
             
             if (trigger && drawer && closeBtn) {
                 trigger.addEventListener('click', () => {
-                    drawer.style.right = drawer.style.right === '0px' ? '-420px' : '0px';
+                    drawer.classList.toggle('open');
+                    if (drawer.classList.contains('open')) {
+                        trigger.style.transform = 'scale(0)';
+                        trigger.style.opacity = '0';
+                        document.getElementById('chat-user-input')?.focus();
+                    }
                 });
                 closeBtn.addEventListener('click', () => {
-                    drawer.style.right = '-420px';
+                    drawer.classList.remove('open');
+                    setTimeout(() => {
+                        trigger.style.transform = 'scale(1)';
+                        trigger.style.opacity = '1';
+                    }, 200);
                 });
             }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    resetChat();
+                });
+            }
+
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && drawer?.classList.contains('open')) {
+                    closeBtn?.click();
+                }
+            });
         });
 
-        // Dark mode adaptation for chatbot drawer
-        window.addEventListener('theme-color-changed', () => {
-            syncChatbotTheme();
-        });
-        
-        function syncChatbotTheme() {
-            const drawer = document.getElementById('chatbot-drawer');
-            if(drawer) {
-                if (document.documentElement.dataset.theme === 'dark') {
-                    drawer.style.background = 'rgba(30, 23, 20, 0.85)';
-                    drawer.style.borderColor = 'rgba(255, 255, 255, 0.05)';
-                    drawer.style.color = '#f5eae4';
-                } else {
-                    drawer.style.background = 'rgba(255, 255, 255, 0.75)';
-                    drawer.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                    drawer.style.color = '#1c1816';
-                }
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', syncChatbotTheme);
+        // The correct chatbot API URL from Laravel
+        const CHATBOT_API_URL = "{{ route('api.chatbot.query') }}";
 
         function sendQuickQuery(text) {
             appendMessage(text, 'user');
@@ -413,7 +813,7 @@
             e.preventDefault();
             const input = document.getElementById('chat-user-input');
             const text = input.value.trim();
-            if(!text) return;
+            if (!text) return;
             
             appendMessage(text, 'user');
             input.value = '';
@@ -422,63 +822,132 @@
 
         function appendMessage(text, type) {
             const chatMessages = document.getElementById('chat-messages');
-            const msgDiv = document.createElement('div');
             
-            if (type === 'user') {
-                msgDiv.style.alignSelf = 'flex-end';
-                msgDiv.style.maxWidth = '80%';
-                msgDiv.style.background = 'var(--first-color)';
-                msgDiv.style.color = '#fff';
-                msgDiv.style.borderRadius = '16px 16px 4px 16px';
-                msgDiv.style.padding = '12px 16px';
-                msgDiv.style.boxShadow = '0 4px 12px rgba(255, 85, 50, 0.15)';
-            } else {
-                msgDiv.style.alignSelf = 'flex-start';
-                msgDiv.style.maxWidth = '80%';
-                msgDiv.style.background = 'var(--surface)';
-                msgDiv.style.color = 'var(--text)';
-                msgDiv.style.borderRadius = '16px 16px 16px 4px';
-                msgDiv.style.padding = '12px 16px';
-                msgDiv.style.border = '1px solid var(--border)';
-                msgDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)';
-            }
-            
-            const formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            msgDiv.innerHTML = `<p style="margin: 0; font-size: 0.92rem; line-height: 1.5;">${formattedText}</p>`;
-            
-            const options = chatMessages.querySelector('.quick-options');
+            // Remove quick options after first interaction
+            const options = document.getElementById('quick-options');
             if (options) options.remove();
 
-            chatMessages.appendChild(msgDiv);
+            const msgWrapper = document.createElement('div');
+            msgWrapper.className = `chat-msg chat-msg-${type}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'chat-msg-avatar';
+            avatar.innerHTML = type === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+            const bubble = document.createElement('div');
+            bubble.className = `chat-msg-bubble chat-msg-bubble-${type}`;
+
+            // Format text: markdown bold, line breaks, bullet points
+            let formatted = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/_(.*?)_/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+
+            bubble.innerHTML = `<p>${formatted}</p>`;
+
+            msgWrapper.appendChild(avatar);
+            msgWrapper.appendChild(bubble);
+            chatMessages.appendChild(msgWrapper);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function fetchQuery(query) {
+        function showTypingIndicator() {
             const chatMessages = document.getElementById('chat-messages');
-            const indicator = document.createElement('div');
-            indicator.id = 'typing-indicator';
-            indicator.style.alignSelf = 'flex-start';
-            indicator.style.background = 'var(--surface)';
-            indicator.style.borderRadius = '16px';
-            indicator.style.padding = '12px 16px';
-            indicator.style.border = '1px solid var(--border)';
-            indicator.innerHTML = `<span style="font-size: 0.85rem; color: var(--muted);"><i class="fas fa-ellipsis-h fa-pulse"></i> Assistant is typing...</span>`;
-            chatMessages.appendChild(indicator);
+            const typing = document.createElement('div');
+            typing.id = 'typing-indicator';
+            typing.className = 'typing-indicator';
+            typing.innerHTML = `
+                <div class="chat-msg-avatar"><i class="fas fa-robot"></i></div>
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            chatMessages.appendChild(typing);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
-            fetch(`/api/chatbot/query?query=${encodeURIComponent(query)}`)
-                .then(res => res.json())
+        function removeTypingIndicator() {
+            const ind = document.getElementById('typing-indicator');
+            if (ind) ind.remove();
+        }
+
+        function fetchQuery(query) {
+            showTypingIndicator();
+
+            fetch(`${CHATBOT_API_URL}?query=${encodeURIComponent(query)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
-                    const ind = document.getElementById('typing-indicator');
-                    if(ind) ind.remove();
-                    appendMessage(data.response, 'bot');
+                    removeTypingIndicator();
+                    appendMessage(data.response || 'No response received.', 'bot');
                 })
                 .catch(err => {
-                    const ind = document.getElementById('typing-indicator');
-                    if(ind) ind.remove();
-                    appendMessage("⚠️ **Error:** Unable to connect to assistant service. Check your connection.", 'bot');
+                    removeTypingIndicator();
+                    console.error('Chatbot error:', err);
+                    appendMessage(
+                        "⚠️ **Connection Error**\n\nCouldn't reach the assistant service.\n\n**Possible fixes:**\n• Make sure your web server (Apache/XAMPP) is running\n• Check that the database is online\n• Try refreshing the page\n\n_Error: " + err.message + "_",
+                        'bot'
+                    );
                 });
+        }
+
+        function resetChat() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+
+            // Re-add welcome message
+            const welcome = document.createElement('div');
+            welcome.className = 'chat-msg chat-msg-bot';
+            welcome.innerHTML = `
+                <div class="chat-msg-avatar"><i class="fas fa-robot"></i></div>
+                <div class="chat-msg-bubble chat-msg-bubble-bot">
+                    <p>👋 Chat cleared! How can I help you?</p>
+                </div>
+            `;
+            chatMessages.appendChild(welcome);
+
+            // Re-add quick options
+            const optionsHtml = `
+                <div class="quick-options-grid" id="quick-options">
+                    <button type="button" onclick="sendQuickQuery('Show pending fees')" class="quick-option-btn">
+                        <i class="fas fa-money-bill-wave"></i> Pending Fees
+                    </button>
+                    <button type="button" onclick="sendQuickQuery('Show new students')" class="quick-option-btn">
+                        <i class="fas fa-user-graduate"></i> New Students
+                    </button>
+                    <button type="button" onclick="sendQuickQuery('Show notifications')" class="quick-option-btn">
+                        <i class="fas fa-bell"></i> Notifications
+                    </button>
+                    <button type="button" onclick="sendQuickQuery('Task summary')" class="quick-option-btn">
+                        <i class="fas fa-tasks"></i> Task Summary
+                    </button>
+                    <button type="button" onclick="sendQuickQuery('Check biometric status')" class="quick-option-btn">
+                        <i class="fas fa-fingerprint"></i> Device Status
+                    </button>
+                    <button type="button" onclick="sendQuickQuery('Check system health')" class="quick-option-btn">
+                        <i class="fas fa-heartbeat"></i> System Health
+                    </button>
+                    <button type="button" onclick="sendQuickQuery('Revenue report')" class="quick-option-btn">
+                        <i class="fas fa-chart-line"></i> Revenue
+                    </button>
+                    <button type="button" onclick="sendQuickQuery('Show help')" class="quick-option-btn">
+                        <i class="fas fa-question-circle"></i> All Commands
+                    </button>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', optionsHtml);
         }
     </script>
 </body>
 </html>
+

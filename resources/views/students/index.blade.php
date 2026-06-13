@@ -22,6 +22,54 @@
 
         <!-- Real Content -->
         <div id="page-content" style="opacity: 0; transition: opacity 0.5s ease;">
+            <!-- Analytics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card premium-stat-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 85, 50, 0.1); color: var(--first-color);">
+                                <i class="fas fa-users fa-lg"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-muted small fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">TOTAL STUDENTS</h4>
+                        <h2 class="fw-bold mb-0 text-dark-title" style="font-size: 1.75rem;">{{ number_format($totalStudents) }}</h2>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card premium-stat-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(40, 167, 69, 0.1); color: #28a745;">
+                                <i class="fas fa-user-check fa-lg"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-muted small fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">ACTIVE STUDENTS</h4>
+                        <h2 class="fw-bold mb-0 text-dark-title" style="font-size: 1.75rem;">{{ number_format($activeStudents) }}</h2>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card premium-stat-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                                <i class="fas fa-user-times fa-lg"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-muted small fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">INACTIVE STUDENTS</h4>
+                        <h2 class="fw-bold mb-0 text-dark-title" style="font-size: 1.75rem;">{{ number_format($inactiveStudents) }}</h2>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card premium-stat-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(23, 162, 184, 0.1); color: #17a2b8;">
+                                <i class="fas fa-laptop-house fa-lg"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-muted small fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">ONLINE STUDENTS</h4>
+                        <h2 class="fw-bold mb-0 text-dark-title" style="font-size: 1.75rem;">{{ number_format($onlineStudents) }}</h2>
+                    </div>
+                </div>
+            </div>
+
             <div class="toolbar mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <form class="filter-form d-flex align-items-center gap-2 flex-grow-1 flex-wrap" method="GET" action="{{ route('students.index') }}">
                     <div style="position: relative; flex: 1; min-width: 200px;">

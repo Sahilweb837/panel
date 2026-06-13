@@ -185,7 +185,7 @@
                             <select id="course_id" name="course_id" class="form-input">
                                 <option value="">Choose Course</option>
                                 @foreach($courses as $course)
-                                    <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
+                                    <option value="{{ $course->id }}" data-fee="{{ $course->fee ?? 0 }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
                                         {{ $course->name }}{{ $course->code ? ' ('.$course->code.')' : '' }}
                                     </option>
                                 @endforeach
@@ -256,6 +256,19 @@
                             @error('discount')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group-grid mb-4" style="grid-template-columns: 1fr;">
+                        <div class="form-group p-4 bg-light rounded border d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-1 fw-bold text-dark-title"><i class="fas fa-calculator text-first me-2"></i>Fee Estimation</h6>
+                                <p class="mb-0 text-muted small">Course Fee + Registration + Prospectus - Discount</p>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-0 fw-bold text-first" id="total_amount_display">₹0.00</h3>
+                                <small class="text-muted d-block" id="course_fee_display">Course Fee: ₹0.00</small>
+                            </div>
                         </div>
                     </div>
 
@@ -363,6 +376,36 @@
                 if (skeleton) skeleton.classList.add('fade-out');
                 if (content) content.style.opacity = '1';
             }, 600);
+
+            // Fee calculation
+            const courseSelect = document.getElementById('course_id');
+            const regFeeInput = document.getElementById('registration_fee');
+            const prosFeeInput = document.getElementById('prospectus_fee');
+            const discountInput = document.getElementById('discount');
+            const totalDisplay = document.getElementById('total_amount_display');
+            const courseFeeDisplay = document.getElementById('course_fee_display');
+
+            const calculateFees = () => {
+                const selectedOption = courseSelect.options[courseSelect.selectedIndex];
+                const courseFee = parseFloat(selectedOption?.getAttribute('data-fee')) || 0;
+                
+                const regFee = parseFloat(regFeeInput.value) || 0;
+                const prosFee = parseFloat(prosFeeInput.value) || 0;
+                const discount = parseFloat(discountInput.value) || 0;
+                
+                const total = Math.max(0, courseFee + regFee + prosFee - discount);
+                
+                courseFeeDisplay.innerText = `Course Fee: ₹${courseFee.toFixed(2)}`;
+                totalDisplay.innerText = `₹${total.toFixed(2)}`;
+            };
+
+            courseSelect.addEventListener('change', calculateFees);
+            regFeeInput.addEventListener('input', calculateFees);
+            prosFeeInput.addEventListener('input', calculateFees);
+            discountInput.addEventListener('input', calculateFees);
+            
+            // Initial calculation on load
+            calculateFees();
         });
     </script>
 @endsection

@@ -228,27 +228,7 @@
 
                     <!-- Section 4: Financial Configurations -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3 mt-4" style="font-size: 0.75rem;"><i class="fas fa-file-invoice-dollar me-1"></i> Financial Configurations</h5>
-                    <div class="form-group-grid mb-4">
-                        <div class="form-group">
-                            <label for="prospectus_fee" class="fw-semibold mb-2">
-                                <i class="fas fa-file-alt text-first me-2"></i>Prospectus Fee
-                            </label>
-                            <input type="number" step="0.01" id="prospectus_fee" name="prospectus_fee" value="{{ old('prospectus_fee', $student->prospectus_fee ?? '500') }}" placeholder="e.g. 500" class="form-input {{ $errors->has('prospectus_fee') ? 'is-invalid' : '' }}" />
-                            @error('prospectus_fee')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="registration_fee" class="fw-semibold mb-2">
-                                <i class="fas fa-user-plus text-first me-2"></i>Registration Fee
-                            </label>
-                            <input type="number" step="0.01" id="registration_fee" name="registration_fee" value="{{ old('registration_fee', $student->registration_fee ?? '5000') }}" placeholder="e.g. 5000" class="form-input {{ $errors->has('registration_fee') ? 'is-invalid' : '' }}" />
-                            @error('registration_fee')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
-                            @enderror
-                        </div>
-
+                    <div class="form-group-grid mb-4" style="grid-template-columns: 1fr;">
                         <div class="form-group">
                             <label for="discount" class="fw-semibold mb-2">
                                 <i class="fas fa-tags text-first me-2"></i>Course Fee Discount
