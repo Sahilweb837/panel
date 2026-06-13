@@ -111,6 +111,9 @@
                                                 </button>
                                             </form>
                                         @else
+                                            <a href="{{ route('employees.show', $employee) }}" class="button button-primary small py-1.5 px-3" style="background-color: var(--first-color); color: white; border: none;">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </a>
                                             <a href="{{ route('employees.edit', $employee) }}" class="button button-secondary small py-1.5 px-3">
                                                 <i class="fas fa-edit me-1"></i>Edit
                                             </a>

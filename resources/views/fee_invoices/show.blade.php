@@ -152,10 +152,44 @@
             border: 1px solid var(--border);
             border-radius: 24px;
             box-shadow: var(--shadow);
-            padding: 50px;
+            padding: 30px 40px;
             position: relative;
             overflow: hidden;
             transition: all 0.4s ease;
+            margin-bottom: 0;
+        }
+
+        .cut-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+        
+        .cut-line span {
+            flex-grow: 1;
+            height: 0;
+            border-top: 2px dashed var(--text-muted);
+        }
+        
+        .cut-line i {
+            font-size: 1.2rem;
+        }
+
+        .copy-badge {
+            display: inline-block;
+            background: var(--text-main);
+            color: var(--card-bg);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
         }
 
         /* Diagonally Rotated Watermark Badge */
@@ -164,14 +198,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 8rem;
+            font-size: 6rem;
             font-weight: 900;
             letter-spacing: 0.5rem;
             text-transform: uppercase;
             pointer-events: none;
             user-select: none;
             z-index: 1;
-            opacity: 0.05;
+            opacity: 0.04;
             transition: all 0.4s ease;
         }
         .watermark-paid { color: var(--success); }
@@ -182,10 +216,10 @@
         .invoice-header {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            gap: 20px;
             border-bottom: 2px dashed var(--border);
-            padding-bottom: 35px;
-            margin-bottom: 35px;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
             position: relative;
             z-index: 2;
         }
@@ -193,18 +227,18 @@
         .logo-block {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
         .logo-img {
-            max-height: 52px;
-            max-width: 260px;
+            max-height: 45px;
+            max-width: 220px;
             object-fit: contain;
             align-self: flex-start;
         }
         .company-meta {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .invoice-meta-right {
@@ -216,51 +250,39 @@
         }
         .invoice-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: var(--primary);
             letter-spacing: -1px;
             margin-bottom: 4px;
         }
         .invoice-no-label {
-            font-size: 1.05rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         .status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
+            gap: 6px;
+            padding: 4px 12px;
             border-radius: 9999px;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        .status-paid {
-            background: var(--success-glow);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        .status-partial {
-            background: var(--warning-glow);
-            color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-        .status-unpaid {
-            background: var(--danger-glow);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
+        .status-paid { background: var(--success-glow); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-partial { background: var(--warning-glow); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .status-unpaid { background: var(--danger-glow); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
 
         /* Billing / Info Grid */
         .info-grid {
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 40px;
-            margin-bottom: 40px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
             position: relative;
             z-index: 2;
         }
@@ -268,41 +290,35 @@
         .info-card {
             background: rgba(255, 85, 50, 0.02);
             border: 1px dashed var(--border);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 15px;
         }
         .info-card-title {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--primary);
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
         .info-details {
             display: grid;
             grid-template-columns: auto 1fr;
-            row-gap: 12px;
-            column-gap: 16px;
-            font-size: 0.9rem;
+            row-gap: 8px;
+            column-gap: 12px;
+            font-size: 0.8rem;
         }
-        .info-label {
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        .info-value {
-            color: var(--text-main);
-            font-weight: 700;
-        }
+        .info-label { color: var(--text-muted); font-weight: 500; }
+        .info-value { color: var(--text-main); font-weight: 700; }
 
         /* Items Table */
         .table-wrapper {
-            margin-bottom: 35px;
+            margin-bottom: 20px;
             position: relative;
             z-index: 2;
         }
@@ -313,116 +329,89 @@
         .invoice-table th {
             font-weight: 800;
             text-transform: uppercase;
-            font-size: 0.78rem;
+            font-size: 0.7rem;
             letter-spacing: 0.05em;
             color: #ffffff;
             background: var(--dark-surface);
-            padding: 14px 18px;
+            padding: 8px 12px;
             border: none;
         }
-        .invoice-table th:first-child {
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-        }
-        .invoice-table th:last-child {
-            border-top-right-radius: 10px;
-            border-bottom-right-radius: 10px;
-            text-align: right;
-        }
+        .invoice-table th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+        .invoice-table th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; text-align: right; }
         .invoice-table td {
-            padding: 16px 18px;
+            padding: 10px 12px;
             border-bottom: 1px solid var(--border);
-            font-size: 0.92rem;
-            vertical-align: top;
+            font-size: 0.85rem;
+            vertical-align: middle;
         }
-        .invoice-table td:last-child {
-            text-align: right;
-            font-weight: 700;
-        }
+        .invoice-table td:last-child { text-align: right; font-weight: 700; }
 
         /* Summary Panel */
         .summary-block {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 45px;
+            margin-bottom: 20px;
             position: relative;
             z-index: 2;
         }
         .summary-card {
             width: 100%;
-            max-width: 380px;
+            max-width: 320px;
             background: rgba(28, 24, 22, 0.02);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 15px;
             display: grid;
-            gap: 12px;
+            gap: 8px;
         }
         .summary-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
-        .summary-row strong {
-            color: var(--text-main);
-        }
+        .summary-row strong { color: var(--text-main); }
         .summary-row.total-row {
             border-top: 1px solid var(--border);
-            padding-top: 14px;
-            margin-top: 4px;
-            font-size: 1.15rem;
+            padding-top: 10px;
+            margin-top: 2px;
+            font-size: 1rem;
             font-weight: 800;
             color: var(--primary);
         }
-        .summary-row.total-row span:last-child {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.35rem;
-        }
-        .due-warning {
-            color: var(--danger);
-            font-weight: 800;
-        }
-        .due-paid {
-            color: var(--success);
-            font-weight: 800;
-        }
+        .summary-row.total-row span:last-child { font-family: 'Outfit', sans-serif; font-size: 1.15rem; }
+        .due-warning { color: var(--danger); font-weight: 800; }
+        .due-paid { color: var(--success); font-weight: 800; }
 
         /* Notes & Terms Section */
         .invoice-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
             border-top: 1px solid var(--border);
-            padding-top: 30px;
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 40px;
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            line-height: 1.6;
             position: relative;
             z-index: 2;
         }
-        .notes-block h4, .sign-block h4 {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: var(--text-main);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
-        }
         .sign-block {
-            text-align: right;
+            text-align: center;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            justify-content: space-between;
-            min-height: 110px;
+            align-items: center;
         }
         .sign-line {
-            width: 180px;
+            width: 140px;
             height: 1px;
             background: var(--text-main);
             margin-bottom: 6px;
+        }
+        .sign-text {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
         }
 
         /* Print styling logic */
@@ -432,308 +421,195 @@
                 color: #000000 !important;
                 padding: 0 !important;
             }
-            .decor-orb, .action-bar {
-                display: none !important;
-            }
+            .decor-orb, .action-bar { display: none !important; }
             .invoice-card {
                 border: none !important;
                 box-shadow: none !important;
                 padding: 0 !important;
                 background: transparent !important;
+                page-break-inside: avoid;
             }
-            .watermark-badge {
-                opacity: 0.07 !important;
-            }
+            .watermark-badge { opacity: 0.05 !important; }
             .invoice-table th {
-                background: #111111 !important;
-                color: #ffffff !important;
+                background: #e0e0e0 !important;
+                color: #000 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .info-card {
-                background: #fbfbfb !important;
-                border: 1px dashed #cccccc !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            .info-card, .summary-card {
+                background: transparent !important;
+                border: 1px solid #ccc !important;
             }
             @page {
-                size: A4;
-                margin: 1.6cm;
+                size: A4 portrait;
+                margin: 1cm;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Glowing backdrop orbs -->
     <div class="decor-orb orb-1"></div>
     <div class="decor-orb orb-2"></div>
 
     <div class="page-wrapper">
-        <!-- Interactive screen controls -->
         <div class="action-bar">
             <a href="{{ route('fee_invoices.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Receipts
+                <i class="fas fa-arrow-left"></i> Back
             </a>
-            
             <button class="btn btn-primary" onclick="window.print()">
-                <i class="fas fa-print"></i> Print Receipt / Slip
+                <i class="fas fa-print"></i> Print Slip
             </button>
         </div>
 
-        <!-- Printable Slip Card -->
-        <div class="invoice-card">
-            <!-- Semi-transparent status watermark -->
-            @if($feeInvoice->status === 'Paid')
-                <div class="watermark-badge watermark-paid">Paid</div>
-            @elseif($feeInvoice->status === 'Partial')
-                <div class="watermark-badge watermark-partial">Due</div>
-            @else
-                <div class="watermark-badge watermark-unpaid">Unpaid</div>
-            @endif
+        @php
+            $copies = ['STUDENT COPY', 'OFFICE COPY'];
+        @endphp
 
-            <!-- Invoice Header -->
-            <header class="invoice-header">
-                <div class="logo-block">
-                    <!-- Netcoder Technology brand logo -->
-                    <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img">
-                    <div class="company-meta">
-                        <strong>Netcoder Technology Solutions</strong><br>
-                        1st Floor, above Gramin Bank, near Govt. ITI,<br>
-                        Dari, Dharamshala, Gabli Dar, Himachal Pradesh 176215<br>
-                        support@netcoder.tech | 098167 32055
+        @foreach($copies as $index => $copyName)
+            <div class="invoice-card">
+                <div class="copy-badge">{{ $copyName }}</div>
+
+                @if($feeInvoice->status === 'Paid')
+                    <div class="watermark-badge watermark-paid">Paid</div>
+                @elseif($feeInvoice->status === 'Partial')
+                    <div class="watermark-badge watermark-partial">Due</div>
+                @else
+                    <div class="watermark-badge watermark-unpaid">Unpaid</div>
+                @endif
+
+                <header class="invoice-header">
+                    <div class="logo-block">
+                        <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img">
+                        <div class="company-meta">
+                            <strong>Netcoder Technology Solutions</strong><br>
+                            Dari, Dharamshala, HP 176215<br>
+                            support@netcoder.tech | 098167 32055
+                        </div>
                     </div>
-                </div>
-                <div class="invoice-meta-right">
-                    <div>
-                        <div class="invoice-title">FEE RECEIPT</div>
-                        <div class="invoice-no-label">Receipt #{{ $feeInvoice->invoice_no }}</div>
-                    </div>
-                    <div>
-                        @if($feeInvoice->status === 'Paid')
-                            <span class="status-pill status-paid">
-                                <i class="fas fa-check-circle"></i> Paid
-                            </span>
-                        @elseif($feeInvoice->status === 'Partial')
-                            <span class="status-pill status-partial">
-                                <i class="fas fa-adjust"></i> Partially Paid
-                            </span>
-                        @else
-                            <span class="status-pill status-unpaid">
-                                <i class="fas fa-times-circle"></i> Unpaid
-                            </span>
-                        @endif
-                    </div>
-                </div>
-            </header>
-
-            <!-- Metadata Info Grid -->
-            <section class="info-grid">
-                <!-- Student details -->
-                <div class="info-card">
-                    <div class="info-card-title">
-                        <i class="fas fa-graduation-cap"></i> Student Information
-                    </div>
-                    <div class="info-details">
-                        <span class="info-label">Admission No:</span>
-                        <span class="info-value">{{ $feeInvoice->student?->admission_no ?? '-' }}</span>
-
-                        <span class="info-label">Roll Number:</span>
-                        <span class="info-value">{{ $feeInvoice->student?->roll_no ?? '-' }}</span>
-
-                        <span class="info-label">Full Name:</span>
-                        <span class="info-value">{{ $feeInvoice->student?->first_name ?? 'Unknown' }} {{ $feeInvoice->student?->last_name }}</span>
-
-                        <span class="info-label">Enroll Course:</span>
-                        <span class="info-value">{{ $feeInvoice->student?->course?->name ?? '-' }}</span>
-
-                        <span class="info-label">Course duration:</span>
-                        <span class="info-value">{{ $feeInvoice->student?->course_duration ?? '-' }}</span>
-                    </div>
-                </div>
-
-                <!-- Invoice/Payment metadata -->
-                <div class="info-card">
-                    <div class="info-card-title">
-                        <i class="fas fa-receipt"></i> Payment Details
-                    </div>
-                    <div class="info-details">
-                        <span class="info-label">Issue Date:</span>
-                        <span class="info-value">{{ $feeInvoice->created_at->format('M d, Y') }}</span>
-
-                        <span class="info-label">Payment Date:</span>
-                        <span class="info-value">{{ $feeInvoice->payment_date ? \Carbon\Carbon::parse($feeInvoice->payment_date)->format('M d, Y') : '-' }}</span>
-
-                        <span class="info-label">Payment Method:</span>
-                        <span class="info-value">{{ $feeInvoice->payment_method ?? 'Not specified' }}</span>
-
-                        @if($feeInvoice->payment_method === 'Online')
-                            @if($feeInvoice->transaction_id)
-                                <span class="info-label">Transaction ID:</span>
-                                <span class="info-value" style="font-family: monospace; font-size: 0.82rem;">{{ $feeInvoice->transaction_id }}</span>
+                    <div class="invoice-meta-right">
+                        <div>
+                            <div class="invoice-title">FEE RECEIPT</div>
+                            <div class="invoice-no-label">#{{ $feeInvoice->invoice_no }}</div>
+                        </div>
+                        <div>
+                            @if($feeInvoice->status === 'Paid')
+                                <span class="status-pill status-paid"><i class="fas fa-check-circle"></i> Paid</span>
+                            @elseif($feeInvoice->status === 'Partial')
+                                <span class="status-pill status-partial"><i class="fas fa-adjust"></i> Partial</span>
+                            @else
+                                <span class="status-pill status-unpaid"><i class="fas fa-times-circle"></i> Unpaid</span>
                             @endif
-                            @if($feeInvoice->utr_no)
-                                <span class="info-label">UTR Number:</span>
-                                <span class="info-value" style="font-family: monospace; font-size: 0.82rem;">{{ $feeInvoice->utr_no }}</span>
-                            @endif
-                        @endif
-
-                        <span class="info-label">Generated By:</span>
-                        <span class="info-value">{{ $feeInvoice->creator?->name ?? 'System Admin' }}</span>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </header>
 
-            <!-- Particulars / Fees Breakdown Table -->
-            <div class="table-wrapper">
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 70%;">Particulars / Fee Category</th>
-                            <th style="width: 30%; text-align: right;">Gross Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if($feeInvoice->fee_items && is_array($feeInvoice->fee_items) && count($feeInvoice->fee_items) > 0)
-                            @foreach($feeInvoice->fee_items as $item)
-                                <tr>
-                                    <td>
-                                        <strong>{{ $item['category'] }}</strong>
-                                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-                                            Fee category charge item.
-                                        </div>
-                                    </td>
-                                    <td>{{ number_format($item['amount'], 2) }}</td>
-                                </tr>
-                            @endforeach
-                        @else
+                <section class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-title"><i class="fas fa-user-graduate"></i> Student Details</div>
+                        <div class="info-details">
+                            <span class="info-label">Name:</span>
+                            <span class="info-value">{{ $feeInvoice->student?->first_name ?? 'Unknown' }} {{ $feeInvoice->student?->last_name }}</span>
+                            <span class="info-label">Admission No:</span>
+                            <span class="info-value">{{ $feeInvoice->student?->admission_no ?? '-' }}</span>
+                            <span class="info-label">Course:</span>
+                            <span class="info-value">{{ $feeInvoice->student?->course?->name ?? '-' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title"><i class="fas fa-receipt"></i> Payment Details</div>
+                        <div class="info-details">
+                            <span class="info-label">Date:</span>
+                            <span class="info-value">{{ $feeInvoice->payment_date ? \Carbon\Carbon::parse($feeInvoice->payment_date)->format('M d, Y') : $feeInvoice->created_at->format('M d, Y') }}</span>
+                            <span class="info-label">Method:</span>
+                            <span class="info-value">{{ $feeInvoice->payment_method ?? 'Not specified' }}</span>
+                            @if($feeInvoice->payment_method === 'Online' && $feeInvoice->transaction_id)
+                                <span class="info-label">Txn ID:</span>
+                                <span class="info-value">{{ $feeInvoice->transaction_id }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+
+                <div class="table-wrapper">
+                    <table class="invoice-table">
+                        <thead>
                             <tr>
-                                <td>
-                                    <strong>{{ $feeInvoice->fee_category ?? 'Course Fees' }}</strong>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-                                        Standard billing course fee items for academic semester term.
-                                    </div>
-                                </td>
-                                <td>{{ number_format($feeInvoice->total_amount, 2) }}</td>
+                                <th>Particulars</th>
+                                <th>Amount (INR)</th>
                             </tr>
-                        @endif
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @if($feeInvoice->fee_items && is_array($feeInvoice->fee_items) && count($feeInvoice->fee_items) > 0)
+                                @foreach($feeInvoice->fee_items as $item)
+                                    <tr>
+                                        <td><strong>{{ $item['category'] }}</strong></td>
+                                        <td>{{ number_format($item['amount'], 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td><strong>{{ $feeInvoice->fee_category ?? 'Course Fees' }}</strong></td>
+                                    <td>{{ number_format($feeInvoice->total_amount, 2) }}</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
 
-            <!-- Invoice Summary Section -->
-            <div class="summary-block">
-                <div class="summary-card">
-                    <div class="summary-row">
-                        <span>Total Gross Amount:</span>
-                        <strong>{{ number_format($feeInvoice->total_amount, 2) }}</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Fines / Penalties (+):</span>
-                        <strong>{{ number_format($feeInvoice->fine, 2) }}</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Discounts / Concessions (-):</span>
-                        <strong style="color: var(--success);">{{ number_format($feeInvoice->discount, 2) }}</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total Paid Amount (-):</span>
-                        <strong style="color: var(--primary);">{{ number_format($feeInvoice->paid_amount, 2) }}</strong>
-                    </div>
-                    <div class="summary-row total-row">
-                        <span>Remaining Due:</span>
+                <div class="summary-block">
+                    <div class="summary-card">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <strong>{{ number_format($feeInvoice->total_amount, 2) }}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Fines (+):</span>
+                            <strong>{{ number_format($feeInvoice->fine, 2) }}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Discounts (-):</span>
+                            <strong style="color: var(--success);">{{ number_format($feeInvoice->discount, 2) }}</strong>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>Paid Amount:</span>
+                            <span>₹{{ number_format($feeInvoice->paid_amount, 2) }}</span>
+                        </div>
                         @if($feeInvoice->due_amount > 0)
-                            <span class="due-warning">{{ number_format($feeInvoice->due_amount, 2) }}</span>
-                        @else
-                            <span class="due-paid">NIL (Paid)</span>
+                        <div class="summary-row text-danger mt-1">
+                            <span class="due-warning">Balance Due:</span>
+                            <strong class="due-warning">₹{{ number_format($feeInvoice->due_amount, 2) }}</strong>
+                        </div>
                         @endif
                     </div>
                 </div>
-            </div>
 
-            <!-- Overall Student Summary -->
-            <div style="margin-bottom: 35px; z-index: 2; position: relative;">
-                <h4 style="font-size: 1rem; font-weight: 800; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                    <i class="fas fa-user-circle"></i> Overall Account Summary
-                </h4>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                    <div style="background: rgba(28, 24, 22, 0.02); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Total Fees</div>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--text-main);">{{ number_format($overallTotal ?? 0, 2) }}</div>
+                <footer class="invoice-footer">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 60%;">
+                        <em>* This is a computer-generated receipt and does not require a physical signature if paid online.</em><br>
+                        <em>* Fees once paid are not refundable.</em>
                     </div>
-                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 15px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: var(--success); text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Total Deducted / Paid</div>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">{{ number_format($overallPaid ?? 0, 2) }}</div>
-                    </div>
-                    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 15px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: var(--danger); text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Overall Remaining Due</div>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--danger);">{{ number_format($overallDue ?? 0, 2) }}</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Payment History -->
-            @if(isset($studentHistory) && count($studentHistory) > 0)
-            <div class="table-wrapper" style="margin-bottom: 45px;">
-                <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-main); margin-bottom: 15px;">
-                    <i class="fas fa-history"></i> Previous Payment History
-                </h4>
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 25%;">Date</th>
-                            <th style="width: 25%;">Invoice No</th>
-                            <th style="width: 25%;">Paid Amount</th>
-                            <th style="width: 25%; text-align: right;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($studentHistory as $history)
-                        <tr>
-                            <td>{{ $history->created_at->format('M d, Y') }}</td>
-                            <td>Receipt #{{ $history->invoice_no }}</td>
-                            <td style="color: var(--success); font-weight: 600;">{{ number_format($history->paid_amount, 2) }}</td>
-                            <td style="text-align: right;">
-                                @if($history->status === 'Paid')
-                                    <span style="color: var(--success); font-weight: 700;">Paid</span>
-                                @elseif($history->status === 'Partial')
-                                    <span style="color: var(--warning); font-weight: 700;">Partial</span>
-                                @else
-                                    <span style="color: var(--danger); font-weight: 700;">Unpaid</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            @endif
-
-            <!-- Notes & Signatures footer -->
-            <footer class="invoice-footer">
-                <div class="notes-block">
-                    <h4>Important Instructions</h4>
-                    <p style="margin-bottom: 6px;">1. This receipt serves as an official payment record when stamped and accompanied by transaction reference validation details.</p>
-                    <p style="margin-bottom: 6px;">2. Payment due amounts should be settled before late fees penalties kick in. Kindly contact Accounts Office for billing queries.</p>
-                    <p>3. Checks should be drawn in favor of <strong>Netcoder Technology Solutions Pvt Ltd</strong>.</p>
-                </div>
-                <div class="sign-block">
-                    <h4>Authorized Officer</h4>
-                    <div>
+                    <div class="sign-block">
                         <div class="sign-line"></div>
-                        <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Accounts Department</p>
-                        <p style="font-size: 0.72rem;">System Verification Sealed</p>
+                        <div class="sign-text">Authorized Signatory</div>
                     </div>
+                </footer>
+            </div>
+
+            @if($index === 0)
+                <div class="cut-line">
+                    <span></span>
+                    <i class="fas fa-cut"></i>
+                    <span></span>
                 </div>
-            </footer>
-        </div>
+            @endif
+        @endforeach
     </div>
 
-    <!-- Script to support dynamic system theme updates -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const html = document.documentElement;
-            // Align theme automatically with root panel setting if cached
             const currentTheme = localStorage.getItem('theme') || 'light';
             html.setAttribute('data-theme', currentTheme);
         });
