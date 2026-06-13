@@ -83,6 +83,35 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
     }
 
+    public function show(Employee $employee)
+    {
+        $employee->load('user');
+        
+        // Load recent attendance
+        $attendances = \App\Models\EmployeeAttendance::where('employee_id', $employee->id)
+            ->latest('attendance_date')
+            ->limit(10)
+            ->get();
+            
+        // Load salary slips
+        $salarySlips = \App\Models\SalarySlip::where('employee_id', $employee->id)
+            ->latest('created_at')
+            ->get();
+            
+        // Load tasks
+        $tasks = \App\Models\Task::where('assigned_to', $employee->id)
+            ->latest('created_at')
+            ->limit(5)
+            ->get();
+            
+        // Analytics
+        $totalAttendance = \App\Models\EmployeeAttendance::where('employee_id', $employee->id)->count();
+        $presentAttendance = \App\Models\EmployeeAttendance::where('employee_id', $employee->id)->where('status', 'Present')->count();
+        $attendancePercentage = $totalAttendance > 0 ? round(($presentAttendance / $totalAttendance) * 100) : 0;
+        
+        return view('employees.show', compact('employee', 'attendances', 'salarySlips', 'tasks', 'attendancePercentage'));
+    }
+
     public function edit(Employee $employee)
     {
         return view('employees.edit', compact('employee'));
