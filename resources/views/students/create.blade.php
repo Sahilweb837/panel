@@ -276,14 +276,32 @@
                     <div class="form-group-grid mb-4" style="grid-template-columns: 1fr;">
                         <div class="form-group p-4 bg-light rounded border d-flex align-items-center justify-content-between">
                             <div>
-                                <h6 class="mb-1 fw-bold text-dark-title"><i class="fas fa-calculator text-first me-2"></i>Fee Estimation</h6>
-                                <p class="mb-0 text-muted small">Course Fee + Registration + Prospectus - Discount</p>
+                                <h6 class="mb-1 fw-bold text-dark-title"><i class="fas fa-calculator text-first me-2"></i>Invoice Estimates</h6>
+                                <p class="mb-0 text-muted small">Generated Invoices Preview</p>
                             </div>
-                            <div class="text-end">
-                                <h3 class="mb-0 fw-bold text-first" id="total_amount_display">₹0.00</h3>
-                                <small class="text-muted d-block" id="course_fee_display">Course Fee: ₹0.00</small>
+                            <div class="text-end" style="min-width: 300px;">
+                                <h4 class="mb-2 fw-bold text-first" id="total_amount_display">₹0.00</h4>
+                                <div class="text-muted text-end" id="course_fee_display" style="font-size: 0.85rem;">
+                                    <!-- Populated by JS -->
+                                </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="form-group checkbox-group mb-4">
+                        <label class="checkbox-label" style="cursor: pointer;">
+                            <input 
+                                type="checkbox" 
+                                name="generate_admission_invoice" 
+                                value="1" 
+                                checked 
+                                class="checkbox-input"
+                            />
+                            <span class="fw-semibold">
+                                <i class="fas fa-file-invoice text-first me-1"></i>Generate One-Time Admission Invoice (Reg & Prospectus)
+                            </span>
+                        </label>
+                        <small style="color: var(--muted); margin-left: 28px;" class="d-block mt-1">If checked, a separate invoice for Registration & Prospectus fees will be generated alongside the Course Fee invoice.</small>
                     </div>
 
                     <!-- Section 5: Address Details -->
@@ -396,6 +414,8 @@
             const regFeeInput = document.getElementById('registration_fee');
             const prosFeeInput = document.getElementById('prospectus_fee');
             const discountInput = document.getElementById('discount');
+            const tenureSelect = document.getElementById('fee_tenure');
+            const durationSelect = document.getElementById('course_duration');
             const totalDisplay = document.getElementById('total_amount_display');
             const courseFeeDisplay = document.getElementById('course_fee_display');
 
@@ -407,16 +427,43 @@
                 const prosFee = parseFloat(prosFeeInput.value) || 0;
                 const discount = parseFloat(discountInput.value) || 0;
                 
-                const total = Math.max(0, courseFee + regFee + prosFee - discount);
+                const tenure = tenureSelect ? tenureSelect.value : '';
+                const duration = durationSelect ? durationSelect.value.toLowerCase() : '';
                 
-                courseFeeDisplay.innerText = `Course Fee: ₹${courseFee.toFixed(2)}`;
-                totalDisplay.innerText = `₹${total.toFixed(2)}`;
+                let divisor = 1;
+                
+                if (duration.includes('1 year') || duration.includes('12 month')) {
+                    if (tenure === '1 Month') divisor = 12;
+                    else if (tenure === '3 Months') divisor = 4;
+                    else if (tenure === '6 Months') divisor = 2;
+                } else if (duration.includes('6 month')) {
+                    if (tenure === '1 Month') divisor = 6;
+                    else if (tenure === '3 Months') divisor = 2;
+                } else if (duration.includes('3 month')) {
+                    if (tenure === '1 Month') divisor = 3;
+                }
+                
+                const installmentCourseFee = (courseFee / divisor).toFixed(2);
+                const installmentDiscount = (discount / divisor).toFixed(2);
+                const netCourseFee = Math.max(0, installmentCourseFee - installmentDiscount).toFixed(2);
+                
+                const admissionTotal = (regFee + prosFee).toFixed(2);
+                
+                courseFeeDisplay.innerHTML = `
+                    <div class="mb-1"><strong>Course Installment:</strong> ₹${netCourseFee} <br><small class="text-muted">(₹${installmentCourseFee} fee - ₹${installmentDiscount} discount)</small></div>
+                    <div><strong>Admission Fees:</strong> ₹${admissionTotal} <br><small class="text-muted">(Registration + Prospectus)</small></div>
+                `;
+                
+                const combinedTotal = (parseFloat(netCourseFee) + parseFloat(admissionTotal)).toFixed(2);
+                totalDisplay.innerText = `Total Today: ₹${combinedTotal}`;
             };
 
             courseSelect.addEventListener('change', calculateFees);
             regFeeInput.addEventListener('input', calculateFees);
             prosFeeInput.addEventListener('input', calculateFees);
             discountInput.addEventListener('input', calculateFees);
+            if(tenureSelect) tenureSelect.addEventListener('change', calculateFees);
+            if(durationSelect) durationSelect.addEventListener('change', calculateFees);
             
             // Initial calculation on load
             calculateFees();
