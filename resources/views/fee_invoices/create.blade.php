@@ -80,11 +80,20 @@
                             <input type="text" id="invoice_no" name="invoice_no" value="{{ old('invoice_no') }}" placeholder="Auto-generated if left empty" class="form-input" />
                         </div>
                         <div class="form-group">
+                            <label for="tenure_mode" class="fw-semibold mb-2">
+                                <i class="fas fa-calendar-alt text-first me-2"></i>Tenure Mode
+                            </label>
+                            <select id="tenure_mode" name="tenure_mode" class="form-input" onchange="populateFeeItems()">
+                                <option value="Full" {{ old('tenure_mode') == 'Full' ? 'selected' : '' }}>Full Payment</option>
+                                <option value="Monthly" {{ old('tenure_mode') == 'Monthly' ? 'selected' : '' }}>Monthly Installment</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="fee_category_select" class="fw-semibold mb-2">
                                 <i class="fas fa-tags text-first me-2"></i>Fee Category
                             </label>
                             <select id="fee_category_select" name="fee_category" class="form-input" onchange="toggleOtherFeeCategory()">
-                                <option value="" {{ old('fee_category') === '' ? 'selected' : '' }}>-- Auto-generate from selected items --</option>
+                                <option value="" {{ old('fee_category') === '' ? 'selected' : '' }}>-- Auto-generate from items --</option>
                                 <option value="Regular Fees" {{ old('fee_category') == 'Regular Fees' ? 'selected' : '' }}>Regular Fees</option>
                                 <option value="Monthly Fees" {{ old('fee_category') == 'Monthly Fees' ? 'selected' : '' }}>Monthly Fees</option>
                                 <option value="Fine" {{ old('fee_category') == 'Fine' ? 'selected' : '' }}>Fine</option>
@@ -240,6 +249,7 @@
         const studentsData = {!! $students->mapWithKeys(function($s) {
             return [$s->id => [
                 'course_fee' => $s->course ? $s->course->fee : 0,
+                'course_duration' => $s->course_duration ?: '',
                 'registration_fee' => $s->registration_fee ?: 0,
                 'prospectus_fee' => $s->prospectus_fee ?: 0,
                 'discount' => $s->discount ?: 0,
@@ -248,8 +258,19 @@
 
         const oldFeeItems = {!! old('fee_items') ? json_encode(old('fee_items')) : 'null' !!};
 
+        function getMonthsFromDuration(duration) {
+            if (!duration) return 1;
+            let text = duration.toLowerCase();
+            if (text.includes('45 days')) return 1.5;
+            if (text.includes('1 month')) return 1;
+            if (text.includes('6 months')) return 6;
+            if (text.includes('1 year')) return 12;
+            return 1;
+        }
+
         function populateFeeItems() {
             const studentId = document.getElementById('student_id').value;
+            const tenureMode = document.getElementById('tenure_mode').value;
             const tbody = document.getElementById('fee-items-tbody');
             tbody.innerHTML = '';
             
@@ -260,10 +281,17 @@
             
             const data = studentsData[studentId];
             
+            // Calculate adjusted course fee based on tenure mode
+            let adjustedCourseFee = parseFloat(data.course_fee) || 0;
+            if (tenureMode === 'Monthly' && adjustedCourseFee > 0) {
+                const months = getMonthsFromDuration(data.course_duration);
+                adjustedCourseFee = adjustedCourseFee / months;
+            }
+            
             if (oldFeeItems && oldFeeItems.length > 0) {
                 // Populate from old input
                 oldFeeItems.forEach((item, index) => {
-                    const isDefault = ['Course Fee', 'Registration Fee', 'Prospectus Fee'].includes(item.category);
+                    const isDefault = ['Course Fee', 'Registration Fee', 'Prospectus Fee', 'Monthly Course Fee'].includes(item.category);
                     if (isDefault) {
                         tbody.appendChild(createDefaultRow(item.category, item.amount, true));
                     } else {
@@ -273,8 +301,9 @@
                 
                 // Render other default fees as unchecked if they were not in old input
                 const categoriesInOld = oldFeeItems.map(item => item.category);
-                if (!categoriesInOld.includes('Course Fee') && parseFloat(data.course_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Course Fee', data.course_fee, false));
+                const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
+                if (!categoriesInOld.includes(feeLabel) && adjustedCourseFee > 0) {
+                    tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, false));
                 }
                 if (!categoriesInOld.includes('Registration Fee') && parseFloat(data.registration_fee) > 0) {
                     tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, false));
@@ -284,14 +313,19 @@
                 }
             } else {
                 // Populate default student fees
-                if (parseFloat(data.course_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Course Fee', data.course_fee, true));
+                if (adjustedCourseFee > 0) {
+                    const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
+                    tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, true));
                 }
+                
+                // Only show registration & prospectus if Full Payment, or if it's their first time maybe?
+                // By default, let's include them, but if they want "Monthly", they might not want them every month.
+                // But the user can uncheck them manually. Let's populate them anyway.
                 if (parseFloat(data.registration_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, true));
+                    tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, tenureMode !== 'Monthly'));
                 }
                 if (parseFloat(data.prospectus_fee) > 0) {
-                    tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, true));
+                    tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, tenureMode !== 'Monthly'));
                 }
                 
                 // Set default student discount

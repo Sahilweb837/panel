@@ -69,7 +69,7 @@ class ChatbotController extends Controller
             } else {
                 $response = $this->handleHelp();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $response = "⚠️ **Database Error:**\nSomething went wrong while fetching data.\n\n**Details:** " . $e->getMessage() . "\n\nPlease ensure the database tables are migrated. Visit `/run-migrations` to apply pending migrations.";
         }
 
@@ -80,7 +80,7 @@ class ChatbotController extends Controller
                 'query' => $queryText,
                 'response' => $response,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Silently ignore logging errors — don't break the chatbot response
         }
 
