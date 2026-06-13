@@ -229,6 +229,32 @@
                     <!-- Section 4: Financial Configurations -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3 mt-4" style="font-size: 0.75rem;"><i class="fas fa-file-invoice-dollar me-1"></i> Financial Configurations</h5>
                     <div class="form-group-grid mb-4" style="grid-template-columns: 1fr;">
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="prospectus_fee" value="0">
+                                <input type="checkbox" id="prospectus_fee" name="prospectus_fee" value="500" {{ old('prospectus_fee', $student->prospectus_fee) > 0 ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-file-alt text-first me-1"></i>Apply Prospectus Fee (₹500)
+                                </span>
+                            </label>
+                            @error('prospectus_fee')
+                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="registration_fee" value="0">
+                                <input type="checkbox" id="registration_fee" name="registration_fee" value="5000" {{ old('registration_fee', $student->registration_fee) > 0 ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-user-plus text-first me-1"></i>Apply Registration Fee (₹5000)
+                                </span>
+                            </label>
+                            @error('registration_fee')
+                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
+                            @enderror
+                        </div>
+
                         <div class="form-group">
                             <label for="discount" class="fw-semibold mb-2">
                                 <i class="fas fa-tags text-first me-2"></i>Course Fee Discount

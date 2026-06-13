@@ -56,8 +56,8 @@ class ZKTecoADMSController extends Controller
                 $parts = explode("\t", trim($line));
                 if (count($parts) >= 2) {
                     $pin = trim($parts[0]);
-                    $time = trim($parts[1]); // e.g., 2026-06-08 09:15:00
-                    
+                    $time = trim($parts[1]); 
+
                     $punchDate = date('Y-m-d', strtotime($time));
                     $punchTime = date('H:i:s', strtotime($time));
 
@@ -76,14 +76,14 @@ class ZKTecoADMSController extends Controller
                                 'created_at' => $time
                             ]
                         );
-                        
+
                         // If it already existed but check_in_time was null (e.g. photo arrived first)
                         if (!$attendance->check_in_time) {
                             $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
                         } else {
                             $checkInTimestamp = strtotime($attendance->check_in_time);
                             $punchTimestamp = strtotime($punchTime);
-                            
+
                             // Prevent accidental double punches: Only set Check-Out if it is empty and punch is at least 2 seconds after Check-In
                             if (($punchTimestamp - $checkInTimestamp) > 2) {
                                 if (!$attendance->check_out_time) {
@@ -105,14 +105,14 @@ class ZKTecoADMSController extends Controller
                                 'created_at' => $time
                             ]
                         );
-                        
+
                         // If it already existed but check_in_time was null
                         if (!$attendance->check_in_time) {
                             $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
                         } else {
                             $checkInTimestamp = strtotime($attendance->check_in_time);
                             $punchTimestamp = strtotime($punchTime);
-                            
+
                             // Prevent accidental double punches: Only set Check-Out if it is empty and punch is at least 2 seconds after Check-In
                             if (($punchTimestamp - $checkInTimestamp) > 2) {
                                 if (!$attendance->check_out_time) {
@@ -129,15 +129,15 @@ class ZKTecoADMSController extends Controller
 
         if ($table === 'ATTPHOTO' || $table === 'realtimephoto' || strpos($table, 'photo') !== false) {
             $pin = $request->query('PIN');
-            
+
             // Generate a filename
             $filename = 'punch_' . ($pin ?? 'unknown') . '_' . time() . '.jpg';
             $path = public_path('storage/biometric_photos/' . $filename);
-            
+
             if (!file_exists(public_path('storage/biometric_photos'))) {
                 mkdir(public_path('storage/biometric_photos'), 0777, true);
             }
-            
+
             file_put_contents($path, $body);
 
             // If we have a PIN, attach it to today's attendance record

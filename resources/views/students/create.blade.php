@@ -228,23 +228,29 @@
                     <!-- Section 4: Financial Configurations -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3 mt-4" style="font-size: 0.75rem;"><i class="fas fa-file-invoice-dollar me-1"></i> Financial Configurations</h5>
                     <div class="form-group-grid mb-4">
-                        <div class="form-group">
-                            <label for="prospectus_fee" class="fw-semibold mb-2">
-                                <i class="fas fa-file-alt text-first me-2"></i>Prospectus Fee
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="prospectus_fee" value="0">
+                                <input type="checkbox" id="prospectus_fee" name="prospectus_fee" value="500" {{ old('prospectus_fee', '500') > 0 ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-file-alt text-first me-1"></i>Apply Prospectus Fee (₹500)
+                                </span>
                             </label>
-                            <input type="number" step="0.01" id="prospectus_fee" name="prospectus_fee" value="{{ old('prospectus_fee', '500') }}" placeholder="e.g. 500" class="form-input {{ $errors->has('prospectus_fee') ? 'is-invalid' : '' }}" />
                             @error('prospectus_fee')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="registration_fee" class="fw-semibold mb-2">
-                                <i class="fas fa-user-plus text-first me-2"></i>Registration Fee
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="registration_fee" value="0">
+                                <input type="checkbox" id="registration_fee" name="registration_fee" value="5000" {{ old('registration_fee', '5000') > 0 ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-user-plus text-first me-1"></i>Apply Registration Fee (₹5000)
+                                </span>
                             </label>
-                            <input type="number" step="0.01" id="registration_fee" name="registration_fee" value="{{ old('registration_fee', '5000') }}" placeholder="e.g. 5000" class="form-input {{ $errors->has('registration_fee') ? 'is-invalid' : '' }}" />
                             @error('registration_fee')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
                             @enderror
                         </div>
 
@@ -446,8 +452,11 @@
                 const includeReg = document.getElementById('include_registration_invoice')?.checked;
                 const includePros = document.getElementById('include_prospectus_invoice')?.checked;
 
-                const regFee = includeReg ? (parseFloat(regFeeInput.value) || 0) : 0;
-                const prosFee = includePros ? (parseFloat(prosFeeInput.value) || 0) : 0;
+                const baseRegFee = regFeeInput.type === 'checkbox' ? (regFeeInput.checked ? parseFloat(regFeeInput.value) : 0) : (parseFloat(regFeeInput.value) || 0);
+                const baseProsFee = prosFeeInput.type === 'checkbox' ? (prosFeeInput.checked ? parseFloat(prosFeeInput.value) : 0) : (parseFloat(prosFeeInput.value) || 0);
+
+                const regFee = includeReg ? baseRegFee : 0;
+                const prosFee = includePros ? baseProsFee : 0;
                 const discount = parseFloat(discountInput.value) || 0;
                 
                 const tenure = tenureSelect ? tenureSelect.value : '';
@@ -482,8 +491,8 @@
             };
 
             courseSelect.addEventListener('change', calculateFees);
-            regFeeInput.addEventListener('input', calculateFees);
-            prosFeeInput.addEventListener('input', calculateFees);
+            regFeeInput.addEventListener('change', calculateFees);
+            prosFeeInput.addEventListener('change', calculateFees);
             discountInput.addEventListener('input', calculateFees);
             if(tenureSelect) tenureSelect.addEventListener('change', calculateFees);
             if(durationSelect) durationSelect.addEventListener('change', calculateFees);
