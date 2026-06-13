@@ -91,6 +91,7 @@ class StudentController extends Controller
             'discount' => ['nullable', 'numeric', 'min:0'],
             'registration_fee' => ['nullable', 'numeric', 'min:0'],
             'prospectus_fee' => ['nullable', 'numeric', 'min:0'],
+            'fee_tenure' => ['nullable', 'in:1 Month,3 Months,6 Months,1 Year'],
         ]);
 
         $data['status'] = $request->boolean('status');
@@ -117,11 +118,33 @@ class StudentController extends Controller
         $totalAmount = 0;
 
         if ($student->course && $student->course->fee > 0) {
+            $courseFeeAmount = $student->course->fee;
+            $feeLabel = 'Course Fee';
+            
+            if ($student->fee_tenure) {
+                $divisor = 1;
+                $durationLower = strtolower($student->course_duration ?? '');
+                
+                if (str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month')) {
+                    if ($student->fee_tenure === '1 Month') $divisor = 12;
+                    elseif ($student->fee_tenure === '3 Months') $divisor = 4;
+                    elseif ($student->fee_tenure === '6 Months') $divisor = 2;
+                } elseif (str_contains($durationLower, '6 month')) {
+                    if ($student->fee_tenure === '1 Month') $divisor = 6;
+                    elseif ($student->fee_tenure === '3 Months') $divisor = 2;
+                } elseif (str_contains($durationLower, '3 month')) {
+                    if ($student->fee_tenure === '1 Month') $divisor = 3;
+                }
+                
+                $courseFeeAmount = round($courseFeeAmount / $divisor, 2);
+                $feeLabel = 'Course Fee (' . $student->fee_tenure . ' Installment)';
+            }
+            
             $feeItems[] = [
-                'category' => 'Course Fee',
-                'amount' => $student->course->fee,
+                'category' => $feeLabel,
+                'amount' => $courseFeeAmount,
             ];
-            $totalAmount += $student->course->fee;
+            $totalAmount += $courseFeeAmount;
         }
 
         if ($student->registration_fee > 0) {
@@ -231,6 +254,7 @@ class StudentController extends Controller
             'discount' => ['nullable', 'numeric', 'min:0'],
             'registration_fee' => ['nullable', 'numeric', 'min:0'],
             'prospectus_fee' => ['nullable', 'numeric', 'min:0'],
+            'fee_tenure' => ['nullable', 'in:1 Month,3 Months,6 Months,1 Year'],
         ]);
 
         $data['status'] = $request->boolean('status');

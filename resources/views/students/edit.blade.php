@@ -238,6 +238,20 @@
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="fee_tenure" class="fw-semibold mb-2">
+                                <i class="fas fa-calendar-alt text-first me-2"></i>Payment Tenure
+                            </label>
+                            <select id="fee_tenure" name="fee_tenure" class="form-input">
+                                <option value="">Full Course Fee</option>
+                                <option value="1 Month" {{ old('fee_tenure', $student->fee_tenure) === '1 Month' ? 'selected' : '' }}>1 Month (Monthly)</option>
+                                <option value="3 Months" {{ old('fee_tenure', $student->fee_tenure) === '3 Months' ? 'selected' : '' }}>3 Months (Quarterly)</option>
+                                <option value="6 Months" {{ old('fee_tenure', $student->fee_tenure) === '6 Months' ? 'selected' : '' }}>6 Months (Half Yearly)</option>
+                                <option value="1 Year" {{ old('fee_tenure', $student->fee_tenure) === '1 Year' ? 'selected' : '' }}>1 Year (Yearly)</option>
+                            </select>
+                            <small class="text-muted d-block mt-1">If selected, the Course Fee on the first invoice will be split as a partial installment.</small>
+                        </div>
                     </div>
 
                     <!-- Section 5: Address Details -->

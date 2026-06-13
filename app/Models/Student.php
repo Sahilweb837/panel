@@ -38,6 +38,7 @@ class Student extends Model
         'discount',
         'registration_fee',
         'prospectus_fee',
+        'fee_tenure',
     ];
 
     public function attendances()
@@ -53,5 +54,10 @@ class Student extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

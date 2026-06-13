@@ -61,6 +61,11 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class);
     }
 
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::needsRehash($value) ? Hash::make($value) : $value;
