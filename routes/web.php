@@ -82,7 +82,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::delete('backups/{fileName}', [\App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
     Route::post('backups/{fileName}/restore', [\App\Http\Controllers\BackupController::class, 'restore'])->name('backups.restore');
     Route::post('employees/{id}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
-    Route::resource('employees', EmployeeController::class)->except(['show']);
+    Route::resource('employees', EmployeeController::class);
     Route::post('courses/{id}/restore', [CourseController::class, 'restore'])->name('courses.restore');
     Route::get('biometric', [BiometricController::class, 'index'])->name('biometric.index');
     Route::post('biometric', [BiometricController::class, 'update'])->name('biometric.update');
@@ -91,7 +91,7 @@ Route::middleware(['auth.custom'])->group(function () {
     
     Route::resource('courses', CourseController::class)->except(['show']);
     Route::post('students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
-    Route::resource('students', StudentController::class)->except(['show']);
+    Route::resource('students', StudentController::class);
     Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
     Route::resource('attendances', AttendanceController::class)->except(['show', 'edit', 'update']);
     Route::resource('employee-attendances', EmployeeAttendanceController::class)->except(['show', 'edit', 'update']);
