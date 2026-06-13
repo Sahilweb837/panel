@@ -376,7 +376,7 @@ class ChatbotController extends Controller
      */
     private function handleAttendanceSummary(): string
     {
-        $todayStudentCount = Attendance::whereDate('date', today())->count();
+        $todayStudentCount = Attendance::whereDate('attendance_date', today())->count();
         $todayEmployeeCount = EmployeeAttendance::whereDate('attendance_date', today())->count();
         $totalStudents = Student::count();
         $totalEmployees = Employee::where('status', 1)->count();
@@ -503,7 +503,7 @@ class ChatbotController extends Controller
         }
 
         // Today's attendance
-        $todayAttendance = Attendance::whereDate('date', today())->count();
+        $todayAttendance = Attendance::whereDate('attendance_date', today())->count();
         $totalStudents = Student::count();
         if ($totalStudents > 0) {
             $response .= "📋 Today's attendance: **{$todayAttendance}/{$totalStudents}** students marked\n";

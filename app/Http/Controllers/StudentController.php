@@ -168,6 +168,33 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student created successfully. Login generated.');
     }
 
+    public function show(Student $student)
+    {
+        $student->load(['course', 'user']);
+        
+        // Load recent attendance
+        $attendances = \App\Models\Attendance::where('student_id', $student->id)
+            ->latest('attendance_date')
+            ->limit(10)
+            ->get();
+            
+        // Load fee history
+        $feeInvoices = \App\Models\FeeInvoice::where('student_id', $student->id)
+            ->latest('created_at')
+            ->get();
+            
+        // Analytics
+        $totalFees = $feeInvoices->sum('total_amount') + $feeInvoices->sum('fine') - $feeInvoices->sum('discount');
+        $paidFees = $feeInvoices->sum('paid_amount');
+        $dueFees = max(0, $totalFees - $paidFees);
+        
+        $totalAttendance = \App\Models\Attendance::where('student_id', $student->id)->count();
+        $presentAttendance = \App\Models\Attendance::where('student_id', $student->id)->where('status', 'Present')->count();
+        $attendancePercentage = $totalAttendance > 0 ? round(($presentAttendance / $totalAttendance) * 100) : 0;
+        
+        return view('students.show', compact('student', 'attendances', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees', 'attendancePercentage'));
+    }
+
     public function edit(Student $student)
     {
         return view('students.edit', [

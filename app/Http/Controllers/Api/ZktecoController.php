@@ -34,7 +34,7 @@ class ZktecoController extends Controller
         // Assuming it sends an array of attendance records or form fields:
         $biometric_id = $request->input('user_id') ?? $request->input('pin');
         $timestamp = $request->input('time') ?? $request->input('punch_time');
-        
+
         if (!$biometric_id || !$timestamp) {
             return response("OK");
         }
