@@ -664,6 +664,76 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Student Portal Cards Row -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <h4 class="fw-bold mb-0 text-dark-title"><i class="fas fa-user-graduate text-first me-2"></i>Student Portal</h4>
+                        <a href="{{ route('students.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Manage Students</a>
+                    </div>
+                    <div class="row g-3">
+                        @forelse($recentStudents as $student)
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <a href="{{ route('students.show', $student) }}" class="text-decoration-none">
+                                    <div class="card stat-card h-100 p-3 shortcut-btn" style="border-radius: 12px;">
+                                        <div class="d-flex align-items-center gap-3 w-100 mb-2">
+                                            <div class="flex-shrink-0" style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary-glow); color: var(--first-color); display: grid; place-items: center; font-weight: bold;">
+                                                {{ strtoupper(substr($student->first_name, 0, 1)) }}
+                                            </div>
+                                            <div class="text-start overflow-hidden">
+                                                <h6 class="mb-0 fw-bold text-dark-title text-truncate">{{ $student->first_name }} {{ $student->last_name }}</h6>
+                                                <small class="text-muted text-truncate d-block">{{ $student->admission_no }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between w-100 text-muted small mt-auto pt-2 border-top">
+                                            <span class="text-truncate" style="max-width: 65%;"><i class="fas fa-book me-1"></i>{{ $student->course?->name ?? 'N/A' }}</span>
+                                            <span class="badge bg-{{ $student->status ? 'success' : 'danger' }}">{{ $student->status ? 'Active' : 'Inactive' }}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        @empty
+                            <div class="col-12 text-center text-muted py-3">No students found.</div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Portal Cards Row -->
+            <div class="row mt-4 mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <h4 class="fw-bold mb-0 text-dark-title"><i class="fas fa-users-cog text-success me-2"></i>Staff Portal</h4>
+                        <a href="{{ route('employees.index') }}" class="btn btn-sm btn-outline-success rounded-pill px-3">Manage Staff</a>
+                    </div>
+                    <div class="row g-3">
+                        @forelse($recentStaff as $staff)
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <a href="{{ route('employees.show', $staff) }}" class="text-decoration-none">
+                                    <div class="card stat-card h-100 p-3 shortcut-btn" style="border-radius: 12px; border-color: rgba(16, 185, 129, 0.2);">
+                                        <div class="d-flex align-items-center gap-3 w-100 mb-2">
+                                            <div class="flex-shrink-0" style="width: 42px; height: 42px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); color: #10b981; display: grid; place-items: center; font-weight: bold;">
+                                                {{ strtoupper(substr($staff->user?->name ?? 'S', 0, 1)) }}
+                                            </div>
+                                            <div class="text-start overflow-hidden">
+                                                <h6 class="mb-0 fw-bold text-dark-title text-truncate">{{ $staff->user?->name ?? 'Unknown' }}</h6>
+                                                <small class="text-muted text-truncate d-block">{{ $staff->employee_code }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between w-100 text-muted small mt-auto pt-2 border-top">
+                                            <span class="text-truncate" style="max-width: 65%;"><i class="fas fa-briefcase me-1"></i>{{ $staff->designation ?? 'Staff' }}</span>
+                                            <span class="badge bg-{{ $staff->status ? 'success' : 'danger' }}">{{ $staff->status ? 'Active' : 'Inactive' }}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        @empty
+                            <div class="col-12 text-center text-muted py-3">No staff found.</div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
