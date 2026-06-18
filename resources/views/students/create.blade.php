@@ -59,7 +59,7 @@
                             <label for="admission_no" class="fw-semibold mb-2">
                                 <i class="fas fa-hashtag text-first me-2"></i>Admission Number
                             </label>
-                            <input type="text" id="admission_no" name="admission_no" value="{{ old('admission_no') }}" required placeholder="e.g. ADM-2026-001" class="form-input {{ $errors->has('admission_no') ? 'is-invalid' : '' }}" />
+                            <input type="text" id="admission_no" name="admission_no" value="{{ old('admission_no', $nextAdmissionNo) }}" required placeholder="e.g. NT-ENR-001" class="form-input {{ $errors->has('admission_no') ? 'is-invalid' : '' }}" />
                             @error('admission_no')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
@@ -69,7 +69,7 @@
                             <label for="roll_no" class="fw-semibold mb-2">
                                 <i class="fas fa-list-ol text-first me-2"></i>Roll Number
                             </label>
-                            <input type="text" id="roll_no" name="roll_no" value="{{ old('roll_no') }}" placeholder="e.g. 101" class="form-input {{ $errors->has('roll_no') ? 'is-invalid' : '' }}" />
+                            <input type="text" id="roll_no" name="roll_no" value="{{ old('roll_no', $nextRollNo) }}" placeholder="e.g. 101" class="form-input {{ $errors->has('roll_no') ? 'is-invalid' : '' }}" />
                             @error('roll_no')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror

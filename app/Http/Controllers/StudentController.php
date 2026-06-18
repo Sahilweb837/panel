@@ -58,17 +58,77 @@ class StudentController extends Controller
 
     public function create()
     {
+        $lastStudent = Student::orderBy('id', 'desc')->first();
+        $nextId = $lastStudent ? $lastStudent->id + 1 : 1;
+
+        $lastAdmissionStudent = Student::where('admission_no', 'like', 'NT-ENR-%')
+            ->orderByRaw('CAST(SUBSTRING(admission_no, 8) AS UNSIGNED) DESC')
+            ->first();
+
+        if ($lastAdmissionStudent) {
+            $lastNum = (int) str_replace('NT-ENR-', '', $lastAdmissionStudent->admission_no);
+            $nextAdmissionNo = 'NT-ENR-' . str_pad($lastNum + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $nextAdmissionNo = 'NT-ENR-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        }
+
+        $lastRollStudent = Student::whereRaw('roll_no REGEXP "^[0-9]+$"')
+            ->orderByRaw('CAST(roll_no AS UNSIGNED) DESC')
+            ->first();
+
+        if ($lastRollStudent) {
+            $nextRollNo = (int) $lastRollStudent->roll_no + 1;
+        } else {
+            $nextRollNo = $nextId;
+        }
+
         return view('students.create', [
             'courses' => Course::where('status', true)->orderBy('name')->get(),
             'durations' => $this->courseDurations(),
+            'nextAdmissionNo' => $nextAdmissionNo,
+            'nextRollNo' => $nextRollNo,
         ]);
     }
 
     public function store(Request $request)
     {
+        // Auto-generate if not provided in the request before validation
+        if (!$request->filled('admission_no')) {
+            $lastStudent = Student::orderBy('id', 'desc')->first();
+            $nextId = $lastStudent ? $lastStudent->id + 1 : 1;
+
+            $lastAdmissionStudent = Student::where('admission_no', 'like', 'NT-ENR-%')
+                ->orderByRaw('CAST(SUBSTRING(admission_no, 8) AS UNSIGNED) DESC')
+                ->first();
+
+            if ($lastAdmissionStudent) {
+                $lastNum = (int) str_replace('NT-ENR-', '', $lastAdmissionStudent->admission_no);
+                $nextAdmissionNo = 'NT-ENR-' . str_pad($lastNum + 1, 3, '0', STR_PAD_LEFT);
+            } else {
+                $nextAdmissionNo = 'NT-ENR-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+            }
+            $request->merge(['admission_no' => $nextAdmissionNo]);
+        }
+
+        if (!$request->filled('roll_no')) {
+            $lastStudent = Student::orderBy('id', 'desc')->first();
+            $nextId = $lastStudent ? $lastStudent->id + 1 : 1;
+
+            $lastRollStudent = Student::whereRaw('roll_no REGEXP "^[0-9]+$"')
+                ->orderByRaw('CAST(roll_no AS UNSIGNED) DESC')
+                ->first();
+
+            if ($lastRollStudent) {
+                $nextRollNo = (int) $lastRollStudent->roll_no + 1;
+            } else {
+                $nextRollNo = $nextId;
+            }
+            $request->merge(['roll_no' => $nextRollNo]);
+        }
+
         $data = $request->validate([
             'admission_no' => ['required', 'string', 'max:50', 'unique:students,admission_no'],
-            'roll_no' => ['nullable', 'string', 'max:50'],
+            'roll_no' => ['required', 'string', 'max:50'],
             'aadhar_number' => ['nullable', 'digits:12'],
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['nullable', 'string', 'max:100'],
