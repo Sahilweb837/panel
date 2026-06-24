@@ -191,7 +191,10 @@
         <div class="profile-card h-100 mb-0">
             <div class="card-header bg-transparent border-bottom p-4 d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar text-first me-2"></i>Fee Receipt History</h5>
-                <a href="{{ route('fee_invoices.create', ['student_id' => $student->id]) }}" class="btn btn-sm btn-outline-primary">Generate Receipt</a>
+                <div>
+                    <a href="{{ route('students.fee-report', $student->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-print me-1"></i>Print Report</a>
+                    <a href="{{ route('fee_invoices.create', ['student_id' => $student->id]) }}" class="btn btn-sm btn-outline-primary">Generate Receipt</a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

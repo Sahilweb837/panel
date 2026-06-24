@@ -91,6 +91,7 @@ Route::middleware(['auth.custom'])->group(function () {
     
     Route::resource('courses', CourseController::class)->except(['show']);
     Route::post('students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
+    Route::get('students/{student}/fee-report', [StudentController::class, 'feeReport'])->name('students.fee-report');
     Route::resource('students', StudentController::class);
     Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
     Route::resource('attendances', AttendanceController::class)->except(['show', 'edit', 'update']);

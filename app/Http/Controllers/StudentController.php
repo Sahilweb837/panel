@@ -297,6 +297,21 @@ class StudentController extends Controller
         return view('students.show', compact('student', 'attendances', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees', 'attendancePercentage'));
     }
 
+    public function feeReport(Student $student)
+    {
+        $student->load(['course']);
+        
+        $feeInvoices = \App\Models\FeeInvoice::where('student_id', $student->id)
+            ->oldest('created_at')
+            ->get();
+            
+        $totalFees = $feeInvoices->sum('total_amount') + $feeInvoices->sum('fine') - $feeInvoices->sum('discount');
+        $paidFees = $feeInvoices->sum('paid_amount');
+        $dueFees = max(0, $totalFees - $paidFees);
+        
+        return view('students.fee_report', compact('student', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees'));
+    }
+
     public function edit(Student $student)
     {
         return view('students.edit', [
