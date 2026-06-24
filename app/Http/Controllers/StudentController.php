@@ -285,16 +285,26 @@ class StudentController extends Controller
             ->latest('created_at')
             ->get();
             
-        // Analytics
-        $totalFees = $feeInvoices->sum('total_amount') + $feeInvoices->sum('fine') - $feeInvoices->sum('discount');
-        $paidFees = $feeInvoices->sum('paid_amount');
+        $courseInvoices = $feeInvoices->whereNotIn('fee_category', ['Seminar', 'Fine']);
+        $totalFees = $courseInvoices->sum('total_amount') - $courseInvoices->sum('discount');
+        $paidFees = $courseInvoices->sum('paid_amount');
         $dueFees = max(0, $totalFees - $paidFees);
+        
+        $seminarInvoices = $feeInvoices->where('fee_category', 'Seminar');
+        $totalSeminarFees = $seminarInvoices->sum('total_amount') - $seminarInvoices->sum('discount');
+        $paidSeminarFees = $seminarInvoices->sum('paid_amount');
+        $dueSeminarFees = max(0, $totalSeminarFees - $paidSeminarFees);
+        
+        $fineInvoices = $feeInvoices->where('fee_category', 'Fine');
+        $totalFines = $fineInvoices->sum('total_amount') + $feeInvoices->sum('fine') - $fineInvoices->sum('discount');
+        $paidFines = $fineInvoices->sum('paid_amount'); // Any fine invoice that is paid
+        $dueFines = max(0, $totalFines - $paidFines);
         
         $totalAttendance = \App\Models\Attendance::where('student_id', $student->id)->count();
         $presentAttendance = \App\Models\Attendance::where('student_id', $student->id)->where('status', 'Present')->count();
         $attendancePercentage = $totalAttendance > 0 ? round(($presentAttendance / $totalAttendance) * 100) : 0;
         
-        return view('students.show', compact('student', 'attendances', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees', 'attendancePercentage'));
+        return view('students.show', compact('student', 'attendances', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees', 'totalSeminarFees', 'paidSeminarFees', 'dueSeminarFees', 'totalFines', 'paidFines', 'dueFines', 'attendancePercentage'));
     }
 
     public function feeReport(Student $student)
@@ -305,11 +315,22 @@ class StudentController extends Controller
             ->oldest('created_at')
             ->get();
             
-        $totalFees = $feeInvoices->sum('total_amount') + $feeInvoices->sum('fine') - $feeInvoices->sum('discount');
-        $paidFees = $feeInvoices->sum('paid_amount');
+        $courseInvoices = $feeInvoices->whereNotIn('fee_category', ['Seminar', 'Fine']);
+        $totalFees = $courseInvoices->sum('total_amount') - $courseInvoices->sum('discount');
+        $paidFees = $courseInvoices->sum('paid_amount');
         $dueFees = max(0, $totalFees - $paidFees);
         
-        return view('students.fee_report', compact('student', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees'));
+        $seminarInvoices = $feeInvoices->where('fee_category', 'Seminar');
+        $totalSeminarFees = $seminarInvoices->sum('total_amount') - $seminarInvoices->sum('discount');
+        $paidSeminarFees = $seminarInvoices->sum('paid_amount');
+        $dueSeminarFees = max(0, $totalSeminarFees - $paidSeminarFees);
+        
+        $fineInvoices = $feeInvoices->where('fee_category', 'Fine');
+        $totalFines = $fineInvoices->sum('total_amount') + $feeInvoices->sum('fine') - $fineInvoices->sum('discount');
+        $paidFines = $fineInvoices->sum('paid_amount'); 
+        $dueFines = max(0, $totalFines - $paidFines);
+        
+        return view('students.fee_report', compact('student', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees', 'totalSeminarFees', 'paidSeminarFees', 'dueSeminarFees', 'totalFines', 'paidFines', 'dueFines'));
     }
 
     public function edit(Student $student)

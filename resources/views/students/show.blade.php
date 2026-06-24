@@ -111,13 +111,23 @@
                     <div class="col-6 col-md-3">
                         <div class="metric-card">
                             <div class="metric-value text-success">₹{{ number_format($paidFees, 0) }}</div>
-                            <div class="metric-label">Fees Paid</div>
+                            <div class="metric-label">Course Paid</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="metric-card">
                             <div class="metric-value {{ $dueFees > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($dueFees, 0) }}</div>
-                            <div class="metric-label">Outstanding Dues</div>
+                            <div class="metric-label">Course Due</div>
+                            @if($dueSeminarFees > 0 || $dueFines > 0)
+                                <div class="mt-2" style="font-size: 0.75rem;">
+                                    @if($dueSeminarFees > 0)
+                                        <span class="text-warning d-block"><i class="fas fa-exclamation-circle me-1"></i>Seminar Due: ₹{{ number_format($dueSeminarFees, 0) }}</span>
+                                    @endif
+                                    @if($dueFines > 0)
+                                        <span class="text-danger d-block"><i class="fas fa-circle-exclamation me-1"></i>Fines Due: ₹{{ number_format($dueFines, 0) }}</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="col-6 col-md-3">

@@ -361,12 +361,7 @@
                     if (!categoriesInOld.includes(feeLabel) && adjustedCourseFee > 0) {
                         tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, false));
                     }
-                    if (!categoriesInOld.includes('Registration Fee') && parseFloat(data.registration_fee) > 0) {
-                        tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, false));
-                    }
-                    if (!categoriesInOld.includes('Prospectus Fee') && parseFloat(data.prospectus_fee) > 0) {
-                        tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, false));
-                    }
+                    // Excluded Registration and Prospectus fees from auto-population per user request
                     if (!categoriesInOld.includes('Attendance Fine') && attendanceFine > 0) {
                         tbody.appendChild(createDefaultRow('Attendance Fine', attendanceFine, false));
                     }
@@ -377,12 +372,7 @@
                         tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, true));
                     }
                     
-                    if (parseFloat(data.registration_fee) > 0) {
-                        tbody.appendChild(createDefaultRow('Registration Fee', data.registration_fee, tenureMode !== 'Monthly'));
-                    }
-                    if (parseFloat(data.prospectus_fee) > 0) {
-                        tbody.appendChild(createDefaultRow('Prospectus Fee', data.prospectus_fee, tenureMode !== 'Monthly'));
-                    }
+                    // Removed automatic population of Registration and Prospectus fees here as well
                     
                     // Add automatic attendance fine
                     if (attendanceFine > 0) {

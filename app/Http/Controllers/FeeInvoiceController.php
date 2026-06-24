@@ -103,13 +103,22 @@ class FeeInvoiceController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Calculate overall totals for the student
+        // Calculate overall totals for the student separated by category
         $allInvoices = FeeInvoice::where('student_id', $feeInvoice->student_id)->get();
-        $overallTotal = $allInvoices->sum('total_amount') + $allInvoices->sum('fine') - $allInvoices->sum('discount');
-        $overallPaid = $allInvoices->sum('paid_amount');
+        
+        $courseInvoices = $allInvoices->whereNotIn('fee_category', ['Seminar', 'Fine']);
+        $overallTotal = $courseInvoices->sum('total_amount') - $courseInvoices->sum('discount');
+        $overallPaid = $courseInvoices->sum('paid_amount');
         $overallDue = max(0, $overallTotal - $overallPaid);
+        
+        $seminarInvoices = $allInvoices->where('fee_category', 'Seminar');
+        $seminarDue = max(0, $seminarInvoices->sum('total_amount') - $seminarInvoices->sum('discount') - $seminarInvoices->sum('paid_amount'));
+        
+        $fineInvoices = $allInvoices->where('fee_category', 'Fine');
+        // Include fines added to regular invoices as well
+        $totalFinesDue = max(0, ($fineInvoices->sum('total_amount') - $fineInvoices->sum('discount') - $fineInvoices->sum('paid_amount')) + $allInvoices->sum('fine'));
 
-        return view('fee_invoices.show', compact('feeInvoice', 'studentHistory', 'overallTotal', 'overallPaid', 'overallDue'));
+        return view('fee_invoices.show', compact('feeInvoice', 'studentHistory', 'overallTotal', 'overallPaid', 'overallDue', 'seminarDue', 'totalFinesDue'));
     }
 
     public function restore($id)

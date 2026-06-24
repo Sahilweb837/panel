@@ -385,12 +385,14 @@
                 <div class="info-card">
                     <div class="info-card-title"><i class="fas fa-chart-pie"></i> Account Summary</div>
                     <div class="info-details">
-                        <span class="info-label">Total Fees:</span>
-                        <span class="info-value">₹{{ number_format($totalFees, 2) }}</span>
-                        <span class="info-label">Total Paid:</span>
-                        <span class="info-value text-success">₹{{ number_format($paidFees, 2) }}</span>
-                        <span class="info-label">Total Pending:</span>
+                        <span class="info-label">Course Fees Due:</span>
                         <span class="info-value {{ $dueFees > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($dueFees, 2) }}</span>
+                        
+                        <span class="info-label">Seminar Dues:</span>
+                        <span class="info-value {{ $dueSeminarFees > 0 ? 'text-warning' : 'text-success' }}">₹{{ number_format($dueSeminarFees, 2) }}</span>
+                        
+                        <span class="info-label">Fines Due:</span>
+                        <span class="info-value {{ $dueFines > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($dueFines, 2) }}</span>
                     </div>
                 </div>
             </section>
@@ -433,18 +435,47 @@
             </div>
 
             <div class="summary-block">
-                <div class="summary-card">
+                <div class="summary-card" style="max-width: 380px;">
+                    <!-- Course Fees -->
                     <div class="summary-row">
-                        <span>Total Fees:</span>
+                        <span>Course Fees:</span>
                         <strong>{{ number_format($totalFees, 2) }}</strong>
                     </div>
                     <div class="summary-row">
-                        <span>Total Paid (-):</span>
+                        <span>Course Paid (-):</span>
                         <strong style="color: var(--success);">{{ number_format($paidFees, 2) }}</strong>
                     </div>
-                    <div class="summary-row total-row">
-                        <span class="{{ $dueFees > 0 ? 'due-warning' : '' }}">Balance Due:</span>
+                    <div class="summary-row total-row mb-3 pb-3 border-bottom">
+                        <span class="{{ $dueFees > 0 ? 'due-warning' : '' }}">Course Balance:</span>
                         <span class="{{ $dueFees > 0 ? 'due-warning' : '' }}">₹{{ number_format($dueFees, 2) }}</span>
+                    </div>
+
+                    <!-- Seminar Fees -->
+                    <div class="summary-row">
+                        <span>Seminar Fees:</span>
+                        <strong>{{ number_format($totalSeminarFees, 2) }}</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Seminar Paid (-):</span>
+                        <strong style="color: var(--success);">{{ number_format($paidSeminarFees, 2) }}</strong>
+                    </div>
+                    <div class="summary-row total-row mb-3 pb-3 border-bottom">
+                        <span class="{{ $dueSeminarFees > 0 ? 'text-warning' : '' }}">Seminar Balance:</span>
+                        <span class="{{ $dueSeminarFees > 0 ? 'text-warning' : '' }}">₹{{ number_format($dueSeminarFees, 2) }}</span>
+                    </div>
+
+                    <!-- Fines -->
+                    <div class="summary-row">
+                        <span>Fines & Penalties:</span>
+                        <strong>{{ number_format($totalFines, 2) }}</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Fines Paid (-):</span>
+                        <strong style="color: var(--success);">{{ number_format($paidFines, 2) }}</strong>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span class="{{ $dueFines > 0 ? 'due-warning' : '' }}">Fines Balance:</span>
+                        <span class="{{ $dueFines > 0 ? 'due-warning' : '' }}">₹{{ number_format($dueFines, 2) }}</span>
                     </div>
                 </div>
             </div>
