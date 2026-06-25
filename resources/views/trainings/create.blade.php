@@ -102,6 +102,49 @@
 
                     <!-- Section 2: Training Details -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Training Details</h5>
+<!-- Section 2: Training Details -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Training Details</h5>
+                    
+                    <div class="form-group mb-3">
+                        <label class="fw-semibold mb-2">Course Selection</label>
+                        <div class="d-flex gap-3 mb-2">
+                            <label class="d-flex align-items-center gap-1" style="cursor: pointer;">
+                                <input type="radio" name="course_type" value="existing" {{ old('course_type', 'existing') === 'existing' ? 'checked' : '' }} onclick="toggleCourseType()" />
+                                <span>Select Existing</span>
+                            </label>
+                            <label class="d-flex align-items-center gap-1" style="cursor: pointer;">
+                                <input type="radio" name="course_type" value="manual" {{ old('course_type') === 'manual' ? 'checked' : '' }} onclick="toggleCourseType()" />
+                                <span>Enter Manually</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="existing-course-wrapper" class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="course_id" class="fw-semibold mb-2">
+                                <i class="fas fa-book text-first me-2"></i>Course
+                            </label>
+                            <select id="course_id" name="course_id" class="form-input {{ $errors->has('course_id') ? 'is-invalid' : '' }}">
+                                <option value="">-- Select Course --</option>
+                                @foreach($courses as $course)
+                                    <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>{{ $course->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('course_id')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div id="manual-course-wrapper" class="form-group-grid mb-4" style="display: none;">
+                        <div class="form-group">
+                            <label for="course_name" class="fw-semibold mb-2">
+                                <i class="fas fa-book text-first me-2"></i>Course Name
+                            </label>
+                            <input type="text" id="course_name" name="course_name" value="{{ old('course_name') }}" placeholder="Enter course name" class="form-input" />
+                        </div>
+                    </div>
+
                     <div class="form-group-grid mb-4">
                         <div class="form-group">
                             <label for="duration" class="fw-semibold mb-2">
@@ -117,6 +160,16 @@
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
                         </div>
+                        <div class="form-group">
+                            <label for="fees" class="fw-semibold mb-2">
+                                <i class="fas fa-coins text-first me-2"></i>Fees (INR)
+                            </label>
+                            <input type="number" id="fees" name="fees" step="0.01" value="{{ old('fees', 0) }}" required placeholder="0.00" class="form-input {{ $errors->has('fees') ? 'is-invalid' : '' }}" />
+                            @error('fees')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
                         <div class="form-group">
                             <label for="fees" class="fw-semibold mb-2">
                                 <i class="fas fa-coins text-first me-2"></i>Fees (INR)
@@ -193,6 +246,22 @@
     </div>
 
     <script>
+        function toggleCourseType() {
+            const existingWrapper = document.getElementById('existing-course-wrapper');
+            const manualWrapper = document.getElementById('manual-course-wrapper');
+            const courseType = document.querySelector('input[name="course_type"]:checked')?.value;
+
+            if (courseType === 'manual') {
+                existingWrapper.style.display = 'none';
+                manualWrapper.style.display = 'grid';
+                document.getElementById('course_id').value = '';
+            } else {
+                existingWrapper.style.display = 'grid';
+                manualWrapper.style.display = 'none';
+                document.getElementById('course_name').value = '';
+            }
+        }
+
         function toggleUpiFields() {
             const method = document.getElementById('payment_method').value;
             const upiGrid = document.getElementById('upi-details-grid');
@@ -208,6 +277,7 @@
             const skeleton = document.getElementById('page-skeleton');
             const content = document.getElementById('page-content');
 
+            toggleCourseType();
             toggleUpiFields();
             document.getElementById('payment_method').addEventListener('change', toggleUpiFields);
 

@@ -18,6 +18,7 @@ class Training extends Model
         'college',
         'mobile',
         'course_id',
+        'course_name',
         'duration',
         'fees',
         'payment_method',

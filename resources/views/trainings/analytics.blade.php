@@ -131,7 +131,7 @@
                                 <tbody>
                                     @forelse($courseStats as $stat)
                                         <tr>
-                                            <td>{{ $stat->course->name ?? 'N/A' }}</td>
+                                            <td>{{ $stat->course->name ?? $stat->course_name ?? 'N/A' }}</td>
                                             <td class="text-center fw-bold">{{ $stat->count }}</td>
                                             <td class="text-end fw-bold text-success">{{ number_format($stat->revenue, 2) }}</td>
                                         </tr>
@@ -211,7 +211,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-muted">{{ $training->course->name ?? 'N/A' }}</td>
+                                    <td class="text-muted">{{ $training->course->name ?? $training->course_name ?? 'N/A' }}</td>
                                     <td class="text-end fw-bold">{{ number_format($training->fees, 2) }}</td>
                                     <td class="text-end pe-4 text-muted">{{ $training->payment_date ? \Carbon\Carbon::parse($training->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                 </tr>

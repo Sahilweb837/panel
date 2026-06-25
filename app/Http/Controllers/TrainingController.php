@@ -54,7 +54,8 @@ class TrainingController extends Controller
             'email' => ['required', 'email', 'max:100'],
             'college' => ['nullable', 'string', 'max:150'],
             'mobile' => ['required', 'string', 'max:20'],
-            'course_id' => ['required', 'exists:courses,id'],
+            'course_id' => ['nullable', 'exists:courses,id'],
+            'course_name' => ['nullable', 'string', 'max:150'],
             'duration' => ['required', 'string', 'max:50'],
             'fees' => ['required', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,Online,Cheque,UPI'],
@@ -67,6 +68,12 @@ class TrainingController extends Controller
 
         $data['slip_no'] = $slipNo;
         $data['created_by'] = session('user_id');
+
+        if ($data['course_id']) {
+            $data['course_name'] = null;
+        } elseif (!$data['course_name']) {
+            $data['course_name'] = null;
+        }
 
         Training::create($data);
 
@@ -126,7 +133,7 @@ class TrainingController extends Controller
                     $training->email,
                     $training->college,
                     $training->mobile,
-                    $training->course->name ?? 'N/A',
+                    $training->course->name ?? $training->course_name ?? 'N/A',
                     $training->duration,
                     $training->fees,
                     $training->payment_method,
@@ -149,9 +156,14 @@ class TrainingController extends Controller
         $totalRegistrations = Training::count();
         $totalRevenue = Training::sum('fees');
 
-        $courseStats = Training::selectRaw('course_id, COUNT(*) as count, SUM(fees) as revenue')
+        $courseStats = Training::selectRaw('
+                COALESCE(course_id, 0) as course_id,
+                course_name,
+                COUNT(*) as count,
+                SUM(fees) as revenue
+            ')
             ->with('course')
-            ->groupBy('course_id')
+            ->groupBy('course_id', 'course_name')
             ->get();
 
         $durationStats = Training::selectRaw('duration, COUNT(*) as count')

@@ -11,13 +11,16 @@ return new class extends Migration
         Schema::table('trainings', function (Blueprint $table) {
             $table->string('status', 20)->default('Unpaid')->after('payment_date');
             $table->string('upi_transaction_id', 100)->nullable()->after('status');
+            $table->string('course_name', 150)->nullable()->after('course_id');
+            $table->unsignedBigInteger('course_id')->nullable()->change();
         });
     }
 
     public function down(): void
     {
         Schema::table('trainings', function (Blueprint $table) {
-            $table->dropColumn(['status', 'upi_transaction_id']);
+            $table->dropColumn(['status', 'upi_transaction_id', 'course_name']);
+            $table->unsignedBigInteger('course_id')->nullable(false)->change();
         });
     }
 };

@@ -116,7 +116,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-muted">{{ $training->course->name ?? 'N/A' }}</td>
+                                    <td class="text-muted">{{ $training->course->name ?? $training->course_name ?? 'N/A' }}</td>
                                     <td class="text-muted">{{ $training->duration }}</td>
                                     <td class="text-muted fw-bold">{{ number_format($training->fees, 2) }}</td>
                                     <td class="text-muted">{{ $training->payment_date ? \Carbon\Carbon::parse($training->payment_date)->format('M d, Y') : 'N/A' }}</td>
