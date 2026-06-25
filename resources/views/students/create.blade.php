@@ -246,12 +246,32 @@
                                 <input type="hidden" name="registration_fee" value="0">
                                 <input type="checkbox" id="registration_fee" name="registration_fee" value="5000" {{ old('registration_fee', '5000') > 0 ? 'checked' : '' }} class="checkbox-input" />
                                 <span class="fw-semibold">
-                                    <i class="fas fa-user-plus text-first me-1"></i>Apply Registration Fee (₹5000)
+                                    <i class="fas fa-user-plus text-first me-1"></i>Apply Registration Fee (₹5,000)
                                 </span>
                             </label>
                             @error('registration_fee')
                                 <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
                             @enderror
+                        </div>
+
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="apply_seminar_fee" value="0">
+                                <input type="checkbox" id="apply_seminar_fee" name="apply_seminar_fee" value="1" {{ old('apply_seminar_fee') ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-microphone text-first me-1"></i>Apply Seminar Fee
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
+                            <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="apply_fine" value="0">
+                                <input type="checkbox" id="apply_fine" name="apply_fine" value="1" {{ old('apply_fine') ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-gavel text-first me-1"></i>Apply Fine / Penalty
+                                </span>
+                            </label>
                         </div>
 
                         <div class="form-group">
