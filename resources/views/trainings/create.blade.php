@@ -139,6 +139,7 @@
                                 <option value="Cash" {{ old('payment_method', 'Cash') === 'Cash' ? 'selected' : '' }}>Cash</option>
                                 <option value="Online" {{ old('payment_method') === 'Online' ? 'selected' : '' }}>Online</option>
                                 <option value="Cheque" {{ old('payment_method') === 'Cheque' ? 'selected' : '' }}>Cheque</option>
+                                <option value="UPI" {{ old('payment_method') === 'UPI' ? 'selected' : '' }}>UPI</option>
                             </select>
                             @error('payment_method')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
@@ -152,6 +153,15 @@
                             @error('payment_date')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group-grid mb-4" id="upi-details-grid" style="display: none;">
+                        <div class="form-group">
+                            <label for="upi_transaction_id" class="fw-semibold mb-2">
+                                <i class="fas fa-mobile-screen text-first me-2"></i>UPI Transaction ID
+                            </label>
+                            <input type="text" id="upi_transaction_id" name="upi_transaction_id" value="{{ old('upi_transaction_id') }}" placeholder="Enter UPI transaction ID" class="form-input" />
                         </div>
                     </div>
 
@@ -169,9 +179,23 @@
     </div>
 
     <script>
+        function toggleUpiFields() {
+            const method = document.getElementById('payment_method').value;
+            const upiGrid = document.getElementById('upi-details-grid');
+            if (upiGrid) {
+                upiGrid.style.display = method === 'UPI' ? 'grid' : 'none';
+                if (method !== 'UPI') {
+                    document.getElementById('upi_transaction_id').value = '';
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('page-skeleton');
             const content = document.getElementById('page-content');
+
+            toggleUpiFields();
+            document.getElementById('payment_method').addEventListener('change', toggleUpiFields);
 
             setTimeout(() => {
                 if (skeleton) skeleton.classList.add('fade-out');

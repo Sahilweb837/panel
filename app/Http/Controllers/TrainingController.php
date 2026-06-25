@@ -57,7 +57,7 @@ class TrainingController extends Controller
             'course_id' => ['required', 'exists:courses,id'],
             'duration' => ['required', 'string', 'max:50'],
             'fees' => ['required', 'numeric', 'min:0'],
-            'payment_method' => ['required', 'string', 'in:Cash,Online,Cheque'],
+            'payment_method' => ['required', 'string', 'in:Cash,Online,Cheque,UPI'],
             'payment_date' => ['required', 'date'],
         ]);
 
