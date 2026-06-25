@@ -256,6 +256,59 @@
 
                         <div class="form-group checkbox-group" style="display: flex; align-items: center;">
                             <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="prospectus_fee" value="0">
+                                <input type="checkbox" id="prospectus_fee" name="prospectus_fee" value="500" {{ old('prospectus_fee', '500') > 0 ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-file-alt text-first me-1"></i>Apply Prospectus Fee (₹500)
+                                </span>
+                            </label>
+                            @error('prospectus_fee')
+                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="discount" class="fw-semibold mb-2">
+                                <i class="fas fa-tags text-first me-2"></i>Course Fee Discount
+                            </label>
+                            <input type="number" step="0.01" id="discount" name="discount" value="{{ old('discount', '0') }}" placeholder="e.g. 1000" class="form-input {{ $errors->has('discount') ? 'is-invalid' : '' }}" />
+                            @error('discount')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fee_tenure" class="fw-semibold mb-2">
+                                <i class="fas fa-calendar-alt text-first me-2"></i>Payment Tenure (EMI)
+                            </label>
+                            <select id="fee_tenure" name="fee_tenure" class="form-input">
+                                <option value="">Full Course Fee (No EMI)</option>
+                                <option value="1 Month" {{ old('fee_tenure') === '1 Month' ? 'selected' : '' }}>1 Month (Monthly)</option>
+                                <option value="3 Months" {{ old('fee_tenure') === '3 Months' ? 'selected' : '' }}>3 Months (Quarterly)</option>
+                                <option value="6 Months" {{ old('fee_tenure') === '6 Months' ? 'selected' : '' }}>6 Months (Half-Yearly)</option>
+                                <option value="1 Year" {{ old('fee_tenure') === '1 Year' ? 'selected' : '' }}>1 Year (Yearly)</option>
+                            </select>
+                            <small class="text-muted d-block mt-1">Splits the course fee across the selected tenure. First invoice shows the installment amount.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group-grid mb-4" style="grid-template-columns: 1fr;">
+                        <div class="form-group p-4 bg-light rounded border d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-1 fw-bold text-dark-title"><i class="fas fa-calculator text-first me-2"></i>Invoice Estimates</h6>
+                                <p class="mb-0 text-muted small">First Invoice Preview</p>
+                            </div>
+                            <div class="text-end" style="min-width: 300px;">
+                                <h4 class="mb-2 fw-bold text-first" id="total_amount_display">₹0.00</h4>
+                                <div class="text-muted text-end" id="course_fee_display" style="font-size: 0.85rem;">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
+                            <label class="checkbox-label" style="cursor: pointer;">
                                 <input type="hidden" name="apply_seminar_fee" value="0">
                                 <input type="checkbox" id="apply_seminar_fee" name="apply_seminar_fee" value="1" {{ old('apply_seminar_fee') ? 'checked' : '' }} class="checkbox-input" />
                                 <span class="fw-semibold">
@@ -481,26 +534,11 @@
             const courseSelect = document.getElementById('course_id');
             const regFeeInput = document.getElementById('registration_fee');
             const prosFeeInput = document.getElementById('prospectus_fee');
-            const seminarCheck = document.getElementById('apply_seminar_fee');
-            const seminarAmountInput = document.getElementById('seminar_fee_amount');
-            const fineCheck = document.getElementById('apply_fine');
-            const fineAmountInput = document.getElementById('fine_amount');
             const discountInput = document.getElementById('discount');
             const tenureSelect = document.getElementById('fee_tenure');
             const durationSelect = document.getElementById('course_duration');
             const totalDisplay = document.getElementById('total_amount_display');
             const courseFeeDisplay = document.getElementById('course_fee_display');
-
-            const toggleSeminarAmount = () => {
-                document.getElementById('seminar_fee_amount_wrapper').style.display = seminarCheck.checked ? 'block' : 'none';
-                if (!seminarCheck.checked) seminarAmountInput.value = '0';
-                calculateFees();
-            };
-            const toggleFineAmount = () => {
-                document.getElementById('fine_amount_wrapper').style.display = fineCheck.checked ? 'block' : 'none';
-                if (!fineCheck.checked) fineAmountInput.value = '0';
-                calculateFees();
-            };
 
             const calculateFees = () => {
                 const selectedOption = courseSelect.options[courseSelect.selectedIndex];
@@ -514,8 +552,6 @@
 
                 const regFee = includeReg ? baseRegFee : 0;
                 const prosFee = includePros ? baseProsFee : 0;
-                const seminarFee = seminarCheck.checked ? (parseFloat(seminarAmountInput.value) || 0) : 0;
-                const fineAmt = fineCheck.checked ? (parseFloat(fineAmountInput.value) || 0) : 0;
                 const discount = parseFloat(discountInput.value) || 0;
 
                 const tenure = tenureSelect ? tenureSelect.value : '';
@@ -536,26 +572,26 @@
 
                 const installmentCourseFee = (courseFee / divisor).toFixed(2);
                 const installmentDiscount = (discount / divisor).toFixed(2);
-                const netCourseFee = Math.max(0, installmentCourseFee - installmentDiscount);
+                const netCourseFee = Math.max(0, parseFloat(installmentCourseFee) - parseFloat(installmentDiscount));
 
-                const admissionTotal = (regFee + prosFee + seminarFee + fineAmt).toFixed(2);
+                const admissionTotal = (regFee + prosFee).toFixed(2);
+
+                const tenureNote = divisor > 1
+                    ? `<br><small class="text-muted">(₹${installmentCourseFee} fee ÷ ${divisor} - ₹${installmentDiscount} discount) = ₹${netCourseFee.toFixed(2)}/installment</small>`
+                    : `<br><small class="text-muted">(Full course fee${discount > 0 ? ' - ₹' + installmentDiscount + ' discount' : ''})</small>`;
 
                 courseFeeDisplay.innerHTML = `
-                    <div class="mb-1"><strong>Course Installment:</strong> ₹${netCourseFee.toFixed(2)} <br><small class="text-muted">(₹${installmentCourseFee} fee ÷ ${divisor} - ₹${installmentDiscount} discount)</small></div>
-                    <div><strong>Admission Fees:</strong> ₹${admissionTotal} <br><small class="text-muted">(Registration + Prospectus${seminarFee > 0 ? ' + Seminar' : ''}${fineAmt > 0 ? ' + Fine' : ''})</small></div>
+                    <div class="mb-1"><strong>Course Fee:</strong> ₹${netCourseFee.toFixed(2)}${tenureNote}</div>
+                    <div><strong>Admission Fees:</strong> ₹${admissionTotal} <br><small class="text-muted">(Registration + Prospectus)</small></div>
                 `;
 
-                const combinedTotal = (parseFloat(netCourseFee) + parseFloat(admissionTotal)).toFixed(2);
+                const combinedTotal = (netCourseFee + parseFloat(admissionTotal)).toFixed(2);
                 totalDisplay.innerText = `Total Today: ₹${combinedTotal}`;
             };
 
             courseSelect.addEventListener('change', calculateFees);
             regFeeInput.addEventListener('change', calculateFees);
             prosFeeInput.addEventListener('change', calculateFees);
-            seminarCheck.addEventListener('change', toggleSeminarAmount);
-            seminarAmountInput.addEventListener('input', calculateFees);
-            fineCheck.addEventListener('change', toggleFineAmount);
-            fineAmountInput.addEventListener('input', calculateFees);
             discountInput.addEventListener('input', calculateFees);
             if(tenureSelect) tenureSelect.addEventListener('change', calculateFees);
             if(durationSelect) durationSelect.addEventListener('change', calculateFees);
