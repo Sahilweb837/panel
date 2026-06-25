@@ -291,6 +291,9 @@
                 const pastPayments = json.past_payments || [];
                 const attendanceFine = parseFloat(json.attendance_fine) || 0;
                 const fineDetails = json.fine_details || '';
+                const oneTimePaid = json.one_time_paid || {};
+                const regAlreadyPaid = !!oneTimePaid.registration;
+                const prosAlreadyPaid = !!oneTimePaid.prospectus;
 
                 // Render Payment History
                 if (historyContainer) {
@@ -345,7 +348,6 @@
                 }
                 
                 if (oldFeeItems && oldFeeItems.length > 0) {
-                    // Populate from old input
                     oldFeeItems.forEach((item, index) => {
                         const isDefault = ['Course Fee', 'Registration Fee', 'Prospectus Fee', 'Monthly Course Fee', 'Attendance Fine'].includes(item.category);
                         if (isDefault) {
@@ -353,6 +355,37 @@
                         } else {
                             tbody.appendChild(createCustomRow(item.category, item.amount, true));
                         }
+                    });
+                    const categoriesInOld = oldFeeItems.map(item => item.category);
+                    const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
+                    if (!categoriesInOld.includes(feeLabel) && adjustedCourseFee > 0) {
+                        tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, false));
+                    }
+                } else {
+                    if (adjustedCourseFee > 0) {
+                        const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
+                        tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, true));
+                    }
+                    
+                    if (!regAlreadyPaid && parseFloat(data.registration_fee) > 0) {
+                        tbody.appendChild(createDefaultRow('Registration Fee', parseFloat(data.registration_fee), true));
+                    }
+                    if (!prosAlreadyPaid && parseFloat(data.prospectus_fee) > 0) {
+                        tbody.appendChild(createDefaultRow('Prospectus Fee', parseFloat(data.prospectus_fee), true));
+                    }
+                    
+                    if (attendanceFine > 0) {
+                        tbody.appendChild(createDefaultRow('Attendance Fine', attendanceFine, true));
+                        const remarksInput = document.getElementById('remarks');
+                        if (remarksInput && !remarksInput.value) {
+                            remarksInput.value = `Auto-calculated attendance fine: ${fineDetails}`;
+                        }
+                    }
+                    
+                    if (parseFloat(data.discount) > 0) {
+                        document.getElementById('discount').value = parseFloat(data.discount).toFixed(2);
+                    }
+                }
                     });
                     
                     // Render other default fees as unchecked if they were not in old input
