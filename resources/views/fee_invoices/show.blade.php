@@ -303,33 +303,32 @@
                 @endif
 
                 @if($regular->count() > 0)
-                    <tr class="section-header"><td colspan="2">Course Fee</td></tr>
+                    <tr class="section-header"><td colspan="2">Course Fee (EMI / Installment)</td></tr>
                     @foreach($regular as $item)
+                        @php
+                            $cat = $item['category'] ?? '';
+                            $itemAmt = $item['amount'] ?? 0;
+                            $baseFee = $feeInvoice->student?->course?->fee ?? 0;
+                            $monthlyEquiv = '';
+                            if (preg_match('/\((.+?)\)/', $cat, $m)) {
+                                $tenure = $m[1];
+                                $mCount = match($tenure) { '1 Month' => 1, '3 Months' => 3, '6 Months' => 6, '1 Year' => 12, default => 1 };
+                                $monthlyEquiv = $baseFee / max(1, $mCount);
+                            }
+                        @endphp
                         <tr>
-                            <td>{{ $item['category'] }}</td>
-                            <td>₹{{ number_format($item['amount'] ?? 0, 2) }}</td>
+                            <td>
+                                <strong>{{ $cat }}</strong>
+                                @if($monthlyEquiv)
+                                    <br><small style="color:#666;">
+                                        ₹{{ number_format($monthlyEquiv, 2) }}/month × {{ preg_match('/\((.+?)\)/', $cat, $m2) ? $m2[1] : '' }}
+                                        <br>Total Course Fee: ₹{{ number_format($baseFee, 2) }}
+                                    </small>
+                                @endif
+                            </td>
+                            <td>₹{{ number_format($itemAmt, 2) }}</td>
                         </tr>
                     @endforeach
-                    @php
-                        $tenureRaw = $regular->first()['category'] ?? '';
-                        preg_match('/\((.+?)\)/', $tenureRaw, $tenureMatch);
-                        $tenureExtracted = $tenureMatch[1] ?? null;
-                        $firstCourseAmt = $regular->first()['amount'] ?? 0;
-                        $baseCourseFee = $feeInvoice->student?->course?->fee ?? 0;
-                        if ($tenureExtracted && $baseCourseFee > 0) {
-                            $divisorMap = ['1 Month' => 12, '3 Months' => 4, '6 Months' => 2, '1 Year' => 1];
-                            $div = $divisorMap[$tenureExtracted] ?? 1;
-                            if ($tenureExtracted === '1 Year') $div = 1;
-                            $monthlyEquiv = $baseCourseFee / max(1, match($tenureExtracted) { '1 Month' => 1, '3 Months' => 3, '6 Months' => 6, '1 Year' => 12, default => 1 });
-                        }
-                    @endphp
-                    @if($tenureExtracted && $baseCourseFee > 0)
-                        <tr class="tenure-row">
-                            <td colspan="2">
-                                Equivalent: ₹{{ number_format($monthlyEquiv ?? 0, 2) }}/month over {{ $tenureExtracted === '1 Month' ? '1 month' : ($tenureExtracted === '3 Months' ? '3 months' : ($tenureExtracted === '6 Months' ? '6 months' : '12 months')) }} (Total: ₹{{ number_format($baseCourseFee, 2) }})
-                            </td>
-                        </tr>
-                    @endif
                 @elseif($oneTime->count() === 0)
                     <tr>
                         <td><strong>{{ $feeInvoice->fee_category ?? 'Course Fee' }}</strong></td>

@@ -254,19 +254,6 @@
                             @enderror
                         </div>
 
-                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
-                            <label class="checkbox-label" style="cursor: pointer;">
-                                <input type="hidden" name="prospectus_fee" value="0">
-                                <input type="checkbox" id="prospectus_fee" name="prospectus_fee" value="500" {{ old('prospectus_fee', '500') > 0 ? 'checked' : '' }} class="checkbox-input" />
-                                <span class="fw-semibold">
-                                    <i class="fas fa-file-alt text-first me-1"></i>Apply Prospectus Fee (₹500)
-                                </span>
-                            </label>
-                            @error('prospectus_fee')
-                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
-                            @enderror
-                        </div>
-
                         <div class="form-group">
                             <label for="discount" class="fw-semibold mb-2">
                                 <i class="fas fa-tags text-first me-2"></i>Course Fee Discount
@@ -297,88 +284,6 @@
                             <div>
                                 <h6 class="mb-1 fw-bold text-dark-title"><i class="fas fa-calculator text-first me-2"></i>Invoice Estimates</h6>
                                 <p class="mb-0 text-muted small">First Invoice Preview</p>
-                            </div>
-                            <div class="text-end" style="min-width: 300px;">
-                                <h4 class="mb-2 fw-bold text-first" id="total_amount_display">₹0.00</h4>
-                                <div class="text-muted text-end" id="course_fee_display" style="font-size: 0.85rem;">
-                                    <!-- Populated by JS -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
-                            <label class="checkbox-label" style="cursor: pointer;">
-                                <input type="hidden" name="apply_seminar_fee" value="0">
-                                <input type="checkbox" id="apply_seminar_fee" name="apply_seminar_fee" value="1" {{ old('apply_seminar_fee') ? 'checked' : '' }} class="checkbox-input" />
-                                <span class="fw-semibold">
-                                    <i class="fas fa-microphone text-first me-1"></i>Apply Seminar Fee
-                                </span>
-                            </label>
-                        </div>
-
-                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
-                            <label class="checkbox-label" style="cursor: pointer;">
-                                <input type="hidden" name="apply_seminar_fee" value="0">
-                                <input type="checkbox" id="apply_seminar_fee" name="apply_seminar_fee" value="1" {{ old('apply_seminar_fee') ? 'checked' : '' }} class="checkbox-input" />
-                                <span class="fw-semibold">
-                                    <i class="fas fa-microphone text-first me-1"></i>Apply Seminar Fee
-                                </span>
-                            </label>
-                        </div>
-                        <div class="form-group" id="seminar_fee_amount_wrapper" style="display: {{ old('apply_seminar_fee') ? 'block' : 'none' }};">
-                            <label for="seminar_fee_amount" class="fw-semibold mb-2">
-                                <i class="fas fa-rupee-sign text-first me-2"></i>Seminar Fee Amount (INR)
-                            </label>
-                            <input type="number" step="0.01" id="seminar_fee_amount" name="seminar_fee_amount" value="{{ old('seminar_fee_amount', '0') }}" placeholder="0.00" class="form-input" />
-                        </div>
-
-                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
-                            <label class="checkbox-label" style="cursor: pointer;">
-                                <input type="hidden" name="apply_fine" value="0">
-                                <input type="checkbox" id="apply_fine" name="apply_fine" value="1" {{ old('apply_fine') ? 'checked' : '' }} class="checkbox-input" />
-                                <span class="fw-semibold">
-                                    <i class="fas fa-gavel text-first me-1"></i>Apply Fine / Penalty
-                                </span>
-                            </label>
-                        </div>
-                        <div class="form-group" id="fine_amount_wrapper" style="display: {{ old('apply_fine') ? 'block' : 'none' }};">
-                            <label for="fine_amount" class="fw-semibold mb-2">
-                                <i class="fas fa-rupee-sign text-first me-2"></i>Fine Amount (INR)
-                            </label>
-                            <input type="number" step="0.01" id="fine_amount" name="fine_amount" value="{{ old('fine_amount', '0') }}" placeholder="0.00" class="form-input" />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="discount" class="fw-semibold mb-2">
-                                <i class="fas fa-tags text-first me-2"></i>Course Fee Discount
-                            </label>
-                            <input type="number" step="0.01" id="discount" name="discount" value="{{ old('discount', '0') }}" placeholder="e.g. 1000" class="form-input {{ $errors->has('discount') ? 'is-invalid' : '' }}" />
-                            @error('discount')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fee_tenure" class="fw-semibold mb-2">
-                                <i class="fas fa-calendar-alt text-first me-2"></i>Payment Tenure
-                            </label>
-                            <select id="fee_tenure" name="fee_tenure" class="form-input">
-                                <option value="">Full Course Fee</option>
-                                <option value="1 Month" {{ old('fee_tenure') === '1 Month' ? 'selected' : '' }}>1 Month (Monthly)</option>
-                                <option value="3 Months" {{ old('fee_tenure') === '3 Months' ? 'selected' : '' }}>3 Months (Quarterly)</option>
-                                <option value="6 Months" {{ old('fee_tenure') === '6 Months' ? 'selected' : '' }}>6 Months (Half Yearly)</option>
-                                <option value="1 Year" {{ old('fee_tenure') === '1 Year' ? 'selected' : '' }}>1 Year (Yearly)</option>
-                            </select>
-                            <small class="text-muted d-block mt-1">If selected, the Course Fee on the first invoice will be split as a partial installment.</small>
-                        </div>
-                    </div>
-
-                    <div class="form-group-grid mb-4" style="grid-template-columns: 1fr;">
-                        <div class="form-group p-4 bg-light rounded border d-flex align-items-center justify-content-between">
-                            <div>
-                                <h6 class="mb-1 fw-bold text-dark-title"><i class="fas fa-calculator text-first me-2"></i>Invoice Estimates</h6>
-                                <p class="mb-0 text-muted small">Generated Invoices Preview</p>
                             </div>
                             <div class="text-end" style="min-width: 300px;">
                                 <h4 class="mb-2 fw-bold text-first" id="total_amount_display">₹0.00</h4>
