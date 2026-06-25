@@ -187,6 +187,20 @@
                                 <td class="text-muted"><i class="fas fa-fingerprint me-2"></i>Aadhar No:</td>
                                 <td class="fw-semibold">{{ $student->aadhar_number ?? 'N/A' }}</td>
                             </tr>
+                            @if($student->fee_tenure)
+                            <tr>
+                                <td class="text-muted"><i class="fas fa-calendar-days me-2"></i>Fee Tenure:</td>
+                                <td class="fw-semibold text-first">{{ $student->fee_tenure }} Installment</td>
+                            </tr>
+                            @endif
+                            <tr>
+                                <td class="text-muted"><i class="fas fa-money-bill me-2"></i>Registration Fee:</td>
+                                <td class="fw-semibold">₹{{ number_format($student->registration_fee ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted"><i class="fas fa-file-alt me-2"></i>Prospectus Fee:</td>
+                                <td class="fw-semibold">₹{{ number_format($student->prospectus_fee ?? 0, 2) }}</td>
+                            </tr>
                         </table>
                     </div>
                 </div>

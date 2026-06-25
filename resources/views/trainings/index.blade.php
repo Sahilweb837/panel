@@ -29,24 +29,15 @@
                         <input type="text" name="search" placeholder="Search by slip no, name, email or mobile..." value="{{ request('search') }}" class="form-input" style="padding-left: 36px;" />
                         <i class="fas fa-search text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
                     </div>
-                    <div style="position: relative; width: 180px;">
+                    <div style="position: relative; width: 200px;">
                         <select name="course_name" class="form-input" style="padding-left: 36px;">
                             <option value="">All Courses</option>
-                            <option value="PHP Development" {{ request('course_name') === 'PHP Development' ? 'selected' : '' }}>PHP Development</option>
-                            <option value="Laravel Framework" {{ request('course_name') === 'Laravel Framework' ? 'selected' : '' }}>Laravel Framework</option>
-                            <option value="JavaScript Programming" {{ request('course_name') === 'JavaScript Programming' ? 'selected' : '' }}>JavaScript Programming</option>
-                            <option value="React.js" {{ request('course_name') === 'React.js' ? 'selected' : '' }}>React.js</option>
-                            <option value="Python Programming" {{ request('course_name') === 'Python Programming' ? 'selected' : '' }}>Python Programming</option>
-                            <option value="Django Framework" {{ request('course_name') === 'Django Framework' ? 'selected' : '' }}>Django Framework</option>
-                            <option value="Node.js" {{ request('course_name') === 'Node.js' ? 'selected' : '' }}>Node.js</option>
-                            <option value="Angular" {{ request('course_name') === 'Angular' ? 'selected' : '' }}>Angular</option>
-                            <option value="Vue.js" {{ request('course_name') === 'Vue.js' ? 'selected' : '' }}>Vue.js</option>
-                            <option value="WordPress Development" {{ request('course_name') === 'WordPress Development' ? 'selected' : '' }}>WordPress Development</option>
-                            <option value="Data Science" {{ request('course_name') === 'Data Science' ? 'selected' : '' }}>Data Science</option>
-                            <option value="Machine Learning" {{ request('course_name') === 'Machine Learning' ? 'selected' : '' }}>Machine Learning</option>
-                            <option value="Android Development" {{ request('course_name') === 'Android Development' ? 'selected' : '' }}>Android Development</option>
-                            <option value="iOS Development" {{ request('course_name') === 'iOS Development' ? 'selected' : '' }}>iOS Development</option>
-                            <option value="Flutter" {{ request('course_name') === 'Flutter' ? 'selected' : '' }}>Flutter</option>
+                            @php
+                                $allCourseNames = \App\Models\Training::whereNotNull('course_name')->where('course_name', '!=', '')->distinct()->pluck('course_name')->sort();
+                            @endphp
+                            @foreach($allCourseNames as $cName)
+                                <option value="{{ $cName }}" {{ request('course_name') === $cName ? 'selected' : '' }}>{{ $cName }}</option>
+                            @endforeach
                         </select>
                         <i class="fas fa-book text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
                     </div>

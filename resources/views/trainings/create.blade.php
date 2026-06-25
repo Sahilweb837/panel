@@ -89,26 +89,16 @@
                             <label for="course_select" class="fw-semibold mb-2">
                                 <i class="fas fa-book text-first me-2"></i>Course
                             </label>
-                            <select id="course_select" name="course_select" onchange="handleCourseSelect()" class="form-input">
+                            <select id="course_select" name="course_select" onchange="handleCourseSelect()" required class="form-input {{ $errors->has('course_select') ? 'is-invalid' : '' }}">
                                 <option value="">-- Select Course --</option>
-                                <option value="PHP Development" {{ old('course_select') === 'PHP Development' ? 'selected' : '' }}>PHP Development</option>
-                                <option value="Laravel Framework" {{ old('course_select') === 'Laravel Framework' ? 'selected' : '' }}>Laravel Framework</option>
-                                <option value="JavaScript Programming" {{ old('course_select') === 'JavaScript Programming' ? 'selected' : '' }}>JavaScript Programming</option>
-                                <option value="React.js" {{ old('course_select') === 'React.js' ? 'selected' : '' }}>React.js</option>
-                                <option value="Python Programming" {{ old('course_select') === 'Python Programming' ? 'selected' : '' }}>Python Programming</option>
-                                <option value="Django Framework" {{ old('course_select') === 'Django Framework' ? 'selected' : '' }}>Django Framework</option>
-                                <option value="Node.js" {{ old('course_select') === 'Node.js' ? 'selected' : '' }}>Node.js</option>
-                                <option value="Angular" {{ old('course_select') === 'Angular' ? 'selected' : '' }}>Angular</option>
-                                <option value="Vue.js" {{ old('course_select') === 'Vue.js' ? 'selected' : '' }}>Vue.js</option>
-                                <option value="WordPress Development" {{ old('course_select') === 'WordPress Development' ? 'selected' : '' }}>WordPress Development</option>
-                                <option value="Data Science" {{ old('course_select') === 'Data Science' ? 'selected' : '' }}>Data Science</option>
-                                <option value="Machine Learning" {{ old('course_select') === 'Machine Learning' ? 'selected' : '' }}>Machine Learning</option>
-                                <option value="Android Development" {{ old('course_select') === 'Android Development' ? 'selected' : '' }}>Android Development</option>
-                                <option value="iOS Development" {{ old('course_select') === 'iOS Development' ? 'selected' : '' }}>iOS Development</option>
-                                <option value="Flutter" {{ old('course_select') === 'Flutter' ? 'selected' : '' }}>Flutter</option>
+                                @foreach($trainingCourses as $tc)
+                                    <option value="{{ $tc->name }}" data-fee="{{ $tc->fee }}" {{ old('course_select') === $tc->name ? 'selected' : '' }}>{{ $tc->name }} ({{ $tc->duration }}) - ₹{{ number_format($tc->fee, 2) }}</option>
+                                @endforeach
                                 <option value="Other" {{ old('course_select') === 'Other' ? 'selected' : '' }}>Drop Other Training Course</option>
                             </select>
-                            <input type="hidden" name="course_name" id="course_name" value="{{ old('course_name', '') }}" />
+                            @error('course_select')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
 

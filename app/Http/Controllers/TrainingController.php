@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Training;
+use App\Models\TrainingCourse;
 use Illuminate\Http\Request;
 
 class TrainingController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Training::with(['creator']);
+        $query = Training::with('creator');
 
         if ($request->has('trashed') && $request->trashed == '1') {
             $query->onlyTrashed();
@@ -38,9 +39,10 @@ class TrainingController extends Controller
 
     public function create()
     {
+        $trainingCourses = TrainingCourse::where('status', true)->orderBy('name')->get();
         $durations = ['28 Days', '45 Days', '1 Month', '3 Months', '6 Months'];
 
-        return view('trainings.create', compact('durations'));
+        return view('trainings.create', compact('trainingCourses', 'durations'));
     }
 
     public function store(Request $request)
@@ -53,7 +55,6 @@ class TrainingController extends Controller
             'mobile' => ['required', 'string', 'max:20'],
             'course_select' => ['required', 'string', 'max:150'],
             'manual_course_name' => ['nullable', 'string', 'max:150'],
-            'course_name' => ['required', 'string', 'max:150'],
             'duration' => ['required', 'string', 'max:50'],
             'fees' => ['required', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,Online,Cheque,UPI'],
@@ -66,8 +67,13 @@ class TrainingController extends Controller
 
         $data['slip_no'] = $slipNo;
         $data['created_by'] = session('user_id');
-        $data['course_id'] = null;
 
+        $trainingCourse = null;
+        if ($data['course_select'] !== 'Other') {
+            $trainingCourse = TrainingCourse::where('name', $data['course_select'])->first();
+        }
+
+        $data['training_course_id'] = $trainingCourse?->id;
         $data['course_name'] = $data['course_select'] === 'Other'
             ? ($data['manual_course_name'] ?? null)
             : $data['course_select'];

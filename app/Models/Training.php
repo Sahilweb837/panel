@@ -37,4 +37,9 @@ class Training extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function trainingCourse()
+    {
+        return $this->belongsTo(TrainingCourse::class, 'training_course_id');
+    }
 }
