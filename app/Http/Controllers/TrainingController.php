@@ -58,10 +58,12 @@ class TrainingController extends Controller
             'duration' => ['required', 'string', 'max:50'],
             'fees' => ['required', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,Online,Cheque,UPI'],
+            'upi_transaction_id' => ['nullable', 'string', 'max:100'],
             'payment_date' => ['required', 'date'],
+            'status' => ['required', 'in:Paid,Unpaid'],
         ]);
 
-        $slipNo = 'TR-'.now()->format('YmdHis').'-'.strtoupper(substr(uniqid(), -4));
+        $slipNo = 'TR-'.now()->format('Ymd').'-'.strtoupper(substr(uniqid(), -4));
 
         $data['slip_no'] = $slipNo;
         $data['created_by'] = session('user_id');
@@ -114,7 +116,7 @@ class TrainingController extends Controller
 
         $callback = function() use ($trainings) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['Slip No', 'Name', 'Father Name', 'Email', 'College', 'Mobile', 'Course', 'Duration', 'Fees', 'Payment Method', 'Payment Date', 'Created By', 'Created At']);
+            fputcsv($file, ['Slip No', 'Name', 'Father Name', 'Email', 'College', 'Mobile', 'Course', 'Duration', 'Fees', 'Payment Method', 'UPI Transaction ID', 'Payment Date', 'Status', 'Created By', 'Created At']);
 
             foreach ($trainings as $training) {
                 fputcsv($file, [
@@ -128,7 +130,9 @@ class TrainingController extends Controller
                     $training->duration,
                     $training->fees,
                     $training->payment_method,
+                    $training->upi_transaction_id,
                     $training->payment_date ? $training->payment_date->format('Y-m-d') : '',
+                    $training->status,
                     $training->creator->name ?? 'N/A',
                     $training->created_at ? $training->created_at->format('Y-m-d H:i') : '',
                 ]);

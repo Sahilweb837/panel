@@ -21,7 +21,9 @@ class Training extends Model
         'duration',
         'fees',
         'payment_method',
+        'upi_transaction_id',
         'payment_date',
+        'status',
         'created_by',
     ];
 

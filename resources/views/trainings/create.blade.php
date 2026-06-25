@@ -156,13 +156,27 @@
                         </div>
                     </div>
 
-                    <div class="form-group-grid mb-4" id="upi-details-grid" style="display: none;">
+                    <div id="upi-details-grid" class="form-group-grid mb-4" style="display: none;">
                         <div class="form-group">
                             <label for="upi_transaction_id" class="fw-semibold mb-2">
                                 <i class="fas fa-mobile-screen text-first me-2"></i>UPI Transaction ID
                             </label>
-                            <input type="text" id="upi_transaction_id" name="upi_transaction_id" value="{{ old('upi_transaction_id') }}" placeholder="Enter UPI transaction ID" class="form-input" />
+                            <input type="text" id="upi_transaction_id" name="upi_transaction_id" value="{{ old('upi_transaction_id') }}" placeholder="Enter UPI transaction reference ID" class="form-input" />
                         </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="status" class="fw-semibold mb-2">
+                            <i class="fas fa-circle-info text-first me-2"></i>Payment Status
+                        </label>
+                        <select id="status" name="status" required class="form-input {{ $errors->has('status') ? 'is-invalid' : '' }}">
+                            <option value="">-- Select Status --</option>
+                            <option value="Paid" {{ old('status') === 'Paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="Unpaid" {{ old('status', 'Unpaid') === 'Unpaid' ? 'selected' : '' }}>Unpaid</option>
+                        </select>
+                        @error('status')
+                            <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-actions-row">

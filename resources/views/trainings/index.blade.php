@@ -93,6 +93,7 @@
                                 <th><i class="fas fa-clock me-1"></i> Duration</th>
                                 <th><i class="fas fa-coins me-1"></i> Fees (INR)</th>
                                 <th><i class="fas fa-calendar me-1"></i> Payment Date</th>
+                                <th><i class="fas fa-toggle-on me-1"></i> Status</th>
                                 <th class="text-end pe-4"><i class="fas fa-cogs me-1"></i> Actions</th>
                             </tr>
                         </thead>
@@ -119,6 +120,15 @@
                                     <td class="text-muted">{{ $training->duration }}</td>
                                     <td class="text-muted fw-bold">{{ number_format($training->fees, 2) }}</td>
                                     <td class="text-muted">{{ $training->payment_date ? \Carbon\Carbon::parse($training->payment_date)->format('M d, Y') : 'N/A' }}</td>
+                                    <td>
+                                        @php
+                                            $statusClass = strtolower($training->status);
+                                        @endphp
+                                        <span class="status-badge status-{{ $statusClass }}" style="padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem;">
+                                            <i class="fas fa-{{ $statusClass === 'paid' ? 'check-circle' : 'clock' }} me-1"></i>
+                                            {{ $training->status }}
+                                        </span>
+                                    </td>
                                     <td class="text-end pe-4 action-cell">
                                         @if($training->trashed())
                                             <form action="{{ route('trainings.restore', $training->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Restore this training slip?');">
@@ -142,7 +152,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="8" class="text-center py-5 text-muted">
                                         <i class="fas fa-graduation-cap fa-2x mb-3 d-block text-muted"></i>
                                         No training registrations found.
                                     </td>
