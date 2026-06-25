@@ -15,6 +15,10 @@ class TrainingCourse extends Model
         'duration',
         'fee',
         'description',
+        'tenure_1_month',
+        'tenure_3_months',
+        'tenure_6_months',
+        'tenure_12_months',
         'status',
     ];
 

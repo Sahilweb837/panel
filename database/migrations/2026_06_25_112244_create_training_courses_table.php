@@ -15,6 +15,10 @@ return new class extends Migration
             $table->string('duration', 50)->default('28 Days');
             $table->decimal('fee', 10, 2)->default(0.00);
             $table->text('description')->nullable();
+            $table->decimal('tenure_1_month', 10, 2)->default(0.00);
+            $table->decimal('tenure_3_months', 10, 2)->default(0.00);
+            $table->decimal('tenure_6_months', 10, 2)->default(0.00);
+            $table->decimal('tenure_12_months', 10, 2)->default(0.00);
             $table->boolean('status')->default(true);
             $table->timestamps();
 

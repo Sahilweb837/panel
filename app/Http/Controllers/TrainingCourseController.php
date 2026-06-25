@@ -65,11 +65,19 @@ class TrainingCourseController extends Controller
             'short_code' => ['nullable', 'string', 'max:50'],
             'duration' => ['required', 'string', 'max:50', 'in:28 Days,45 Days,1 Month,3 Months,6 Months'],
             'fee' => ['required', 'numeric', 'min:0'],
+            'tenure_1_month' => ['nullable', 'numeric', 'min:0'],
+            'tenure_3_months' => ['nullable', 'numeric', 'min:0'],
+            'tenure_6_months' => ['nullable', 'numeric', 'min:0'],
+            'tenure_12_months' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string', 'max:1000'],
             'status' => ['nullable', 'boolean'],
         ]);
 
         $data['fee'] = $data['fee'] ?? 0;
+        $data['tenure_1_month'] = $data['tenure_1_month'] ?? 0;
+        $data['tenure_3_months'] = $data['tenure_3_months'] ?? 0;
+        $data['tenure_6_months'] = $data['tenure_6_months'] ?? 0;
+        $data['tenure_12_months'] = $data['tenure_12_months'] ?? 0;
         $data['status'] = $request->boolean('status', true);
 
         TrainingCourse::create($data);
@@ -101,11 +109,19 @@ class TrainingCourseController extends Controller
             'short_code' => ['nullable', 'string', 'max:50'],
             'duration' => ['required', 'string', 'max:50', 'in:28 Days,45 Days,1 Month,3 Months,6 Months'],
             'fee' => ['required', 'numeric', 'min:0'],
+            'tenure_1_month' => ['nullable', 'numeric', 'min:0'],
+            'tenure_3_months' => ['nullable', 'numeric', 'min:0'],
+            'tenure_6_months' => ['nullable', 'numeric', 'min:0'],
+            'tenure_12_months' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string', 'max:1000'],
             'status' => ['nullable', 'boolean'],
         ]);
 
         $data['fee'] = $data['fee'] ?? 0;
+        $data['tenure_1_month'] = $data['tenure_1_month'] ?? 0;
+        $data['tenure_3_months'] = $data['tenure_3_months'] ?? 0;
+        $data['tenure_6_months'] = $data['tenure_6_months'] ?? 0;
+        $data['tenure_12_months'] = $data['tenure_12_months'] ?? 0;
         $data['status'] = $request->boolean('status', true);
 
         $trainingCourse->update($data);
