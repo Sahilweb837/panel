@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS `trainings` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `slip_no` varchar(60) NOT NULL UNIQUE,
+  `name` varchar(100) NOT NULL,
+  `father_name` varchar(100) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
+  `college` varchar(150) DEFAULT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `course_id` bigint(20) unsigned NOT NULL,
+  `duration` varchar(50) NOT NULL,
+  `fees` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `payment_method` varchar(50) NOT NULL DEFAULT 'Cash',
+  `payment_date` date NOT NULL,
+  `created_by` bigint(20) unsigned NOT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `trainings_course_id_foreign` (`course_id`),
+  KEY `trainings_created_by_foreign` (`created_by`),
+  CONSTRAINT `trainings_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `trainings_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

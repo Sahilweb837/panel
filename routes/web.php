@@ -12,6 +12,7 @@ use App\Http\Controllers\FeeInvoiceController;
 use App\Http\Controllers\SalarySlipController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubAdminController;
+use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\BiometricController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientInvoiceController;
@@ -140,4 +141,9 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Daily Updates routes
     Route::resource('daily-updates', \App\Http\Controllers\DailyUpdateController::class)->only(['index', 'store']);
+
+    Route::get('trainings/export/csv', [TrainingController::class, 'exportCsv'])->name('trainings.export.csv');
+    Route::get('trainings/analytics', [TrainingController::class, 'analytics'])->name('trainings.analytics');
+    Route::post('trainings/{id}/restore', [TrainingController::class, 'restore'])->name('trainings.restore');
+    Route::resource('trainings', TrainingController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 });

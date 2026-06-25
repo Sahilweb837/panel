@@ -204,6 +204,12 @@
                                     <span style="display: inline-flex !important; align-items: center !important; gap: 6px !important;"><i class="fas fa-wallet text-first me-1"></i>Salary Slips</span>
                                 </label>
                             </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="checkbox-label" style="cursor: pointer; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; width: auto !important; margin: 0 !important;">
+                                    <input type="checkbox" name="access[]" value="trainings" {{ is_array(old('access', $subAdmin->access)) && in_array('trainings', old('access', $subAdmin->access)) ? 'checked' : '' }} class="checkbox-input" style="width: 18px !important; height: 18px !important; margin: 0 !important; padding: 0 !important; flex-shrink: 0 !important; accent-color: var(--first-color) !important;">
+                                    <span style="display: inline-flex !important; align-items: center !important; gap: 6px !important;"><i class="fas fa-graduation-cap text-first me-1"></i>Training & Internship</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 

@@ -59,6 +59,8 @@ class EnsureUserIsAuthenticated
                     $allowed = true;
                 } elseif (str_starts_with($route, 'salary_slips.') && in_array('salary-slips', $access)) {
                     $allowed = true;
+                } elseif (str_starts_with($route, 'trainings.') && in_array('trainings', $access)) {
+                    $allowed = true;
                 }
             }
 

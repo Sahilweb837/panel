@@ -180,6 +180,13 @@
                 </a>
             @endif
 
+            @if($isSuperOrRoot || in_array('trainings', $access))
+                <a href="{{ route('trainings.index') }}" class="nav-link{{ request()->routeIs('trainings.*') ? ' active' : '' }}">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Training & Internship</span>
+                </a>
+            @endif
+
             @if($isSuperOrRoot || in_array('expenses', $access))
                 <a href="{{ route('expenses.index') }}" class="nav-link{{ request()->routeIs('expenses.*') ? ' active' : '' }}">
                     <i class="fas fa-money-bill-wave"></i>
