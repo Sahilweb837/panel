@@ -5,7 +5,6 @@
 
 @section('content')
     <div class="invoice-container">
-        <!-- Lazy Loading Skeleton Overlay -->
         <div class="skeleton-loader-overlay" id="page-skeleton">
             <div class="premium-form-card" style="max-width: 850px;">
                 <div class="sk-text heading"></div>
@@ -24,7 +23,6 @@
             </div>
         </div>
 
-        <!-- Real Content -->
         <div id="page-content" style="opacity: 0; transition: opacity 0.5s ease;">
             <div class="card premium-form-card" style="max-width: 850px;">
                 <div class="card-header bg-transparent border-bottom mb-4 pb-3">
@@ -36,8 +34,6 @@
                 <form action="{{ route('trainings.store') }}" method="POST" class="form-card p-0">
                     @csrf
 
-                    <!-- Section 1: Candidate Details -->
-                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-user me-1"></i> Candidate Details</h5>
                     <div class="form-group-grid mb-4">
                         <div class="form-group">
                             <label for="name" class="fw-semibold mb-2">
@@ -84,27 +80,10 @@
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="course_id" class="fw-semibold mb-2">
-                                <i class="fas fa-book text-first me-2"></i>Course
-                            </label>
-                            <select id="course_id" name="course_id" required class="form-input {{ $errors->has('course_id') ? 'is-invalid' : '' }}">
-                                <option value="">-- Select Course --</option>
-                                @foreach($courses as $course)
-                                    <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>{{ $course->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('course_id')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
-                            @enderror
-                        </div>
                     </div>
 
-                    <!-- Section 2: Training Details -->
-                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Training Details</h5>
-<!-- Section 2: Training Details -->
-                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Training Details</h5>
-                    
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3 mt-4" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Training Details</h5>
+
                     <div class="form-group mb-3">
                         <label class="fw-semibold mb-2">Course Selection</label>
                         <div class="d-flex gap-3 mb-2">
@@ -170,19 +149,8 @@
                             @enderror
                         </div>
                     </div>
-                        <div class="form-group">
-                            <label for="fees" class="fw-semibold mb-2">
-                                <i class="fas fa-coins text-first me-2"></i>Fees (INR)
-                            </label>
-                            <input type="number" id="fees" name="fees" step="0.01" value="{{ old('fees', 0) }}" required placeholder="0.00" class="form-input {{ $errors->has('fees') ? 'is-invalid' : '' }}" />
-                            @error('fees')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
-                            @enderror
-                        </div>
-                    </div>
 
-                    <!-- Section 3: Payment Details -->
-                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-credit-card me-1"></i> Payment Details</h5>
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3 mt-4" style="font-size: 0.75rem;"><i class="fas fa-credit-card me-1"></i> Payment Details</h5>
                     <div class="form-group-grid mb-4">
                         <div class="form-group">
                             <label for="payment_method" class="fw-semibold mb-2">
