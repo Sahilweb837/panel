@@ -176,6 +176,7 @@ class StudentController extends Controller
         $includeRegistration = $request->boolean('include_registration_invoice');
         $includeProspectus = $request->boolean('include_prospectus_invoice');
 
+        $course = \App\Models\Course::find($student->course_id);
         $courseFeeAmount = $course?->fee ?? 0;
         $discount = $student->discount ?? 0;
         $grandTotal = 0;
@@ -193,18 +194,25 @@ class StudentController extends Controller
         }
 
         $durationLower = strtolower($student->course_duration ?? '');
-        $divisor = 12;
-        $tenureLabel = '1 Year';
+        $tenureLabel = $student->fee_tenure ?: '1 Year';
 
-        if (str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month')) {
-            $divisor = 12;
-        } elseif (str_contains($durationLower, '6 month')) {
-            $divisor = 12;
-        } elseif (str_contains($durationLower, '3 month')) {
-            $divisor = 12;
-        } elseif (str_contains($durationLower, '1 month')) {
-            $divisor = 12;
-        }
+        $courseMonths = match(true) {
+            str_contains($durationLower, '1 year') => 12,
+            str_contains($durationLower, '6 month') => 6,
+            str_contains($durationLower, '3 month') => 3,
+            str_contains($durationLower, '1 month') => 1,
+            default => 12,
+        };
+
+        $tenureMonths = match($tenureLabel) {
+            '1 Month' => 1,
+            '3 Months' => 3,
+            '6 Months' => 6,
+            '1 Year' => 12,
+            default => 12,
+        };
+
+        $divisor = max(1, (int) ceil($courseMonths / $tenureMonths));
 
         $courseFeeAmount = round($courseFeeAmount / $divisor, 2);
         $discount = round($discount / $divisor, 2);

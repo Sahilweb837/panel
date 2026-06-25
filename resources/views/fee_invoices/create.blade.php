@@ -291,9 +291,6 @@
                 const pastPayments = json.past_payments || [];
                 const attendanceFine = parseFloat(json.attendance_fine) || 0;
                 const fineDetails = json.fine_details || '';
-                const oneTimePaid = json.one_time_paid || {};
-                const regAlreadyPaid = !!oneTimePaid.registration;
-                const prosAlreadyPaid = !!oneTimePaid.prospectus;
 
                 // Render Payment History
                 if (historyContainer) {
@@ -367,13 +364,6 @@
                         tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, true));
                     }
                     
-                    if (!regAlreadyPaid && parseFloat(data.registration_fee) > 0) {
-                        tbody.appendChild(createDefaultRow('Registration Fee', parseFloat(data.registration_fee), true));
-                    }
-                    if (!prosAlreadyPaid && parseFloat(data.prospectus_fee) > 0) {
-                        tbody.appendChild(createDefaultRow('Prospectus Fee', parseFloat(data.prospectus_fee), true));
-                    }
-                    
                     if (attendanceFine > 0) {
                         tbody.appendChild(createDefaultRow('Attendance Fine', attendanceFine, true));
                         const remarksInput = document.getElementById('remarks');
@@ -382,42 +372,6 @@
                         }
                     }
                     
-                    if (parseFloat(data.discount) > 0) {
-                        document.getElementById('discount').value = parseFloat(data.discount).toFixed(2);
-                    }
-                }
-                    });
-                    
-                    // Render other default fees as unchecked if they were not in old input
-                    const categoriesInOld = oldFeeItems.map(item => item.category);
-                    const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
-                    if (!categoriesInOld.includes(feeLabel) && adjustedCourseFee > 0) {
-                        tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, false));
-                    }
-                    // Excluded Registration and Prospectus fees from auto-population per user request
-                    if (!categoriesInOld.includes('Attendance Fine') && attendanceFine > 0) {
-                        tbody.appendChild(createDefaultRow('Attendance Fine', attendanceFine, false));
-                    }
-                } else {
-                    // Populate default student fees
-                    if (adjustedCourseFee > 0) {
-                        const feeLabel = tenureMode === 'Monthly' ? 'Monthly Course Fee' : 'Course Fee';
-                        tbody.appendChild(createDefaultRow(feeLabel, adjustedCourseFee, true));
-                    }
-                    
-                    // Removed automatic population of Registration and Prospectus fees here as well
-                    
-                    // Add automatic attendance fine
-                    if (attendanceFine > 0) {
-                        tbody.appendChild(createDefaultRow('Attendance Fine', attendanceFine, true));
-                        // Show fine details in remarks
-                        const remarksInput = document.getElementById('remarks');
-                        if (remarksInput && !remarksInput.value) {
-                            remarksInput.value = `Auto-calculated attendance fine: ${fineDetails}`;
-                        }
-                    }
-                    
-                    // Set default student discount
                     if (parseFloat(data.discount) > 0) {
                         document.getElementById('discount').value = parseFloat(data.discount).toFixed(2);
                     }

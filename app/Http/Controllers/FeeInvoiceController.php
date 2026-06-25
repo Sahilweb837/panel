@@ -183,25 +183,11 @@ class FeeInvoiceController extends Controller
             }
         }
 
-        $allInvoices = FeeInvoice::where('student_id', $id)->get();
-        $hasPaidReg = $allInvoices->contains(function ($inv) {
-            $items = is_string($inv->fee_items) ? json_decode($inv->fee_items, true) : ($inv->fee_items ?? []);
-            return in_array('Registration Fee', array_column($items, 'category')) && in_array($inv->status, ['Paid', 'Partial']);
-        });
-        $hasPaidPros = $allInvoices->contains(function ($inv) {
-            $items = is_string($inv->fee_items) ? json_decode($inv->fee_items, true) : ($inv->fee_items ?? []);
-            return in_array('Prospectus Fee', array_column($items, 'category')) && in_array($inv->status, ['Paid', 'Partial']);
-        });
-
         return response()->json([
             'success' => true,
             'past_payments' => $pastPayments,
             'attendance_fine' => $automaticFine,
             'fine_details' => implode(', ', $fineDetails),
-            'one_time_paid' => [
-                'registration' => $hasPaidReg,
-                'prospectus' => $hasPaidPros,
-            ],
             'student_data' => [
                 'course_fee' => $student->course ? $student->course->fee : 0,
                 'course_duration' => $student->course_duration ?: '',
