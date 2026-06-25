@@ -173,95 +173,76 @@ class StudentController extends Controller
             $student->save();
         }
 
-        // Auto-generate Admission Invoice (Registration + Prospectus)
         $includeRegistration = $request->boolean('include_registration_invoice');
         $includeProspectus = $request->boolean('include_prospectus_invoice');
-        
-        if ($includeRegistration || $includeProspectus) {
-            $admissionFeeItems = [];
-            $admissionTotal = 0;
-            
-            if ($includeRegistration && $student->registration_fee > 0) {
-                $admissionFeeItems[] = [
-                    'category' => 'Registration Fee',
-                    'amount' => $student->registration_fee,
-                ];
-                $admissionTotal += $student->registration_fee;
+
+        $course = $student->course;
+        $courseFeeAmount = $course?->fee ?? 0;
+        $discount = $student->discount ?? 0;
+        $divisor = 1;
+        $tenureLabel = '';
+
+        if ($student->fee_tenure) {
+            $durationLower = strtolower($student->course_duration ?? '');
+
+            if (str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month')) {
+                if ($student->fee_tenure === '1 Month') $divisor = 12;
+                elseif ($student->fee_tenure === '3 Months') $divisor = 4;
+                elseif ($student->fee_tenure === '6 Months') $divisor = 2;
+            } elseif (str_contains($durationLower, '6 month')) {
+                if ($student->fee_tenure === '1 Month') $divisor = 6;
+                elseif ($student->fee_tenure === '3 Months') $divisor = 2;
+            } elseif (str_contains($durationLower, '3 month')) {
+                if ($student->fee_tenure === '1 Month') $divisor = 3;
             }
 
-            if ($includeProspectus && $student->prospectus_fee > 0) {
-                $admissionFeeItems[] = [
-                    'category' => 'Prospectus Fee',
-                    'amount' => $student->prospectus_fee,
-                ];
-                $admissionTotal += $student->prospectus_fee;
-            }
-
-            if (!empty($admissionFeeItems)) {
-                $categories = array_column($admissionFeeItems, 'category');
-                $feeCategory = implode(', ', $categories);
-
-                \App\Models\FeeInvoice::create([
-                    'student_id' => $student->id,
-                    'invoice_no' => 'ADM-' . now()->format('ymdHi') . '-' . $student->id,
-                    'fee_category' => $feeCategory,
-                    'fee_items' => $admissionFeeItems,
-                    'total_amount' => $admissionTotal,
-                    'paid_amount' => 0,
-                    'discount' => 0,
-                    'fine' => 0,
-                    'due_amount' => $admissionTotal,
-                    'status' => 'Unpaid',
-                    'created_by' => session('user_id'),
-                ]);
-            }
+            $courseFeeAmount = round($courseFeeAmount / $divisor, 2);
+            $discount = round($discount / $divisor, 2);
+            $tenureLabel = $student->fee_tenure;
         }
 
-        // Auto-generate Course Fee Invoice
-        if ($student->course && $student->course->fee > 0) {
-            $courseFeeAmount = $student->course->fee;
-            $feeLabel = 'Course Fee';
-            $discount = $student->discount ?? 0;
-            $divisor = 1;
-            
-            if ($student->fee_tenure) {
-                $durationLower = strtolower($student->course_duration ?? '');
-                
-                if (str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month')) {
-                    if ($student->fee_tenure === '1 Month') $divisor = 12;
-                    elseif ($student->fee_tenure === '3 Months') $divisor = 4;
-                    elseif ($student->fee_tenure === '6 Months') $divisor = 2;
-                } elseif (str_contains($durationLower, '6 month')) {
-                    if ($student->fee_tenure === '1 Month') $divisor = 6;
-                    elseif ($student->fee_tenure === '3 Months') $divisor = 2;
-                } elseif (str_contains($durationLower, '3 month')) {
-                    if ($student->fee_tenure === '1 Month') $divisor = 3;
-                }
-                
-                $courseFeeAmount = round($courseFeeAmount / $divisor, 2);
-                $discount = round($discount / $divisor, 2);
-                $feeLabel = 'Course Fee (' . $student->fee_tenure . ' Installment)';
+        $allFeeItems = [];
+        $grandTotal = 0;
+
+        if ($includeRegistration && ($student->registration_fee ?? 0) > 0) {
+            $allFeeItems[] = ['category' => 'Registration Fee', 'amount' => (float) $student->registration_fee];
+            $grandTotal += (float) $student->registration_fee;
+        }
+
+        if ($includeProspectus && ($student->prospectus_fee ?? 0) > 0) {
+            $allFeeItems[] = ['category' => 'Prospectus Fee', 'amount' => (float) $student->prospectus_fee];
+            $grandTotal += (float) $student->prospectus_fee;
+        }
+
+        if ($courseFeeAmount > 0 && $course) {
+            $courseItemLabel = 'Course Fee';
+            if ($tenureLabel) {
+                $courseItemLabel = "Course Fee ({$tenureLabel} Installment)";
             }
-            
-            $feeItems = [
-                [
-                    'category' => $feeLabel,
-                    'amount' => $courseFeeAmount,
-                ]
+
+            $netCourseFee = max(0, $courseFeeAmount - $discount);
+
+            $allFeeItems[] = [
+                'category' => $courseItemLabel,
+                'amount' => $netCourseFee,
             ];
-            
-            $dueAmount = max(0, $courseFeeAmount - $discount);
+            $grandTotal += $netCourseFee;
+        }
+
+        if (!empty($allFeeItems)) {
+            $categoryParts = array_column($allFeeItems, 'category');
+            $feeCategory = implode(', ', $categoryParts);
 
             \App\Models\FeeInvoice::create([
                 'student_id' => $student->id,
-                'invoice_no' => 'INV-' . now()->format('ymdHi') . '-' . $student->id,
-                'fee_category' => $feeLabel,
-                'fee_items' => $feeItems,
-                'total_amount' => $courseFeeAmount,
+                'invoice_no' => 'ADM-' . now()->format('ymdHi') . '-' . $student->id,
+                'fee_category' => $feeCategory,
+                'fee_items' => $allFeeItems,
+                'total_amount' => $grandTotal,
                 'paid_amount' => 0,
-                'discount' => $discount,
+                'discount' => 0,
                 'fine' => 0,
-                'due_amount' => $dueAmount,
+                'due_amount' => $grandTotal,
                 'status' => 'Unpaid',
                 'created_by' => session('user_id'),
             ]);
