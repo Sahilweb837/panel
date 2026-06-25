@@ -266,12 +266,34 @@
 
                         <div class="form-group checkbox-group" style="display: flex; align-items: center;">
                             <label class="checkbox-label" style="cursor: pointer;">
+                                <input type="hidden" name="apply_seminar_fee" value="0">
+                                <input type="checkbox" id="apply_seminar_fee" name="apply_seminar_fee" value="1" {{ old('apply_seminar_fee') ? 'checked' : '' }} class="checkbox-input" />
+                                <span class="fw-semibold">
+                                    <i class="fas fa-microphone text-first me-1"></i>Apply Seminar Fee
+                                </span>
+                            </label>
+                        </div>
+                        <div class="form-group" id="seminar_fee_amount_wrapper" style="display: {{ old('apply_seminar_fee') ? 'block' : 'none' }};">
+                            <label for="seminar_fee_amount" class="fw-semibold mb-2">
+                                <i class="fas fa-rupee-sign text-first me-2"></i>Seminar Fee Amount (INR)
+                            </label>
+                            <input type="number" step="0.01" id="seminar_fee_amount" name="seminar_fee_amount" value="{{ old('seminar_fee_amount', '0') }}" placeholder="0.00" class="form-input" />
+                        </div>
+
+                        <div class="form-group checkbox-group" style="display: flex; align-items: center;">
+                            <label class="checkbox-label" style="cursor: pointer;">
                                 <input type="hidden" name="apply_fine" value="0">
                                 <input type="checkbox" id="apply_fine" name="apply_fine" value="1" {{ old('apply_fine') ? 'checked' : '' }} class="checkbox-input" />
                                 <span class="fw-semibold">
                                     <i class="fas fa-gavel text-first me-1"></i>Apply Fine / Penalty
                                 </span>
                             </label>
+                        </div>
+                        <div class="form-group" id="fine_amount_wrapper" style="display: {{ old('apply_fine') ? 'block' : 'none' }};">
+                            <label for="fine_amount" class="fw-semibold mb-2">
+                                <i class="fas fa-rupee-sign text-first me-2"></i>Fine Amount (INR)
+                            </label>
+                            <input type="number" step="0.01" id="fine_amount" name="fine_amount" value="{{ old('fine_amount', '0') }}" placeholder="0.00" class="form-input" />
                         </div>
 
                         <div class="form-group">
@@ -459,16 +481,31 @@
             const courseSelect = document.getElementById('course_id');
             const regFeeInput = document.getElementById('registration_fee');
             const prosFeeInput = document.getElementById('prospectus_fee');
+            const seminarCheck = document.getElementById('apply_seminar_fee');
+            const seminarAmountInput = document.getElementById('seminar_fee_amount');
+            const fineCheck = document.getElementById('apply_fine');
+            const fineAmountInput = document.getElementById('fine_amount');
             const discountInput = document.getElementById('discount');
             const tenureSelect = document.getElementById('fee_tenure');
             const durationSelect = document.getElementById('course_duration');
             const totalDisplay = document.getElementById('total_amount_display');
             const courseFeeDisplay = document.getElementById('course_fee_display');
 
+            const toggleSeminarAmount = () => {
+                document.getElementById('seminar_fee_amount_wrapper').style.display = seminarCheck.checked ? 'block' : 'none';
+                if (!seminarCheck.checked) seminarAmountInput.value = '0';
+                calculateFees();
+            };
+            const toggleFineAmount = () => {
+                document.getElementById('fine_amount_wrapper').style.display = fineCheck.checked ? 'block' : 'none';
+                if (!fineCheck.checked) fineAmountInput.value = '0';
+                calculateFees();
+            };
+
             const calculateFees = () => {
                 const selectedOption = courseSelect.options[courseSelect.selectedIndex];
                 const courseFee = parseFloat(selectedOption?.getAttribute('data-fee')) || 0;
-                
+
                 const includeReg = document.getElementById('include_registration_invoice')?.checked;
                 const includePros = document.getElementById('include_prospectus_invoice')?.checked;
 
@@ -477,13 +514,15 @@
 
                 const regFee = includeReg ? baseRegFee : 0;
                 const prosFee = includePros ? baseProsFee : 0;
+                const seminarFee = seminarCheck.checked ? (parseFloat(seminarAmountInput.value) || 0) : 0;
+                const fineAmt = fineCheck.checked ? (parseFloat(fineAmountInput.value) || 0) : 0;
                 const discount = parseFloat(discountInput.value) || 0;
-                
+
                 const tenure = tenureSelect ? tenureSelect.value : '';
                 const duration = durationSelect ? durationSelect.value.toLowerCase() : '';
-                
+
                 let divisor = 1;
-                
+
                 if (duration.includes('1 year') || duration.includes('12 month')) {
                     if (tenure === '1 Month') divisor = 12;
                     else if (tenure === '3 Months') divisor = 4;
@@ -494,18 +533,18 @@
                 } else if (duration.includes('3 month')) {
                     if (tenure === '1 Month') divisor = 3;
                 }
-                
+
                 const installmentCourseFee = (courseFee / divisor).toFixed(2);
                 const installmentDiscount = (discount / divisor).toFixed(2);
-                const netCourseFee = Math.max(0, installmentCourseFee - installmentDiscount).toFixed(2);
-                
-                const admissionTotal = (regFee + prosFee).toFixed(2);
-                
+                const netCourseFee = Math.max(0, installmentCourseFee - installmentDiscount);
+
+                const admissionTotal = (regFee + prosFee + seminarFee + fineAmt).toFixed(2);
+
                 courseFeeDisplay.innerHTML = `
-                    <div class="mb-1"><strong>Course Installment:</strong> ₹${netCourseFee} <br><small class="text-muted">(₹${installmentCourseFee} fee - ₹${installmentDiscount} discount)</small></div>
-                    <div><strong>Admission Fees:</strong> ₹${admissionTotal} <br><small class="text-muted">(Registration + Prospectus)</small></div>
+                    <div class="mb-1"><strong>Course Installment:</strong> ₹${netCourseFee.toFixed(2)} <br><small class="text-muted">(₹${installmentCourseFee} fee ÷ ${divisor} - ₹${installmentDiscount} discount)</small></div>
+                    <div><strong>Admission Fees:</strong> ₹${admissionTotal} <br><small class="text-muted">(Registration + Prospectus${seminarFee > 0 ? ' + Seminar' : ''}${fineAmt > 0 ? ' + Fine' : ''})</small></div>
                 `;
-                
+
                 const combinedTotal = (parseFloat(netCourseFee) + parseFloat(admissionTotal)).toFixed(2);
                 totalDisplay.innerText = `Total Today: ₹${combinedTotal}`;
             };
@@ -513,15 +552,19 @@
             courseSelect.addEventListener('change', calculateFees);
             regFeeInput.addEventListener('change', calculateFees);
             prosFeeInput.addEventListener('change', calculateFees);
+            seminarCheck.addEventListener('change', toggleSeminarAmount);
+            seminarAmountInput.addEventListener('input', calculateFees);
+            fineCheck.addEventListener('change', toggleFineAmount);
+            fineAmountInput.addEventListener('input', calculateFees);
             discountInput.addEventListener('input', calculateFees);
             if(tenureSelect) tenureSelect.addEventListener('change', calculateFees);
             if(durationSelect) durationSelect.addEventListener('change', calculateFees);
-            
+
             const includeRegCheck = document.getElementById('include_registration_invoice');
             const includeProsCheck = document.getElementById('include_prospectus_invoice');
             if (includeRegCheck) includeRegCheck.addEventListener('change', calculateFees);
             if (includeProsCheck) includeProsCheck.addEventListener('change', calculateFees);
-            
+
             // Initial calculation on load
             calculateFees();
         });

@@ -151,6 +151,10 @@ class StudentController extends Controller
             'discount' => ['nullable', 'numeric', 'min:0'],
             'registration_fee' => ['nullable', 'numeric', 'min:0'],
             'prospectus_fee' => ['nullable', 'numeric', 'min:0'],
+            'apply_seminar_fee' => ['nullable', 'boolean'],
+            'seminar_fee_amount' => ['nullable', 'numeric', 'min:0'],
+            'apply_fine' => ['nullable', 'boolean'],
+            'fine_amount' => ['nullable', 'numeric', 'min:0'],
             'fee_tenure' => ['nullable', 'in:1 Month,3 Months,6 Months,1 Year'],
         ]);
 
@@ -175,6 +179,8 @@ class StudentController extends Controller
 
         $includeRegistration = $request->boolean('include_registration_invoice');
         $includeProspectus = $request->boolean('include_prospectus_invoice');
+        $applySeminar = $request->boolean('apply_seminar_invoice');
+        $applyFine = $request->boolean('apply_fine');
 
         $course = $student->course;
         $courseFeeAmount = $course?->fee ?? 0;
@@ -212,6 +218,16 @@ class StudentController extends Controller
         if ($includeProspectus && ($student->prospectus_fee ?? 0) > 0) {
             $allFeeItems[] = ['category' => 'Prospectus Fee', 'amount' => (float) $student->prospectus_fee];
             $grandTotal += (float) $student->prospectus_fee;
+        }
+
+        if ($applySeminar && ($request->input('seminar_fee_amount', 0) > 0)) {
+            $allFeeItems[] = ['category' => 'Seminar Fee', 'amount' => (float) $request->input('seminar_fee_amount')];
+            $grandTotal += (float) $request->input('seminar_fee_amount');
+        }
+
+        if ($applyFine && ($request->input('fine_amount', 0) > 0)) {
+            $allFeeItems[] = ['category' => 'Fine / Penalty', 'amount' => (float) $request->input('fine_amount')];
+            $grandTotal += (float) $request->input('fine_amount');
         }
 
         if ($courseFeeAmount > 0 && $course) {
