@@ -30,7 +30,11 @@
             justify-content: space-between;
             align-items: center;
         }
-        .receipt-header .logo { font-weight: 800; font-size: 1.1rem; }
+         .logo { display: flex; align-items: center; gap: 14px; }
+         .logo-img { height: 48px; width: auto; border-radius: 6px; }
+         .logo-text { line-height: 1.2; }
+         .logo-text .brand { font-weight: 800; font-size: 1.1rem; display: block; }
+         .logo-text .sub { font-size: 0.7rem; opacity: 0.8; font-weight: 400; }
         .receipt-header .invoice-meta { text-align: right; }
         .receipt-header .invoice-title { font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; }
         .receipt-header .invoice-no { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
@@ -247,8 +251,11 @@
 <div class="receipt">
     <div class="receipt-header">
         <div class="logo">
-            <div style="font-weight:800; font-size:1rem;">Netcoder</div>
-            <div style="font-size:0.7rem; opacity:0.7; font-weight:400;">Technology Solutions</div>
+            <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img" />
+            <div class="logo-text">
+                <span class="brand">Netcoder</span>
+                <span class="sub">Technology Solutions</span>
+            </div>
         </div>
         <div class="invoice-meta">
             <div class="invoice-title">FEE RECEIPT</div>
@@ -321,7 +328,7 @@
                                 <strong>{{ $cat }}</strong>
                                 @if($monthlyEquiv)
                                     <br><small style="color:#666;">
-                                        ₹{{ number_format($monthlyEquiv, 2) }}/month × {{ preg_match('/\((.+?)\)/', $cat, $m2) ? $m2[1] : '' }}
+                                        ₹{{ number_format($monthlyEquiv, 2) }}/month × {{ $tenure }}
                                         <br>Total Course Fee: ₹{{ number_format($baseFee, 2) }}
                                     </small>
                                 @endif
