@@ -135,6 +135,10 @@
                     <i class="fas fa-book"></i>
                     <span>Courses</span>
                 </a>
+                <a href="{{ route('training_courses.index') }}" class="nav-link{{ request()->routeIs('training_courses.*') ? ' active' : '' }}">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Training Courses</span>
+                </a>
             @endif
 
             @if($isSuperOrRoot || in_array('students', $access))

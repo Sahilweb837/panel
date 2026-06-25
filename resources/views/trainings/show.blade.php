@@ -460,7 +460,7 @@
                     <div class="info-card-title"><i class="fas fa-book"></i> Training Details</div>
                     <div class="info-details">
                         <span class="info-label">Course:</span>
-                        <span class="info-value">{{ $training->course->name ?? $training->course_name ?? 'N/A' }}</span>
+                        <span class="info-value">{{ $training->course_name ?? 'N/A' }}</span>
                         <span class="info-label">Duration:</span>
                         <span class="info-value">{{ $training->duration }}</span>
                         <span class="info-label">Payment:</span>

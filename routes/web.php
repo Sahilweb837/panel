@@ -13,6 +13,7 @@ use App\Http\Controllers\SalarySlipController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubAdminController;
 use App\Http\Controllers\TrainingController;
+use App\Http\Controllers\TrainingCourseController;
 use App\Http\Controllers\BiometricController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientInvoiceController;
@@ -146,4 +147,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('trainings/analytics', [TrainingController::class, 'analytics'])->name('trainings.analytics');
     Route::post('trainings/{id}/restore', [TrainingController::class, 'restore'])->name('trainings.restore');
     Route::resource('trainings', TrainingController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
+
+    Route::post('training_courses/{id}/restore', [TrainingCourseController::class, 'restore'])->name('training_courses.restore');
+    Route::resource('training_courses', TrainingCourseController::class)->except(['show']);
 });

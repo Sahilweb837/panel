@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Training;
-use App\Models\Course;
 use Illuminate\Http\Request;
 
 class TrainingController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Training::with(['course', 'creator']);
+        $query = Training::with(['creator']);
 
         if ($request->has('trashed') && $request->trashed == '1') {
             $query->onlyTrashed();
@@ -23,8 +22,8 @@ class TrainingController extends Controller
                 ->orWhere('mobile', 'like', '%'.$request->search.'%');
         }
 
-        if ($request->filled('course_id')) {
-            $query->where('course_id', $request->course_id);
+        if ($request->filled('course_name')) {
+            $query->where('course_name', 'like', '%'.$request->course_name.'%');
         }
 
         if ($request->filled('duration')) {
@@ -32,18 +31,16 @@ class TrainingController extends Controller
         }
 
         $trainings = $query->latest()->paginate(12)->withQueryString();
-        $courses = Course::orderBy('name')->get();
         $durations = ['28 Days', '45 Days', '1 Month', '3 Months', '6 Months'];
 
-        return view('trainings.index', compact('trainings', 'courses', 'durations'));
+        return view('trainings.index', compact('trainings', 'durations'));
     }
 
     public function create()
     {
-        $courses = Course::orderBy('name')->get();
         $durations = ['28 Days', '45 Days', '1 Month', '3 Months', '6 Months'];
 
-        return view('trainings.create', compact('courses', 'durations'));
+        return view('trainings.create', compact('durations'));
     }
 
     public function store(Request $request)
@@ -54,8 +51,9 @@ class TrainingController extends Controller
             'email' => ['required', 'email', 'max:100'],
             'college' => ['nullable', 'string', 'max:150'],
             'mobile' => ['required', 'string', 'max:20'],
-            'course_id' => ['nullable', 'exists:courses,id'],
-            'course_name' => ['nullable', 'string', 'max:150'],
+            'course_select' => ['required', 'string', 'max:150'],
+            'manual_course_name' => ['nullable', 'string', 'max:150'],
+            'course_name' => ['required', 'string', 'max:150'],
             'duration' => ['required', 'string', 'max:50'],
             'fees' => ['required', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,Online,Cheque,UPI'],
@@ -68,12 +66,13 @@ class TrainingController extends Controller
 
         $data['slip_no'] = $slipNo;
         $data['created_by'] = session('user_id');
+        $data['course_id'] = null;
 
-        if ($data['course_id']) {
-            $data['course_name'] = null;
-        } elseif (!$data['course_name']) {
-            $data['course_name'] = null;
-        }
+        $data['course_name'] = $data['course_select'] === 'Other'
+            ? ($data['manual_course_name'] ?? null)
+            : $data['course_select'];
+
+        unset($data['course_select'], $data['manual_course_name']);
 
         Training::create($data);
 
@@ -82,7 +81,7 @@ class TrainingController extends Controller
 
     public function show(Training $training)
     {
-        $training->load('course', 'creator');
+        $training->load('creator');
 
         return view('trainings.show', compact('training'));
     }
@@ -104,10 +103,10 @@ class TrainingController extends Controller
 
     public function exportCsv(Request $request)
     {
-        $query = Training::with(['course', 'creator']);
+        $query = Training::query();
 
-        if ($request->filled('course_id')) {
-            $query->where('course_id', $request->course_id);
+        if ($request->filled('course_name')) {
+            $query->where('course_name', 'like', '%'.$request->course_name.'%');
         }
 
         if ($request->filled('duration')) {
@@ -133,7 +132,7 @@ class TrainingController extends Controller
                     $training->email,
                     $training->college,
                     $training->mobile,
-                    $training->course->name ?? $training->course_name ?? 'N/A',
+                    $training->course_name ?? 'N/A',
                     $training->duration,
                     $training->fees,
                     $training->payment_method,
@@ -157,20 +156,18 @@ class TrainingController extends Controller
         $totalRevenue = Training::sum('fees');
 
         $courseStats = Training::selectRaw('
-                COALESCE(course_id, 0) as course_id,
                 course_name,
                 COUNT(*) as count,
                 SUM(fees) as revenue
             ')
-            ->with('course')
-            ->groupBy('course_id', 'course_name')
+            ->groupBy('course_name')
             ->get();
 
         $durationStats = Training::selectRaw('duration, COUNT(*) as count')
             ->groupBy('duration')
             ->get();
 
-        $recentRegistrations = Training::with(['course', 'creator'])
+        $recentRegistrations = Training::with(['creator'])
             ->latest()
             ->limit(10)
             ->get();
@@ -185,8 +182,8 @@ class TrainingController extends Controller
             $filteredQuery->where('payment_date', '<=', $request->to_date);
         }
 
-        if ($request->filled('course_id')) {
-            $filteredQuery->where('course_id', $request->course_id);
+        if ($request->filled('course_name')) {
+            $filteredQuery->where('course_name', 'like', '%'.$request->course_name.'%');
         }
 
         $filteredRegistrations = $filteredQuery->count();

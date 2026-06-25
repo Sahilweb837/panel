@@ -30,11 +30,23 @@
                         <i class="fas fa-search text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
                     </div>
                     <div style="position: relative; width: 180px;">
-                        <select name="course_id" class="form-input" style="padding-left: 36px;">
+                        <select name="course_name" class="form-input" style="padding-left: 36px;">
                             <option value="">All Courses</option>
-                            @foreach($courses as $course)
-                                <option value="{{ $course->id }}" {{ request('course_id') == $course->id ? 'selected' : '' }}>{{ $course->name }}</option>
-                            @endforeach
+                            <option value="PHP Development" {{ request('course_name') === 'PHP Development' ? 'selected' : '' }}>PHP Development</option>
+                            <option value="Laravel Framework" {{ request('course_name') === 'Laravel Framework' ? 'selected' : '' }}>Laravel Framework</option>
+                            <option value="JavaScript Programming" {{ request('course_name') === 'JavaScript Programming' ? 'selected' : '' }}>JavaScript Programming</option>
+                            <option value="React.js" {{ request('course_name') === 'React.js' ? 'selected' : '' }}>React.js</option>
+                            <option value="Python Programming" {{ request('course_name') === 'Python Programming' ? 'selected' : '' }}>Python Programming</option>
+                            <option value="Django Framework" {{ request('course_name') === 'Django Framework' ? 'selected' : '' }}>Django Framework</option>
+                            <option value="Node.js" {{ request('course_name') === 'Node.js' ? 'selected' : '' }}>Node.js</option>
+                            <option value="Angular" {{ request('course_name') === 'Angular' ? 'selected' : '' }}>Angular</option>
+                            <option value="Vue.js" {{ request('course_name') === 'Vue.js' ? 'selected' : '' }}>Vue.js</option>
+                            <option value="WordPress Development" {{ request('course_name') === 'WordPress Development' ? 'selected' : '' }}>WordPress Development</option>
+                            <option value="Data Science" {{ request('course_name') === 'Data Science' ? 'selected' : '' }}>Data Science</option>
+                            <option value="Machine Learning" {{ request('course_name') === 'Machine Learning' ? 'selected' : '' }}>Machine Learning</option>
+                            <option value="Android Development" {{ request('course_name') === 'Android Development' ? 'selected' : '' }}>Android Development</option>
+                            <option value="iOS Development" {{ request('course_name') === 'iOS Development' ? 'selected' : '' }}>iOS Development</option>
+                            <option value="Flutter" {{ request('course_name') === 'Flutter' ? 'selected' : '' }}>Flutter</option>
                         </select>
                         <i class="fas fa-book text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
                     </div>
@@ -50,7 +62,7 @@
                     <button type="submit" class="button button-secondary px-4 py-2">
                         <i class="fas fa-filter me-2"></i>Filter
                     </button>
-                    @if(request('search') || request('course_id') || request('duration'))
+                    @if(request('search') || request('course_name') || request('duration'))
                         <a href="{{ route('trainings.index') }}" class="button button-secondary px-3 py-2">
                             <i class="fas fa-undo"></i>
                         </a>
@@ -116,7 +128,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-muted">{{ $training->course->name ?? $training->course_name ?? 'N/A' }}</td>
+                                    <td class="text-muted">{{ $training->course_name ?? 'N/A' }}</td>
                                     <td class="text-muted">{{ $training->duration }}</td>
                                     <td class="text-muted fw-bold">{{ number_format($training->fees, 2) }}</td>
                                     <td class="text-muted">{{ $training->payment_date ? \Carbon\Carbon::parse($training->payment_date)->format('M d, Y') : 'N/A' }}</td>

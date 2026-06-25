@@ -345,6 +345,21 @@
             vertical-align: middle;
         }
         .invoice-table td:last-child { text-align: right; font-weight: 700; }
+        .invoice-table .section-header td {
+            background: rgba(255, 85, 50, 0.04);
+            border-bottom: 2px solid var(--border);
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+            padding: 6px 12px;
+        }
+        .invoice-table .section-separator td {
+            border-top: 1px dashed var(--border);
+            border-bottom: none;
+            padding: 2px 0;
+        }
 
         /* Summary Panel */
         .summary-block {
@@ -546,16 +561,30 @@
                                 if (is_string($items)) {
                                     $items = json_decode($items, true);
                                 }
+                                $oneTimeItems = collect($items ?? [])->filter(fn($i) => in_array($i['category'] ?? '', ['Registration Fee', 'Prospectus Fee']))->values();
+                                $regularItems = collect($items ?? [])->reject(fn($i) => in_array($i['category'] ?? '', ['Registration Fee', 'Prospectus Fee']))->values();
                             @endphp
 
-                            @if($items && is_array($items) && count($items) > 0)
-                                @foreach($items as $item)
+                            @if($oneTimeItems->count() > 0)
+                                <tr style="background: rgba(255,85,50,0.04);">
+                                    <td colspan="2" style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color: var(--primary); padding: 6px 12px;">One Time Fee</td>
+                                </tr>
+                                @foreach($oneTimeItems as $item)
+                                    <tr>
+                                        <td>{{ $item['category'] }}</td>
+                                        <td>{{ number_format(isset($item['amount']) ? (float)$item['amount'] : 0, 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
+
+                            @if($regularItems->count() > 0)
+                                @foreach($regularItems as $item)
                                     <tr>
                                         <td><strong>{{ $item['category'] ?? 'Fee Item' }}</strong></td>
                                         <td>{{ number_format(isset($item['amount']) ? (float)$item['amount'] : 0, 2) }}</td>
                                     </tr>
                                 @endforeach
-                            @else
+                            @elseif($oneTimeItems->count() === 0)
                                 <tr>
                                     <td><strong>{{ $feeInvoice->fee_category ?? 'Course Fees' }}</strong></td>
                                     <td>{{ number_format($feeInvoice->total_amount, 2) }}</td>

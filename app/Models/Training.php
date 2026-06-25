@@ -33,11 +33,6 @@ class Training extends Model
         'fees' => 'decimal:2',
     ];
 
-    public function course()
-    {
-        return $this->belongsTo(Course::class);
-    }
-
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

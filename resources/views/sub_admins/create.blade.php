@@ -171,6 +171,12 @@
                             </div>
                             <div class="col-12 col-sm-6">
                                 <label class="checkbox-label" style="cursor: pointer; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; width: auto !important; margin: 0 !important;">
+                                    <input type="checkbox" name="access[]" value="training-courses" {{ is_array(old('access')) && in_array('training-courses', old('access')) ? 'checked' : '' }} class="checkbox-input" style="width: 18px !important; height: 18px !important; margin: 0 !important; padding: 0 !important; flex-shrink: 0 !important; accent-color: var(--first-color) !important;">
+                                    <span style="display: inline-flex !important; align-items: center !important; gap: 6px !important;"><i class="fas fa-graduation-cap text-first me-1"></i>Training Courses</span>
+                                </label>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="checkbox-label" style="cursor: pointer; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; width: auto !important; margin: 0 !important;">
                                     <input type="checkbox" name="access[]" value="students" {{ is_array(old('access')) && in_array('students', old('access')) ? 'checked' : '' }} class="checkbox-input" style="width: 18px !important; height: 18px !important; margin: 0 !important; padding: 0 !important; flex-shrink: 0 !important; accent-color: var(--first-color) !important;">
                                     <span style="display: inline-flex !important; align-items: center !important; gap: 6px !important;"><i class="fas fa-graduation-cap text-first me-1"></i>Students</span>
                                 </label>

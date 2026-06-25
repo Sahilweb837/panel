@@ -84,43 +84,40 @@
 
                     <h5 class="fw-bold text-muted uppercase-bold mb-3 mt-4" style="font-size: 0.75rem;"><i class="fas fa-sliders me-1"></i> Training Details</h5>
 
-                    <div class="form-group mb-3">
-                        <label class="fw-semibold mb-2">Course Selection</label>
-                        <div class="d-flex gap-3 mb-2">
-                            <label class="d-flex align-items-center gap-1" style="cursor: pointer;">
-                                <input type="radio" name="course_type" value="existing" {{ old('course_type', 'existing') === 'existing' ? 'checked' : '' }} onclick="toggleCourseType()" />
-                                <span>Select Existing</span>
-                            </label>
-                            <label class="d-flex align-items-center gap-1" style="cursor: pointer;">
-                                <input type="radio" name="course_type" value="manual" {{ old('course_type') === 'manual' ? 'checked' : '' }} onclick="toggleCourseType()" />
-                                <span>Enter Manually</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div id="existing-course-wrapper" class="form-group-grid mb-4">
+                    <div class="form-group-grid mb-4">
                         <div class="form-group">
-                            <label for="course_id" class="fw-semibold mb-2">
+                            <label for="course_select" class="fw-semibold mb-2">
                                 <i class="fas fa-book text-first me-2"></i>Course
                             </label>
-                            <select id="course_id" name="course_id" class="form-input {{ $errors->has('course_id') ? 'is-invalid' : '' }}">
+                            <select id="course_select" name="course_select" onchange="handleCourseSelect()" class="form-input">
                                 <option value="">-- Select Course --</option>
-                                @foreach($courses as $course)
-                                    <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>{{ $course->name }}</option>
-                                @endforeach
+                                <option value="PHP Development" {{ old('course_select') === 'PHP Development' ? 'selected' : '' }}>PHP Development</option>
+                                <option value="Laravel Framework" {{ old('course_select') === 'Laravel Framework' ? 'selected' : '' }}>Laravel Framework</option>
+                                <option value="JavaScript Programming" {{ old('course_select') === 'JavaScript Programming' ? 'selected' : '' }}>JavaScript Programming</option>
+                                <option value="React.js" {{ old('course_select') === 'React.js' ? 'selected' : '' }}>React.js</option>
+                                <option value="Python Programming" {{ old('course_select') === 'Python Programming' ? 'selected' : '' }}>Python Programming</option>
+                                <option value="Django Framework" {{ old('course_select') === 'Django Framework' ? 'selected' : '' }}>Django Framework</option>
+                                <option value="Node.js" {{ old('course_select') === 'Node.js' ? 'selected' : '' }}>Node.js</option>
+                                <option value="Angular" {{ old('course_select') === 'Angular' ? 'selected' : '' }}>Angular</option>
+                                <option value="Vue.js" {{ old('course_select') === 'Vue.js' ? 'selected' : '' }}>Vue.js</option>
+                                <option value="WordPress Development" {{ old('course_select') === 'WordPress Development' ? 'selected' : '' }}>WordPress Development</option>
+                                <option value="Data Science" {{ old('course_select') === 'Data Science' ? 'selected' : '' }}>Data Science</option>
+                                <option value="Machine Learning" {{ old('course_select') === 'Machine Learning' ? 'selected' : '' }}>Machine Learning</option>
+                                <option value="Android Development" {{ old('course_select') === 'Android Development' ? 'selected' : '' }}>Android Development</option>
+                                <option value="iOS Development" {{ old('course_select') === 'iOS Development' ? 'selected' : '' }}>iOS Development</option>
+                                <option value="Flutter" {{ old('course_select') === 'Flutter' ? 'selected' : '' }}>Flutter</option>
+                                <option value="Other" {{ old('course_select') === 'Other' ? 'selected' : '' }}>Drop Other Training Course</option>
                             </select>
-                            @error('course_id')
-                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
-                            @enderror
+                            <input type="hidden" name="course_name" id="course_name" value="{{ old('course_name', '') }}" />
                         </div>
                     </div>
 
                     <div id="manual-course-wrapper" class="form-group-grid mb-4" style="display: none;">
                         <div class="form-group">
-                            <label for="course_name" class="fw-semibold mb-2">
-                                <i class="fas fa-book text-first me-2"></i>Course Name
+                            <label for="manual_course_name" class="fw-semibold mb-2">
+                                <i class="fas fa-book text-first me-2"></i>Enter Course Name
                             </label>
-                            <input type="text" id="course_name" name="course_name" value="{{ old('course_name') }}" placeholder="Enter course name" class="form-input" />
+                            <input type="text" id="manual_course_name" name="manual_course_name" value="{{ old('manual_course_name') }}" placeholder="Enter course name" class="form-input" oninput="syncCourseName(this.value)" />
                         </div>
                     </div>
 
@@ -131,9 +128,11 @@
                             </label>
                             <select id="duration" name="duration" required class="form-input {{ $errors->has('duration') ? 'is-invalid' : '' }}">
                                 <option value="">-- Select Duration --</option>
-                                @foreach($durations as $duration)
-                                    <option value="{{ $duration }}" {{ old('duration') == $duration ? 'selected' : '' }}>{{ $duration }}</option>
-                                @endforeach
+                                <option value="28 Days" {{ old('duration') == '28 Days' ? 'selected' : '' }}>28 Days</option>
+                                <option value="45 Days" {{ old('duration') == '45 Days' ? 'selected' : '' }}>45 Days</option>
+                                <option value="1 Month" {{ old('duration') == '1 Month' ? 'selected' : '' }}>1 Month</option>
+                                <option value="3 Months" {{ old('duration') == '3 Months' ? 'selected' : '' }}>3 Months</option>
+                                <option value="6 Months" {{ old('duration') == '6 Months' ? 'selected' : '' }}>6 Months</option>
                             </select>
                             @error('duration')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
@@ -214,20 +213,24 @@
     </div>
 
     <script>
-        function toggleCourseType() {
-            const existingWrapper = document.getElementById('existing-course-wrapper');
+        function handleCourseSelect() {
+            const select = document.getElementById('course_select');
             const manualWrapper = document.getElementById('manual-course-wrapper');
-            const courseType = document.querySelector('input[name="course_type"]:checked')?.value;
+            const courseNameInput = document.getElementById('course_name');
+            const courseSelect = document.getElementById('course_select');
 
-            if (courseType === 'manual') {
-                existingWrapper.style.display = 'none';
+            if (courseSelect.value === 'Other') {
                 manualWrapper.style.display = 'grid';
-                document.getElementById('course_id').value = '';
+                courseNameInput.value = '';
             } else {
-                existingWrapper.style.display = 'grid';
                 manualWrapper.style.display = 'none';
-                document.getElementById('course_name').value = '';
+                courseNameInput.value = courseSelect.value;
+                document.getElementById('manual_course_name').value = '';
             }
+        }
+
+        function syncCourseName(val) {
+            document.getElementById('course_name').value = val;
         }
 
         function toggleUpiFields() {
@@ -245,7 +248,7 @@
             const skeleton = document.getElementById('page-skeleton');
             const content = document.getElementById('page-content');
 
-            toggleCourseType();
+            handleCourseSelect();
             toggleUpiFields();
             document.getElementById('payment_method').addEventListener('change', toggleUpiFields);
 

@@ -30,10 +30,10 @@
                         <i class="fas fa-calendar text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
                     </div>
                     <div style="position: relative; width: 200px;">
-                        <select name="course_id" class="form-input" style="padding-left: 36px;">
+                        <select name="course_name" class="form-input" style="padding-left: 36px;">
                             <option value="">All Courses</option>
                             @foreach($courseStats as $stat)
-                                <option value="{{ $stat->course_id }}" {{ request('course_id') == $stat->course_id ? 'selected' : '' }}>{{ $stat->course->name ?? 'N/A' }}</option>
+                                <option value="{{ $stat->course_name }}" {{ request('course_name') == $stat->course_name ? 'selected' : '' }}>{{ $stat->course_name ?? 'N/A' }}</option>
                             @endforeach
                         </select>
                         <i class="fas fa-book text-muted position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%);"></i>
@@ -41,7 +41,7 @@
                     <button type="submit" class="button button-secondary px-4 py-2">
                         <i class="fas fa-filter me-2"></i>Apply Filter
                     </button>
-                    @if(request('from_date') || request('to_date') || request('course_id'))
+                    @if(request('from_date') || request('to_date') || request('course_name'))
                         <a href="{{ route('trainings.analytics') }}" class="button button-secondary px-3 py-2">
                             <i class="fas fa-undo"></i>
                         </a>
@@ -131,7 +131,7 @@
                                 <tbody>
                                     @forelse($courseStats as $stat)
                                         <tr>
-                                            <td>{{ $stat->course->name ?? $stat->course_name ?? 'N/A' }}</td>
+                                            <td>{{ $stat->course_name ?? 'N/A' }}</td>
                                             <td class="text-center fw-bold">{{ $stat->count }}</td>
                                             <td class="text-end fw-bold text-success">{{ number_format($stat->revenue, 2) }}</td>
                                         </tr>
@@ -211,7 +211,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-muted">{{ $training->course->name ?? $training->course_name ?? 'N/A' }}</td>
+                                    <td class="text-muted">{{ $training->course_name ?? 'N/A' }}</td>
                                     <td class="text-end fw-bold">{{ number_format($training->fees, 2) }}</td>
                                     <td class="text-end pe-4 text-muted">{{ $training->payment_date ? \Carbon\Carbon::parse($training->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                 </tr>
