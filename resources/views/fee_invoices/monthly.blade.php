@@ -498,9 +498,9 @@
             toggleTxnFields();
             
             // Auto-load if studentId is pre-selected
-            {{ if($studentId) }}
+            @if($studentId)
                 loadMonthlyStatus();
-            {{ endif }}
+            @endif
         });
     </script>
 @endsection

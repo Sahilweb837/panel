@@ -184,6 +184,13 @@
                 </a>
             @endif
 
+            @if($isSuperOrRoot)
+                <a href="{{ route('reports.index') }}" class="nav-link{{ request()->routeIs('reports.*') ? ' active' : '' }}">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            @endif
+
             @if($isSuperOrRoot || in_array('trainings', $access))
                 <a href="{{ route('trainings.index') }}" class="nav-link{{ request()->routeIs('trainings.*') ? ' active' : '' }}">
                     <i class="fas fa-graduation-cap"></i>

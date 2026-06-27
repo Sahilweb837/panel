@@ -192,6 +192,12 @@ class FeeInvoiceController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('fee_items_json')) {
+            $request->merge([
+                'fee_items' => json_decode($request->fee_items_json, true)
+            ]);
+        }
+
         $data = $request->validate([
             'student_id' => ['required', 'exists:students,id'],
             'invoice_no' => ['nullable', 'string', 'max:60', 'unique:fee_invoices,invoice_no'],
@@ -333,17 +339,46 @@ class FeeInvoiceController extends Controller
             }
         }
 
+        // 3. Check if Prospectus Fee or Registration Fee has already been paid in past invoices
+        $allInvoices = FeeInvoice::where('student_id', $id)->get();
+        $prospectusPaid = false;
+        $registrationPaid = false;
+
+        foreach ($allInvoices as $inv) {
+            $items = is_string($inv->fee_items) ? json_decode($inv->fee_items, true) : ($inv->fee_items ?? []);
+            foreach ($items as $item) {
+                $category = strtolower($item['category'] ?? '');
+                if (str_contains($category, 'prospectus')) {
+                    $prospectusPaid = true;
+                }
+                if (str_contains($category, 'registration')) {
+                    $registrationPaid = true;
+                }
+            }
+            $feeCat = strtolower($inv->fee_category ?? '');
+            if (str_contains($feeCat, 'prospectus')) {
+                $prospectusPaid = true;
+            }
+            if (str_contains($feeCat, 'registration')) {
+                $registrationPaid = true;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'past_payments' => $pastPayments,
             'attendance_fine' => $automaticFine,
             'fine_details' => implode(', ', $fineDetails),
+            'prospectus_paid' => $prospectusPaid,
+            'registration_paid' => $registrationPaid,
             'student_data' => [
                 'course_fee' => $student->course ? $student->course->fee : 0,
                 'course_duration' => $student->course_duration ?: '',
                 'registration_fee' => $student->registration_fee ?: 0,
                 'prospectus_fee' => $student->prospectus_fee ?: 0,
                 'discount' => $student->discount ?: 0,
+                'student_name' => $student->first_name . ' ' . $student->last_name,
+                'fee_tenure' => $student->fee_tenure ?: '1 Year'
             ]
         ]);
     }

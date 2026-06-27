@@ -228,8 +228,8 @@
                     tbody.appendChild(tr);
                 }
 
-                if (regFee > 0) addRow('Registration Fee', regFee, true, '0');
-                if (prosFee > 0) addRow('Prospectus Fee', prosFee, true, '0');
+                if (regFee > 0 && !json.registration_paid) addRow('Registration Fee', regFee, true, '0');
+                if (prosFee > 0 && !json.prospectus_paid) addRow('Prospectus Fee', prosFee, true, '0');
 
                 let monthlyAmt = 0;
                 if (totalCourseFee > 0 && tenureLabel) {

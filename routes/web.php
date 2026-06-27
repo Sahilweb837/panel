@@ -18,6 +18,7 @@ use App\Http\Controllers\BiometricController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientInvoiceController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -106,6 +107,9 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('fee_invoices/monthly', [FeeInvoiceController::class, 'monthlyFee'])->name('fee_invoices.monthly');
     Route::get('api/students/{id}/monthly-status', [FeeInvoiceController::class, 'studentMonthlyStatus'])->name('api.students.monthly-status');
     Route::resource('fee_invoices', FeeInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export/csv', [ReportController::class, 'exportCsv'])->name('reports.export.csv');
+    Route::get('reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
     Route::post('salary_slips/{id}/restore', [SalarySlipController::class, 'restore'])->name('salary_slips.restore');
     Route::resource('salary_slips', SalarySlipController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 
