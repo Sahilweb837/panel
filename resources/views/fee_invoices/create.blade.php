@@ -100,6 +100,27 @@
                                     <option value="Online">Online</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="billing_month" class="fw-semibold mb-2">
+                                    <i class="fas fa-calendar-alt text-first me-2"></i>Billing Month
+                                </label>
+                                <select id="billing_month" name="billing_month" class="form-input">
+                                    <option value="">-- Select Month --</option>
+                                    @for($m = 1; $m <= 12; $m++)
+                                        <option value="{{ $m }}" {{ date('m') == $m ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="billing_year" class="fw-semibold mb-2">
+                                    <i class="fas fa-calendar-alt text-first me-2"></i>Billing Year
+                                </label>
+                                <select id="billing_year" name="billing_year" class="form-input">
+                                    @for($y = 2024; $y <= 2030; $y++)
+                                        <option value="{{ $y }}" {{ date('Y') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                    @endfor
+                                </select>
+                            </div>
                         </div>
 
                         <div class="form-group-grid mb-4" id="txn-fields" style="display: none;">
@@ -127,6 +148,8 @@
                         <input type="hidden" name="fine" id="fine_hidden" value="0" />
                         <input type="hidden" name="status" id="status_hidden" value="Paid" />
                         <input type="hidden" name="fee_category" id="fee_category_hidden" value="Regular Fees" />
+                        <input type="hidden" name="billing_month" id="billing_month_hidden" value="" />
+                        <input type="hidden" name="billing_year" id="billing_year_hidden" value="" />
 
                         <div class="form-actions-row">
                             <a href="{{ route('fee_invoices.index') }}" class="button button-secondary">
@@ -264,6 +287,16 @@
             if (feeItems.length === 0) {
                 alert('Please enter atleast one fee amount to pay.');
                 return;
+            }
+
+            // Add billing month/year to fee_category if selected
+            const billingMonth = document.getElementById('billing_month').value;
+            const billingYear = document.getElementById('billing_year').value;
+            if (billingMonth && billingYear) {
+                const monthName = new Date(billingYear, billingMonth - 1).toLocaleString('default', { month: 'long' });
+                document.getElementById('fee_category_hidden').value = `Monthly Fee - ${monthName} ${billingYear}`;
+                document.getElementById('billing_month_hidden').value = billingMonth;
+                document.getElementById('billing_year_hidden').value = billingYear;
             }
 
             document.getElementById('fee_items_json').value = JSON.stringify(feeItems);

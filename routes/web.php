@@ -103,6 +103,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('fee_invoices/restore-all', [FeeInvoiceController::class, 'restoreAll'])->name('fee_invoices.restore_all');
     Route::post('fee_invoices/{id}/restore', [FeeInvoiceController::class, 'restore'])->name('fee_invoices.restore');
     Route::get('api/students/{id}/fee-info', [FeeInvoiceController::class, 'studentFeeInfo'])->name('api.students.fee-info');
+    Route::get('fee_invoices/monthly', [FeeInvoiceController::class, 'monthlyFee'])->name('fee_invoices.monthly');
+    Route::get('api/students/{id}/monthly-status', [FeeInvoiceController::class, 'studentMonthlyStatus'])->name('api.students.monthly-status');
     Route::resource('fee_invoices', FeeInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
     Route::post('salary_slips/{id}/restore', [SalarySlipController::class, 'restore'])->name('salary_slips.restore');
     Route::resource('salary_slips', SalarySlipController::class)->only(['index', 'create', 'store', 'destroy', 'show']);

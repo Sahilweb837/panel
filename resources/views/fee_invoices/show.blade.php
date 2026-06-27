@@ -15,16 +15,18 @@
             color: #1a1a1a;
         }
         .receipt {
-            max-width: 780px;
+            max-width: 210mm;
+            min-height: 297mm;
             margin: 0 auto;
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            overflow: hidden;
+            color: #000;
+            border: 1px solid #ddd;
+            page-break-after: always;
         }
         .receipt-header {
-            background: #1a1a1a;
-            color: #fff;
+            background: #fff;
+            color: #000;
+            border-bottom: 2px solid #000;
             padding: 20px 28px;
             display: flex;
             justify-content: space-between;
@@ -41,15 +43,15 @@
         .badge {
             display: inline-block;
             padding: 4px 12px;
-            border-radius: 20px;
+            border-radius: 2px;
             font-size: 0.72rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            border: 1px solid #000;
+            color: #000;
+            background: #fff;
         }
-        .badge-paid { background: #d1fae5; color: #065f46; }
-        .badge-unpaid { background: #fee2e2; color: #991b1b; }
-        .badge-partial { background: #fef3c7; color: #92400e; }
 
         .info-section {
             display: grid;
@@ -104,13 +106,14 @@
         }
         table td:last-child { text-align: right; font-weight: 600; }
         table tr.section-header td {
-            background: #ff553212;
+            background: #f0f0f0;
             font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: #ff5532;
+            color: #000;
             padding: 5px 24px;
+            border-bottom: 1px solid #000;
         }
         table tr.tenure-row td {
             background: #f8f8f8;
@@ -121,10 +124,11 @@
         }
 
         .summary-section {
-            background: #fafafa;
+            background: #fff;
             padding: 16px 24px;
             display: flex;
             justify-content: flex-end;
+            border-top: 1px solid #eee;
         }
         .summary-card {
             width: 260px;
@@ -153,6 +157,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            color: #000;
         }
         .footer .notes {
             font-size: 0.7rem;
@@ -239,6 +244,9 @@
         default => 'badge-unpaid',
     };
     $tenureLabel = null;
+    $isMonthlyFee = $feeInvoice->billing_month && $feeInvoice->billing_year;
+    $billingPeriod = $isMonthlyFee ? \Carbon\Carbon::create()->month($feeInvoice->billing_month)->format('F') . ' ' . $feeInvoice->billing_year : null;
+    
     if ($regular->isNotEmpty()) {
         $cat = $regular->first()['category'] ?? '';
         if (preg_match('/\((.+?)\)/', $cat, $m)) {
@@ -260,6 +268,11 @@
         <div class="invoice-meta">
             <div class="invoice-title">FEE RECEIPT</div>
             <div class="invoice-no">#{{ $feeInvoice->invoice_no }}</div>
+            @if($isMonthlyFee)
+                <div class="invoice-period" style="font-size: 0.75rem; color: #666; margin-top: 2px;">
+                    <i class="fas fa-calendar-alt me-1"></i> Billing Period: {{ $billingPeriod }}
+                </div>
+            @endif
             <span class="badge {{ $statusBadge }}" style="margin-top:6px;">{{ $feeInvoice->status }}</span>
         </div>
     </div>
@@ -275,6 +288,9 @@
                 Course: {{ $feeInvoice->student?->course?->name ?? '-' }}
                 @if($tenureLabel)
                     <br><span style="color:#ff5532; font-weight:600;"><i class="fas fa-calendar-days"></i> {{ $tenureLabel }}</span>
+                @endif
+                @if($isMonthlyFee)
+                    <br><span style="color:#0d9488; font-weight:600;"><i class="fas fa-calendar-alt"></i> Billing: {{ $billingPeriod }}</span>
                 @endif
             </div>
         </div>
@@ -310,19 +326,21 @@
                 @endif
 
                 @if($regular->count() > 0)
-                    <tr class="section-header"><td colspan="2">Course Fee (EMI / Installment)</td></tr>
+                    <tr class="section-header"><td colspan="2">{{ $isMonthlyFee ? 'Monthly Course Fee' : 'Course Fee (EMI / Installment)' }}</td></tr>
                     @foreach($regular as $item)
                         @php
                             $cat = $item['category'] ?? '';
                             $itemAmt = $item['amount'] ?? 0;
                             $baseFee = $feeInvoice->student?->course?->fee ?? 0;
                             $monthlyEquiv = '';
+                            $isFine = in_array($cat, ['Late Fine', 'Attendance Fine', 'Custom Fee', 'Custom / Extra Fee']);
                             if (preg_match('/\((.+?)\)/', $cat, $m)) {
                                 $tenure = $m[1];
                                 $mCount = match($tenure) { '1 Month' => 1, '3 Months' => 3, '6 Months' => 6, '1 Year' => 12, default => 1 };
                                 $monthlyEquiv = $baseFee / max(1, $mCount);
                             }
                         @endphp
+                        @if(!$isFine)
                         <tr>
                             <td>
                                 <strong>{{ $cat }}</strong>
@@ -335,7 +353,23 @@
                             </td>
                             <td>₹{{ number_format($itemAmt, 2) }}</td>
                         </tr>
+                        @endif
                     @endforeach
+                    
+                    @php
+                        $fineItems = $regular->filter(fn($i) => in_array($i['category'] ?? '', ['Late Fine', 'Attendance Fine', 'Custom Fee', 'Custom / Extra Fee']))->values();
+                    @endphp
+                    @if($fineItems->count() > 0)
+                        <tr class="section-header"><td colspan="2">Fines & Extra Charges</td></tr>
+                        @foreach($fineItems as $item)
+                            <tr>
+                                <td>
+                                    <strong style="color: {{ in_array($item['category'], ['Late Fine', 'Attendance Fine']) ? '#dc2626' : '#1a1a1a' }};">{{ $item['category'] }}</strong>
+                                </td>
+                                <td style="color: {{ in_array($item['category'], ['Late Fine', 'Attendance Fine']) ? '#dc2626' : '#1a1a1a' }};">₹{{ number_format($item['amount'] ?? 0, 2) }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
                 @elseif($oneTime->count() === 0)
                     <tr>
                         <td><strong>{{ $feeInvoice->fee_category ?? 'Course Fee' }}</strong></td>
@@ -351,9 +385,23 @@
             @if($feeInvoice->discount > 0)
             <div class="summary-row"><span>Discount:</span><strong style="color:#10b981;">- ₹{{ number_format($feeInvoice->discount, 2) }}</strong></div>
             @endif
-            @if($feeInvoice->fine > 0)
+            
+            @php
+                $fineItems = collect($items)->filter(fn($i) => in_array($i['category'] ?? '', ['Late Fine', 'Attendance Fine']))->values();
+                $lateFineTotal = $fineItems->where('category', 'Late Fine')->sum('amount');
+                $attendanceFineTotal = $fineItems->where('category', 'Attendance Fine')->sum('amount');
+            @endphp
+            
+            @if($lateFineTotal > 0)
+            <div class="summary-row"><span>Late Fine:</span><strong style="color:#dc2626;">+ ₹{{ number_format($lateFineTotal, 2) }}</strong></div>
+            @endif
+            @if($attendanceFineTotal > 0)
+            <div class="summary-row"><span>Attendance Fine:</span><strong style="color:#f59e0b;">+ ₹{{ number_format($attendanceFineTotal, 2) }}</strong></div>
+            @endif
+            @if($feeInvoice->fine > 0 && $lateFineTotal == 0 && $attendanceFineTotal == 0)
             <div class="summary-row"><span>Fine:</span><strong>+ ₹{{ number_format($feeInvoice->fine, 2) }}</strong></div>
             @endif
+            
             <div class="summary-row total">
                 <span>Paid</span>
                 <span>₹{{ number_format($feeInvoice->paid_amount, 2) }}</span>
@@ -367,6 +415,9 @@
     <div class="footer">
         <div class="notes">
             * Computer-generated receipt. Fees once paid are not refundable.
+            @if($isMonthlyFee)
+                <br>* Billing Period: {{ $billingPeriod }}
+            @endif
             @if($feeInvoice->remarks)
                 <br>* {{ $feeInvoice->remarks }}
             @endif

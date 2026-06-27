@@ -16,6 +16,8 @@ class FeeInvoice extends Model
         'student_id',
         'invoice_no',
         'fee_category',
+        'billing_month',
+        'billing_year',
         'fee_items',
         'total_amount',
         'paid_amount',
@@ -34,6 +36,8 @@ class FeeInvoice extends Model
     protected $casts = [
         'fee_items' => 'array',
         'payment_date' => 'date',
+        'billing_month' => 'integer',
+        'billing_year' => 'integer',
     ];
 
     public function student()
