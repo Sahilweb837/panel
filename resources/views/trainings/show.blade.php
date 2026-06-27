@@ -427,12 +427,12 @@
                 </div>
                 <div class="slip-meta-right">
                     <div>
-                        <div class="slip-title">FEES SLIP</div>
+                        <div class="slip-title">FEES RECEIPT</div>
                         <div class="slip-no-label">{{ $training->slip_no }}</div>
                     </div>
                     <div>
                         @if($training->status === 'Paid')
-                            <span class="status-pill status-paid"><i class="fas fa-check-circle"></i> Paid</span>
+                            <span class="   ><i class="fas fa-check-circle"></i> Paid</span>
                         @else
                             <span class="status-pill status-unpaid"><i class="fas fa-clock"></i> Unpaid</span>
                         @endif
