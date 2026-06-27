@@ -183,6 +183,32 @@ class FeeInvoiceController extends Controller
             }
         }
 
+        // Check if Prospectus Fee or Registration Fee is already paid
+        $allInvoices = FeeInvoice::where('student_id', $id)->get();
+        $hasPaidRegistration = false;
+        $hasPaidProspectus = false;
+
+        foreach ($allInvoices as $inv) {
+            if (stripos($inv->fee_category, 'Registration Fee') !== false) {
+                $hasPaidRegistration = true;
+            }
+            if (stripos($inv->fee_category, 'Prospectus Fee') !== false) {
+                $hasPaidProspectus = true;
+            }
+
+            if (is_array($inv->fee_items)) {
+                foreach ($inv->fee_items as $item) {
+                    $cat = $item['category'] ?? '';
+                    if (stripos($cat, 'Registration Fee') !== false) {
+                        $hasPaidRegistration = true;
+                    }
+                    if (stripos($cat, 'Prospectus Fee') !== false) {
+                        $hasPaidProspectus = true;
+                    }
+                }
+            }
+        }
+
         return response()->json([
             'success' => true,
             'past_payments' => $pastPayments,
@@ -191,8 +217,8 @@ class FeeInvoiceController extends Controller
             'student_data' => [
                 'course_fee' => $student->course ? $student->course->fee : 0,
                 'course_duration' => $student->course_duration ?: '',
-                'registration_fee' => $student->registration_fee ?: 0,
-                'prospectus_fee' => $student->prospectus_fee ?: 0,
+                'registration_fee' => $hasPaidRegistration ? 0 : ($student->registration_fee ?: 0),
+                'prospectus_fee' => $hasPaidProspectus ? 0 : ($student->prospectus_fee ?: 0),
                 'discount' => $student->discount ?: 0,
             ]
         ]);
