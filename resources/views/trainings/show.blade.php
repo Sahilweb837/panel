@@ -419,7 +419,8 @@
                 <div class="logo-block">
                     <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img">
                     <div class="company-meta" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: 6px;">
-                        1st Floor, above Gramin Bank, (Near ITI Bridge), Dari,<br>
+                        1st Floor, above Gramin Bank, (Near ITI Bridge)
+                        <br>, Dari,<br>
                         Dharamshala, Himachal Pradesh, 176057<br>
                         Phone: 098167 32055 | 7590832055<br>
                         Website: www.netcoder.in | Email: support@netcoder.in
@@ -427,7 +428,7 @@
                 </div>
                 <div class="slip-meta-right">
                     <div>
-                        <div class="slip-title">TRAINING SLIP</div>
+                        <div class="slip-title">FEES SLIP</div>
                         <div class="slip-no-label">{{ $training->slip_no }}</div>
                     </div>
                     <div>
