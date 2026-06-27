@@ -427,7 +427,7 @@
                 </div>
                 <div class="slip-meta-right">
                     <div>
-                        <div class="slip-title">FEES RECEIPT</div>
+                        <div class="slip-title">FEE RECEIPT</div>
                         <div class="slip-no-label">{{ $training->slip_no }}</div>
                     </div>
                     <div>
