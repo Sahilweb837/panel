@@ -107,7 +107,7 @@
                             <label for="manual_course_name" class="fw-semibold mb-2">
                                 <i class="fas fa-book text-first me-2"></i>Enter Course Name
                             </label>
-                            <input type="text" id="manual_course_name" name="manual_course_name" value="{{ old('manual_course_name') }}" placeholder="Enter course name" class="form-input" oninput="syncCourseName(this.value)" />
+                            <input type="text" id="manual_course_name" name="manual_course_name" value="{{ old('manual_course_name') }}" placeholder="Enter course name" class="form-input" />
                         </div>
                     </div>
 
@@ -204,24 +204,26 @@
 
     <script>
         function handleCourseSelect() {
-            const select = document.getElementById('course_select');
-            const manualWrapper = document.getElementById('manual-course-wrapper');
-            const courseNameInput = document.getElementById('course_name');
             const courseSelect = document.getElementById('course_select');
+            const manualWrapper = document.getElementById('manual-course-wrapper');
 
             if (courseSelect.value === 'Other') {
                 manualWrapper.style.display = 'grid';
-                courseNameInput.value = '';
+                document.getElementById('fees').value = '0';
             } else {
                 manualWrapper.style.display = 'none';
-                courseNameInput.value = courseSelect.value;
-                document.getElementById('manual_course_name').value = '';
+                const manualInput = document.getElementById('manual_course_name');
+                if (manualInput) {
+                    manualInput.value = '';
+                }
+                
+                // Populate fee based on selected course
+                const selectedOption = courseSelect.options[courseSelect.selectedIndex];
+                const fee = selectedOption ? selectedOption.getAttribute('data-fee') : 0;
+                document.getElementById('fees').value = fee || 0;
             }
         }
 
-        function syncCourseName(val) {
-            document.getElementById('course_name').value = val;
-        }
 
         function toggleUpiFields() {
             const method = document.getElementById('payment_method').value;

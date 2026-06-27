@@ -17,7 +17,7 @@ class Training extends Model
         'email',
         'college',
         'mobile',
-        'course_id',
+        'training_course_id',
         'course_name',
         'duration',
         'fees',

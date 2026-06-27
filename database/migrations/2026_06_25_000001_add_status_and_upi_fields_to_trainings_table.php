@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::table('trainings', function (Blueprint $table) {
             $table->string('status', 20)->default('Unpaid')->after('payment_date');
             $table->string('upi_transaction_id', 100)->nullable()->after('status');
-            $table->string('course_name', 150)->nullable()->after('course_id');
-            $table->unsignedBigInteger('course_id')->nullable()->change();
+            $table->string('course_name', 150)->nullable()->after('training_course_id');
+            $table->unsignedBigInteger('training_course_id')->nullable()->change();
         });
     }
 
@@ -20,7 +20,7 @@ return new class extends Migration
     {
         Schema::table('trainings', function (Blueprint $table) {
             $table->dropColumn(['status', 'upi_transaction_id', 'course_name']);
-            $table->unsignedBigInteger('course_id')->nullable(false)->change();
+            $table->unsignedBigInteger('training_course_id')->nullable(false)->change();
         });
     }
 };

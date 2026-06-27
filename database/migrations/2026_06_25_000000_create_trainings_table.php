@@ -1,4 +1,4 @@
-&lt;?php
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,29 +9,29 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trainings', function (Blueprint $table) {
-            $table-&gt;bigIncrements('id');
-            $table-&gt;string('slip_no', 60)-&gt;unique();
-            $table-&gt;string('name', 100);
-            $table-&gt;string('father_name', 100)-&gt;nullable();
-            $table-&gt;string('email', 100);
-            $table-&gt;string('college', 150)-&gt;nullable();
-            $table-&gt;string('mobile', 20);
-            $table-&gt;unsignedBigInteger('course_id');
-            $table-&gt;string('duration', 50);
-            $table-&gt;decimal('fees', 10, 2)-&gt;default(0.00);
-            $table-&gt;string('payment_method', 50)-&gt;default('Cash');
-            $table-&gt;date('payment_date');
-            $table-&gt;unsignedBigInteger('created_by');
-            $table-&gt;softDeletes();
-            $table-&gt;timestamps();
+            $table->bigIncrements('id');
+            $table->string('slip_no', 60)->unique();
+            $table->string('name', 100);
+            $table->string('father_name', 100)->nullable();
+            $table->string('email', 100);
+            $table->string('college', 150)->nullable();
+            $table->string('mobile', 20);
+            $table->unsignedBigInteger('training_course_id');
+            $table->string('duration', 50);
+            $table->decimal('fees', 10, 2)->default(0.00);
+            $table->string('payment_method', 50)->default('Cash');
+            $table->date('payment_date');
+            $table->unsignedBigInteger('created_by');
+            $table->softDeletes();
+            $table->timestamps();
 
-            $table-&gt;foreign('course_id', 'trainings_course_id_foreign')
-                -&gt;references('id')-&gt;on('courses')
-                -&gt;onDelete('cascade');
+            $table->foreign('training_course_id', 'trainings_training_course_id_foreign')
+                ->references('id')->on('training_courses')
+                ->onDelete('cascade');
 
-            $table-&gt;foreign('created_by', 'trainings_created_by_foreign')
-                -&gt;references('id')-&gt;on('users')
-                -&gt;onDelete('cascade');
+            $table->foreign('created_by', 'trainings_created_by_foreign')
+                ->references('id')->on('users')
+                ->onDelete('cascade');
         });
     }
 
