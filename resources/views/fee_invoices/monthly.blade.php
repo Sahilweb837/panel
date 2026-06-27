@@ -70,15 +70,15 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
-                                        <h5 class="fw-bold mb-1" id="student-name-display">Student Name</h5>
-                                        <p class="text-muted mb-0 small" id="student-course-display">Course - Tenure</p>
+                                        <h5 class="fw-bold mb-1" id="student-name-display">{{ $monthlyStatus ? ($monthlyStatus['student']['name'] ?? 'Student Name') : 'Student Name' }}</h5>
+                                        <p class="text-muted mb-0 small" id="student-course-display">{{ $monthlyStatus ? (($monthlyStatus['student']['course'] ?? 'Course') . ' • ' . ($monthlyStatus['student']['fee_tenure'] ?? 'Tenure')) : 'Course - Tenure' }}</p>
                                     </div>
-                                    <span class="badge bg-{{ $monthlyStatus['existing_invoice'] ? ($monthlyStatus['existing_invoice']['status'] === 'Paid' ? 'success' : ($monthlyStatus['existing_invoice']['status'] === 'Partial' ? 'warning' : 'danger')) : 'info' }} border" id="status-badge">
-                                        {{ $monthlyStatus['existing_invoice'] ? $monthlyStatus['existing_invoice']['status'] : 'Not Generated' }}
+                                    <span class="badge bg-{{ ($monthlyStatus && $monthlyStatus['existing_invoice']) ? ($monthlyStatus['existing_invoice']['status'] === 'Paid' ? 'success' : ($monthlyStatus['existing_invoice']['status'] === 'Partial' ? 'warning' : 'danger')) : 'info' }} border" id="status-badge">
+                                        {{ ($monthlyStatus && $monthlyStatus['existing_invoice']) ? $monthlyStatus['existing_invoice']['status'] : 'Not Generated' }}
                                     </span>
                                 </div>
 
-                                @if($monthlyStatus['existing_invoice'])
+                                @if($monthlyStatus && $monthlyStatus['existing_invoice'])
                                     <div class="alert alert-light border mb-3">
                                         <div class="row g-2">
                                             <div class="col-md-4">

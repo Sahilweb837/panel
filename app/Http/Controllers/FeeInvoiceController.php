@@ -222,7 +222,14 @@ class FeeInvoiceController extends Controller
         $data['discount'] = $data['discount'] ?? 0;
         $data['fine'] = $data['fine'] ?? 0;
         $data['paid_amount'] = $data['paid_amount'] ?? 0;
-        $data['invoice_no'] = $data['invoice_no'] ?? 'nt_inv_'.now()->format('YmdHi').'_'.rand(1000, 9999);
+        if (empty($data['invoice_no'])) {
+            $year = date('Y');
+            $count = FeeInvoice::whereYear('payment_date', $year)->withTrashed()->count();
+            do {
+                $invoiceNo = 'NT-REC-' . $year . '-' . str_pad(++$count, 3, '0', STR_PAD_LEFT);
+            } while (FeeInvoice::where('invoice_no', $invoiceNo)->withTrashed()->exists());
+            $data['invoice_no'] = $invoiceNo;
+        }
         $data['due_amount'] = max(0, $data['total_amount'] + $data['fine'] - $data['paid_amount'] - $data['discount']);
         $data['created_by'] = session('user_id');
 

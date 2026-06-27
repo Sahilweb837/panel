@@ -63,7 +63,11 @@ class TrainingController extends Controller
             'status' => ['required', 'in:Paid,Unpaid'],
         ]);
 
-        $slipNo = 'TR-'.now()->format('Ymd').'-'.strtoupper(substr(uniqid(), -4));
+        $year = date('Y');
+        $count = Training::whereYear('payment_date', $year)->withTrashed()->count();
+        do {
+            $slipNo = 'NT-REC-' . $year . '-' . str_pad(++$count, 3, '0', STR_PAD_LEFT);
+        } while (Training::where('slip_no', $slipNo)->withTrashed()->exists());
 
         $data['slip_no'] = $slipNo;
         $data['created_by'] = session('user_id');

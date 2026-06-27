@@ -202,8 +202,8 @@
             gap: 12px;
         }
         .logo-img {
-            max-height: 52px;
-            max-width: 260px;
+            max-height: 79px;
+            max-width: 267px;
             object-fit: contain;
             align-self: flex-start;
         }
@@ -418,10 +418,11 @@
             <header class="slip-header">
                 <div class="logo-block">
                     <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img">
-                    <div class="company-meta">
-                        <strong>Netcoder Technology Solutions</strong><br>
-                        Address: 1st Floor, above Gramin Bank, near ITI Bridge, Dari, Dharamshala, Gabli Dar, Himachal Pradesh 176057<br>
-                        Phone: 098167 32055 | support@netcoder.tech
+                    <div class="company-meta" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: 6px;">
+                        1st Floor, above Gramin Bank, (Near ITI Bridge), Dari,<br>
+                        Dharamshala, Himachal Pradesh, 176057<br>
+                        Phone: 098167 32055 | 7590832055<br>
+                        Website: www.netcoder.in | Email: support@netcoder.in
                     </div>
                 </div>
                 <div class="slip-meta-right">
@@ -492,17 +493,16 @@
 
             <footer class="slip-footer">
                 <div class="notes-block">
-                    <h4>Terms & Notes</h4>
-                    <p style="margin-bottom: 6px;">1. This training slip is computer-generated and does not require a physical signature.</p>
-                    <p style="margin-bottom: 6px;">2. Please preserve this slip for your records and produce it when requested.</p>
-                    <p>3. All disputes are subject to Dharamshala jurisdiction.</p>
+                    <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); text-transform: uppercase;">Terms & Notes</h4>
+                    <p style="margin-bottom: 6px;">1. Fees once paid are non-refundable and non-transferable.</p>
+                    <p style="margin-bottom: 6px;">2. Please retain this receipt for future reference.</p>
+                    <p>3. This receipt is valid only after successful payment.</p>
                 </div>
-                <div class="sign-block">
-                    <h4>Authorized Signatory</h4>
+                <div class="sign-block" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; min-height: 110px;">
+                    <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); text-transform: uppercase;">NETCODER TECHNOLOGY</h4>
                     <div>
-                        <div class="sign-line"></div>
-                        <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Netcoder Technology Solutions</p>
-                        <p style="font-size: 0.72rem;">System Verification Sealed</p>
+                        <div class="sign-line" style="width: 180px; height: 1px; background: var(--text-main); margin-bottom: 6px;"></div>
+                        <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Seal &amp; Signature</p>
                     </div>
                 </div>
             </footer>

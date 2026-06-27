@@ -33,12 +33,21 @@
             align-items: center;
         }
          .logo { display: flex; align-items: center; gap: 14px; }
-         .logo-img { height: 48px; width: auto; border-radius: 6px; }
-         .logo-text { line-height: 1.2; }
-         .logo-text .brand { font-weight: 800; font-size: 1.1rem; display: block; }
-         .logo-text .sub { font-size: 0.7rem; opacity: 0.8; font-weight: 400; }
+          .logo-img {
+              max-height: 79px;
+              max-width: 267px;
+              object-fit: contain;
+              align-self: flex-start;
+          }
         .receipt-header .invoice-meta { text-align: right; }
-        .receipt-header .invoice-title { font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; }
+        .receipt-header .invoice-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ff5532;
+            letter-spacing: -1px;
+            margin-bottom: 13px;
+        }
         .receipt-header .invoice-no { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
         .badge {
             display: inline-block;
@@ -258,11 +267,13 @@
 @foreach($copies as $index => $copyName)
 <div class="receipt">
     <div class="receipt-header">
-        <div class="logo">
+        <div class="logo" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
             <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img" />
-            <div class="logo-text">
-                <span class="brand">Netcoder</span>
-                <span class="sub">Technology Solutions</span>
+            <div style="font-size: 0.72rem; color: #555; margin-top: 4px; line-height: 1.4; text-align: left;">
+                1st Floor, above Gramin Bank, (Near ITI Bridge), Dari,<br>
+                Dharamshala, Himachal Pradesh, 176057<br>
+                Phone: 098167 32055 | 7590832055<br>
+                Website: www.netcoder.in | Email: support@netcoder.in
             </div>
         </div>
         <div class="invoice-meta">
@@ -413,18 +424,23 @@
     </div>
 
     <div class="footer">
-        <div class="notes">
-            * Computer-generated receipt. Fees once paid are not refundable.
+        <div class="notes" style="font-size: 0.72rem; color: #555; line-height: 1.4;">
+            * Fees once paid are non-refundable and non-transferable.<br>
+            * Please retain this receipt for future reference.<br>
+            * This receipt is valid only after successful payment.
             @if($isMonthlyFee)
                 <br>* Billing Period: {{ $billingPeriod }}
             @endif
             @if($feeInvoice->remarks)
-                <br>* {{ $feeInvoice->remarks }}
+                <br>* Remarks: {{ $feeInvoice->remarks }}
             @endif
         </div>
-        <div class="sign-block">
-            <div class="sign-line"></div>
-            <div class="sign-text">Authorized Signatory</div>
+        <div class="sign-block" style="text-align: center;">
+            <h4 style="font-size: 0.85rem; font-weight: 800; color: #1a1a1a;">NETCODER TECHNOLOGY</h4>
+            <div style="margin-top: 15px;">
+                <div class="sign-line" style="margin: 0 auto 4px;"></div>
+                <p style="font-size: 0.8rem; font-weight: 700; color: #1a1a1a;">Seal &amp; Signature</p>
+            </div>
         </div>
     </div>
 </div>

@@ -588,15 +588,17 @@
 
             <!-- Invoice Header -->
             <header class="invoice-header">
-                <div class="brand-section">
-                    <div class="logo-box">
-                        <img src="{{ asset('image.png') }}" alt="Netcoder Logo">
-                    </div>
-                    <div class="brand-details">
-                        <h2>Netcoder Fees</h2>
-                        <p>Web App Solutions & Corporate ERP</p>
-                    </div>
-                </div>
+                <div class="brand-section" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+            <div class="logo-box" style="width: auto; height: auto; border: none; box-shadow: none; padding: 0; background: transparent;">
+                <img src="{{ asset('image.png') }}" alt="Netcoder Technology" style="max-height: 79px; max-width: 267px; object-fit: contain;" />
+            </div>
+            <div class="brand-details" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; text-align: left;">
+                1st Floor, above Gramin Bank, (Near ITI Bridge), Dari,<br>
+                Dharamshala, Himachal Pradesh, 176057<br>
+                Phone: 098167 32055 | 7590832055<br>
+                Website: www.netcoder.in | Email: support@netcoder.in
+            </div>
+        </div>
                 <div class="meta-section">
                     <div class="invoice-title">INVOICE</div>
                     <div class="invoice-no">#{{ $clientInvoice->invoice_no }}</div>
@@ -689,7 +691,9 @@
             <div class="summary-section">
                 <div class="notes-card">
                     <h5>Notes / Terms</h5>
-                    <p>{{ $clientInvoice->notes ?: 'Thank you for your business. Payment is requested within the due date specified on the invoice.' }}</p>
+                    <p style="margin-bottom: 4px;">1. Fees once paid are non-refundable and non-transferable.</p>
+                    <p style="margin-bottom: 4px;">2. Please retain this receipt for future reference.</p>
+                    <p>3. This receipt is valid only after successful payment.</p>
                 </div>
                 <div class="calculation-card">
                     <div class="calc-row">
@@ -719,6 +723,13 @@
                     <div class="calc-row calc-due">
                         <span>Amount Due:</span>
                         <span>₹{{ number_format($clientInvoice->due_amount, 2) }}</span>
+                    </div>
+                    <div class="sign-block" style="text-align: center; margin-top: 25px; border-top: 1px dashed var(--border); padding-top: 15px;">
+                        <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); text-transform: uppercase;">NETCODER TECHNOLOGY</h4>
+                        <div style="margin-top: 15px;">
+                            <div class="sign-line" style="width: 120px; height: 1px; background: var(--text-main); margin: 0 auto 4px;"></div>
+                            <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Seal &amp; Signature</p>
+                        </div>
                     </div>
                 </div>
             </div>

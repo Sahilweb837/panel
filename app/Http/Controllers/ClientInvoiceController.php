@@ -71,7 +71,14 @@ class ClientInvoiceController extends Controller
         $paid       = floatval($data['paid_amount']);
         $due        = max(0, $total - $paid);
 
-        $data['invoice_no']   = $data['invoice_no'] ?? 'CL-INV-' . now()->format('YmdHi') . '-' . rand(100, 999);
+        if (empty($data['invoice_no'])) {
+            $year = date('Y');
+            $count = ClientInvoice::whereYear('created_at', $year)->withTrashed()->count();
+            do {
+                $invoiceNo = 'NT-REC-' . $year . '-' . str_pad(++$count, 3, '0', STR_PAD_LEFT);
+            } while (ClientInvoice::where('invoice_no', $invoiceNo)->withTrashed()->exists());
+            $data['invoice_no'] = $invoiceNo;
+        }
         $data['subtotal']     = $subtotal;
         $data['tax_percent']  = $taxPercent;
         $data['tax_amount']   = $taxAmount;
