@@ -148,8 +148,6 @@
                         <input type="hidden" name="fine" id="fine_hidden" value="0" />
                         <input type="hidden" name="status" id="status_hidden" value="Paid" />
                         <input type="hidden" name="fee_category" id="fee_category_hidden" value="Regular Fees" />
-                        <input type="hidden" name="billing_month" id="billing_month_hidden" value="" />
-                        <input type="hidden" name="billing_year" id="billing_year_hidden" value="" />
 
                         <div class="form-actions-row">
                             <a href="{{ route('fee_invoices.index') }}" class="button button-secondary">
@@ -271,7 +269,9 @@
 
             const inputs = document.querySelectorAll('.pay-amount-input');
             const feeItems = [];
-            let total = 0;
+            let baseTotal = 0;
+            let fineTotal = 0;
+            let discountTotal = 0;
 
             inputs.forEach(inp => {
                 const val = parseFloat(inp.value) || 0;
@@ -280,7 +280,15 @@
                         category: inp.dataset.feeType,
                         amount: val
                     });
-                    total += val;
+                    
+                    const typeLower = inp.dataset.feeType.toLowerCase();
+                    if (typeLower.includes('fine')) {
+                        fineTotal += val;
+                    } else if (typeLower.includes('discount')) {
+                        discountTotal += val;
+                    } else {
+                        baseTotal += val;
+                    }
                 }
             });
 
@@ -295,13 +303,13 @@
             if (billingMonth && billingYear) {
                 const monthName = new Date(billingYear, billingMonth - 1).toLocaleString('default', { month: 'long' });
                 document.getElementById('fee_category_hidden').value = `Monthly Fee - ${monthName} ${billingYear}`;
-                document.getElementById('billing_month_hidden').value = billingMonth;
-                document.getElementById('billing_year_hidden').value = billingYear;
             }
 
             document.getElementById('fee_items_json').value = JSON.stringify(feeItems);
-            document.getElementById('total_amount_hidden').value = total.toFixed(2);
-            document.getElementById('paid_amount_hidden').value = total.toFixed(2);
+            document.getElementById('total_amount_hidden').value = baseTotal.toFixed(2);
+            document.getElementById('fine_hidden').value = fineTotal.toFixed(2);
+            document.getElementById('discount_hidden').value = discountTotal.toFixed(2);
+            document.getElementById('paid_amount_hidden').value = (baseTotal + fineTotal - discountTotal).toFixed(2);
             document.getElementById('status_hidden').value = 'Paid';
 
             const form = document.querySelector('form');
