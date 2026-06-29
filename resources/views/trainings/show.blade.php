@@ -155,6 +155,17 @@
             transition: all 0.4s ease;
         }
 
+        .slip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
         /* Diagonally Rotated Watermark Badge */
         .watermark-badge {
             position: absolute;
@@ -432,7 +443,7 @@
                     </div>
                     <div>
                         @if($training->status === 'Paid')
-                            <span class="   ><i class="fas fa-check-circle"></i> Paid</span>
+                            <span class="status-pill status-paid"><i class="fas fa-check-circle"></i> Paid</span>
                         @else
                             <span class="status-pill status-unpaid"><i class="fas fa-clock"></i> Unpaid</span>
                         @endif
