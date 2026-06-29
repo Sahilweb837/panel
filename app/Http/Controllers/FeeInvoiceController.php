@@ -244,9 +244,9 @@ class FeeInvoiceController extends Controller
             }
         }
 
-        FeeInvoice::create($data);
+        $invoice = FeeInvoice::create($data);
 
-        return redirect()->route('fee_invoices.index')->with('success', 'Fee invoice generated successfully.');
+        return redirect()->route('fee_invoices.show', $invoice)->with('success', 'Fee invoice generated successfully.');
     }
 
     public function destroy(FeeInvoice $feeInvoice)

@@ -100,27 +100,8 @@
                                     <option value="Online">Online</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="billing_month" class="fw-semibold mb-2">
-                                    <i class="fas fa-calendar-alt text-first me-2"></i>Billing Month
-                                </label>
-                                <select id="billing_month" name="billing_month" class="form-input">
-                                    <option value="">-- Select Month --</option>
-                                    @for($m = 1; $m <= 12; $m++)
-                                        <option value="{{ $m }}" {{ date('m') == $m ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="billing_year" class="fw-semibold mb-2">
-                                    <i class="fas fa-calendar-alt text-first me-2"></i>Billing Year
-                                </label>
-                                <select id="billing_year" name="billing_year" class="form-input">
-                                    @for($y = 2024; $y <= 2030; $y++)
-                                        <option value="{{ $y }}" {{ date('Y') == $y ? 'selected' : '' }}>{{ $y }}</option>
-                                    @endfor
-                                </select>
-                            </div>
+                            <input type="hidden" name="billing_month" id="billing_month" value="{{ date('n') }}" />
+                            <input type="hidden" name="billing_year" id="billing_year" value="{{ date('Y') }}" />
                         </div>
 
                         <div class="form-group-grid mb-4" id="txn-fields" style="display: none;">
