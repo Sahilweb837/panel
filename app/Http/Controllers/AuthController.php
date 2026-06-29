@@ -73,6 +73,11 @@ class AuthController extends Controller
             'user_role_slug' => $roleSlug ?? 'user',
         ]);
 
+        $intendedUrl = session()->pull('url.intended');
+        if ($intendedUrl) {
+            return redirect()->to($intendedUrl);
+        }
+
         if ($roleSlug === 'student') {
             return redirect()->route('student.dashboard');
         } elseif ($roleSlug === 'staff') {

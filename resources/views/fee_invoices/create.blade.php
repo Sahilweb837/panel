@@ -71,6 +71,12 @@
                                     </table>
                                 </div>
 
+                                <div class="text-start mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" style="font-size: 0.8rem; padding: 6px 12px;" onclick="addCustomRow()">
+                                        <i class="fas fa-plus me-1"></i> Add Custom Fee Item
+                                    </button>
+                                </div>
+
                                 <div class="mt-3 p-3 bg-light rounded border">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
@@ -239,6 +245,33 @@
                 total += parseFloat(inp.value) || 0;
             });
             document.getElementById('pay-now-total').textContent = `₹${total.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        }
+
+        function addCustomRow() {
+            const tbody = document.getElementById('fee-rows-body');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <input type="text" class="form-input py-1 custom-fee-label" placeholder="Enter Fee Name (e.g. Exam Fee)" style="padding: 6px 10px; font-size: 0.85rem; height: auto; max-width: 250px;" oninput="updateCustomFeeType(this)" />
+                </td>
+                <td>₹0.00</td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" step="0.01" class="form-input py-1 pay-amount-input" data-fee-type="Custom Fee" value="0" style="padding: 6px 10px; font-size: 0.85rem; height: auto; max-width: 140px;" oninput="recalcTotal()" />
+                        <button type="button" class="btn btn-sm text-danger p-1" onclick="this.closest('tr').remove(); recalcTotal();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function updateCustomFeeType(inputElement) {
+            const amountInput = inputElement.closest('tr').querySelector('.pay-amount-input');
+            if (amountInput) {
+                amountInput.dataset.feeType = inputElement.value.trim() || 'Custom Fee';
+            }
         }
 
         function submitInvoice() {

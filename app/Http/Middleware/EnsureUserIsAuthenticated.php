@@ -17,6 +17,7 @@ class EnsureUserIsAuthenticated
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->session()->has('user_id')) {
+            $request->session()->put('url.intended', $request->fullUrl());
             return redirect()->route('login');
         }
 
