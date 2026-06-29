@@ -16,6 +16,17 @@
                 <form action="{{ route('fee_invoices.store') }}" method="POST" class="form-card p-0">
                     @csrf
 
+                    @if ($errors->any())
+                        <div class="alert alert-danger mb-4 p-3" style="border-radius: 8px;">
+                            <h6 class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Please correct the following errors:</h6>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="form-group mb-4">
                         <label for="student_id" class="fw-semibold mb-2">
                             <i class="fas fa-user-graduate text-first me-2"></i>Select Student
@@ -89,8 +100,9 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="form-group-grid mb-4">
+                    <div class="form-group-grid mb-4">
                             <div class="form-group">
                                 <label for="payment_date" class="fw-semibold mb-2">
                                     <i class="fas fa-calendar text-first me-2"></i>Payment Date
@@ -144,7 +156,6 @@
                                 <i class="fas fa-check-circle me-2"></i>Save & Print Receipt
                             </button>
                         </div>
-                    </div>
                 </form>
             </div>
         </div>
