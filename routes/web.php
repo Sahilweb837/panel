@@ -164,11 +164,6 @@ Route::middleware(['auth.custom'])->group(function () {
 
 // WattVision Electrical Monitoring Routes
 Route::prefix('wattvision')->group(function () {
-    Route::get('/', function () {
-        return view('wattvision.dashboard');
-    })->name('wattvision.dashboard');
-    
-    Route::get('/login', function () {
-        return view('wattvision.login');
-    })->name('wattvision.login');
+    Route::get('/', [\App\Http\Controllers\WattVisionController::class, 'dashboard'])->name('wattvision.dashboard');
+    Route::get('/login', [\App\Http\Controllers\WattVisionController::class, 'login'])->name('wattvision.login');
 });

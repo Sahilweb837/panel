@@ -5,90 +5,145 @@
 
 @section('content')
 <style>
-    /* Design.md Theme Override for Student Dashboard */
+    :root {
+        --bg-primary: #121212;
+        --surface-card: #1E1E1E;
+        --accent-primary: #00E5FF;
+        --accent-alert: #FF453A;
+        --accent-status: #32D74B;
+        --text-primary: #FFFFFF;
+        --text-secondary: #98989D;
+        --border-sutil: #2C2C2E;
+    }
+
     body {
-        background-color: #121212 !important;
-        color: #FFFFFF !important;
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
+
     .card {
-        background-color: #1E1E1E !important;
-        border: 1px solid #2C2C2E !important;
+        background-color: var(--surface-card) !important;
+        border: 1px solid var(--border-sutil) !important;
         border-radius: 16px !important;
+        color: var(--text-primary) !important;
     }
+
     .card-header, .card-footer {
-        border-color: #2C2C2E !important;
+        border-color: var(--border-sutil) !important;
+        background-color: var(--surface-card) !important;
+        color: var(--text-primary) !important;
     }
+
     .text-muted {
-        color: #98989D !important;
+        color: var(--text-secondary) !important;
     }
+
     .text-dark {
-        color: #FFFFFF !important;
+        color: var(--text-primary) !important;
     }
-    /* Monospaced numbers for stats */
+
     .fw-bold, .fw-black, .fw-semibold, .badge, td, .fs-5, h3, h4 {
         font-family: 'JetBrains Mono', 'Fira Code', monospace;
     }
-    /* Tabs styling */
+
     .bg-light {
-        background-color: #1E1E1E !important;
-        border-color: #2C2C2E !important;
+        background-color: var(--surface-card) !important;
+        border-color: var(--border-sutil) !important;
     }
+
     .nav-pills .nav-link {
-        color: #98989D !important;
+        color: var(--text-secondary) !important;
         font-family: 'Inter', sans-serif !important;
     }
+
     .nav-pills .nav-link.active {
-        background-color: #00E5FF !important;
+        background-color: var(--accent-primary) !important;
         color: #121212 !important;
     }
-    /* Tables */
+
     .table {
-        color: #FFFFFF !important;
+        color: var(--text-primary) !important;
     }
+
     .table-light, .table-light-head, .table th, .table-responsive thead th {
-        background-color: #1E1E1E !important;
-        color: #98989D !important;
-        border-bottom: 1px solid #2C2C2E !important;
+        background-color: var(--surface-card) !important;
+        color: var(--text-secondary) !important;
+        border-bottom: 1px solid var(--border-sutil) !important;
     }
+
     .table tbody tr {
-        border-bottom: 1px solid #2C2C2E !important;
+        border-bottom: 1px solid var(--border-sutil) !important;
     }
+
     .table tbody tr:hover {
         background-color: #252525 !important;
     }
-    /* Alert Box */
+
     .alert-danger, .alert-warning, .border-danger {
         background-color: #3A1C1C !important;
-        color: #FF453A !important;
+        color: var(--accent-alert) !important;
         border: none !important;
-        border-left: 4px solid #FF453A !important;
+        border-left: 4px solid var(--accent-alert) !important;
         border-radius: 0 8px 8px 0 !important;
     }
+
     .btn-outline-primary {
-        color: #00E5FF !important;
-        border-color: #00E5FF !important;
+        color: var(--accent-primary) !important;
+        border-color: var(--accent-primary) !important;
     }
+
     .btn-outline-primary:hover {
-        background-color: #00E5FF !important;
+        background-color: var(--accent-primary) !important;
         color: #121212 !important;
     }
+
     .btn-primary {
-        background-color: #00E5FF !important;
+        background-color: var(--accent-primary) !important;
         color: #121212 !important;
         border: none !important;
     }
+
     .btn-primary:hover {
         background-color: #00b8cc !important;
     }
+
     .text-success {
-        color: #32D74B !important;
+        color: var(--accent-status) !important;
     }
+
     .text-danger {
-        color: #FF453A !important;
+        color: var(--accent-alert) !important;
     }
+
     .bg-primary {
-        background-color: #00E5FF !important;
+        background-color: var(--accent-primary) !important;
         color: #121212 !important;
+    }
+
+    .badge.bg-success {
+        background-color: rgba(50, 215, 75, 0.15) !important;
+        color: var(--accent-status) !important;
+    }
+
+    .badge.bg-danger {
+        background-color: rgba(255, 69, 58, 0.15) !important;
+        color: var(--accent-alert) !important;
+    }
+
+    .badge.bg-warning {
+        background-color: rgba(255, 159, 11, 0.15) !important;
+        color: #f59e0b !important;
+    }
+
+    .badge.bg-info {
+        background-color: rgba(0, 229, 255, 0.15) !important;
+        color: var(--accent-primary) !important;
+    }
+
+    .badge.bg-secondary {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: var(--text-secondary) !important;
     }
 </style>
 

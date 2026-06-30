@@ -4,6 +4,128 @@
 @section('page-title', 'Staff Portal')
 
 @section('content')
+<style>
+    :root {
+        --bg-primary: #121212;
+        --surface-card: #1E1E1E;
+        --accent-primary: #00E5FF;
+        --accent-alert: #FF453A;
+        --accent-status: #32D74B;
+        --text-primary: #FFFFFF;
+        --text-secondary: #98989D;
+        --border-sutil: #2C2C2E;
+    }
+
+    body {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .card {
+        background-color: var(--surface-card) !important;
+        border: 1px solid var(--border-sutil) !important;
+        border-radius: 16px !important;
+        color: var(--text-primary) !important;
+    }
+
+    .card-header, .card-footer {
+        border-color: var(--border-sutil) !important;
+        background-color: var(--surface-card) !important;
+        color: var(--text-primary) !important;
+    }
+
+    .text-muted {
+        color: var(--text-secondary) !important;
+    }
+
+    .text-dark {
+        color: var(--text-primary) !important;
+    }
+
+    .fw-bold, .fw-black, .fw-semibold, .badge, td, .fs-5, h3, h4 {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    .table {
+        color: var(--text-primary) !important;
+    }
+
+    .table-light, .table-light-head, .table th, .table-responsive thead th {
+        background-color: var(--surface-card) !important;
+        color: var(--text-secondary) !important;
+        border-bottom: 1px solid var(--border-sutil) !important;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid var(--border-sutil) !important;
+    }
+
+    .table tbody tr:hover {
+        background-color: #252525 !important;
+    }
+
+    .alert-info {
+        background-color: rgba(0, 229, 255, 0.08) !important;
+        color: var(--accent-primary) !important;
+        border: 1px solid rgba(0, 229, 255, 0.2) !important;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-primary) !important;
+        color: #121212 !important;
+        border: none !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #00b8cc !important;
+    }
+
+    .btn-outline-warning {
+        color: #f59e0b !important;
+        border-color: #f59e0b !important;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #f59e0b !important;
+        color: #121212 !important;
+    }
+
+    .btn-outline-success {
+        color: var(--accent-status) !important;
+        border-color: var(--accent-status) !important;
+    }
+
+    .btn-outline-success:hover {
+        background-color: var(--accent-status) !important;
+        color: #121212 !important;
+    }
+
+    .badge.bg-success {
+        background-color: rgba(50, 215, 75, 0.15) !important;
+        color: var(--accent-status) !important;
+    }
+
+    .badge.bg-danger {
+        background-color: rgba(255, 69, 58, 0.15) !important;
+        color: var(--accent-alert) !important;
+    }
+
+    .badge.bg-warning {
+        background-color: rgba(255, 159, 11, 0.15) !important;
+        color: #f59e0b !important;
+    }
+
+    .badge.bg-info {
+        background-color: rgba(0, 229, 255, 0.15) !important;
+        color: var(--accent-primary) !important;
+    }
+
+    .badge.bg-primary {
+        background-color: rgba(0, 229, 255, 0.15) !important;
+        color: var(--accent-primary) !important;
+    }
+</style>
 <div class="row g-4">
     <div class="col-12 col-lg-4">
         <div class="card shadow-sm border-0 h-100 rounded-4">
