@@ -95,6 +95,39 @@
         .login-form-wrapper {
             transition: all 0.3s ease;
         }
+        .login-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+        .login-type-badge.student {
+            background: #fff5f2;
+            color: #ff5532;
+            border: 1px solid #ffebe6;
+        }
+        .login-type-badge.staff {
+            background: #f0fdf4;
+            color: #10b981;
+            border: 1px solid #d1fae5;
+        }
+        .login-type-badge.institute {
+            background: #fff5f2;
+            color: #ff5532;
+            border: 1px solid #ffebe6;
+        }
+        .type-student .form-input { border-color: #ffebe6 !important; }
+        .type-student .form-input:focus { border-color: #ff5532 !important; box-shadow: 0 0 0 3px rgba(255, 85, 50, 0.08) !important; }
+        .type-staff .form-input { border-color: #d1fae5 !important; }
+        .type-staff .form-input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08) !important; }
+        .type-institute .form-input { border-color: #ffebe6 !important; }
+        .type-institute .form-input:focus { border-color: #ff5532 !important; box-shadow: 0 0 0 3px rgba(255, 85, 50, 0.08) !important; }
         .glass-card {
             background: rgba(0, 0, 0, 0.01) !important;
             border: 1px solid #e2e8f0 !important;
@@ -224,16 +257,20 @@
                 <form method="POST" action="{{ route('login.post') }}" class="login-form">
                     @csrf
 
-                    <div class="form-group">
-                        <label for="account_type">
+                    <input type="hidden" name="account_type" id="account_type" value="{{ old('account_type', 'institute') }}">
+
+                    <div id="loginTypeSelectorGroup" class="form-group">
+                        <label for="account_type_select">
                             <i class="fas fa-users-cog"></i> Login Type
                         </label>
-                        <select id="account_type" name="account_type" required class="form-input" onchange="updateLoginFormStyle()">
+                        <select id="account_type_select" class="form-input" onchange="updateLoginFormStyle()">
                             <option value="institute" {{ old('account_type', 'institute') === 'institute' ? 'selected' : '' }}>Institute / Admin</option>
                             <option value="staff" {{ old('account_type') === 'staff' ? 'selected' : '' }}>Staff</option>
                             <option value="student" {{ old('account_type') === 'student' ? 'selected' : '' }}>Student</option>
                         </select>
                     </div>
+
+                    <div id="loginTypeBadge"></div>
 
                     <div class="form-group">
                         <label for="email">
@@ -431,7 +468,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const loginType = urlParams.get('type');
             if (loginType) {
-                const selectEl = document.getElementById('account_type');
+                const selectEl = document.getElementById('account_type_select');
                 if (selectEl) {
                     selectEl.value = loginType;
                     updateLoginFormStyle();
@@ -440,33 +477,79 @@
         });
 
         function updateLoginFormStyle() {
-            const type = document.getElementById('account_type').value;
+            const selectEl = document.getElementById('account_type_select');
+            const hiddenInput = document.getElementById('account_type');
+            const type = selectEl.value;
             const icon = document.getElementById('loginTypeIconI');
             const title = document.getElementById('loginTitle');
             const subtitle = document.getElementById('loginSubtitle');
             const wrapper = document.getElementById('loginTypeIcon');
+            const badgeContainer = document.getElementById('loginTypeBadge');
+            const formEl = document.querySelector('.login-form');
 
-            if (type === 'student') {
-                icon.className = 'fas fa-user-graduate';
-                title.textContent = 'Welcome Back, Student';
-                subtitle.textContent = 'Sign in to your student portal to continue';
-                wrapper.style.background = '#fff5f2';
-                wrapper.style.color = '#ff5532';
-                wrapper.style.borderColor = '#ffebe6';
-            } else if (type === 'staff') {
-                icon.className = 'fas fa-chalkboard-teacher';
-                title.textContent = 'Welcome Back, Staff';
-                subtitle.textContent = 'Sign in to your staff hub to continue';
-                wrapper.style.background = '#f0fdf4';
-                wrapper.style.color = '#10b981';
-                wrapper.style.borderColor = '#d1fae5';
-            } else {
-                icon.className = 'fas fa-user-tie';
-                title.textContent = 'Welcome Back, Admin';
-                subtitle.textContent = 'Sign in to the management panel to continue';
-                wrapper.style.background = '#fff5f2';
-                wrapper.style.color = '#ff5532';
-                wrapper.style.borderColor = '#ffebe6';
+            hiddenInput.value = type;
+
+            const configs = {
+                student: {
+                    iconClass: 'fas fa-user-graduate',
+                    title: 'Welcome Back, Student',
+                    subtitle: 'Sign in to your student portal to continue',
+                    bg: '#fff5f2',
+                    color: '#ff5532',
+                    border: '#ffebe6',
+                    label: 'Student Portal',
+                    emailPlaceholder: 'Enrollment ID or Email',
+                    containerClass: 'type-student'
+                },
+                staff: {
+                    iconClass: 'fas fa-chalkboard-teacher',
+                    title: 'Welcome Back, Staff',
+                    subtitle: 'Sign in to your staff hub to continue',
+                    bg: '#f0fdf4',
+                    color: '#10b981',
+                    border: '#d1fae5',
+                    label: 'Staff Hub',
+                    emailPlaceholder: 'Staff Email or Employee Code',
+                    containerClass: 'type-staff'
+                },
+                institute: {
+                    iconClass: 'fas fa-user-tie',
+                    title: 'Welcome Back, Admin',
+                    subtitle: 'Sign in to the management panel to continue',
+                    bg: '#fff5f2',
+                    color: '#ff5532',
+                    border: '#ffebe6',
+                    label: 'Admin Panel',
+                    emailPlaceholder: 'Admin Email Address',
+                    containerClass: 'type-institute'
+                }
+            };
+
+            const cfg = configs[type] || configs['institute'];
+
+            icon.className = cfg.iconClass;
+            title.textContent = cfg.title;
+            subtitle.textContent = cfg.subtitle;
+
+            wrapper.style.background = cfg.bg;
+            wrapper.style.color = cfg.color;
+            wrapper.style.borderColor = cfg.border;
+
+            badgeContainer.innerHTML = `
+                <span class="login-type-badge ${type}">
+                    <i class="fas fa-circle" style="font-size: 6px;"></i> ${cfg.label}
+                </span>
+            `;
+
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+
+            if (emailInput) emailInput.placeholder = cfg.emailPlaceholder;
+            if (passwordInput) passwordInput.placeholder = 'Enter your password';
+
+            if (formEl) {
+                formEl.classList.remove('type-student', 'type-staff', 'type-institute');
+                formEl.classList.add(cfg.containerClass);
             }
         }
 
