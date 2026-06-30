@@ -7,6 +7,116 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     @vite(['resources/css/app.css'])
+    <style>
+        body.login-page {
+            background-color: #f8fafc !important;
+            color: #1e293b !important;
+            font-family: 'Inter', sans-serif;
+        }
+        .login-container {
+            background-color: #f8fafc !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        .login-left {
+            background-color: #ffffff !important;
+            border-right: 1px solid #e2e8f0 !important;
+            color: #1e293b !important;
+        }
+        .login-left h1 {
+            color: #1e293b !important;
+        }
+        .login-right {
+            background-color: #f8fafc !important;
+        }
+        .login-form-wrapper {
+            background-color: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 20px !important;
+            padding: 40px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+        }
+        .login-form-header h2 {
+            font-size: 28px !important;
+            font-weight: 800 !important;
+            color: #1e293b !important;
+            letter-spacing: -0.02em !important;
+        }
+        .login-form-header p {
+            color: #64748b !important;
+            font-size: 14px !important;
+        }
+        .form-group label {
+            color: #64748b !important;
+            font-size: 14px !important;
+            margin-bottom: 8px !important;
+            font-weight: 600 !important;
+        }
+        .form-input {
+            background-color: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1e293b !important;
+            border-radius: 10px !important;
+            padding: 12px 14px !important;
+        }
+        .form-input:focus {
+            border-color: #ff5532 !important;
+            box-shadow: 0 0 8px rgba(255, 85, 50, 0.2) !important;
+            background-color: #ffffff !important;
+        }
+        .button-login {
+            background-color: #ff5532 !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 10px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(255, 85, 50, 0.2) !important;
+            padding: 12px !important;
+            transition: all 0.3s ease !important;
+        }
+        .button-login:hover {
+            background-color: #e04423 !important;
+            box-shadow: 0 4px 16px rgba(255, 85, 50, 0.4) !important;
+        }
+        .login-type-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: #fff5f2;
+            color: #ff5532;
+            border: 1px solid #ffebe6;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        .login-form-wrapper {
+            transition: all 0.3s ease;
+        }
+        .glass-card {
+            background: rgba(0, 0, 0, 0.01) !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 16px !important;
+            color: #1e293b !important;
+        }
+        .feature-icon {
+            background: #fff5f2 !important;
+            color: #ff5532 !important;
+            border: 1px solid #ffebe6 !important;
+        }
+        .brand-tagline {
+            color: #ff5532 !important;
+            opacity: 1 !important;
+        }
+        .checkbox-label span {
+            color: #64748b !important;
+        }
+        .login-logo {
+            filter: none !important;
+        }
+    </style>
 </head>
 <body class="login-page">
     <button type="button" class="theme-toggle login-theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
@@ -16,11 +126,23 @@
     <main class="login-container">
         <!-- Left Side - Branding & Features -->
         <div class="login-left" style="position: relative; overflow: hidden;">
-            <!-- Glowing Space Orbs and Grid Overlay -->
-            <div class="space-glow-orb space-glow-orb-1"></div>
-            <div class="space-glow-orb space-glow-orb-2"></div>
-            <div class="space-grid-overlay"></div>
-            <canvas id="login-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.7;"></canvas>
+            <!-- Premium Orange SVG Vectors/Grids Background -->
+            <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;" xmlns="http://www.w3.org/2000/svg">
+                <!-- Dot Grid -->
+                <pattern id="dot-grid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                    <circle cx="2" cy="2" r="1.5" fill="#ff5532" opacity="0.12" />
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#dot-grid)" />
+                
+                <!-- Geometric shapes -->
+                <circle cx="80%" cy="20%" r="180" fill="none" stroke="#ff5532" stroke-width="1.5" opacity="0.08" />
+                <circle cx="80%" cy="20%" r="280" fill="none" stroke="#ff5532" stroke-width="1" stroke-dasharray="8 8" opacity="0.06" />
+                <circle cx="10%" cy="80%" r="120" fill="none" stroke="#ff5532" stroke-width="2" opacity="0.06" />
+                
+                <!-- Wave lines -->
+                <path d="M-50,300 Q150,200 350,320 T750,280" fill="none" stroke="#ff5532" stroke-width="2.5" opacity="0.08" />
+                <path d="M-50,320 Q150,220 350,340 T750,300" fill="none" stroke="#ff5532" stroke-width="1" opacity="0.05" />
+            </svg>
 
             <div class="login-header-left" style="position: relative; z-index: 2;">
                 <div class="login-logo-wrapper animate-float">
@@ -81,8 +203,11 @@
         <div class="login-right">
             <div class="login-form-wrapper">
                 <div class="login-form-header">
-                    <h2>Welcome Back</h2>
-                    <p>Sign in to your account to continue</p>
+                    <div class="login-type-icon" id="loginTypeIcon">
+                        <i class="fas fa-user-tie" id="loginTypeIconI"></i>
+                    </div>
+                    <h2 id="loginTitle">Welcome Back, Admin</h2>
+                    <p id="loginSubtitle">Sign in to the management panel to continue</p>
                 </div>
 
                 @if ($errors->any())
@@ -101,9 +226,9 @@
 
                     <div class="form-group">
                         <label for="account_type">
-                            <i class="fas fa-user-tie"></i> Login Type
+                            <i class="fas fa-users-cog"></i> Login Type
                         </label>
-                        <select id="account_type" name="account_type" required class="form-input">
+                        <select id="account_type" name="account_type" required class="form-input" onchange="updateLoginFormStyle()">
                             <option value="institute" {{ old('account_type', 'institute') === 'institute' ? 'selected' : '' }}>Institute / Admin</option>
                             <option value="staff" {{ old('account_type') === 'staff' ? 'selected' : '' }}>Staff</option>
                             <option value="student" {{ old('account_type') === 'student' ? 'selected' : '' }}>Student</option>
@@ -301,6 +426,52 @@
             animate();
         })();
 
+        // Auto-select login type from query param
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const loginType = urlParams.get('type');
+            if (loginType) {
+                const selectEl = document.getElementById('account_type');
+                if (selectEl) {
+                    selectEl.value = loginType;
+                    updateLoginFormStyle();
+                }
+            }
+        });
+
+        function updateLoginFormStyle() {
+            const type = document.getElementById('account_type').value;
+            const icon = document.getElementById('loginTypeIconI');
+            const title = document.getElementById('loginTitle');
+            const subtitle = document.getElementById('loginSubtitle');
+            const wrapper = document.getElementById('loginTypeIcon');
+
+            if (type === 'student') {
+                icon.className = 'fas fa-user-graduate';
+                title.textContent = 'Welcome Back, Student';
+                subtitle.textContent = 'Sign in to your student portal to continue';
+                wrapper.style.background = '#fff5f2';
+                wrapper.style.color = '#ff5532';
+                wrapper.style.borderColor = '#ffebe6';
+            } else if (type === 'staff') {
+                icon.className = 'fas fa-chalkboard-teacher';
+                title.textContent = 'Welcome Back, Staff';
+                subtitle.textContent = 'Sign in to your staff hub to continue';
+                wrapper.style.background = '#f0fdf4';
+                wrapper.style.color = '#10b981';
+                wrapper.style.borderColor = '#d1fae5';
+            } else {
+                icon.className = 'fas fa-user-tie';
+                title.textContent = 'Welcome Back, Admin';
+                subtitle.textContent = 'Sign in to the management panel to continue';
+                wrapper.style.background = '#fff5f2';
+                wrapper.style.color = '#ff5532';
+                wrapper.style.borderColor = '#ffebe6';
+            }
+        }
+
+        // Initialize on load
+        updateLoginFormStyle();
     </script>
 </body>
 </html>

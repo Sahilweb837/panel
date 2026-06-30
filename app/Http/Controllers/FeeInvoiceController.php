@@ -389,4 +389,43 @@ class FeeInvoiceController extends Controller
             ]
         ]);
     }
+
+    public function receivePayment(Request $request, $id)
+    {
+        $invoice = FeeInvoice::findOrFail($id);
+
+        $request->validate([
+            'paid_amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string|in:Cash,Bank Transfer,UPI,Cheque,Card',
+            'payment_date' => 'required|date',
+            'transaction_id' => 'nullable|string|max:100',
+            'remarks' => 'nullable|string|max:255',
+        ]);
+
+        $newPaidAmount = $invoice->paid_amount + $request->paid_amount;
+        $totalOwed = $invoice->total_amount + $invoice->fine - $invoice->discount;
+
+        if ($newPaidAmount >= $totalOwed) {
+            $status = 'Paid';
+            $dueAmount = 0;
+        } elseif ($newPaidAmount > 0) {
+            $status = 'Partial';
+            $dueAmount = max(0, $totalOwed - $newPaidAmount);
+        } else {
+            $status = 'Unpaid';
+            $dueAmount = $totalOwed;
+        }
+
+        $invoice->update([
+            'paid_amount' => $newPaidAmount,
+            'due_amount' => $dueAmount,
+            'status' => $status,
+            'payment_method' => $request->payment_method,
+            'payment_date' => $request->payment_date,
+            'transaction_id' => $request->transaction_id ?: $invoice->transaction_id,
+            'remarks' => $request->remarks ?: $invoice->remarks,
+        ]);
+
+        return back()->with('success', 'Payment of ₹' . number_format($request->paid_amount, 2) . ' recorded successfully. Invoice #' . $invoice->invoice_no . ' status is now: ' . $status);
+    }
 }

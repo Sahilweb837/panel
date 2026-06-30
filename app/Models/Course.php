@@ -16,6 +16,7 @@ class Course extends Model
         'duration',
         'fee',
         'status',
+        'syllabus_path',
     ];
 
     public function students()

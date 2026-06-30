@@ -4,117 +4,475 @@
 @section('page-title', 'Student Portal')
 
 @section('content')
-<div class="row g-4">
-    <div class="col-12 col-lg-4">
-        <div class="card shadow-sm border-0 h-100 rounded-4">
-            <div class="card-body text-center p-4">
-                <div class="mb-3">
-                    @if($student->photo)
-                        <img src="{{ Storage::url($student->photo) }}" class="rounded-circle shadow" width="120" height="120" style="object-fit: cover;">
-                    @else
-                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto shadow" style="width: 120px; height: 120px;">
-                            <i class="fas fa-user-graduate text-muted fa-3x"></i>
+<style>
+    /* Design.md Theme Override for Student Dashboard */
+    body {
+        background-color: #121212 !important;
+        color: #FFFFFF !important;
+    }
+    .card {
+        background-color: #1E1E1E !important;
+        border: 1px solid #2C2C2E !important;
+        border-radius: 16px !important;
+    }
+    .card-header, .card-footer {
+        border-color: #2C2C2E !important;
+    }
+    .text-muted {
+        color: #98989D !important;
+    }
+    .text-dark {
+        color: #FFFFFF !important;
+    }
+    /* Monospaced numbers for stats */
+    .fw-bold, .fw-black, .fw-semibold, .badge, td, .fs-5, h3, h4 {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+    /* Tabs styling */
+    .bg-light {
+        background-color: #1E1E1E !important;
+        border-color: #2C2C2E !important;
+    }
+    .nav-pills .nav-link {
+        color: #98989D !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    .nav-pills .nav-link.active {
+        background-color: #00E5FF !important;
+        color: #121212 !important;
+    }
+    /* Tables */
+    .table {
+        color: #FFFFFF !important;
+    }
+    .table-light, .table-light-head, .table th, .table-responsive thead th {
+        background-color: #1E1E1E !important;
+        color: #98989D !important;
+        border-bottom: 1px solid #2C2C2E !important;
+    }
+    .table tbody tr {
+        border-bottom: 1px solid #2C2C2E !important;
+    }
+    .table tbody tr:hover {
+        background-color: #252525 !important;
+    }
+    /* Alert Box */
+    .alert-danger, .alert-warning, .border-danger {
+        background-color: #3A1C1C !important;
+        color: #FF453A !important;
+        border: none !important;
+        border-left: 4px solid #FF453A !important;
+        border-radius: 0 8px 8px 0 !important;
+    }
+    .btn-outline-primary {
+        color: #00E5FF !important;
+        border-color: #00E5FF !important;
+    }
+    .btn-outline-primary:hover {
+        background-color: #00E5FF !important;
+        color: #121212 !important;
+    }
+    .btn-primary {
+        background-color: #00E5FF !important;
+        color: #121212 !important;
+        border: none !important;
+    }
+    .btn-primary:hover {
+        background-color: #00b8cc !important;
+    }
+    .text-success {
+        color: #32D74B !important;
+    }
+    .text-danger {
+        color: #FF453A !important;
+    }
+    .bg-primary {
+        background-color: #00E5FF !important;
+        color: #121212 !important;
+    }
+</style>
+
+<div class="container-fluid px-0">
+    <!-- Notifications/Alerts -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4 p-3 d-flex align-items-center gap-2" role="alert">
+            <i class="fas fa-check-circle fa-lg"></i>
+            <div>{{ session('success') }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4 p-3 d-flex align-items-center gap-2" role="alert">
+            <i class="fas fa-exclamation-circle fa-lg"></i>
+            <div>{{ session('error') }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <div class="row g-4">
+        <!-- Left Side Column: Student Profile -->
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 position-relative d-inline-block">
+                        @if($student->photo)
+                            <img src="{{ Storage::url($student->photo) }}" class="rounded-circle shadow border border-3 border-white" width="120" height="120" style="object-fit: cover;">
+                        @else
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto shadow border border-3 border-white" style="width: 120px; height: 120px;">
+                                <i class="fas fa-user-graduate text-muted fa-3x"></i>
+                            </div>
+                        @endif
+                    </div>
+                    <h4 class="fw-bold mb-1">{{ $student->first_name }} {{ $student->last_name }}</h4>
+                    <p class="text-muted mb-3"><i class="fas fa-book-reader me-2"></i>{{ $student->course->name ?? 'No Course Assigned' }}</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fas fa-id-card me-1"></i> {{ $student->admission_no }}</span>
+                        <span class="badge bg-info px-3 py-2 rounded-pill"><i class="fas fa-layer-group me-1"></i> Class: {{ $student->class }}</span>
+                    </div>
+
+                    <div class="border-top pt-3 text-start">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Personal Details</h6>
+                        <div class="d-flex flex-column gap-2 small">
+                            <div class="d-flex justify-content-between"><span class="text-muted">Email:</span> <span class="fw-semibold">{{ $student->user->email ?? 'N/A' }}</span></div>
+                            <div class="d-flex justify-content-between"><span class="text-muted">Phone:</span> <span class="fw-semibold">{{ $student->phone ?? 'N/A' }}</span></div>
+                            <div class="d-flex justify-content-between"><span class="text-muted">Aadhar No:</span> <span class="fw-semibold">{{ $student->aadhar_no ?? 'N/A' }}</span></div>
+                            <div class="d-flex justify-content-between"><span class="text-muted">Address:</span> <span class="fw-semibold text-end" style="max-width: 180px;">{{ $student->address ?? 'N/A' }}</span></div>
                         </div>
-                    @endif
-                </div>
-                <h4 class="fw-bold mb-1">{{ $student->first_name }} {{ $student->last_name }}</h4>
-                <p class="text-muted mb-3">{{ $student->course->name ?? 'No Course Assigned' }}</p>
-                <div class="d-flex justify-content-center gap-2">
-                    <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fas fa-id-card me-1"></i> {{ $student->admission_no }}</span>
-                    <span class="badge bg-info px-3 py-2 rounded-pill"><i class="fas fa-layer-group me-1"></i> {{ $student->class }}</span>
-                </div>
-            </div>
-            <div class="card-footer bg-transparent border-top-0 p-4 pt-0">
-                <a href="{{ route('student.attendance.capture') }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
-                    <i class="fas fa-camera fa-lg"></i> Mark Attendance Now
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-lg-8">
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3">
-                <div class="card bg-primary text-white border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-body text-center p-3">
-                        <i class="fas fa-calendar-check fa-2x mb-2 opacity-75"></i>
-                        <h3 class="fw-bold mb-0">{{ $presentDays }}</h3>
-                        <span class="small">Present</span>
                     </div>
                 </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card bg-danger text-white border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-body text-center p-3">
-                        <i class="fas fa-calendar-times fa-2x mb-2 opacity-75"></i>
-                        <h3 class="fw-bold mb-0">{{ $absentDays }}</h3>
-                        <span class="small">Absent</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card bg-warning text-white border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-body text-center p-3">
-                        <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
-                        <h3 class="fw-bold mb-0">{{ $lateDays }}</h3>
-                        <span class="small">Late</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card bg-success text-white border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-body text-center p-3">
-                        <i class="fas fa-chart-pie fa-2x mb-2 opacity-75"></i>
-                        <h3 class="fw-bold mb-0">{{ $attendancePercentage }}%</h3>
-                        <span class="small">Overall</span>
-                    </div>
+                <div class="card-footer bg-transparent border-top-0 p-4 pt-0">
+                    <a href="{{ route('student.attendance.capture') }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                        <i class="fas fa-camera fa-lg"></i> Mark Face Attendance
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
-                <h5 class="fw-bold mb-0"><i class="fas fa-list text-primary me-2"></i>Recent Attendance</h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Device</th>
-                                <th>Photo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($attendances as $attendance)
-                                <tr>
-                                    <td class="fw-medium">{{ \Carbon\Carbon::parse($attendance->attendance_date)->format('M d, Y') }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ $attendance->status === 'Present' ? 'success' : ($attendance->status === 'Absent' ? 'danger' : 'warning') }} rounded-pill">
-                                            {{ $attendance->status }}
-                                        </span>
-                                    </td>
-                                    <td class="text-muted small"><i class="fas fa-laptop me-1"></i>{{ $attendance->device_name ?? 'N/A' }}</td>
-                                    <td>
-                                        @if($attendance->photo_path)
-                                            <a href="{{ Storage::url($attendance->photo_path) }}" target="_blank">
-                                                <img src="{{ Storage::url($attendance->photo_path) }}" width="40" height="40" class="rounded shadow-sm" style="object-fit: cover;">
-                                            </a>
-                                        @else
-                                            <span class="text-muted small">No photo</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">No attendance records found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+        <!-- Right Side Column: Tabbed Panels -->
+        <div class="col-12 col-lg-8">
+            <!-- Tabs Menu -->
+            <ul class="nav nav-pills mb-4 p-1 bg-light rounded-4 shadow-sm border" id="studentTab" role="tablist">
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link active fw-bold py-2 rounded-3 w-100" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance-panel" type="button" role="tab" aria-controls="attendance-panel" aria-selected="true">
+                        <i class="fas fa-calendar-check me-2"></i>Attendance Log
+                    </button>
+                </li>
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link fw-bold py-2 rounded-3 w-100" id="course-tab" data-bs-toggle="tab" data-bs-target="#course-panel" type="button" role="tab" aria-controls="course-panel" aria-selected="false">
+                        <i class="fas fa-book-open me-2"></i>Course & Syllabus
+                    </button>
+                </li>
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link fw-bold py-2 rounded-3 w-100" id="fees-tab" data-bs-toggle="tab" data-bs-target="#fees-panel" type="button" role="tab" aria-controls="fees-panel" aria-selected="false">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Fees & Biometric Fines
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="studentTabContent">
+                
+                <!-- Tab 1: Attendance Log -->
+                <div class="tab-pane fade show active" id="attendance-panel" role="tabpanel" aria-labelledby="attendance-tab">
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="card bg-primary text-white border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-calendar-check fa-2x mb-2 opacity-75"></i>
+                                    <h3 class="fw-bold mb-0">{{ $presentDays }}</h3>
+                                    <span class="small">Present</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card bg-danger text-white border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-calendar-times fa-2x mb-2 opacity-75"></i>
+                                    <h3 class="fw-bold mb-0">{{ $absentDays }}</h3>
+                                    <span class="small">Absent</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card bg-warning text-white border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
+                                    <h3 class="fw-bold mb-0">{{ $lateDays }}</h3>
+                                    <span class="small">Late</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card bg-success text-white border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-chart-pie fa-2x mb-2 opacity-75"></i>
+                                    <h3 class="fw-bold mb-0">{{ $attendancePercentage }}%</h3>
+                                    <span class="small">Overall</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold mb-0"><i class="fas fa-list text-primary me-2"></i>Recent Attendance</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Device</th>
+                                            <th>Photo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($attendances as $attendance)
+                                            <tr>
+                                                <td class="fw-medium">{{ \Carbon\Carbon::parse($attendance->attendance_date)->format('M d, Y') }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $attendance->status === 'Present' ? 'success' : ($attendance->status === 'Absent' ? 'danger' : 'warning') }} rounded-pill">
+                                                        {{ $attendance->status }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-muted small"><i class="fas fa-laptop me-1"></i>{{ $attendance->device_name ?? 'Face Camera' }}</td>
+                                                <td>
+                                                    @if($attendance->photo_path)
+                                                        <a href="{{ Storage::url($attendance->photo_path) }}" target="_blank">
+                                                            <img src="{{ Storage::url($attendance->photo_path) }}" width="40" height="40" class="rounded shadow-sm" style="object-fit: cover;">
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted small">No photo</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-4">No attendance records found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Tab 2: Course & Syllabus -->
+                <div class="tab-pane fade" id="course-panel" role="tabpanel" aria-labelledby="course-tab">
+                    <!-- Current Assigned Course Card -->
+                    <div class="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+                        <div class="card-header bg-primary text-white p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-uppercase small opacity-75">Your Current Enrolled Course</span>
+                                    <h3 class="fw-bold mb-0 mt-1">{{ $student->course->name ?? 'No Course Assigned' }}</h3>
+                                </div>
+                                @if($student->course && $student->course->syllabus_path)
+                                    <a href="{{ Storage::url($student->course->syllabus_path) }}" target="_blank" class="btn btn-light btn-lg fw-bold rounded-3 shadow-sm text-primary">
+                                        <i class="fas fa-file-pdf me-2"></i> Download Syllabus
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="card-body p-4 bg-light">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <span class="text-muted d-block small mb-1">COURSE CODE</span>
+                                        <span class="fw-bold text-dark">{{ $student->course->code ?? 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <span class="text-muted d-block small mb-1">DURATION</span>
+                                        <span class="fw-bold text-dark">{{ $student->course_duration ?? '1 Year' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <span class="text-muted d-block small mb-1">TOTAL COURSE FEE</span>
+                                        <span class="fw-bold text-success">₹{{ number_format($student->course->fee ?? 0, 2) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($student->course && !$student->course->syllabus_path)
+                                <div class="alert alert-warning mt-3 mb-0 border-0 rounded-3">
+                                    <i class="fas fa-exclamation-circle me-2"></i> The syllabus document for this course has not been uploaded by the admin yet.
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Course Switch / Selection List -->
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-transparent border-bottom pt-4 pb-3 px-4">
+                            <h5 class="fw-bold mb-0"><i class="fas fa-exchange-alt text-primary me-2"></i>Enroll or Change Course</h5>
+                            <p class="text-muted small mb-0 mt-1">Select a course according to the syllabus details and duration that fits your schedule.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form action="{{ route('student.select-course') }}" method="POST">
+                                @csrf
+                                <div class="row g-3">
+                                    @forelse($courses as $crs)
+                                        <div class="col-12 col-md-6">
+                                            <div class="p-3 rounded-4 border bg-white h-100 d-flex flex-column justify-content-between align-items-start card-hover-pill">
+                                                <div class="w-100">
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <span class="badge bg-secondary rounded-pill">{{ $crs->code ?? 'N/A' }}</span>
+                                                        <span class="text-success fw-bold">₹{{ number_format($crs->fee, 2) }}</span>
+                                                    </div>
+                                                    <h6 class="fw-bold text-dark mb-1">{{ $crs->name }}</h6>
+                                                    <p class="text-muted small mb-2"><i class="fas fa-clock me-1"></i> {{ $crs->duration ?? 'Flexible' }}</p>
+                                                    
+                                                    @if($crs->syllabus_path)
+                                                        <a href="{{ Storage::url($crs->syllabus_path) }}" target="_blank" class="text-primary text-decoration-underline small d-inline-flex align-items-center gap-1 mb-3">
+                                                            <i class="fas fa-file-pdf"></i> Read Syllabus
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted small d-block mb-3"><i class="fas fa-ban me-1"></i> No syllabus available</span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="form-check w-100 pt-2 border-top">
+                                                    <input class="form-check-input" type="radio" name="course_id" id="course_radio_{{ $crs->id }}" value="{{ $crs->id }}" {{ ($student->course_id == $crs->id) ? 'checked' : '' }}>
+                                                    <label class="form-check-label fw-semibold text-dark cursor-pointer" for="course_radio_{{ $crs->id }}">
+                                                        Select This Course
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="col-12 py-3 text-center text-muted">No courses are available for selection.</div>
+                                    @endforelse
+                                </div>
+
+                                @if($courses->count() > 0)
+                                    <div class="mt-4 text-end">
+                                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-bold shadow-sm">
+                                            <i class="fas fa-save me-2"></i>Confirm Course Enrollment
+                                        </button>
+                                    </div>
+                                @endif
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Fees & Biometric Fines -->
+                <div class="tab-pane fade" id="fees-panel" role="tabpanel" aria-labelledby="fees-tab">
+                    
+                    <div class="row g-4 mb-4">
+                        <!-- Fee Breakdown -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0 rounded-4 h-100">
+                                <div class="card-header bg-transparent border-bottom pt-4 px-4">
+                                    <h5 class="fw-bold mb-0"><i class="fas fa-receipt text-primary me-2"></i>Monthly Fee Structure</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="d-flex flex-column gap-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted">Tenure Cycle:</span>
+                                            <span class="badge bg-secondary px-3 py-1.5 rounded-pill">{{ $student->fee_tenure ?? '1 Year' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted">Calculated Monthly Share:</span>
+                                            <span class="fw-semibold">₹{{ number_format($monthlyCourseFee, 2) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center text-danger">
+                                            <span>Active Monthly Discount:</span>
+                                            <span>- ₹{{ number_format($monthlyDiscount, 2) }}</span>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div class="d-flex justify-content-between align-items-center fw-bold text-dark fs-5">
+                                            <span>Net Monthly Fee:</span>
+                                            <span class="text-success">₹{{ number_format($netMonthlyFee, 2) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Biometric Fines Card -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0 rounded-4 h-100 bg-gradient border-start border-4 border-danger">
+                                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4">
+                                    <h5 class="fw-bold mb-0 text-danger"><i class="fas fa-fingerprint me-2"></i>Biometric Attendance Fines</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <span class="text-muted small d-block">ACTIVE FINE ACCUMULATED (THIS MONTH)</span>
+                                    <h2 class="fw-black text-danger mt-1 mb-3">₹{{ number_format($biometricFine, 2) }}</h2>
+                                    
+                                    @if($biometricFine > 0)
+                                        <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 small">
+                                            <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-1"></i>Fine Details:</h6>
+                                            {{ $fineDetails }}
+                                        </div>
+                                        <small class="text-muted mt-2 d-block">Note: Fines are automatically calculated from biometric absent or late records and appended to your invoice.</small>
+                                    @else
+                                        <div class="alert alert-success border-0 rounded-3 mb-0 small">
+                                            <i class="fas fa-smile me-2"></i> Excellent! No active biometric attendance fines detected this month.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoices History -->
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-transparent border-bottom pt-4 pb-3 px-4">
+                            <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Your Fee Invoices & Receipts</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Receipt No</th>
+                                            <th>Month/Period</th>
+                                            <th>Fee Type</th>
+                                            <th>Total Due</th>
+                                            <th>Paid</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($invoices as $invoice)
+                                            <tr>
+                                                <td class="fw-bold text-dark">{{ $invoice->invoice_no }}</td>
+                                                <td class="small">{{ $invoice->billing_month ? \Carbon\Carbon::create()->month($invoice->billing_month)->format('F') : '' }} {{ $invoice->billing_year }}</td>
+                                                <td class="small">{{ $invoice->fee_category }}</td>
+                                                <td class="fw-semibold">₹{{ number_format($invoice->total_amount, 2) }}</td>
+                                                <td class="text-success fw-semibold">₹{{ number_format($invoice->paid_amount, 2) }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $invoice->status === 'Paid' ? 'success' : ($invoice->status === 'Partial' ? 'warning' : 'danger') }} rounded-pill">
+                                                        {{ $invoice->status }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="{{ route('fee_invoices.show', $invoice) }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1">
+                                                        <i class="fas fa-print me-1"></i> Receipt
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted py-4">No invoice records found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </div>

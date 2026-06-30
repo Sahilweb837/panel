@@ -45,7 +45,7 @@
                     </h3>
                 </div>
 
-                <form action="{{ route('courses.store') }}" method="POST" class="form-card p-0">
+                <form action="{{ route('courses.store') }}" method="POST" enctype="multipart/form-data" class="form-card p-0">
                     @csrf
 
                     <div class="form-group-grid">
@@ -118,6 +118,23 @@
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
                         </div>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="syllabus" class="fw-semibold mb-2">
+                            <i class="fas fa-file-pdf text-first me-2"></i>Course Syllabus (PDF, Doc, Image)
+                        </label>
+                        <input 
+                            type="file" 
+                            id="syllabus"
+                            name="syllabus" 
+                            class="form-input {{ $errors->has('syllabus') ? 'is-invalid' : '' }}"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        />
+                        <small style="color: var(--muted);" class="d-block mt-1">Upload syllabus document (max size: 10MB)</small>
+                        @error('syllabus')
+                            <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-group checkbox-group mt-4">

@@ -6,6 +6,35 @@
 @section('content')
     <!-- Dashboard Styling -->
     <style>
+        /* Design.md Dark Theme Variable Overrides */
+        html[data-theme="dark"] {
+            --main-bg: #121212 !important;
+            --surface: #1E1E1E !important;
+            --surface-soft: #252525 !important;
+            --border: #2C2C2E !important;
+            --first-color: #00E5FF !important;
+            --text-main: #FFFFFF !important;
+            --text-muted: #98989D !important;
+        }
+        html[data-theme="dark"] .stat-card {
+            background: #1E1E1E !important;
+            border: 1px solid #2C2C2E !important;
+        }
+        html[data-theme="dark"] .stat-card:hover {
+            border-color: #00E5FF !important;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.2) !important;
+        }
+        html[data-theme="dark"] .sk-card {
+            background: linear-gradient(90deg, #1E1E1E 25%, #2C2C2E 50%, #1E1E1E 75%) !important;
+        }
+        /* JetBrains Mono typography for numerical values */
+        html[data-theme="dark"] .metric-number,
+        html[data-theme="dark"] .stat-card h3,
+        html[data-theme="dark"] .table td,
+        html[data-theme="dark"] .value-accent {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+        }
+
         .dashboard-container {
             position: relative;
             z-index: 1;

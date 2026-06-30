@@ -26,6 +26,15 @@
   --danger-text: #991b1b;
 }
 
+strong {
+  font-weight: 600;
+}
+
+::selection {
+  background-color: var(--first-color);
+  color: var(--body-color);
+}
+
 html[data-theme="dark"] {
   --text-color: #f3f4f6;
   --body-color: #111827;

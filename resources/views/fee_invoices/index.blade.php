@@ -134,6 +134,18 @@
                                                 </button>
                                             </form>
                                         @else
+                                            @if($invoice->status !== 'Paid')
+                                                <button type="button" class="button button-info small py-1.5 px-3 receive-payment-btn" 
+                                                        data-id="{{ $invoice->id }}" 
+                                                        data-invoice-no="{{ $invoice->invoice_no }}"
+                                                        data-due="{{ $invoice->due_amount }}"
+                                                        data-student="{{ $invoice->student?->first_name }} {{ $invoice->student?->last_name }}"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#receivePaymentModal"
+                                                        style="background-color: #3b82f6; border-color: #3b82f6;">
+                                                    <i class="fas fa-hand-holding-usd me-1"></i>Pay
+                                                </button>
+                                            @endif
                                             <a href="{{ route('fee_invoices.show', $invoice) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
                                                 <i class="fas fa-print me-1"></i>Print
                                             </a>
@@ -165,6 +177,63 @@
         </div>
     </div>
 
+    <!-- Receive Payment Modal -->
+    <div class="modal fade" id="receivePaymentModal" tabindex="-1" aria-labelledby="receivePaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg" style="background-color: #ffffff; color: #1e293b;">
+                <div class="modal-header bg-primary text-white border-0 py-3 px-4">
+                    <h5 class="modal-title fw-bold" id="receivePaymentModalLabel"><i class="fas fa-hand-holding-usd me-2"></i>Record Student Payment</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="receivePaymentForm" method="POST" action="">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="mb-3 p-3 bg-light rounded-3 border">
+                            <div class="d-flex justify-content-between mb-1 text-dark"><span class="text-muted small">Student:</span> <strong id="modalStudentName"></strong></div>
+                            <div class="d-flex justify-content-between mb-1 text-dark"><span class="text-muted small">Receipt No:</span> <strong id="modalReceiptNo"></strong></div>
+                            <div class="d-flex justify-content-between text-dark"><span class="text-muted small">Remaining Due:</span> <strong class="text-danger" id="modalDueAmount"></strong></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="paid_amount" class="form-label fw-bold text-dark"><i class="fas fa-coins text-primary me-1"></i>Amount to Receive (INR)</label>
+                            <input type="number" step="0.01" min="0.01" class="form-control form-input" id="paid_amount" name="paid_amount" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_method" class="form-label fw-bold text-dark"><i class="fas fa-wallet text-primary me-1"></i>Payment Method</label>
+                            <select class="form-select form-input" id="payment_method" name="payment_method" required>
+                                <option value="UPI">UPI (GPay / PhonePe / Paytm)</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank Transfer">Bank Transfer / NEFT</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="Card">Credit/Debit Card</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_date" class="form-label fw-bold text-dark"><i class="fas fa-calendar-alt text-primary me-1"></i>Payment Date</label>
+                            <input type="date" class="form-control form-input" id="payment_date" name="payment_date" value="{{ date('Y-m-d') }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="transaction_id" class="form-label fw-bold text-dark"><i class="fas fa-barcode text-primary me-1"></i>Transaction / Ref / UTR No.</label>
+                            <input type="text" class="form-control form-input" id="transaction_id" name="transaction_id" placeholder="Optional reference number">
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="remarks" class="form-label fw-bold text-dark"><i class="fas fa-comment-alt text-primary me-1"></i>Remarks</label>
+                            <input type="text" class="form-control form-input" id="remarks" name="remarks" placeholder="Optional payment remarks">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 px-4 pb-4">
+                        <button type="button" class="btn btn-secondary px-3 py-2 rounded-3 text-dark bg-light border" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-bold"><i class="fas fa-check-circle me-1"></i>Submit Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Script to simulate dynamic lazy loading and skeleton fading -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -175,6 +244,29 @@
                 if (skeleton) skeleton.classList.add('fade-out');
                 if (content) content.style.opacity = '1';
             }, 600);
+
+            // Bind data to Receive Payment Modal
+            const paymentModal = document.getElementById('receivePaymentModal');
+            if (paymentModal) {
+                paymentModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const invoiceNo = button.getAttribute('data-invoice-no');
+                    const due = parseFloat(button.getAttribute('data-due'));
+                    const student = button.getAttribute('data-student');
+
+                    document.getElementById('modalStudentName').textContent = student;
+                    document.getElementById('modalReceiptNo').textContent = invoiceNo;
+                    document.getElementById('modalDueAmount').textContent = '₹' + due.toFixed(2);
+                    
+                    const amountInput = document.getElementById('paid_amount');
+                    amountInput.value = due.toFixed(2);
+                    amountInput.max = due.toFixed(2);
+
+                    const form = document.getElementById('receivePaymentForm');
+                    form.action = `/fee_invoices/${id}/receive-payment`;
+                });
+            }
         });
     </script>
 @endsection

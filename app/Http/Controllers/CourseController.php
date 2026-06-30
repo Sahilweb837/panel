@@ -51,10 +51,16 @@ class CourseController extends Controller
             'duration' => ['nullable', 'string', 'max:50'],
             'fee' => ['nullable', 'numeric', 'min:0'],
             'status' => ['nullable', 'boolean'],
+            'syllabus' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
         ]);
 
         $data['fee'] = $data['fee'] ?? 0;
         $data['status'] = $request->boolean('status');
+
+        if ($request->hasFile('syllabus')) {
+            $path = $request->file('syllabus')->store('syllabi', 'public');
+            $data['syllabus_path'] = $path;
+        }
 
         Course::create($data);
 
@@ -84,10 +90,19 @@ class CourseController extends Controller
             'duration' => ['nullable', 'string', 'max:50'],
             'fee' => ['nullable', 'numeric', 'min:0'],
             'status' => ['nullable', 'boolean'],
+            'syllabus' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
         ]);
 
         $data['fee'] = $data['fee'] ?? 0;
         $data['status'] = $request->boolean('status');
+
+        if ($request->hasFile('syllabus')) {
+            if ($course->syllabus_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($course->syllabus_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($course->syllabus_path);
+            }
+            $path = $request->file('syllabus')->store('syllabi', 'public');
+            $data['syllabus_path'] = $path;
+        }
 
         $course->update($data);
 

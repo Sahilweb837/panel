@@ -22,7 +22,7 @@ use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return view('index');
 });
 
 // ZKTeco ADMS (Push) Webhook Routes
@@ -106,7 +106,10 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('api/students/{id}/fee-info', [FeeInvoiceController::class, 'studentFeeInfo'])->name('api.students.fee-info');
     Route::get('fee_invoices/monthly', [FeeInvoiceController::class, 'monthlyFee'])->name('fee_invoices.monthly');
     Route::get('api/students/{id}/monthly-status', [FeeInvoiceController::class, 'studentMonthlyStatus'])->name('api.students.monthly-status');
+    
+    Route::post('fee_invoices/{id}/receive-payment', [FeeInvoiceController::class, 'receivePayment'])->name('fee_invoices.receive-payment');
     Route::resource('fee_invoices', FeeInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
+
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/export/csv', [ReportController::class, 'exportCsv'])->name('reports.export.csv');
     Route::get('reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
@@ -127,6 +130,7 @@ Route::middleware(['auth.custom'])->group(function () {
     // Student Portal
     Route::prefix('student')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\StudentPortalController::class, 'dashboard'])->name('student.dashboard');
+        Route::post('/select-course', [\App\Http\Controllers\StudentPortalController::class, 'selectCourse'])->name('student.select-course');
         Route::get('/attendance', [\App\Http\Controllers\FaceAttendanceController::class, 'captureView'])->name('student.attendance.capture');
     });
 
@@ -156,4 +160,15 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::post('training_courses/{id}/restore', [TrainingCourseController::class, 'restore'])->name('training_courses.restore');
     Route::resource('training_courses', TrainingCourseController::class)->except(['show']);
+});
+
+// WattVision Electrical Monitoring Routes
+Route::prefix('wattvision')->group(function () {
+    Route::get('/', function () {
+        return view('wattvision.dashboard');
+    })->name('wattvision.dashboard');
+    
+    Route::get('/login', function () {
+        return view('wattvision.login');
+    })->name('wattvision.login');
 });
