@@ -176,6 +176,30 @@
                         </div>
                     </div>
 
+                    <!-- Section: Portal Login Credentials -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sign-in-alt me-1"></i> Portal Access Credentials</h5>
+                    <div class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="login_username" class="fw-semibold mb-2">
+                                <i class="fas fa-user-shield text-first me-2"></i>Login Username
+                            </label>
+                            <input type="text" id="login_username" name="login_username" value="{{ old('login_username', $student->user?->username) }}" placeholder="Auto-generated if left blank" class="form-input {{ $errors->has('login_username') ? 'is-invalid' : '' }}" />
+                            @error('login_username')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="login_password" class="fw-semibold mb-2">
+                                <i class="fas fa-lock text-first me-2"></i>Login Password (Optional)
+                            </label>
+                            <input type="password" id="login_password" name="login_password" placeholder="Leave blank to keep unchanged" class="form-input {{ $errors->has('login_password') ? 'is-invalid' : '' }}" />
+                            @error('login_password')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
+
                     <!-- Section 3: Academic Mapping -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-graduation-cap me-1"></i> Academic Configurations</h5>
                     <div class="form-group-grid mb-4">

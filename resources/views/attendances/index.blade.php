@@ -43,6 +43,12 @@
                     @endif
                 </form>
                 <div class="d-flex gap-2">
+                    <form action="{{ route('attendances.generate-fines') }}" method="POST" class="d-inline" onsubmit="return confirmAction(event, 'Generate 50 Rs fine for absent students today?');">
+                        @csrf
+                        <button type="submit" class="button button-secondary py-2 px-3" title="Generate Absent Fines">
+                            <i class="fas fa-money-bill-wave text-warning me-1"></i> Generate Fines
+                        </button>
+                    </form>
                     <a href="{{ route('attendances.export.csv', request()->all()) }}" class="button button-secondary py-2 px-3" title="Export as CSV">
                         <i class="fas fa-file-csv text-first"></i>
                     </a>

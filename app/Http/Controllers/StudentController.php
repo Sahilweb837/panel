@@ -152,6 +152,9 @@ class StudentController extends Controller
             'registration_fee' => ['nullable', 'numeric', 'min:0'],
             'prospectus_fee' => ['nullable', 'numeric', 'min:0'],
             'fee_tenure' => ['nullable', 'in:1 Month,3 Months,6 Months,1 Year'],
+            'login_username' => ['nullable', 'string', 'max:100', 'unique:users,username'],
+            'login_email' => ['nullable', 'email', 'max:150', 'unique:users,email'],
+            'login_password' => ['nullable', 'string', 'min:6'],
         ]);
 
         $data['status'] = $request->boolean('status');
@@ -161,11 +164,15 @@ class StudentController extends Controller
         // Auto-create user account
         $role = \App\Models\Role::where('slug', 'student')->first();
         if ($role) {
+            $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)) . $student->admission_no);
+            $email = $request->login_email ?: ($student->email ?: ($student->admission_no . '@student.com'));
+            $password = $request->login_password ? \Illuminate\Support\Facades\Hash::make($request->login_password) : \Illuminate\Support\Facades\Hash::make($student->dob ?? $student->admission_no);
+
             $user = \App\Models\User::create([
                 'name' => trim($student->first_name . ' ' . $student->last_name),
-                'email' => $student->email ?? ($student->admission_no . '@student.com'),
-                'username' => strtolower(str_replace(' ', '', $student->first_name)) . $student->admission_no,
-                'password' => \Illuminate\Support\Facades\Hash::make($student->dob ?? $student->admission_no),
+                'email' => $email,
+                'username' => $username,
+                'password' => $password,
                 'role_id' => $role->id,
                 'status' => true,
             ]);
@@ -349,11 +356,48 @@ class StudentController extends Controller
             'registration_fee' => ['nullable', 'numeric', 'min:0'],
             'prospectus_fee' => ['nullable', 'numeric', 'min:0'],
             'fee_tenure' => ['nullable', 'in:1 Month,3 Months,6 Months,1 Year'],
+            'login_username' => [
+                'nullable',
+                'string',
+                'max:100',
+                \Illuminate\Validation\Rule::unique('users', 'username')->ignore($student->user_id),
+            ],
+            'login_email' => [
+                'nullable',
+                'email',
+                'max:150',
+                \Illuminate\Validation\Rule::unique('users', 'email')->ignore($student->user_id),
+            ],
+            'login_password' => ['nullable', 'string', 'min:6'],
         ]);
 
         $data['status'] = $request->boolean('status');
 
         $student->update($data);
+
+        if ($student->user) {
+            $userData = [
+                'name' => trim($student->first_name . ' ' . $student->last_name),
+            ];
+            
+            if ($request->filled('login_username')) {
+                $userData['username'] = $request->login_username;
+            } elseif ($request->filled('admission_no')) {
+                $userData['username'] = strtolower(str_replace(' ', '', $student->first_name)) . $student->admission_no;
+            }
+            
+            if ($request->filled('login_email')) {
+                $userData['email'] = $request->login_email;
+            } elseif ($request->filled('email')) {
+                $userData['email'] = $student->email;
+            }
+            
+            if ($request->filled('login_password')) {
+                $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->login_password);
+            }
+            
+            $student->user->update($userData);
+        }
 
         return redirect()->route('students.index')->with('success', 'Student updated successfully.');
     }

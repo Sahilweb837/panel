@@ -36,9 +36,11 @@ class StaffPortalController extends Controller
         $todayUpdate = \App\Models\DailyUpdate::where('employee_id', $employee->id)
             ->whereDate('date', now()->toDateString())
             ->first();
+            
+        $salarySlips = \App\Models\SalarySlip::where('employee_id', $employee->id)->latest('created_at')->get();
 
         return view('portal.staff.dashboard', compact(
-            'employee', 'attendances', 'presentDays', 'absentDays', 'lateDays', 'attendancePercentage', 'assignedTasks', 'todayUpdate'
+            'employee', 'attendances', 'presentDays', 'absentDays', 'lateDays', 'attendancePercentage', 'assignedTasks', 'todayUpdate', 'salarySlips'
         ));
     }
 }

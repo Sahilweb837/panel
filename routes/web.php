@@ -97,6 +97,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('students/{student}/fee-report', [StudentController::class, 'feeReport'])->name('students.fee-report');
     Route::resource('students', StudentController::class);
     Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
+    Route::post('attendances/generate-fines', [AttendanceController::class, 'generateFines'])->name('attendances.generate-fines');
     Route::resource('attendances', AttendanceController::class)->except(['show', 'edit', 'update']);
     Route::resource('employee-attendances', EmployeeAttendanceController::class)->except(['show', 'edit', 'update']);
     Route::post('expenses/{id}/restore', [ExpenseController::class, 'restore'])->name('expenses.restore');

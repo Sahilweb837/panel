@@ -175,6 +175,30 @@
                         </div>
                     </div>
 
+                    <!-- Section: Portal Login Credentials -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sign-in-alt me-1"></i> Portal Access Credentials</h5>
+                    <div class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="login_username" class="fw-semibold mb-2">
+                                <i class="fas fa-user-shield text-first me-2"></i>Login Username
+                            </label>
+                            <input type="text" id="login_username" name="login_username" value="{{ old('login_username') }}" placeholder="Auto-generated if left blank" class="form-input {{ $errors->has('login_username') ? 'is-invalid' : '' }}" />
+                            @error('login_username')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="login_password" class="fw-semibold mb-2">
+                                <i class="fas fa-lock text-first me-2"></i>Login Password
+                            </label>
+                            <input type="password" id="login_password" name="login_password" placeholder="Defaults to DOB or Admission No" class="form-input {{ $errors->has('login_password') ? 'is-invalid' : '' }}" />
+                            @error('login_password')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
+
                     <!-- Section 3: Academic Mapping -->
                     <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-graduation-cap me-1"></i> Academic Configurations</h5>
                     <div class="form-group-grid mb-4">
@@ -230,28 +254,22 @@
                     <div class="form-group-grid mb-4">
                         <div class="form-group checkbox-group" style="display: flex; align-items: center;">
                             <label class="checkbox-label" style="cursor: pointer;">
-                                <input type="hidden" name="prospectus_fee" value="0">
-                                <input type="checkbox" id="prospectus_fee" name="prospectus_fee" value="500" {{ old('prospectus_fee', '500') > 0 ? 'checked' : '' }} class="checkbox-input" />
+                                <input type="checkbox" id="prospectus_fee_checkbox" {{ old('prospectus_fee', true) ? 'checked' : '' }} class="checkbox-input" onchange="toggleFee('prospectus_fee', this.checked)" />
                                 <span class="fw-semibold">
                                     <i class="fas fa-file-alt text-first me-1"></i>Apply Prospectus Fee (₹500)
                                 </span>
                             </label>
-                            @error('prospectus_fee')
-                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
-                            @enderror
+                            <input type="hidden" name="prospectus_fee" id="prospectus_fee" value="{{ old('prospectus_fee', '500') }}">
                         </div>
 
                         <div class="form-group checkbox-group" style="display: flex; align-items: center;">
                             <label class="checkbox-label" style="cursor: pointer;">
-                                <input type="hidden" name="registration_fee" value="0">
-                                <input type="checkbox" id="registration_fee" name="registration_fee" value="5000" {{ old('registration_fee', '5000') > 0 ? 'checked' : '' }} class="checkbox-input" />
+                                <input type="checkbox" id="registration_fee_checkbox" {{ old('registration_fee', true) ? 'checked' : '' }} class="checkbox-input" onchange="toggleFee('registration_fee', this.checked)" />
                                 <span class="fw-semibold">
                                     <i class="fas fa-user-plus text-first me-1"></i>Apply Registration Fee (₹5,000)
                                 </span>
                             </label>
-                            @error('registration_fee')
-                                <small style="color: var(--danger-text);" class="ms-2">{{ $message }}</small>
-                            @enderror
+                            <input type="hidden" name="registration_fee" id="registration_fee" value="{{ old('registration_fee', '5000') }}">
                         </div>
 
                         <div class="form-group">
@@ -424,24 +442,32 @@
             const courseSelect = document.getElementById('course_id');
             const regFeeInput = document.getElementById('registration_fee');
             const prosFeeInput = document.getElementById('prospectus_fee');
+            const regFeeCheckbox = document.getElementById('registration_fee_checkbox');
+            const prosFeeCheckbox = document.getElementById('prospectus_fee_checkbox');
             const discountInput = document.getElementById('discount');
             const tenureSelect = document.getElementById('fee_tenure');
             const durationSelect = document.getElementById('course_duration');
             const totalDisplay = document.getElementById('total_amount_display');
             const courseFeeDisplay = document.getElementById('course_fee_display');
 
+            const toggleFee = (feeType, checked) => {
+                const hiddenInput = document.getElementById(feeType);
+                if (checked) {
+                    hiddenInput.value = feeType === 'registration_fee' ? '5000' : '500';
+                } else {
+                    hiddenInput.value = '0';
+                }
+                calculateFees();
+            };
+
+            window.toggleFee = toggleFee;
+
             const calculateFees = () => {
                 const selectedOption = courseSelect.options[courseSelect.selectedIndex];
                 const courseFee = parseFloat(selectedOption?.getAttribute('data-fee')) || 0;
 
-                const includeReg = document.getElementById('include_registration_invoice')?.checked;
-                const includePros = document.getElementById('include_prospectus_invoice')?.checked;
-
-                const baseRegFee = regFeeInput.type === 'checkbox' ? (regFeeInput.checked ? parseFloat(regFeeInput.value) : 0) : (parseFloat(regFeeInput.value) || 0);
-                const baseProsFee = prosFeeInput.type === 'checkbox' ? (prosFeeInput.checked ? parseFloat(prosFeeInput.value) : 0) : (parseFloat(prosFeeInput.value) || 0);
-
-                const regFee = baseRegFee;
-                const prosFee = baseProsFee;
+                const regFee = parseFloat(regFeeInput.value) || 0;
+                const prosFee = parseFloat(prosFeeInput.value) || 0;
                 const discount = parseFloat(discountInput.value) || 0;
 
                 const tenure = tenureSelect ? tenureSelect.value : '';
@@ -480,8 +506,8 @@
             };
 
             courseSelect.addEventListener('change', calculateFees);
-            regFeeInput.addEventListener('change', calculateFees);
-            prosFeeInput.addEventListener('change', calculateFees);
+            regFeeCheckbox?.addEventListener('change', calculateFees);
+            prosFeeCheckbox?.addEventListener('change', calculateFees);
             discountInput.addEventListener('input', calculateFees);
             if(tenureSelect) tenureSelect.addEventListener('change', calculateFees);
             if(durationSelect) durationSelect.addEventListener('change', calculateFees);

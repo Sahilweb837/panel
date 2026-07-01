@@ -345,6 +345,61 @@
             </div>
         </div>
     </div>
+
+    <!-- Salary Slips Grid -->
+    <div class="row g-4 mt-2">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>My Salary Slips</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Month/Year</th>
+                                    <th>Basic Salary</th>
+                                    <th>Allowances</th>
+                                    <th>Deductions</th>
+                                    <th>Net Pay</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($salarySlips ?? [] as $slip)
+                                    <tr>
+                                        <td class="fw-medium">{{ $slip->month }} {{ $slip->year }}</td>
+                                        <td>₹{{ number_format($slip->basic_salary, 2) }}</td>
+                                        <td class="text-success">+₹{{ number_format($slip->allowances, 2) }}</td>
+                                        <td class="text-danger">-₹{{ number_format($slip->deductions, 2) }}</td>
+                                        <td class="fw-bold text-primary">₹{{ number_format($slip->net_pay, 2) }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ $slip->status === 'Paid' ? 'success' : 'warning' }} rounded-pill">
+                                                {{ $slip->status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if($slip->status === 'Paid')
+                                                <a href="{{ route('salary_slips.show', $slip) }}" class="btn btn-sm btn-outline-primary py-1 px-2" target="_blank">
+                                                    <i class="fas fa-print me-1"></i>View Slip
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">No salary slips found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

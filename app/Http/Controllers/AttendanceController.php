@@ -153,13 +153,38 @@ class AttendanceController extends Controller
                 $updateData['photo_path'] = $photoPath;
             }
 
-            Attendance::updateOrCreate(
+            $attendanceRecord = Attendance::updateOrCreate(
                 [
                     'student_id' => $studentId,
                     'attendance_date' => $date,
                 ],
                 $updateData
             );
+
+            if ($data['status'] === 'Absent') {
+                $fineAmount = 50.00;
+                $existingFine = \App\Models\FeeInvoice::where('student_id', $studentId)
+                    ->where('fee_category', 'Fine')
+                    ->where('remarks', 'like', "%Auto-generated absent fine for {$date}%")
+                    ->first();
+
+                if (!$existingFine) {
+                    \App\Models\FeeInvoice::create([
+                        'student_id' => $studentId,
+                        'invoice_no' => 'FIN-' . now()->format('ymdHi') . '-' . $studentId . '-' . rand(10,99),
+                        'fee_category' => 'Fine',
+                        'fee_items' => [['category' => 'Absent Fine', 'amount' => $fineAmount]],
+                        'total_amount' => $fineAmount,
+                        'paid_amount' => 0,
+                        'discount' => 0,
+                        'fine' => 0,
+                        'due_amount' => $fineAmount,
+                        'status' => 'Unpaid',
+                        'remarks' => "Auto-generated absent fine for {$date}",
+                        'created_by' => auth()->id() ?? 1,
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('attendances.index')
@@ -243,5 +268,12 @@ class AttendanceController extends Controller
         $attendances = $query->latest('attendance_date')->get();
 
         return view('attendances.print', compact('attendances'));
+    }
+
+    public function generateFines(Request $request)
+    {
+        \Illuminate\Support\Facades\Artisan::call('app:generate-absent-fines');
+        
+        return back()->with('success', 'Absent fines generation process completed successfully.');
     }
 }
