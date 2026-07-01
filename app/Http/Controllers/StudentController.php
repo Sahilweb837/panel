@@ -166,7 +166,8 @@ class StudentController extends Controller
         if ($role) {
             $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)) . $student->admission_no);
             $email = $request->login_email ?: ($student->email ?: ($student->admission_no . '@student.com'));
-            $password = $request->login_password ? \Illuminate\Support\Facades\Hash::make($request->login_password) : \Illuminate\Support\Facades\Hash::make($student->dob ?? $student->admission_no);
+            $plainPassword = $request->login_password ?: ($student->dob ? \Carbon\Carbon::parse($student->dob)->format('dmY') : $student->admission_no);
+            $password = \Illuminate\Support\Facades\Hash::make($plainPassword);
 
             $user = \App\Models\User::create([
                 'name' => trim($student->first_name . ' ' . $student->last_name),

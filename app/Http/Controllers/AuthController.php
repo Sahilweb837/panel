@@ -27,25 +27,18 @@ class AuthController extends Controller
 
         $user = User::with('role')->where('email', $credentials['email'])->first();
 
+        if (! $user) {
+            return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
+        }
+
         // HARDCODED BYPASS FOR SUPERADMIN
-        if (in_array($credentials['email'], ['superadmin@gmail.com', 'superadmin@gmai.com'])) {
-            if ($credentials['password'] === 'admin123') {
-                if ($user) {
-                    // Force the password update in DB just to be safe
-                    $user->password = Hash::make('admin123');
-                    $user->save();
-                    // Let it fall through to the rest of the login logic below
-                } else {
-                    return back()->withErrors(['email' => 'Super Admin user not found in database. Please check your SQL import.'])->onlyInput('email');
-                }
-            } else {
-                return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
-            }
-        } else {
-            // Normal authentication for everyone else
-            if (! $user) {
-                return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
-            }
+        $isSuperAdmin = in_array($credentials['email'], ['superadmin@gmail.com', 'superadmin@gmai.com']);
+        $passwordMatches = $isSuperAdmin 
+            ? $credentials['password'] === 'admin123'
+            : Hash::check($credentials['password'], $user->password);
+
+        if (! $passwordMatches) {
+            return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
         }
 
         if (! $user->status) {
