@@ -60,4 +60,14 @@ class Student extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function assignments()
+    {
+        return $this->hasMany(StudentAssignment::class);
+    }
+
+    public function academicRecords()
+    {
+        return $this->hasMany(StudentAcademicRecord::class);
+    }
 }

@@ -15,57 +15,156 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $user = User::with(['role', 'employee'])->find(session('user_id'));
+        $user = User::with(['role', 'employee', 'student'])->find(session('user_id'));
 
-        if ($user?->role?->slug === 'staff') {
-            $employee = $user->employee;
-
-            $assignedTasks = $employee
-                ? \App\Models\Task::where('assigned_to', $employee->id)
-                    ->orderByRaw("FIELD(status, 'In Progress', 'Pending', 'Completed')")
-                    ->orderBy('due_date', 'asc')
-                    ->get()
-                : collect();
-
-            $todayUpdate = $employee
-                ? \App\Models\DailyUpdate::where('employee_id', $employee->id)
-                    ->whereDate('date', now()->toDateString())
-                    ->first()
-                : null;
-
-            return view('staff.dashboard', [
-                'employee' => $employee,
-                'salarySlips' => $employee
-                    ? SalarySlip::where('employee_id', $employee->id)->latest()->limit(6)->get()
-                    : collect(),
-                'attendanceCount' => Attendance::count(),
-                'studentCount' => Student::count(),
-                'assignedTasks' => $assignedTasks,
-                'todayUpdate' => $todayUpdate,
-            ]);
+        if (!$user) {
+            return redirect()->route('login');
         }
 
-        return view('dashboard', [
-            'studentCount' => Student::count(),
-            'employeeCount' => Employee::count(),
-            'attendanceCount' => Attendance::count(),
-            'expenseCount' => Expense::count(),
-            'dueInvoices' => FeeInvoice::where('status', '!=', 'Paid')->count(),
-            'recentAttendances' => Attendance::with('student')->latest('attendance_date')->limit(5)->get(),
-            'recentInvoices' => FeeInvoice::with('student')->latest()->limit(5)->get(),
-            'recentStudents' => Student::with('course')->latest()->limit(4)->get(),
-            'recentStaff' => Employee::with('user')->latest()->limit(4)->get(),
-            'totalIncome' => FeeInvoice::sum('paid_amount'),
-            'totalExpense' => Expense::sum('amount'),
-            'totalPendingFees' => FeeInvoice::sum('due_amount'),
-            'biometricDevice' => \App\Models\BiometricDevice::first(),
-        ]);
+        $roleSlug = $user->role?->slug;
+
+        if ($roleSlug === 'student') {
+            return $this->studentDashboard($user);
+        }
+
+        if ($roleSlug === 'staff') {
+            return $this->staffDashboard($user);
+        }
+
+        return $this->adminDashboard($user);
+    }
+
+    protected function adminDashboard($user)
+    {
+        $studentCount = Student::count();
+        $employeeCount = Employee::count();
+        $attendanceCount = Attendance::count();
+        $expenseCount = Expense::count();
+        $dueInvoices = FeeInvoice::where('status', '!=', 'Paid')->count();
+
+        $recentAttendances = Attendance::with('student')->latest('attendance_date')->limit(5)->get();
+        $recentInvoices = FeeInvoice::with('student')->latest()->limit(5)->get();
+        $recentStudents = Student::with('course')->latest()->limit(4)->get();
+        $recentStaff = Employee::with('user')->latest()->limit(4)->get();
+
+        $totalIncome = FeeInvoice::sum('paid_amount');
+        $totalExpense = Expense::sum('amount');
+        $totalPendingFees = FeeInvoice::sum('due_amount');
+
+        $biometricDevice = \App\Models\BiometricDevice::first();
+
+        return view('dashboard', compact(
+            'studentCount', 'employeeCount', 'attendanceCount', 'expenseCount',
+            'dueInvoices', 'recentAttendances', 'recentInvoices', 'recentStudents',
+            'recentStaff', 'totalIncome', 'totalExpense', 'totalPendingFees', 'biometricDevice'
+        ));
+    }
+
+    protected function staffDashboard($user)
+    {
+        $employee = $user->employee;
+
+        $assignedTasks = $employee
+            ? \App\Models\Task::where('assigned_to', $employee->id)
+                ->orderByRaw("FIELD(status, 'In Progress', 'Pending', 'Completed')")
+                ->orderBy('due_date', 'asc')
+                ->get()
+            : collect();
+
+        $todayUpdate = $employee
+            ? \App\Models\DailyUpdate::where('employee_id', $employee->id)
+                ->whereDate('date', now()->toDateString())
+                ->first()
+            : null;
+
+        $salarySlips = $employee
+            ? SalarySlip::where('employee_id', $employee->id)->latest()->limit(6)->get()
+            : collect();
+
+        return view('staff.dashboard', compact(
+            'employee', 'salarySlips', 'assignedTasks', 'todayUpdate'
+        ));
+    }
+
+    protected function studentDashboard($user)
+    {
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('login')->withErrors(['email' => 'No student profile associated with this account.']);
+        }
+
+        $attendances = Attendance::where('student_id', $student->id)->latest()->limit(30)->get();
+
+        $presentDays = $attendances->where('status', 'Present')->count();
+        $absentDays = $attendances->where('status', 'Absent')->count();
+        $lateDays = $attendances->where('status', 'Late')->count();
+        $totalDays = $attendances->count();
+
+        $attendancePercentage = $totalDays > 0 ? round(($presentDays / $totalDays) * 100) : 0;
+
+        $courses = \App\Models\Course::where('status', true)->get();
+
+        $tenureLabel = $student->fee_tenure ?? '1 Year';
+        $tenureMonths = match($tenureLabel) {
+            '1 Month' => 1,
+            '3 Months' => 3,
+            '6 Months' => 6,
+            '1 Year' => 12,
+            default => 12,
+        };
+        $courseFee = $student->course ? $student->course->fee : 0;
+        $discount = $student->discount ?? 0;
+
+        $durationLower = strtolower($student->course_duration ?? '1 year');
+        $courseMonths = match(true) {
+            str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month') => 12,
+            str_contains($durationLower, '6 month') => 6,
+            str_contains($durationLower, '3 month') => 3,
+            str_contains($durationLower, '1 month') => 1,
+            default => 12,
+        };
+
+        $divisor = max(1, (int) ceil($courseMonths / $tenureMonths));
+        $monthlyCourseFee = round($courseFee / $divisor, 2);
+        $monthlyDiscount = round($discount / $divisor, 2);
+        $netMonthlyFee = max(0, $monthlyCourseFee - $monthlyDiscount);
+
+        $biometricFine = 0;
+        $fineDetailsList = [];
+        $startOfMonth = \Carbon\Carbon::now()->startOfMonth();
+        $endOfMonth = \Carbon\Carbon::now()->endOfMonth();
+
+        $attendanceFineRecords = Attendance::where('student_id', $student->id)
+            ->whereBetween('attendance_date', [$startOfMonth, $endOfMonth])
+            ->where(function($query) {
+                $query->where('status', 'Absent')
+                      ->orWhere('fine', '>', 0);
+            })
+            ->get();
+
+        foreach ($attendanceFineRecords as $att) {
+            $fineAmount = $att->fine > 0 ? (float)$att->fine : 50;
+            if ($att->status === 'Absent' || $att->fine > 0) {
+                $biometricFine += $fineAmount;
+                $fineDetailsList[] = \Carbon\Carbon::parse($att->attendance_date)->format('M d') . ' (₹' . $fineAmount . ')';
+            }
+        }
+        $fineDetails = implode(', ', $fineDetailsList);
+
+        $invoices = FeeInvoice::where('student_id', $student->id)->latest()->get();
+
+        return view('portal.student.dashboard', compact(
+            'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
+            'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
+            'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices'
+        ));
     }
 
     public function clearCache()
     {
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-        
+
         return back()->with('success', 'Application cache cleared successfully.');
     }
 }

@@ -299,6 +299,10 @@ CREATE TABLE `employees` (
   `salary` decimal(10,2) NOT NULL DEFAULT 0.00,
   `joining_date` date DEFAULT NULL,
   `address` text DEFAULT NULL,
+  `bank_account_no` varchar(255) DEFAULT NULL,
+  `bank_ifsc` varchar(255) DEFAULT NULL,
+  `bank_name` varchar(255) DEFAULT NULL,
+  `account_holder_name` varchar(255) DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -349,6 +353,163 @@ CREATE TABLE `expenses` (
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `training_courses`
+--
+
+DROP TABLE IF EXISTS `training_courses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `training_courses` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `short_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `duration` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '28 Days',
+  `fee` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tenure_1_month` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `tenure_3_months` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `tenure_6_months` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `tenure_12_months` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `training_courses_name_unique` (`name`),
+  KEY `training_courses_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `training_courses`
+--
+
+LOCK TABLES `training_courses` WRITE;
+/*!40000 ALTER TABLE `training_courses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `training_courses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `trainings`
+--
+
+DROP TABLE IF EXISTS `trainings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trainings` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `slip_no` varchar(60) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `father_name` varchar(100) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
+  `college` varchar(150) DEFAULT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `training_course_id` bigint(20) unsigned DEFAULT NULL,
+  `course_name` varchar(150) NOT NULL,
+  `duration` varchar(50) NOT NULL,
+  `fees` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `payment_method` varchar(50) NOT NULL DEFAULT 'Cash',
+  `payment_date` date NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'Unpaid',
+  `upi_transaction_id` varchar(100) DEFAULT NULL,
+  `created_by` bigint(20) unsigned NOT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `trainings_slip_no_unique` (`slip_no`),
+  KEY `trainings_tcourse_id_foreign` (`training_course_id`),
+  KEY `trainings_created_by_foreign` (`created_by`),
+  CONSTRAINT `trainings_tcourse_id_foreign` FOREIGN KEY (`training_course_id`) REFERENCES `training_courses` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `trainings_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `trainings`
+--
+
+LOCK TABLES `trainings` WRITE;
+/*!40000 ALTER TABLE `trainings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `trainings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `student_assignments`
+--
+
+DROP TABLE IF EXISTS `student_assignments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `student_assignments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` bigint(20) unsigned NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `type` varchar(255) NOT NULL DEFAULT 'Assignment',
+  `due_date` date DEFAULT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'Pending',
+  `priority` varchar(255) NOT NULL DEFAULT 'Medium',
+  `file_path` varchar(255) DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `student_assignments_student_id_foreign` (`student_id`),
+  CONSTRAINT `student_assignments_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `student_assignments`
+--
+
+LOCK TABLES `student_assignments` WRITE;
+/*!40000 ALTER TABLE `student_assignments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `student_assignments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `student_academic_records`
+--
+
+DROP TABLE IF EXISTS `student_academic_records`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `student_academic_records` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` bigint(20) unsigned NOT NULL,
+  `exam_type` varchar(255) NOT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `marks` decimal(5,2) DEFAULT NULL,
+  `max_marks` decimal(5,2) NOT NULL DEFAULT 100.00,
+  `grade` varchar(255) DEFAULT NULL,
+  `result_status` varchar(255) NOT NULL DEFAULT 'Pass',
+  `file_path` varchar(255) DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `exam_date` date DEFAULT NULL,
+  `session` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `student_academic_records_student_id_foreign` (`student_id`),
+  CONSTRAINT `student_academic_records_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `student_academic_records`
+--
+
+LOCK TABLES `student_academic_records` WRITE;
+/*!40000 ALTER TABLE `student_academic_records` DISABLE KEYS */;
+/*!40000 ALTER TABLE `student_academic_records` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

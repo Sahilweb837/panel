@@ -7,22 +7,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     @vite(['resources/css/app.css'])
-    <style>
-        body.login-page {
-            background-color: #f8fafc !important;
-            color: #1e293b !important;
-            font-family: 'Inter', sans-serif;
-        }
-        .login-container {
-            background-color: #f8fafc !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
-        .login-left {
-            background-color: #ffffff !important;
-            border-right: 1px solid #e2e8f0 !important;
-            color: #1e293b !important;
-        }
+<style>
+         body.login-page {
+             background-color: #f8fafc !important;
+             color: #1e293b !important;
+             font-family: 'Inter', sans-serif;
+         }
+         .login-container {
+             background-color: #f8fafc !important;
+             box-shadow: none !important;
+             border: none !important;
+         }
+         .login-left {
+             background-color: #ffffff !important;
+             border-right: 1px solid #e2e8f0 !important;
+             color: #1e293b !important;
+             background-image: none;
+         }
+         .login-left.type-student {
+             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><path fill="%23ff5532" opacity="0.03" d="M50 350 L100 50 L150 200 L200 100 L250 250 L300 80 L350 120 L300 350 Z"/><path fill="%23ff5532" opacity="0.02" d="M0 200 Q100 100 200 200 T400 200"/><circle cx="50" cy="50" r="30" fill="%23ff5532" opacity="0.04"/></svg>');
+             background-size: cover;
+             background-position: center;
+         }
+         .login-left.type-staff {
+             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="%2310b981" opacity="0.03" x="50" y="50" width="100" height="100"/><rect fill="%2310b981" opacity="0.02" x="150" y="150" width="80" height="80"/><circle cx="300" cy="100" r="40" fill="%2310b981" opacity="0.04"/><path fill="%2310b981" opacity="0.02" d="M0 300 Q100 250 200 300 T400 300"/></svg>');
+             background-size: cover;
+             background-position: center;
+         }
+         .login-left.type-institute {
+             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><path fill="%23ff5532" opacity="0.04" d="M0 0 L200 0 L200 400 L0 400 Z"/><path fill="%23ff5532" opacity="0.03" d="M200 200 L400 0 L400 200 Z"/><path fill="%23ff5532" opacity="0.02" d="M200 200 L400 400 L200 400 Z"/></svg>');
+             background-size: cover;
+             background-position: center;
+         }
         .login-left h1 {
             color: #1e293b !important;
         }
@@ -235,10 +251,16 @@
         <!-- Right Side - Login Form -->
         <div class="login-right">
             <div class="login-form-wrapper">
+                <div id="changeTypeContainer" style="display: none; margin-bottom: 16px;">
+                    <a href="{{ route('login') }}" class="back-link" style="display: inline-flex;">
+                        <i class="fas fa-arrow-left"></i> Change login type
+                    </a>
+                </div>
                 <div class="login-form-header">
                     <div class="login-type-icon" id="loginTypeIcon">
                         <i class="fas fa-user-tie" id="loginTypeIconI"></i>
                     </div>
+                    <div id="loginTypeBadge"></div>
                     <h2 id="loginTitle">Welcome Back, Admin</h2>
                     <p id="loginSubtitle">Sign in to the management panel to continue</p>
                 </div>
@@ -257,20 +279,7 @@
                 <form method="POST" action="{{ route('login.post') }}" class="login-form">
                     @csrf
 
-                    <input type="hidden" name="account_type" id="account_type" value="{{ old('account_type', 'institute') }}">
-
-                    <div id="loginTypeSelectorGroup" class="form-group">
-                        <label for="account_type_select">
-                            <i class="fas fa-users-cog"></i> Login Type
-                        </label>
-                        <select id="account_type_select" class="form-input" onchange="updateLoginFormStyle()">
-                            <option value="institute" {{ old('account_type', 'institute') === 'institute' ? 'selected' : '' }}>Institute / Admin</option>
-                            <option value="staff" {{ old('account_type') === 'staff' ? 'selected' : '' }}>Staff</option>
-                            <option value="student" {{ old('account_type') === 'student' ? 'selected' : '' }}>Student</option>
-                        </select>
-                    </div>
-
-                    <div id="loginTypeBadge"></div>
+                    <input type="hidden" name="account_type" id="account_type" value="{{ request('type', old('account_type', 'institute')) }}">
 
                     <div class="form-group">
                         <label for="email">
@@ -463,23 +472,23 @@
             animate();
         })();
 
-        // Auto-select login type from query param
+        // Set form style on load
         window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const loginType = urlParams.get('type');
-            if (loginType) {
-                const selectEl = document.getElementById('account_type_select');
-                if (selectEl) {
-                    selectEl.value = loginType;
-                    updateLoginFormStyle();
-                }
+            const hiddenInput = document.getElementById('account_type');
+            const type = hiddenInput.value || 'institute';
+            updateLoginFormStyle(type);
+            
+            // Show change link if type was set via URL
+            const changeLinkContainer = document.getElementById('changeTypeContainer');
+            if (changeLinkContainer && type && type !== 'institute') {
+                changeLinkContainer.style.display = 'block';
             }
         });
 
-        function updateLoginFormStyle() {
+        function updateLoginFormStyle(typeOverride) {
             const selectEl = document.getElementById('account_type_select');
             const hiddenInput = document.getElementById('account_type');
-            const type = selectEl.value;
+            const type = typeOverride || (selectEl ? selectEl.value : hiddenInput.value) || 'institute';
             const icon = document.getElementById('loginTypeIconI');
             const title = document.getElementById('loginTitle');
             const subtitle = document.getElementById('loginSubtitle');
@@ -525,36 +534,39 @@
                 }
             };
 
-            const cfg = configs[type] || configs['institute'];
+const cfg = configs[type] || configs['institute'];
 
-            icon.className = cfg.iconClass;
-            title.textContent = cfg.title;
-            subtitle.textContent = cfg.subtitle;
+             icon.className = cfg.iconClass;
+             title.textContent = cfg.title;
+             subtitle.textContent = cfg.subtitle;
 
-            wrapper.style.background = cfg.bg;
-            wrapper.style.color = cfg.color;
-            wrapper.style.borderColor = cfg.border;
+             wrapper.style.background = cfg.bg;
+             wrapper.style.color = cfg.color;
+             wrapper.style.borderColor = cfg.border;
 
-            badgeContainer.innerHTML = `
-                <span class="login-type-badge ${type}">
-                    <i class="fas fa-circle" style="font-size: 6px;"></i> ${cfg.label}
-                </span>
-            `;
+             badgeContainer.innerHTML = `
+                 <span class="login-type-badge ${type}">
+                     <i class="fas fa-circle" style="font-size: 6px;"></i> ${cfg.label}
+                 </span>
+             `;
 
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
+             const emailInput = document.getElementById('email');
+             const passwordInput = document.getElementById('password');
+             const loginLeft = document.querySelector('.login-left');
 
-            if (emailInput) emailInput.placeholder = cfg.emailPlaceholder;
-            if (passwordInput) passwordInput.placeholder = 'Enter your password';
+             if (emailInput) emailInput.placeholder = cfg.emailPlaceholder;
+             if (passwordInput) passwordInput.placeholder = 'Enter your password';
 
-            if (formEl) {
-                formEl.classList.remove('type-student', 'type-staff', 'type-institute');
-                formEl.classList.add(cfg.containerClass);
-            }
-        }
-
-        // Initialize on load
-        updateLoginFormStyle();
+             if (formEl) {
+                 formEl.classList.remove('type-student', 'type-staff', 'type-institute');
+                 formEl.classList.add(cfg.containerClass);
+             }
+             
+             if (loginLeft) {
+                 loginLeft.classList.remove('type-student', 'type-staff', 'type-institute');
+                 loginLeft.classList.add(cfg.containerClass);
+             }
+         }
     </script>
 </body>
 </html>

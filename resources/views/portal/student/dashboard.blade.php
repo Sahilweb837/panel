@@ -88,6 +88,14 @@
         border-radius: 0 8px 8px 0 !important;
     }
 
+    .alert-success {
+        background-color: rgba(50, 215, 75, 0.15) !important;
+        color: var(--accent-status) !important;
+        border: none !important;
+        border-left: 4px solid var(--accent-status) !important;
+        border-radius: 0 8px 8px 0 !important;
+    }
+
     .btn-outline-primary {
         color: var(--accent-primary) !important;
         border-color: var(--accent-primary) !important;
@@ -145,10 +153,14 @@
         background-color: rgba(255, 255, 255, 0.05) !important;
         color: var(--text-secondary) !important;
     }
+
+    .login-info-card {
+        background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05));
+        border: 1px dashed var(--accent-primary);
+    }
 </style>
 
 <div class="container-fluid px-0">
-    <!-- Notifications/Alerts -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4 p-3 d-flex align-items-center gap-2" role="alert">
             <i class="fas fa-check-circle fa-lg"></i>
@@ -180,19 +192,43 @@
                     </div>
                     <h4 class="fw-bold mb-1">{{ $student->first_name }} {{ $student->last_name }}</h4>
                     <p class="text-muted mb-3"><i class="fas fa-book-reader me-2"></i>{{ $student->course->name ?? 'No Course Assigned' }}</p>
-                    
+
                     <div class="d-flex justify-content-center gap-2 mb-4">
                         <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fas fa-id-card me-1"></i> {{ $student->admission_no }}</span>
-                        <span class="badge bg-info px-3 py-2 rounded-pill"><i class="fas fa-layer-group me-1"></i> Class: {{ $student->class }}</span>
+                        <span class="badge bg-info px-3 py-2 rounded-pill"><i class="fas fa-layer-group me-1"></i> {{ $student->course_duration ?? 'N/A' }}</span>
+                    </div>
+
+                    <!-- Login Credentials Card -->
+                    <div class="card login-info-card rounded-3 p-3 mb-3 text-start">
+                        <h6 class="fw-bold mb-3 text-first"><i class="fas fa-key me-2"></i>Login Credentials</h6>
+                        <div class="d-flex flex-column gap-2 small">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted"><i class="fas fa-user me-1"></i>Username:</span>
+                                <span class="fw-semibold">{{ $student->user->username ?? 'N/A' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted"><i class="fas fa-envelope me-1"></i>Email:</span>
+                                <span class="fw-semibold">{{ $student->user->email ?? 'N/A' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted"><i class="fas fa-lock me-1"></i>Password:</span>
+                                <span class="fw-semibold">
+                                    @if($student->dob)
+                                        {{ \Carbon\Carbon::parse($student->dob)->format('dmY') }}
+                                    @else
+                                        {{ $student->admission_no }}
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="border-top pt-3 text-start">
                         <h6 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Personal Details</h6>
                         <div class="d-flex flex-column gap-2 small">
-                            <div class="d-flex justify-content-between"><span class="text-muted">Email:</span> <span class="fw-semibold">{{ $student->user->email ?? 'N/A' }}</span></div>
                             <div class="d-flex justify-content-between"><span class="text-muted">Phone:</span> <span class="fw-semibold">{{ $student->phone ?? 'N/A' }}</span></div>
-                            <div class="d-flex justify-content-between"><span class="text-muted">Aadhar No:</span> <span class="fw-semibold">{{ $student->aadhar_no ?? 'N/A' }}</span></div>
-                            <div class="d-flex justify-content-between"><span class="text-muted">Address:</span> <span class="fw-semibold text-end" style="max-width: 180px;">{{ $student->address ?? 'N/A' }}</span></div>
+                            <div class="d-flex justify-content-between"><span class="text-muted">Aadhar No:</span> <span class="fw-semibold">{{ $student->aadhar_number ? implode(' ', str_split($student->aadhar_number, 4)) : 'N/A' }}</span></div>
+                            <div class="d-flex justify-content-between"><span class="text-muted">Address:</span> <span class="fw-semibold text-end" style="max-width: 180px;">{{ $student->current_address ?? $student->address ?? 'N/A' }}</span></div>
                         </div>
                     </div>
                 </div>
@@ -220,13 +256,13 @@
                 </li>
                 <li class="nav-item flex-grow-1 text-center" role="presentation">
                     <button class="nav-link fw-bold py-2 rounded-3 w-100" id="fees-tab" data-bs-toggle="tab" data-bs-target="#fees-panel" type="button" role="tab" aria-controls="fees-panel" aria-selected="false">
-                        <i class="fas fa-file-invoice-dollar me-2"></i>Fees & Biometric Fines
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Fees & Payments
                     </button>
                 </li>
             </ul>
 
             <div class="tab-content" id="studentTabContent">
-                
+
                 <!-- Tab 1: Attendance Log -->
                 <div class="tab-pane fade show active" id="attendance-panel" role="tabpanel" aria-labelledby="attendance-tab">
                     <div class="row g-3 mb-4">
@@ -382,7 +418,7 @@
                                                     </div>
                                                     <h6 class="fw-bold text-dark mb-1">{{ $crs->name }}</h6>
                                                     <p class="text-muted small mb-2"><i class="fas fa-clock me-1"></i> {{ $crs->duration ?? 'Flexible' }}</p>
-                                                    
+
                                                     @if($crs->syllabus_path)
                                                         <a href="{{ Storage::url($crs->syllabus_path) }}" target="_blank" class="text-primary text-decoration-underline small d-inline-flex align-items-center gap-1 mb-3">
                                                             <i class="fas fa-file-pdf"></i> Read Syllabus
@@ -417,15 +453,15 @@
                     </div>
                 </div>
 
-                <!-- Tab 3: Fees & Biometric Fines -->
+                <!-- Tab 3: Fees & Payments -->
                 <div class="tab-pane fade" id="fees-panel" role="tabpanel" aria-labelledby="fees-tab">
-                    
+
                     <div class="row g-4 mb-4">
                         <!-- Fee Breakdown -->
                         <div class="col-md-6">
                             <div class="card shadow-sm border-0 rounded-4 h-100">
                                 <div class="card-header bg-transparent border-bottom pt-4 px-4">
-                                    <h5 class="fw-bold mb-0"><i class="fas fa-receipt text-primary me-2"></i>Monthly Fee Structure</h5>
+                                    <h5 class="fw-bold mb-0"><i class="fas fa-receipt text-primary me-2"></i>Fee Structure</h5>
                                 </div>
                                 <div class="card-body p-4">
                                     <div class="d-flex flex-column gap-3">
@@ -438,7 +474,7 @@
                                             <span class="fw-semibold">₹{{ number_format($monthlyCourseFee, 2) }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center text-danger">
-                                            <span>Active Monthly Discount:</span>
+                                            <span>Active Discount:</span>
                                             <span>- ₹{{ number_format($monthlyDiscount, 2) }}</span>
                                         </div>
                                         <hr class="my-1">
@@ -451,27 +487,28 @@
                             </div>
                         </div>
 
-                        <!-- Biometric Fines Card -->
+                        <!-- Fee Status Card -->
                         <div class="col-md-6">
-                            <div class="card shadow-sm border-0 rounded-4 h-100 bg-gradient border-start border-4 border-danger">
-                                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4">
-                                    <h5 class="fw-bold mb-0 text-danger"><i class="fas fa-fingerprint me-2"></i>Biometric Attendance Fines</h5>
+                            <div class="card shadow-sm border-0 rounded-4 h-100">
+                                <div class="card-header bg-transparent border-bottom pt-4 px-4">
+                                    <h5 class="fw-bold mb-0"><i class="fas fa-wallet text-primary me-2"></i>Fee Status</h5>
                                 </div>
                                 <div class="card-body p-4">
-                                    <span class="text-muted small d-block">ACTIVE FINE ACCUMULATED (THIS MONTH)</span>
-                                    <h2 class="fw-black text-danger mt-1 mb-3">₹{{ number_format($biometricFine, 2) }}</h2>
-                                    
-                                    @if($biometricFine > 0)
-                                        <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 small">
-                                            <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-1"></i>Fine Details:</h6>
-                                            {{ $fineDetails }}
+                                    <div class="d-flex flex-column gap-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted">Total Fees:</span>
+                                            <span class="fw-semibold">₹{{ number_format($totalFees, 2) }}</span>
                                         </div>
-                                        <small class="text-muted mt-2 d-block">Note: Fines are automatically calculated from biometric absent or late records and appended to your invoice.</small>
-                                    @else
-                                        <div class="alert alert-success border-0 rounded-3 mb-0 small">
-                                            <i class="fas fa-smile me-2"></i> Excellent! No active biometric attendance fines detected this month.
+                                        <div class="d-flex justify-content-between align-items-center text-success">
+                                            <span>Total Paid:</span>
+                                            <span>+ ₹{{ number_format($paidFees, 2) }}</span>
                                         </div>
-                                    @endif
+                                        <hr class="my-1">
+                                        <div class="d-flex justify-content-between align-items-center fw-bold fs-5">
+                                            <span>Due Balance:</span>
+                                            <span class="{{ $dueFees > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($dueFees, 2) }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
