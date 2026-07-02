@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Student;
 use App\Models\Course;
 use App\Models\FeeInvoice;
+use App\Models\StudentMilestone;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -73,7 +74,7 @@ class StudentPortalController extends Controller
             $fineAmount = $att->fine > 0 ? (float)$att->fine : 50;
             if ($att->status === 'Absent' || $att->fine > 0) {
                 $biometricFine += $fineAmount;
-                $fineDetailsList[] = Carbon::parse($att->attendance_date)->format('M d') . ' (₹' . $fineAmount . ')';
+                $fineDetailsList[] = Carbon::parse($att->attendance_date)->format('M d') . ' (\u20B9' . $fineAmount . ')';
             }
         }
         $fineDetails = implode(', ', $fineDetailsList);
@@ -85,11 +86,21 @@ class StudentPortalController extends Controller
         $paidFees = $feeInvoices->sum('paid_amount');
         $totalFees = $feeInvoices->sum('total_amount');
 
+        $milestones = StudentMilestone::where('student_id', $student->id)
+            ->orderByRaw("FIELD(status, 'In Progress', 'Upcoming', 'Completed', 'Skipped')")
+            ->orderBy('target_date', 'asc')
+            ->get();
+
+        $completedMilestones = $milestones->where('status', 'Completed')->count();
+        $totalMilestones = $milestones->count();
+        $milestoneProgress = $totalMilestones > 0 ? round(($completedMilestones / $totalMilestones) * 100) : 0;
+
         return view('portal.student.dashboard', compact(
             'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
             'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices',
-            'dueFees', 'paidFees', 'totalFees'
+            'dueFees', 'paidFees', 'totalFees', 'milestones', 'completedMilestones',
+            'totalMilestones', 'milestoneProgress'
         ));
     }
 

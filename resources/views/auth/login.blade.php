@@ -162,10 +162,22 @@
         .checkbox-label span {
             color: #64748b !important;
         }
-        .login-logo {
-            filter: none !important;
-        }
-    </style>
+         .login-logo {
+             filter: none !important;
+         }
+         .is-invalid {
+             border-color: #ef4444 !important;
+             background-color: #fef2f2 !important;
+         }
+         .is-invalid:focus {
+             border-color: #ef4444 !important;
+             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+         }
+         .text-danger.mt-2 {
+             font-size: 0.85rem;
+             margin-top: 0.35rem;
+         }
+     </style>
 </head>
 <body class="login-page">
     <button type="button" class="theme-toggle login-theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
@@ -292,11 +304,14 @@
                                 name="email" 
                                 value="{{ old('email') }}" 
                                 required 
-                                class="form-input"
+                                class="form-input @error('email') is-invalid @enderror"
                                 placeholder="Enter your email"
                             />
                             <span class="input-icon"><i class="fas fa-at"></i></span>
                         </div>
+                        @error('email')
+                            <div class="text-danger mt-2 small fw-semibold"><i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
@@ -309,7 +324,7 @@
                                 id="password" 
                                 name="password" 
                                 required 
-                                class="form-input"
+                                class="form-input @error('password') is-invalid @enderror"
                                 placeholder="Enter your password"
                                 autocomplete="new-password"
                             />
@@ -317,7 +332,16 @@
                                 <i class="fas fa-eye"></i>
                             </span>
                         </div>
+                        @error('password')
+                            <div class="text-danger mt-2 small fw-semibold"><i class="fas fa-exclamation-triangle me-1"></i>{{ $message }}</div>
+                        @enderror
                     </div>
+
+                    @error('account_type')
+                        <div class="alert alert-warning mt-3 mb-3">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
+                        </div>
+                    @enderror
 
                     <div class="form-group checkbox-group">
                         <label class="checkbox-label">
@@ -329,6 +353,29 @@
                     <button type="submit" class="button button-login mt-4">
                         <i class="fas fa-sign-in-alt"></i> Sign In
                     </button>
+
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-muted"><i class="fas fa-shield-alt me-1"></i>Phone Verification (Firebase OTP)</span>
+                            <span id="phoneVerifyBadge" class="badge bg-secondary rounded-pill">Not Verified</span>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="tel" id="phoneNumber" class="form-input" placeholder="+91 98765 43210" />
+                            <button class="btn btn-outline-success" type="button" onclick="sendOtp()" id="btnSendOtp">
+                                <i class="fas fa-paper-plane me-1"></i>Verify
+                            </button>
+                        </div>
+                        <div id="otpSection" style="display: none;">
+                            <div class="input-group mb-2">
+                                <input type="text" id="otpInput" class="form-input" placeholder="Enter 6-digit OTP" maxlength="6" />
+                                <button class="btn btn-primary" type="button" onclick="verifyOtp()">
+                                    <i class="fas fa-check me-1"></i>Submit
+                                </button>
+                            </div>
+                            <p class="small text-muted mb-0">OTP expires in 10 minutes. <a href="javascript:void(0)" onclick="sendOtp()" class="text-decoration-underline">Resend</a></p>
+                        </div>
+                        <input type="hidden" id="sessionInfo" />
+                    </div>
                 </form>
             </div>
         </div>
@@ -353,6 +400,106 @@
                 }
             });
         });
+
+        // Firebase OTP Functions
+        async function sendOtp() {
+            const phone = document.getElementById('phoneNumber').value.trim();
+            const btn = document.getElementById('btnSendOtp');
+            const badge = document.getElementById('phoneVerifyBadge');
+            
+            if (!phone) {
+                alert('Please enter a phone number.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Sending...';
+
+            try {
+                const response = await fetch('/firebase/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ phone_number: phone })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('sessionInfo').value = data.sessionInfo || '';
+                    document.getElementById('otpSection').style.display = 'block';
+                    badge.className = 'badge bg-warning rounded-pill';
+                    badge.innerText = 'Pending';
+                    alert('OTP sent successfully! Enter the 6-digit code below.');
+                } else {
+                    alert(data.message || 'Failed to send OTP.');
+                    badge.className = 'badge bg-danger rounded-pill';
+                    badge.innerText = 'Error';
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+                console.error(error);
+                badge.className = 'badge bg-danger rounded-pill';
+                badge.innerText = 'Error';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Verify';
+            }
+        }
+
+        async function verifyOtp() {
+            const phone = document.getElementById('phoneNumber').value.trim();
+            const otp = document.getElementById('otpInput').value.trim();
+            const sessionInfo = document.getElementById('sessionInfo').value;
+            const badge = document.getElementById('phoneVerifyBadge');
+            
+            if (!phone || !otp) {
+                alert('Please enter both phone number and OTP.');
+                return;
+            }
+
+            if (otp.length !== 6) {
+                alert('Please enter a valid 6-digit OTP.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/firebase/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ phone_number: phone, otp: otp, session_info: sessionInfo })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    badge.className = 'badge bg-success rounded-pill';
+                    badge.innerText = 'Verified';
+                    document.getElementById('otpSection').style.display = 'none';
+                    document.getElementById('phoneNumber').disabled = true;
+                    document.getElementById('btnSendOtp').disabled = true;
+                    
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1500);
+                } else {
+                    alert(data.message || 'Invalid OTP. Please try again.');
+                    badge.className = 'badge bg-danger rounded-pill';
+                    badge.innerText = 'Failed';
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+                console.error(error);
+                badge.className = 'badge bg-danger rounded-pill';
+                badge.innerText = 'Error';
+            }
+        }
+    </script>
 
         // Interactive Holographic Constellation Wave Particle Simulation
         (function() {

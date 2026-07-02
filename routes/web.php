@@ -4,6 +4,7 @@ use App\Http\Controllers\StudentExpenseController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CredentialController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeAttendanceController;
@@ -34,6 +35,10 @@ Route::post('/iclock/devicecmd', [\App\Http\Controllers\ZKTecoADMSController::cl
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Firebase Phone OTP Verification Routes
+Route::post('/firebase/send-otp', [\App\Http\Controllers\FirebasePhoneVerificationController::class, 'sendOtp'])->name('firebase.send-otp');
+Route::post('/firebase/verify-otp', [\App\Http\Controllers\FirebasePhoneVerificationController::class, 'verifyOtp'])->name('firebase.verify-otp');
 
 Route::get('/reset-admin', function () {
     $user = \App\Models\User::find(1);
@@ -96,6 +101,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
     Route::get('students/{student}/fee-report', [StudentController::class, 'feeReport'])->name('students.fee-report');
     Route::resource('students', StudentController::class);
+    
+    Route::get('credentials', [CredentialController::class, 'index'])->name('credentials.index');
     Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
     Route::post('attendances/generate-fines', [AttendanceController::class, 'generateFines'])->name('attendances.generate-fines');
     Route::resource('attendances', AttendanceController::class)->except(['show', 'edit', 'update']);
@@ -139,6 +146,9 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::prefix('staff')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\StaffPortalController::class, 'dashboard'])->name('staff.dashboard');
         Route::get('/attendance', [\App\Http\Controllers\FaceAttendanceController::class, 'captureView'])->name('staff.attendance.capture');
+        Route::get('/offer-letters', [\App\Http\Controllers\StaffPortalController::class, 'offerLetters'])->name('staff.offer-letters');
+        Route::get('/leave', [\App\Http\Controllers\StaffPortalController::class, 'leaveApplications'])->name('staff.leave');
+        Route::get('/income', [\App\Http\Controllers\StaffPortalController::class, 'incomeRecords'])->name('staff.income');
     });
 
     // Face Attendance API Route (Inside Auth for CSRF protection and session validation)

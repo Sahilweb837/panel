@@ -178,7 +178,7 @@
 
         <div class="col-12 col-lg-8">
             <div class="row g-3 mb-4">
-                <div class="col-6 col-md-4">
+                <div class="col-6 col-md-3">
                     <div class="card bg-primary text-white border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body text-center p-3">
                             <i class="fas fa-calendar-check fa-2x mb-2 opacity-75"></i>
@@ -187,7 +187,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-4">
+                <div class="col-6 col-md-3">
                     <div class="card bg-danger text-white border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body text-center p-3">
                             <i class="fas fa-calendar-times fa-2x mb-2 opacity-75"></i>
@@ -196,12 +196,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-4">
+                <div class="col-6 col-md-3">
                     <div class="card bg-warning text-white border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body text-center p-3">
                             <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
                             <h3 class="fw-bold mb-0">{{ $lateDays }}</h3>
                             <span class="small">Late</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card bg-info text-white border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center p-3">
+                            <i class="fas fa-wallet fa-2x mb-2 opacity-75"></i>
+                            <h3 class="fw-bold mb-0">\u20B9{{ number_format($totalIncome, 0) }}</h3>
+                            <span class="small">Income This Month</span>
                         </div>
                     </div>
                 </div>
@@ -257,7 +266,6 @@
 
     <!-- Tasks & Daily Work Updates Grid -->
     <div class="row g-4 mt-2">
-        <!-- My Assigned Tasks -->
         <div class="col-12 col-lg-7">
             <div class="card shadow-sm border-0 rounded-4 h-100">
                 <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
@@ -316,15 +324,47 @@
                         </table>
                     </div>
                 </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        @if($employee->user && $employee->user->profile_pic && $employee->user->profile_pic !== 'default.png')
+                            <img src="{{ Storage::url('profiles/' . $employee->user->profile_pic) }}" class="rounded-circle shadow" width="120" height="120" style="object-fit: cover;">
+                        @else
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto shadow" style="width: 120px; height: 120px;">
+                                <i class="fas fa-user-tie text-muted fa-3x"></i>
+                            </div>
+                        @endif
+                    </div>
+                    <h4 class="fw-bold mb-1">{{ $employee->user->name ?? $employee->employee_code }}</h4>
+                    <p class="text-muted mb-3">{{ $employee->designation ?? 'Staff Member' }}</p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fas fa-id-badge me-1"></i> {{ $employee->employee_code }}</span>
+                        <span class="badge bg-info px-3 py-2 rounded-pill"><i class="fas fa-building me-1"></i> {{ $employee->department ?? 'General' }}</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center small">
+                            <span class="text-muted"><i class="fas fa-phone me-1"></i>Mobile</span>
+                            <span class="fw-semibold">{{ $employee->phone ?? 'N/A' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center small mt-2">
+                            <span class="text-muted"><i class="fas fa-mobile-alt me-1"></i>Verified Phone</span>
+                            <span class="fw-semibold {{ $employee->user->is_phone_verified ? 'text-success' : 'text-danger' }}">
+                                {{ $employee->user->is_phone_verified ? $employee->user->phone_number : 'Not Verified' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0 p-4 pt-0">
+                    <a href="{{ route('staff.attendance.capture') }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                        <i class="fas fa-camera fa-lg"></i> Mark Attendance
+                    </a>
+                </div>
             </div>
         </div>
-
-        <!-- Log Daily Update -->
-        <div class="col-12 col-lg-5">
-            <div class="card shadow-sm border-0 rounded-4 h-100">
-                <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
-                    <h5 class="fw-bold mb-0"><i class="fas fa-edit text-primary me-2"></i>Log Daily Work Update</h5>
-                </div>
                 <div class="card-body p-4">
                     <form action="{{ route('daily-updates.store') }}" method="POST">
                         @csrf
@@ -346,55 +386,214 @@
         </div>
     </div>
 
-    <!-- Salary Slips Grid -->
+    <!-- Salary Slips, Offer Letters, Leave, & Income Records -->
     <div class="row g-4 mt-2">
         <div class="col-12">
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
-                    <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>My Salary Slips</h5>
+            <ul class="nav nav-pills mb-4 p-1 bg-light rounded-4 shadow-sm border" id="staffTab" role="tablist">
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link active fw-bold py-2 rounded-3 w-100" id="salary-tab" data-bs-toggle="tab" data-bs-target="#salary-panel" type="button" role="tab" aria-controls="salary-panel" aria-selected="true">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Salary Slips
+                    </button>
+                </li>
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link fw-bold py-2 rounded-3 w-100" id="offer-tab" data-bs-toggle="tab" data-bs-target="#offer-panel" type="button" role="tab" aria-controls="offer-panel" aria-selected="false">
+                        <i class="fas fa-file-alt me-2"></i>Offer Letters
+                    </button>
+                </li>
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link fw-bold py-2 rounded-3 w-100" id="leave-tab" data-bs-toggle="tab" data-bs-target="#leave-panel" type="button" role="tab" aria-controls="leave-panel" aria-selected="false">
+                        <i class="fas fa-calendar-minus me-2"></i>Leave &amp; Absent
+                    </button>
+                </li>
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link fw-bold py-2 rounded-3 w-100" id="income-tab" data-bs-toggle="tab" data-bs-target="#income-panel" type="button" role="tab" aria-controls="income-panel" aria-selected="false">
+                        <i class="fas fa-hand-holding-usd me-2"></i>Income
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="staffTabContent">
+                <!-- Salary Slips -->
+                <div class="tab-pane fade show active" id="salary-panel" role="tabpanel" aria-labelledby="salary-tab">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Month/Year</th>
+                                            <th>Basic Salary</th>
+                                            <th>Allowances</th>
+                                            <th>Deductions</th>
+                                            <th>Net Pay</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($salarySlips ?? [] as $slip)
+                                            <tr>
+                                                <td class="fw-medium">{{ $slip->month }} {{ $slip->year }}</td>
+                                                <td>\u20B9{{ number_format($slip->basic_salary, 2) }}</td>
+                                                <td class="text-success">+\u20B9{{ number_format($slip->allowances, 2) }}</td>
+                                                <td class="text-danger">-\u20B9{{ number_format($slip->deductions, 2) }}</td>
+                                                <td class="fw-bold text-primary">\u20B9{{ number_format($slip->net_pay, 2) }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $slip->status === 'Paid' ? 'success' : 'warning' }} rounded-pill">
+                                                        {{ $slip->status }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if($slip->status === 'Paid')
+                                                        <a href="{{ route('salary_slips.show', $slip) }}" class="btn btn-sm btn-outline-primary py-1 px-2" target="_blank">
+                                                            <i class="fas fa-print me-1"></i>View Slip
+                                                        </a>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted py-4">No salary slips found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Month/Year</th>
-                                    <th>Basic Salary</th>
-                                    <th>Allowances</th>
-                                    <th>Deductions</th>
-                                    <th>Net Pay</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($salarySlips ?? [] as $slip)
-                                    <tr>
-                                        <td class="fw-medium">{{ $slip->month }} {{ $slip->year }}</td>
-                                        <td>₹{{ number_format($slip->basic_salary, 2) }}</td>
-                                        <td class="text-success">+₹{{ number_format($slip->allowances, 2) }}</td>
-                                        <td class="text-danger">-₹{{ number_format($slip->deductions, 2) }}</td>
-                                        <td class="fw-bold text-primary">₹{{ number_format($slip->net_pay, 2) }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ $slip->status === 'Paid' ? 'success' : 'warning' }} rounded-pill">
-                                                {{ $slip->status }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if($slip->status === 'Paid')
-                                                <a href="{{ route('salary_slips.show', $slip) }}" class="btn btn-sm btn-outline-primary py-1 px-2" target="_blank">
-                                                    <i class="fas fa-print me-1"></i>View Slip
-                                                </a>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center text-muted py-4">No salary slips found.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+
+                <!-- Offer Letters -->
+                <div class="tab-pane fade" id="offer-panel" role="tabpanel" aria-labelledby="offer-tab">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Offer No</th>
+                                            <th>Designation</th>
+                                            <th>Department</th>
+                                            <th>Offered Salary</th>
+                                            <th>Joining Date</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($offerLetters ?? [] as $letter)
+                                            <tr>
+                                                <td class="fw-medium">{{ $letter->offer_letter_no }}</td>
+                                                <td>{{ $letter->designation }}</td>
+                                                <td>{{ $letter->department ?? 'N/A' }}</td>
+                                                <td class="text-success fw-bold">\u20B9{{ number_format($letter->offered_salary, 2) }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($letter->joining_date)->format('M d, Y') }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $letter->status === 'Accepted' ? 'success' : ($letter->status === 'Rejected' ? 'danger' : 'warning') }} rounded-pill">
+                                                        {{ $letter->status }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if($letter->file_path)
+                                                        <a href="{{ Storage::url($letter->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2">
+                                                            <i class="fas fa-download me-1"></i>View Letter
+                                                        </a>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted py-4">No offer letters found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave & Absent -->
+                <div class="tab-pane fade" id="leave-panel" role="tabpanel" aria-labelledby="leave-tab">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Leave Type</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Total Days</th>
+                                            <th>Reason</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($leaveApplications ?? [] as $leave)
+                                            <tr>
+                                                <td class="fw-medium">{{ $leave->leave_type }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($leave->start_date)->format('M d, Y') }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}</td>
+                                                <td>{{ $leave->total_days ?? 'N/A' }}</td>
+                                                <td class="small text-muted">{{ Str::limit($leave->reason, 40) }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $leave->status === 'Approved' ? 'success' : ($leave->status === 'Rejected' ? 'danger' : 'warning') }} rounded-pill">
+                                                        {{ $leave->status }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">No leave applications found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Income Records -->
+                <div class="tab-pane fade" id="income-panel" role="tabpanel" aria-labelledby="income-tab">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                            <th>Payment Method</th>
+                                            <th>Reference No</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($incomeRecords ?? [] as $record)
+                                            <tr>
+                                                <td class="fw-medium">{{ \Carbon\Carbon::parse($record->income_date)->format('M d, Y') }}</td>
+                                                <td>{{ $record->income_type }}</td>
+                                                <td class="text-success fw-bold">\u20B9{{ number_format($record->amount, 2) }}</td>
+                                                <td>{{ $record->payment_method ?? 'N/A' }}</td>
+                                                <td class="small text-muted">{{ $record->reference_no ?? 'N/A' }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $record->status === 'Received' ? 'success' : ($record->status === 'Failed' ? 'danger' : 'warning') }} rounded-pill">
+                                                        {{ $record->status }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">No income records found.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

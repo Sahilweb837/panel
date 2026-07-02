@@ -146,6 +146,10 @@
                     <i class="fas fa-users"></i>
                     <span>Students</span>
                 </a>
+                <a href="{{ route('credentials.index') }}" class="nav-link{{ request()->routeIs('credentials.*') ? ' active' : '' }}">
+                    <i class="fas fa-id-badge"></i>
+                    <span>Credentials</span>
+                </a>
             @endif
 
             @if($isSuperOrRoot || in_array('employees', $access))

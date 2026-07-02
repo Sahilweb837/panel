@@ -158,6 +158,26 @@
         background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05));
         border: 1px dashed var(--accent-primary);
     }
+
+    .milestone-card {
+        transition: all 0.3s ease;
+    }
+    .milestone-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .milestone-progress {
+        height: 8px;
+        border-radius: 4px;
+        background: var(--border-sutil);
+        overflow: hidden;
+    }
+    .milestone-progress-bar {
+        height: 100%;
+        border-radius: 4px;
+        background: var(--accent-primary);
+        transition: width 0.6s ease;
+    }
 </style>
 
 <div class="container-fluid px-0">
@@ -177,7 +197,6 @@
     @endif
 
     <div class="row g-4">
-        <!-- Left Side Column: Student Profile -->
         <div class="col-12 col-lg-4">
             <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden">
                 <div class="card-body text-center p-4">
@@ -198,7 +217,6 @@
                         <span class="badge bg-info px-3 py-2 rounded-pill"><i class="fas fa-layer-group me-1"></i> {{ $student->course_duration ?? 'N/A' }}</span>
                     </div>
 
-                    <!-- Login Credentials Card -->
                     <div class="card login-info-card rounded-3 p-3 mb-3 text-start">
                         <h6 class="fw-bold mb-3 text-first"><i class="fas fa-key me-2"></i>Login Credentials</h6>
                         <div class="d-flex flex-column gap-2 small">
@@ -227,6 +245,7 @@
                         <h6 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Personal Details</h6>
                         <div class="d-flex flex-column gap-2 small">
                             <div class="d-flex justify-content-between"><span class="text-muted">Phone:</span> <span class="fw-semibold">{{ $student->phone ?? 'N/A' }}</span></div>
+                            <div class="d-flex justify-content-between"><span class="text-muted">Verified Phone:</span> <span class="fw-semibold {{ $student->user->is_phone_verified ? 'text-success' : 'text-danger' }}">{{ $student->user->is_phone_verified ? $student->user->phone_number : 'Not Verified' }}</span></div>
                             <div class="d-flex justify-content-between"><span class="text-muted">Aadhar No:</span> <span class="fw-semibold">{{ $student->aadhar_number ? implode(' ', str_split($student->aadhar_number, 4)) : 'N/A' }}</span></div>
                             <div class="d-flex justify-content-between"><span class="text-muted">Address:</span> <span class="fw-semibold text-end" style="max-width: 180px;">{{ $student->current_address ?? $student->address ?? 'N/A' }}</span></div>
                         </div>
@@ -240,9 +259,7 @@
             </div>
         </div>
 
-        <!-- Right Side Column: Tabbed Panels -->
         <div class="col-12 col-lg-8">
-            <!-- Tabs Menu -->
             <ul class="nav nav-pills mb-4 p-1 bg-light rounded-4 shadow-sm border" id="studentTab" role="tablist">
                 <li class="nav-item flex-grow-1 text-center" role="presentation">
                     <button class="nav-link active fw-bold py-2 rounded-3 w-100" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance-panel" type="button" role="tab" aria-controls="attendance-panel" aria-selected="true">
@@ -250,19 +267,23 @@
                     </button>
                 </li>
                 <li class="nav-item flex-grow-1 text-center" role="presentation">
+                    <button class="nav-link fw-bold py-2 rounded-3 w-100" id="milestone-tab" data-bs-toggle="tab" data-bs-target="#milestone-panel" type="button" role="tab" aria-controls="milestone-panel" aria-selected="false">
+                        <i class="fas fa-flag-checkered me-2"></i>Milestones
+                    </button>
+                </li>
+                <li class="nav-item flex-grow-1 text-center" role="presentation">
                     <button class="nav-link fw-bold py-2 rounded-3 w-100" id="course-tab" data-bs-toggle="tab" data-bs-target="#course-panel" type="button" role="tab" aria-controls="course-panel" aria-selected="false">
-                        <i class="fas fa-book-open me-2"></i>Course & Syllabus
+                        <i class="fas fa-book-open me-2"></i>Course &amp; Syllabus
                     </button>
                 </li>
                 <li class="nav-item flex-grow-1 text-center" role="presentation">
                     <button class="nav-link fw-bold py-2 rounded-3 w-100" id="fees-tab" data-bs-toggle="tab" data-bs-target="#fees-panel" type="button" role="tab" aria-controls="fees-panel" aria-selected="false">
-                        <i class="fas fa-file-invoice-dollar me-2"></i>Fees & Payments
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Fees &amp; Payments
                     </button>
                 </li>
             </ul>
 
             <div class="tab-content" id="studentTabContent">
-
                 <!-- Tab 1: Attendance Log -->
                 <div class="tab-pane fade show active" id="attendance-panel" role="tabpanel" aria-labelledby="attendance-tab">
                     <div class="row g-3 mb-4">
@@ -351,9 +372,90 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: Course & Syllabus -->
+                <!-- Tab 2: Milestones -->
+                <div class="tab-pane fade" id="milestone-panel" role="tabpanel" aria-labelledby="milestone-tab">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card shadow-sm border-0 rounded-4 h-100">
+                                <div class="card-body text-center p-4">
+                                    <i class="fas fa-flag-checkered fa-2x text-primary mb-2"></i>
+                                    <h3 class="fw-bold mb-0">{{ $totalMilestones }}</h3>
+                                    <span class="small text-muted">Total Milestones</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card shadow-sm border-0 rounded-4 h-100">
+                                <div class="card-body text-center p-4">
+                                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                    <h3 class="fw-bold mb-0">{{ $completedMilestones }}</h3>
+                                    <span class="small text-muted">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card shadow-sm border-0 rounded-4 h-100">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small text-muted">Progress</span>
+                                        <span class="fw-bold">{{ $milestoneProgress }}%</span>
+                                    </div>
+                                    <div class="milestone-progress">
+                                        <div class="milestone-progress-bar" style="width: {{ $milestoneProgress }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-transparent border-bottom pt-4 pb-3 px-4">
+                            <h5 class="fw-bold mb-0"><i class="fas fa-list-check text-primary me-2"></i>Syllabus Milestones (Read-Only)</h5>
+                            <p class="text-muted small mb-0 mt-1">These milestones are derived from your course syllabus. View-only, no editing allowed.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Milestone</th>
+                                            <th>Type</th>
+                                            <th>Priority</th>
+                                            <th>Target Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($milestones as $milestone)
+                                            <tr>
+                                                <td class="fw-bold">{{ $milestone->title }}</td>
+                                                <td class="small">{{ $milestone->milestone_type }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $milestone->priority === 'High' ? 'danger' : ($milestone->priority === 'Medium' ? 'warning' : 'info') }} px-2 py-1">
+                                                        {{ $milestone->priority }}
+                                                    </span>
+                                                </td>
+                                                <td class="small">{{ $milestone->target_date ? \Carbon\Carbon::parse($milestone->target_date)->format('M d, Y') : 'N/A' }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $milestone->status === 'Completed' ? 'success' : ($milestone->status === 'In Progress' ? 'primary' : 'secondary') }} rounded-pill">
+                                                        {{ $milestone->status }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-4">No milestones found for your course.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Course & Syllabus -->
                 <div class="tab-pane fade" id="course-panel" role="tabpanel" aria-labelledby="course-tab">
-                    <!-- Current Assigned Course Card -->
                     <div class="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
                         <div class="card-header bg-primary text-white p-4">
                             <div class="d-flex justify-content-between align-items-center">
@@ -385,7 +487,7 @@
                                 <div class="col-md-4">
                                     <div class="p-3 bg-white rounded-3 border">
                                         <span class="text-muted d-block small mb-1">TOTAL COURSE FEE</span>
-                                        <span class="fw-bold text-success">₹{{ number_format($student->course->fee ?? 0, 2) }}</span>
+                                        <span class="fw-bold text-success">\u20B9{{ number_format($student->course->fee ?? 0, 2) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -398,7 +500,6 @@
                         </div>
                     </div>
 
-                    <!-- Course Switch / Selection List -->
                     <div class="card shadow-sm border-0 rounded-4">
                         <div class="card-header bg-transparent border-bottom pt-4 pb-3 px-4">
                             <h5 class="fw-bold mb-0"><i class="fas fa-exchange-alt text-primary me-2"></i>Enroll or Change Course</h5>
@@ -414,7 +515,7 @@
                                                 <div class="w-100">
                                                     <div class="d-flex justify-content-between mb-2">
                                                         <span class="badge bg-secondary rounded-pill">{{ $crs->code ?? 'N/A' }}</span>
-                                                        <span class="text-success fw-bold">₹{{ number_format($crs->fee, 2) }}</span>
+                                                        <span class="text-success fw-bold">\u20B9{{ number_format($crs->fee, 2) }}</span>
                                                     </div>
                                                     <h6 class="fw-bold text-dark mb-1">{{ $crs->name }}</h6>
                                                     <p class="text-muted small mb-2"><i class="fas fa-clock me-1"></i> {{ $crs->duration ?? 'Flexible' }}</p>
@@ -453,11 +554,9 @@
                     </div>
                 </div>
 
-                <!-- Tab 3: Fees & Payments -->
+                <!-- Tab 4: Fees & Payments -->
                 <div class="tab-pane fade" id="fees-panel" role="tabpanel" aria-labelledby="fees-tab">
-
                     <div class="row g-4 mb-4">
-                        <!-- Fee Breakdown -->
                         <div class="col-md-6">
                             <div class="card shadow-sm border-0 rounded-4 h-100">
                                 <div class="card-header bg-transparent border-bottom pt-4 px-4">
@@ -471,23 +570,22 @@
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="text-muted">Calculated Monthly Share:</span>
-                                            <span class="fw-semibold">₹{{ number_format($monthlyCourseFee, 2) }}</span>
+                                            <span class="fw-semibold">\u20B9{{ number_format($monthlyCourseFee, 2) }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center text-danger">
                                             <span>Active Discount:</span>
-                                            <span>- ₹{{ number_format($monthlyDiscount, 2) }}</span>
+                                            <span>-\u20B9{{ number_format($monthlyDiscount, 2) }}</span>
                                         </div>
                                         <hr class="my-1">
-                                        <div class="d-flex justify-content-between align-items-center fw-bold text-dark fs-5">
+                                        <div class="d-flex justify-content-between align-items-center fw-bold fs-5">
                                             <span>Net Monthly Fee:</span>
-                                            <span class="text-success">₹{{ number_format($netMonthlyFee, 2) }}</span>
+                                            <span class="text-success">\u20B9{{ number_format($netMonthlyFee, 2) }}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Fee Status Card -->
                         <div class="col-md-6">
                             <div class="card shadow-sm border-0 rounded-4 h-100">
                                 <div class="card-header bg-transparent border-bottom pt-4 px-4">
@@ -497,16 +595,16 @@
                                     <div class="d-flex flex-column gap-3">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="text-muted">Total Fees:</span>
-                                            <span class="fw-semibold">₹{{ number_format($totalFees, 2) }}</span>
+                                            <span class="fw-semibold">\u20B9{{ number_format($totalFees, 2) }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center text-success">
                                             <span>Total Paid:</span>
-                                            <span>+ ₹{{ number_format($paidFees, 2) }}</span>
+                                            <span>+\u20B9{{ number_format($paidFees, 2) }}</span>
                                         </div>
                                         <hr class="my-1">
                                         <div class="d-flex justify-content-between align-items-center fw-bold fs-5">
                                             <span>Due Balance:</span>
-                                            <span class="{{ $dueFees > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($dueFees, 2) }}</span>
+                                            <span class="{{ $dueFees > 0 ? 'text-danger' : 'text-success' }}">\u20B9{{ number_format($dueFees, 2) }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -514,10 +612,9 @@
                         </div>
                     </div>
 
-                    <!-- Invoices History -->
                     <div class="card shadow-sm border-0 rounded-4">
                         <div class="card-header bg-transparent border-bottom pt-4 pb-3 px-4">
-                            <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Your Fee Invoices & Receipts</h5>
+                            <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Your Fee Invoices &amp; Receipts</h5>
                         </div>
                         <div class="card-body p-4">
                             <div class="table-responsive">
@@ -539,8 +636,8 @@
                                                 <td class="fw-bold text-dark">{{ $invoice->invoice_no }}</td>
                                                 <td class="small">{{ $invoice->billing_month ? \Carbon\Carbon::create()->month($invoice->billing_month)->format('F') : '' }} {{ $invoice->billing_year }}</td>
                                                 <td class="small">{{ $invoice->fee_category }}</td>
-                                                <td class="fw-semibold">₹{{ number_format($invoice->total_amount, 2) }}</td>
-                                                <td class="text-success fw-semibold">₹{{ number_format($invoice->paid_amount, 2) }}</td>
+                                                <td class="fw-semibold">\u20B9{{ number_format($invoice->total_amount, 2) }}</td>
+                                                <td class="text-success fw-semibold">\u20B9{{ number_format($invoice->paid_amount, 2) }}</td>
                                                 <td>
                                                     <span class="badge bg-{{ $invoice->status === 'Paid' ? 'success' : ($invoice->status === 'Partial' ? 'warning' : 'danger') }} rounded-pill">
                                                         {{ $invoice->status }}
@@ -562,9 +659,7 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     </div>

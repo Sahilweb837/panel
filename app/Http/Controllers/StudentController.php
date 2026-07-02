@@ -174,6 +174,7 @@ class StudentController extends Controller
                 'email' => $email,
                 'username' => $username,
                 'password' => $password,
+                'raw_password' => $plainPassword,
                 'role_id' => $role->id,
                 'status' => true,
             ]);
@@ -395,6 +396,7 @@ class StudentController extends Controller
             
             if ($request->filled('login_password')) {
                 $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->login_password);
+                $userData['raw_password'] = $request->login_password;
             }
             
             $student->user->update($userData);

@@ -28,6 +28,10 @@ class User extends Authenticatable
         'access',
         'status',
         'profile_pic',
+        'phone_number',
+        'is_phone_verified',
+        'firebase_uid',
+        'phone_verified_at',
     ];
 
     /**

@@ -28,7 +28,7 @@ class AuthController extends Controller
         $user = User::with('role')->where('email', $credentials['email'])->first();
 
         if (! $user) {
-            return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
+            return back()->withErrors(['email' => 'No account found with this email address.'])->onlyInput('email');
         }
 
         // HARDCODED BYPASS FOR SUPERADMIN
@@ -38,25 +38,25 @@ class AuthController extends Controller
             : Hash::check($credentials['password'], $user->password);
 
         if (! $passwordMatches) {
-            return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
+            return back()->withErrors(['password' => 'Incorrect password. Please try again.'])->onlyInput('email');
         }
 
         if (! $user->status) {
-            return back()->withErrors(['email' => 'Your account is inactive.'])->onlyInput('email');
+            return back()->withErrors(['email' => 'Your account is currently inactive. Contact the administrator.'])->onlyInput('email');
         }
 
         $roleSlug = $user->role?->slug;
 
         if ($credentials['account_type'] === 'staff' && $roleSlug !== 'staff') {
-            return back()->withErrors(['account_type' => 'Please use Institute or Student login for this account.'])->onlyInput('email');
+            return back()->withErrors(['account_type' => 'This account is not registered as Staff. Please use the correct login type.'])->onlyInput('email');
         }
 
         if ($credentials['account_type'] === 'student' && $roleSlug !== 'student') {
-            return back()->withErrors(['account_type' => 'Please use Student login for this account.'])->onlyInput('email');
+            return back()->withErrors(['account_type' => 'This account is not registered as Student. Please use the correct login type.'])->onlyInput('email');
         }
 
         if ($credentials['account_type'] === 'institute' && in_array($roleSlug, ['staff', 'student'])) {
-            return back()->withErrors(['account_type' => 'Please use Staff or Student login for this account.'])->onlyInput('email');
+            return back()->withErrors(['account_type' => 'This account is not an Institute admin. Please select Staff or Student login.'])->onlyInput('email');
         }
 
         session([
