@@ -499,7 +499,6 @@
                 badge.innerText = 'Error';
             }
         }
-    </script>
 
         // Interactive Holographic Constellation Wave Particle Simulation
         (function() {
@@ -620,8 +619,9 @@
         })();
 
         // Set form style on load
-        window.addEventListener('DOMContentLoaded', () => {
+        function initLoginForm() {
             const hiddenInput = document.getElementById('account_type');
+            if (!hiddenInput) return;
             const type = hiddenInput.value || 'institute';
             updateLoginFormStyle(type);
             
@@ -630,7 +630,18 @@
             if (changeLinkContainer && type && type !== 'institute') {
                 changeLinkContainer.style.display = 'block';
             }
-        });
+
+            // Clear URL query parameters (like ?type=...) so they are not shown in the URL
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', initLoginForm);
+        } else {
+            initLoginForm();
+        }
 
         function updateLoginFormStyle(typeOverride) {
             const selectEl = document.getElementById('account_type_select');
