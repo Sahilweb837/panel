@@ -123,6 +123,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('fee_invoices/monthly', [FeeInvoiceController::class, 'monthlyFee'])->name('fee_invoices.monthly');
     Route::get('api/students/{id}/monthly-status', [FeeInvoiceController::class, 'studentMonthlyStatus'])->name('api.students.monthly-status');
     
+    Route::get('fee_invoices/bulk-generate', [FeeInvoiceController::class, 'showBulkGenerate'])->name('fee_invoices.bulk-generate');
+    Route::post('fee_invoices/bulk-generate', [FeeInvoiceController::class, 'bulkGenerate'])->name('fee_invoices.bulk-generate.post');
     Route::post('fee_invoices/{id}/receive-payment', [FeeInvoiceController::class, 'receivePayment'])->name('fee_invoices.receive-payment');
     Route::resource('fee_invoices', FeeInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 

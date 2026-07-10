@@ -64,6 +64,9 @@
                             </button>
                         </form>
                     @endif
+                    <a href="{{ route('fee_invoices.bulk-generate') }}" class="button button-info py-2 px-4" style="background-color: #4f46e5;">
+                        <i class="fas fa-magic me-2"></i>Bulk Monthly Generate
+                    </a>
                     <a href="{{ route('fee_invoices.monthly') }}" class="button button-info py-2 px-4" style="background-color: #0d9488;">
                         <i class="fas fa-calendar-alt me-2"></i>Monthly Fee Collection
                     </a>

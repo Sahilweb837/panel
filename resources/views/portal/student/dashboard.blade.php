@@ -198,7 +198,7 @@
 
     <div class="row g-4">
         <div class="col-12 col-lg-4">
-            <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
                 <div class="card-body text-center p-4">
                     <div class="mb-3 position-relative d-inline-block">
                         @if($student->photo)
@@ -255,6 +255,49 @@
                     <a href="{{ route('student.attendance.capture') }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
                         <i class="fas fa-camera fa-lg"></i> Mark Face Attendance
                     </a>
+                </div>
+            </div>
+
+            <!-- Fee Status Summary Card -->
+            @php
+                $computedDueFees = $invoices->sum('due_amount');
+                $computedPaidFees = $invoices->sum('paid_amount');
+                $computedTotalFees = $invoices->sum('total_amount');
+            @endphp
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-transparent py-3 border-bottom-0">
+                    <h6 class="fw-bold mb-0 text-white"><i class="fas fa-wallet text-primary me-2"></i>Fee Status Summary</h6>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="d-flex justify-content-between align-items-center mb-2.5">
+                        <span class="text-muted small">Total Invoiced:</span>
+                        <span class="fw-semibold text-white">₹{{ number_format($computedTotalFees, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2.5">
+                        <span class="text-muted small">Total Paid:</span>
+                        <span class="fw-semibold text-success">₹{{ number_format($computedPaidFees, 2) }}</span>
+                    </div>
+                    <hr class="my-2" style="border-color: var(--border-sutil) !important;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small fw-bold">Outstanding Balance:</span>
+                        <span class="fw-bold fs-5 {{ $computedDueFees > 0 ? 'text-danger' : 'text-success' }}">
+                            ₹{{ number_format($computedDueFees, 2) }}
+                        </span>
+                    </div>
+                    @if($computedDueFees > 0)
+                        <div class="alert alert-danger mt-3 mb-0 py-2 px-3 small border-0 rounded-3 text-center" style="background-color: #3A1C1C !important; color: var(--accent-alert) !important;">
+                            <i class="fas fa-exclamation-circle me-1"></i> Dues are pending. Please pay soon.
+                        </div>
+                    @else
+                        <div class="alert alert-success mt-3 mb-0 py-2 px-3 small border-0 rounded-3 text-center" style="background-color: rgba(50, 215, 75, 0.15) !important; color: var(--accent-status) !important;">
+                            <i class="fas fa-check-circle me-1"></i> All dues are clear.
+                        </div>
+                    @endif
+                </div>
+                <div class="card-footer bg-transparent border-top-0 p-3 pt-0">
+                    <button class="btn btn-outline-primary btn-sm w-100 rounded-3 fw-bold" onclick="document.getElementById('fees-tab').click();">
+                        <i class="fas fa-file-invoice-dollar me-1"></i> View Invoices & Receipts
+                    </button>
                 </div>
             </div>
         </div>

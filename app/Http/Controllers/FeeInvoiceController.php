@@ -570,4 +570,223 @@ class FeeInvoiceController extends Controller
 
         return back()->with('success', 'Payment of ₹' . number_format($request->paid_amount, 2) . ' recorded successfully. Invoice #' . $invoice->invoice_no . ' status is now: ' . $status);
     }
+
+    public function showBulkGenerate(Request $request)
+    {
+        $month = $request->query('month', now()->month);
+        $year = $request->query('year', now()->year);
+
+        // Fetch all active students who have courses mapped
+        $students = Student::with('course')->where('status', true)->get();
+
+        $studentsData = [];
+        foreach ($students as $student) {
+            // Check if monthly fee already exists for this period
+            $existingInvoice = FeeInvoice::where('student_id', $student->id)
+                ->where('billing_month', $month)
+                ->where('billing_year', $year)
+                ->first();
+
+            // Calculate monthly course fee based on tenure
+            $tenureLabel = $student->fee_tenure ?? '1 Year';
+            $tenureMonths = match($tenureLabel) {
+                '1 Month' => 1,
+                '3 Months' => 3,
+                '6 Months' => 6,
+                '1 Year' => 12,
+                default => 12,
+            };
+
+            $courseFee = $student->course ? $student->course->fee : 0;
+            $discount = $student->discount ?? 0;
+
+            // Course months from course_duration
+            $durationLower = strtolower($student->course_duration ?? '1 year');
+            $courseMonths = match(true) {
+                str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month') => 12,
+                str_contains($durationLower, '6 month') => 6,
+                str_contains($durationLower, '3 month') => 3,
+                str_contains($durationLower, '1 month') => 1,
+                default => 12,
+            };
+
+            $divisor = max(1, (int) ceil($courseMonths / $tenureMonths));
+            $monthlyCourseFee = round($courseFee / $divisor, 2);
+            $monthlyDiscount = round($discount / $divisor, 2);
+            $netMonthlyFee = max(0, $monthlyCourseFee - $monthlyDiscount);
+
+            // Calculate late fine (₹50 per month late after 10th of the month)
+            $dueDate = Carbon::create($year, $month, 10);
+            $isLate = now()->greaterThan($dueDate);
+            $monthsLate = 0;
+            if ($isLate) {
+                $monthsLate = now()->diffInMonths($dueDate);
+            }
+            $lateFine = $monthsLate * 50;
+
+            // Get attendance fine for the month
+            $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
+            $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth();
+
+            $attendances = \App\Models\Attendance::where('student_id', $student->id)
+                ->whereBetween('attendance_date', [$startOfMonth, $endOfMonth])
+                ->where(function($query) {
+                    $query->where('status', 'Absent')
+                          ->orWhere('fine', '>', 0);
+                })
+                ->get();
+
+            $attendanceFine = 0;
+            foreach ($attendances as $att) {
+                $fineAmount = $att->fine > 0 ? (float)$att->fine : 50;
+                if ($att->status === 'Absent' || $att->fine > 0) {
+                    $attendanceFine += $fineAmount;
+                }
+            }
+
+            $totalFine = $lateFine + $attendanceFine;
+            $totalAmount = $netMonthlyFee + $totalFine;
+
+            $studentsData[] = [
+                'student' => $student,
+                'net_monthly_fee' => $netMonthlyFee,
+                'discount' => $monthlyDiscount,
+                'late_fine' => $lateFine,
+                'attendance_fine' => $attendanceFine,
+                'total_amount' => $totalAmount,
+                'has_invoice' => $existingInvoice ? true : false,
+                'existing_invoice_no' => $existingInvoice ? $existingInvoice->invoice_no : null,
+                'existing_invoice_status' => $existingInvoice ? $existingInvoice->status : null,
+            ];
+        }
+
+        return view('fee_invoices.bulk_generate', compact('studentsData', 'month', 'year'));
+    }
+
+    public function bulkGenerate(Request $request)
+    {
+        $request->validate([
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'exists:students,id',
+            'billing_month' => 'required|integer|min:1|max:12',
+            'billing_year' => 'required|integer|min:2020|max:2030',
+        ]);
+
+        $month = $request->billing_month;
+        $year = $request->billing_year;
+        $studentIds = $request->student_ids;
+
+        $generatedCount = 0;
+
+        foreach ($studentIds as $studentId) {
+            $student = Student::with('course')->find($studentId);
+            if (!$student) continue;
+
+            // Check if monthly invoice already exists
+            $existingInvoice = FeeInvoice::where('student_id', $studentId)
+                ->where('billing_month', $month)
+                ->where('billing_year', $year)
+                ->first();
+
+            if ($existingInvoice) continue;
+
+            // Re-calculate the parameters to ensure accuracy
+            $tenureLabel = $student->fee_tenure ?? '1 Year';
+            $tenureMonths = match($tenureLabel) {
+                '1 Month' => 1,
+                '3 Months' => 3,
+                '6 Months' => 6,
+                '1 Year' => 12,
+                default => 12,
+            };
+
+            $courseFee = $student->course ? $student->course->fee : 0;
+            $discount = $student->discount ?? 0;
+
+            $durationLower = strtolower($student->course_duration ?? '1 year');
+            $courseMonths = match(true) {
+                str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month') => 12,
+                str_contains($durationLower, '6 month') => 6,
+                str_contains($durationLower, '3 month') => 3,
+                str_contains($durationLower, '1 month') => 1,
+                default => 12,
+            };
+
+            $divisor = max(1, (int) ceil($courseMonths / $tenureMonths));
+            $monthlyCourseFee = round($courseFee / $divisor, 2);
+            $monthlyDiscount = round($discount / $divisor, 2);
+            $netMonthlyFee = max(0, $monthlyCourseFee - $monthlyDiscount);
+
+            // Fines
+            $dueDate = Carbon::create($year, $month, 10);
+            $isLate = now()->greaterThan($dueDate);
+            $monthsLate = 0;
+            if ($isLate) {
+                $monthsLate = now()->diffInMonths($dueDate);
+            }
+            $lateFine = $monthsLate * 50;
+
+            $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
+            $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth();
+
+            $attendances = \App\Models\Attendance::where('student_id', $studentId)
+                ->whereBetween('attendance_date', [$startOfMonth, $endOfMonth])
+                ->where(function($query) {
+                    $query->where('status', 'Absent')
+                          ->orWhere('fine', '>', 0);
+                })
+                ->get();
+
+            $attendanceFine = 0;
+            foreach ($attendances as $att) {
+                $fineAmount = $att->fine > 0 ? (float)$att->fine : 50;
+                if ($att->status === 'Absent' || $att->fine > 0) {
+                    $attendanceFine += $fineAmount;
+                }
+            }
+
+            $totalFine = $lateFine + $attendanceFine;
+            $totalAmount = $netMonthlyFee + $totalFine;
+
+            $feeItems = [
+                ['category' => "Course Fee ({$tenureLabel} Installment)", 'amount' => $netMonthlyFee]
+            ];
+
+            if ($lateFine > 0) {
+                $feeItems[] = ['category' => 'Late Fine', 'amount' => $lateFine];
+            }
+            if ($attendanceFine > 0) {
+                $feeItems[] = ['category' => 'Attendance Fine', 'amount' => $attendanceFine];
+            }
+
+            $invoiceNoCount = FeeInvoice::whereYear('payment_date', $year)->withTrashed()->count();
+            do {
+                $invoiceNo = 'NT-REC-' . $year . '-' . str_pad(++$invoiceNoCount, 3, '0', STR_PAD_LEFT);
+            } while (FeeInvoice::where('invoice_no', $invoiceNo)->withTrashed()->exists());
+
+            $monthName = Carbon::create()->month($month)->format('F');
+
+            FeeInvoice::create([
+                'student_id' => $studentId,
+                'invoice_no' => $invoiceNo,
+                'fee_category' => "Monthly Fee - {$monthName} {$year}",
+                'billing_month' => $month,
+                'billing_year' => $year,
+                'total_amount' => $totalAmount,
+                'paid_amount' => 0,
+                'discount' => $monthlyDiscount,
+                'fine' => $totalFine,
+                'due_amount' => $totalAmount,
+                'status' => 'Unpaid',
+                'fee_items' => $feeItems,
+                'payment_date' => now()->toDateString(), // Default to today
+                'created_by' => session('user_id'),
+            ]);
+
+            $generatedCount++;
+        }
+
+        return redirect()->route('fee_invoices.index')
+            ->with('success', "Successfully generated {$generatedCount} monthly invoices.");
+    }
 }

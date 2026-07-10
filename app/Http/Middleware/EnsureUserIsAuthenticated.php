@@ -36,11 +36,16 @@ class EnsureUserIsAuthenticated
         if (!$isSuperOrRoot) {
             $allowed = false;
             
+            $route = $request->route() ? $request->route()->getName() : '';
+
             if ($request->routeIs('dashboard', 'logout')) {
+                $allowed = true;
+            } elseif ($roleSlug === 'student' && str_starts_with($route, 'student.')) {
+                $allowed = true;
+            } elseif ($roleSlug === 'staff' && str_starts_with($route, 'staff.')) {
                 $allowed = true;
             } else {
                 $access = $user->access ?? [];
-                $route = $request->route() ? $request->route()->getName() : '';
                 
                 if (str_starts_with($route, 'courses.') && in_array('courses', $access)) {
                     $allowed = true;
