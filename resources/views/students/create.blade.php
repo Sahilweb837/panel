@@ -320,7 +320,7 @@
                                 <i class="fas fa-info-circle me-1"></i>First Invoice
                             </label>
                             <p class="mb-0 small text-muted">
-                                Registration Fee + Prospectus Fee + Course Fee (split by tenure) will be automatically added to the student's first invoice.
+                                Registration Fee + Prospectus Fee will be automatically added to the student's first invoice. Course Fee will be billed monthly/quarterly according to the payment tenure.
                             </p>
                         </div>
                         <div class="form-group" style="display:flex; align-items:flex-end;">
@@ -328,7 +328,6 @@
                                 <strong class="text-first">Auto-included:</strong>
                                 <span class="badge bg-success me-1">Registration Fee</span>
                                 <span class="badge bg-success me-1">Prospectus Fee</span>
-                                <span class="badge bg-primary">Course Fee (Tenure)</span>
                             </div>
                         </div>
                     </div>
@@ -497,12 +496,13 @@
                     : `<br><small class="text-muted">(Full course fee${discount > 0 ? ' - ₹' + installmentDiscount + ' discount' : ''})</small>`;
 
                 courseFeeDisplay.innerHTML = `
-                    <div class="mb-1"><strong>Course Fee:</strong> ₹${netCourseFee.toFixed(2)}${tenureNote}</div>
-                    <div><strong>Admission Fees:</strong> ₹${admissionTotal} <br><small class="text-muted">(Registration + Prospectus)</small></div>
+                    <div class="mb-1"><strong>Admission Fees:</strong> ₹${admissionTotal} <br><small class="text-muted">(Registration + Prospectus)</small></div>
+                    <div><strong>Monthly/Installment Course Fee:</strong> ₹${netCourseFee.toFixed(2)}${tenureNote}</div>
                 `;
 
-                const combinedTotal = (netCourseFee + parseFloat(admissionTotal)).toFixed(2);
-                totalDisplay.innerText = `Total Today: ₹${combinedTotal}`;
+                // Total Today (First Invoice) is strictly Prospectus + Registration fees
+                const combinedTotal = parseFloat(admissionTotal).toFixed(2);
+                totalDisplay.innerText = `First Invoice Total (Admission): ₹${combinedTotal}`;
             };
 
             courseSelect.addEventListener('change', calculateFees);

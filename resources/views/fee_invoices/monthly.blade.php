@@ -150,6 +150,14 @@
                                                 <span class="text-danger">Late Fine:</span>
                                                 <span class="text-danger fw-bold" id="display-late-fine">+ ₹0</span>
                                             </div>
+                                            <div class="d-flex justify-content-between" id="summary-registration-row" style="display: none;">
+                                                <span class="text-primary">Registration Fee:</span>
+                                                <span class="text-primary fw-bold" id="display-registration-fee">+ ₹0</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between" id="summary-prospectus-row" style="display: none;">
+                                                <span class="text-primary">Prospectus Fee:</span>
+                                                <span class="text-primary fw-bold" id="display-prospectus-fee">+ ₹0</span>
+                                            </div>
                                             <div class="d-flex justify-content-between">
                                                 <span class="text-warning">Attendance Fine:</span>
                                                 <span class="text-warning fw-bold" id="display-attendance-fine">+ ₹0</span>
@@ -363,6 +371,16 @@
             // Monthly course fee (editable for partial payments)
             addRow('Monthly Course Fee', breakdown.net_monthly_fee, true, 'Monthly Course Fee');
 
+            // Registration fee (if unpaid)
+            if (breakdown.unpaid_registration > 0) {
+                addRow('Registration Fee', breakdown.unpaid_registration, true, 'Registration Fee');
+            }
+
+            // Prospectus fee (if unpaid)
+            if (breakdown.unpaid_prospectus > 0) {
+                addRow('Prospectus Fee', breakdown.unpaid_prospectus, true, 'Prospectus Fee');
+            }
+
             // Discount (display only, negative)
             if (breakdown.monthly_discount > 0) {
                 const tr = document.createElement('tr');
@@ -393,6 +411,24 @@
             document.getElementById('display-discount').textContent = `- ₹${breakdown.monthly_discount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
             document.getElementById('display-late-fine').textContent = `+ ₹${breakdown.late_fine.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
             document.getElementById('display-attendance-fine').textContent = `+ ₹${breakdown.attendance_fine.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+            // Show/hide registration and prospectus rows in summary
+            const regRow = document.getElementById('summary-registration-row');
+            if (breakdown.unpaid_registration > 0) {
+                regRow.style.display = 'flex';
+                document.getElementById('display-registration-fee').textContent = `+ ₹${breakdown.unpaid_registration.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            } else {
+                regRow.style.display = 'none';
+            }
+
+            const prosRow = document.getElementById('summary-prospectus-row');
+            if (breakdown.unpaid_prospectus > 0) {
+                prosRow.style.display = 'flex';
+                document.getElementById('display-prospectus-fee').textContent = `+ ₹${breakdown.unpaid_prospectus.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            } else {
+                prosRow.style.display = 'none';
+            }
+
             document.getElementById('display-total-amount').textContent = `₹${breakdown.total_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 
             // Set default pay now amount
@@ -454,6 +490,7 @@
             document.getElementById('paid_amount_hidden').value = payNowInput.value;
             document.getElementById('total_amount_hidden').value = total.toFixed(2);
             document.getElementById('fee_items_json').value = JSON.stringify(feeItems);
+            document.getElementById('display-total-amount').textContent = `₹${total.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         }
 
         function updatePayNow() {

@@ -251,6 +251,25 @@
         <div class="sidebar-footer">
             <p>Logged in as</p>
             <strong>{{ session('user_name', 'Guest') }}</strong>
+            @if(session('user_role'))
+                <small class="text-muted d-block mb-2">{{ session('user_role') }}</small>
+            @endif
+            @php
+                $currentUser = null;
+                if (session('user_id')) {
+                    $currentUser = \App\Models\User::find(session('user_id'));
+                }
+            @endphp
+            @if($currentUser && $currentUser->phone_number)
+                <small class="d-block mb-1">
+                    <i class="fas fa-phone me-1"></i>{{ $currentUser->phone_number }}
+                    @if($currentUser->is_phone_verified)
+                        <span class="badge bg-success rounded-pill ms-1">Verified</span>
+                    @else
+                        <span class="badge bg-warning rounded-pill ms-1">Unverified</span>
+                    @endif
+                </small>
+            @endif
             <form action="{{ route('logout') }}" method="POST" class="logout-form">
                 @csrf
                 <button type="submit" class="button button-secondary">

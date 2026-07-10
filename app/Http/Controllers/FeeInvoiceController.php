@@ -152,8 +152,80 @@ class FeeInvoiceController extends Controller
             }
         }
         
+        // Check if Prospectus Fee or Registration Fee has already been paid in past invoices
+        $allInvoices = FeeInvoice::where('student_id', $studentId)->get();
+        $prospectusPaid = false;
+        $registrationPaid = false;
+
+        foreach ($allInvoices as $inv) {
+            if ($inv->status === 'Paid') {
+                $items = is_string($inv->fee_items) ? json_decode($inv->fee_items, true) : ($inv->fee_items ?? []);
+                foreach ($items as $item) {
+                    $category = strtolower($item['category'] ?? '');
+                    if (str_contains($category, 'prospectus')) {
+                        $prospectusPaid = true;
+                    }
+                    if (str_contains($category, 'registration')) {
+                        $registrationPaid = true;
+                    }
+                }
+                $feeCat = strtolower($inv->fee_category ?? '');
+                if (str_contains($feeCat, 'prospectus')) {
+                    $prospectusPaid = true;
+                }
+                if (str_contains($feeCat, 'registration')) {
+                    $registrationPaid = true;
+                }
+            }
+        }
+
+        $unpaidRegistration = 0;
+        $unpaidProspectus = 0;
+
+        if (!$registrationPaid && ($student->registration_fee ?? 0) > 0) {
+            // Find if there is an unpaid/partial invoice containing registration
+            $regInvoice = FeeInvoice::where('student_id', $studentId)
+                ->whereIn('status', ['Unpaid', 'Partial'])
+                ->where(function($q) {
+                    $q->where('fee_category', 'like', '%registration%')
+                      ->orWhere('fee_items', 'like', '%registration%');
+                })
+                ->first();
+            
+            if ($regInvoice) {
+                if ($regInvoice->status === 'Unpaid') {
+                    $unpaidRegistration = (float) $student->registration_fee;
+                } else {
+                    $unpaidRegistration = (float) $regInvoice->due_amount; 
+                }
+            } else {
+                $unpaidRegistration = (float) $student->registration_fee;
+            }
+        }
+
+        if (!$prospectusPaid && ($student->prospectus_fee ?? 0) > 0) {
+            // Find if there is an unpaid/partial invoice containing prospectus
+            $prosInvoice = FeeInvoice::where('student_id', $studentId)
+                ->whereIn('status', ['Unpaid', 'Partial'])
+                ->where(function($q) {
+                    $q->where('fee_category', 'like', '%prospectus%')
+                      ->orWhere('fee_items', 'like', '%prospectus%');
+                })
+                ->first();
+            
+            if ($prosInvoice) {
+                if ($prosInvoice->status === 'Unpaid') {
+                    $unpaidProspectus = (float) $student->prospectus_fee;
+                } else {
+                    $unpaidProspectus = (float) $prosInvoice->due_amount;
+                }
+            } else {
+                $unpaidProspectus = (float) $student->prospectus_fee;
+            }
+        }
+
         $totalFine = $lateFine + $attendanceFine;
-        $totalAmount = $netMonthlyFee + $totalFine;
+        $totalAmount = $netMonthlyFee + $totalFine + $unpaidRegistration + $unpaidProspectus;
         
         return [
             'student' => [
@@ -176,6 +248,8 @@ class FeeInvoiceController extends Controller
                 'months_late' => $monthsLate,
                 'attendance_fine' => $attendanceFine,
                 'attendance_fine_details' => $attendanceFineDetails,
+                'unpaid_registration' => $unpaidRegistration,
+                'unpaid_prospectus' => $unpaidProspectus,
                 'total_fine' => $totalFine,
                 'total_amount' => $totalAmount,
             ],
@@ -241,6 +315,74 @@ class FeeInvoiceController extends Controller
             $data['fee_category'] = implode(', ', array_slice($categories, 0, 3));
             if (count($categories) > 3) {
                 $data['fee_category'] .= '...';
+            }
+        }
+
+        // Apply payments to existing unpaid/partial invoices if Registration or Prospectus Fee is paid in this invoice
+        $paidRegistrationAmount = 0;
+        $paidProspectusAmount = 0;
+
+        if (!empty($data['fee_items'])) {
+            foreach ($data['fee_items'] as $item) {
+                $cat = strtolower($item['category'] ?? '');
+                $amt = (float)($item['amount'] ?? 0);
+                if (str_contains($cat, 'registration')) {
+                    $paidRegistrationAmount += $amt;
+                }
+                if (str_contains($cat, 'prospectus')) {
+                    $paidProspectusAmount += $amt;
+                }
+            }
+        }
+
+        if ($paidRegistrationAmount > 0 || $paidProspectusAmount > 0) {
+            $studentId = $data['student_id'];
+            $unpaidInvoices = FeeInvoice::where('student_id', $studentId)
+                ->whereIn('status', ['Unpaid', 'Partial'])
+                ->get();
+
+            foreach ($unpaidInvoices as $inv) {
+                $items = is_string($inv->fee_items) ? json_decode($inv->fee_items, true) : ($inv->fee_items ?? []);
+                $hasReg = false;
+                $hasPros = false;
+                foreach ($items as $item) {
+                    $category = strtolower($item['category'] ?? '');
+                    if (str_contains($category, 'registration')) $hasReg = true;
+                    if (str_contains($category, 'prospectus')) $hasPros = true;
+                }
+                
+                $feeCat = strtolower($inv->fee_category ?? '');
+                if (str_contains($feeCat, 'registration')) $hasReg = true;
+                if (str_contains($feeCat, 'prospectus')) $hasPros = true;
+
+                if ($hasReg || $hasPros) {
+                    if ($inv->status === 'Unpaid') {
+                        // Safe to delete because we are billing/paying it now in the new monthly invoice
+                        $inv->delete();
+                    } else {
+                        // Partial: Record payment on it to adjust due_amount
+                        $paymentApplied = 0;
+                        if ($hasReg && $paidRegistrationAmount > 0) {
+                            $paymentApplied += $paidRegistrationAmount;
+                        }
+                        if ($hasPros && $paidProspectusAmount > 0) {
+                            $paymentApplied += $paidProspectusAmount;
+                        }
+
+                        if ($paymentApplied > 0) {
+                            $newPaid = $inv->paid_amount + $paymentApplied;
+                            $totalOwed = $inv->total_amount + $inv->fine - $inv->discount;
+                            
+                            $inv->update([
+                                'paid_amount' => min($newPaid, $totalOwed),
+                                'due_amount' => max(0, $totalOwed - $newPaid),
+                                'status' => $newPaid >= $totalOwed ? 'Paid' : 'Partial',
+                                'payment_date' => $data['payment_date'] ?? now(),
+                                'payment_method' => $data['payment_method'] ?? 'Cash',
+                            ]);
+                        }
+                    }
+                }
             }
         }
 

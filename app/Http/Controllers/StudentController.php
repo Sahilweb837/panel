@@ -201,42 +201,8 @@ class StudentController extends Controller
             $feeItems[] = ['category' => 'Prospectus Fee', 'amount' => (float) $student->prospectus_fee];
             $grandTotal += (float) $student->prospectus_fee;
         }
-
-        $durationLower = strtolower($student->course_duration ?? '');
-        $tenureLabel = $student->fee_tenure ?: '1 Year';
-
-        $courseMonths = match(true) {
-            str_contains($durationLower, '1 year') => 12,
-            str_contains($durationLower, '6 month') => 6,
-            str_contains($durationLower, '3 month') => 3,
-            str_contains($durationLower, '1 month') => 1,
-            default => 12,
-        };
-
-        $tenureMonths = match($tenureLabel) {
-            '1 Month' => 1,
-            '3 Months' => 3,
-            '6 Months' => 6,
-            '1 Year' => 12,
-            default => 12,
-        };
-
-        $divisor = max(1, (int) ceil($courseMonths / $tenureMonths));
-
-        $courseFeeAmount = round($courseFeeAmount / $divisor, 2);
-        $discount = round($discount / $divisor, 2);
-
-        if ($courseFeeAmount > 0 && $course) {
-            $courseItemLabel = "Course Fee ({$tenureLabel} Installment)";
-            $netCourseFee = max(0, $courseFeeAmount - $discount);
-
-            $feeItems[] = [
-                'category' => $courseItemLabel,
-                'amount' => $netCourseFee,
-            ];
-            $grandTotal += $netCourseFee;
-        }
-
+        // Note: Course Fee is excluded from the first invoice because the student pays it monthly.
+        // The first invoice is strictly for Prospectus and/or Registration fees.
         if (!empty($feeItems)) {
             $feeCategory = implode(', ', array_column($feeItems, 'category'));
 
@@ -247,7 +213,7 @@ class StudentController extends Controller
                 'fee_items' => $feeItems,
                 'total_amount' => $grandTotal,
                 'paid_amount' => 0,
-                'discount' => $discount,
+                'discount' => 0, // No discount on Prospectus/Registration
                 'fine' => 0,
                 'due_amount' => $grandTotal,
                 'status' => 'Unpaid',
