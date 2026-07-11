@@ -21,11 +21,10 @@ class ZKTecoADMSController extends Controller
         if ($device) {
             $device->update(['last_sync' => now()]);
         }
-        date_default_timezone_set('Asia/Kolkata');
-        $currentTime = date('Y-m-d H:i:s');
-
+        
         // ZKTeco expects GET_OPTION or OK responses during init
-        return response("GET OPTION FROM: {$sn}\nStamp=9999\nOpStamp=9999\nErrorDelay=60\nDelay=10\nTransTimes=00:00;14:00\nTransInterval=1\nTransFlag=1111000000\nTimeZone=5.5\nRealtime=1\nEncrypt=0\nServerVer=2.2.14\nTime={$currentTime}\n", 200)
+        // Removed TimeZone and Time overrides so the physical machine's time settings are respected.
+        return response("GET OPTION FROM: {$sn}\nStamp=9999\nOpStamp=9999\nErrorDelay=60\nDelay=10\nTransTimes=00:00;14:00\nTransInterval=1\nTransFlag=1111000000\nRealtime=1\nEncrypt=0\nServerVer=2.2.14\n", 200)
                 ->header('Content-Type', 'text/plain');
     }
 
@@ -56,10 +55,7 @@ class ZKTecoADMSController extends Controller
                 $parts = explode("\t", trim($line));
                 if (count($parts) >= 2) {
                     $pin = trim($parts[0]);
-                    $rawTime = trim($parts[1]); 
-
-                    // Fix Mintia +30 minutes bug (Device handles +5.5 as +5.0)
-                    $time = date('Y-m-d H:i:s', strtotime($rawTime . ' +30 minutes'));
+                    $time = trim($parts[1]); 
 
                     $punchDate = date('Y-m-d', strtotime($time));
                     $punchTime = date('H:i:s', strtotime($time));
