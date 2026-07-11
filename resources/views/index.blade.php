@@ -91,18 +91,50 @@
         }
 
         .hero-title {
-            font-size: 3.5rem;
-            font-weight: 800;
+            font-size: 4rem;
+            font-weight: 900;
             letter-spacing: -0.04em;
             margin-bottom: 1rem;
             line-height: 1.1;
-            color: var(--text-primary);
+            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #ff5532 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeDown 0.8s ease forwards;
+            opacity: 0;
         }
 
         .hero-subtitle {
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             color: var(--text-secondary);
             line-height: 1.6;
+            animation: fadeUp 0.8s ease forwards 0.2s;
+            opacity: 0;
+        }
+
+        .hero-actions {
+            margin-top: 2rem;
+            animation: fadeUp 0.8s ease forwards 0.4s;
+            opacity: 0;
+        }
+
+        .btn-outline-orange {
+            color: var(--bg-accent);
+            border: 2px solid var(--bg-accent);
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline-orange:hover {
+            background: var(--bg-accent);
+            color: #ffffff;
+            box-shadow: 0 10px 20px rgba(255, 85, 50, 0.2);
+            transform: translateY(-2px);
         }
 
         /* 3 Hubs Layout */
@@ -125,7 +157,13 @@
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             box-shadow: 0 10px 30px rgba(255, 85, 50, 0.05);
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards;
         }
+
+        .hub-student { animation-delay: 0.5s; }
+        .hub-staff { animation-delay: 0.7s; }
+        .hub-admin { animation-delay: 0.9s; }
 
         .hub-card::before {
             content: '';
@@ -140,6 +178,7 @@
             transition: transform 0.4s ease;
         }
 
+        .hub-card:hover {
             transform: translateY(-8px);
             border-color: var(--hub-color);
             box-shadow: 0 20px 40px rgba(255, 85, 50, 0.15);
@@ -240,6 +279,31 @@
                 max-width: 450px;
             }
         }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes glowPulse {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+        .hero-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 85, 50, 0.05) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+            animation: glowPulse 8s infinite ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -254,13 +318,17 @@
         </div>
     </header>
 
-    <main class="main-content">
+    <main class="container main-content">
+        <div class="hero-glow"></div>
         <div class="hero-section">
-            <h1 class="hero-title">Select Your Gateway</h1>
-            <p class="hero-subtitle">Welcome to your ultimate institutional control center. Choose your portal below to access your personalized dashboard space securely.</p>
+            <h1 class="hero-title">Netcoder ERP</h1>
+            <p class="hero-subtitle">The all-in-one premium institute management space. Streamline your operations, manage students effectively, and empower your staff with cutting-edge tools.</p>
+            <div class="hero-actions">
+                <a href="#portals" class="btn-outline-orange">Access Portals <i class="fas fa-arrow-down ms-2"></i></a>
+            </div>
         </div>
 
-        <div class="hubs-container">
+        <div id="portals" class="hubs-container">
             
             <!-- Student Hub -->
             <a href="{{ route('login') }}?type=student" class="hub-card hub-student">
