@@ -357,6 +357,52 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 -- ============================================================================
+-- 14. GENERATE MISSING USER ACCOUNTS FOR STUDENTS & STAFF
+-- ============================================================================
+
+-- 1. Insert missing User accounts for Students
+INSERT INTO users (name, email, username, password, raw_password, role_id, status, created_at, updated_at)
+SELECT 
+    TRIM(CONCAT(first_name, ' ', COALESCE(last_name, ''))),
+    COALESCE(NULLIF(email, ''), CONCAT(admission_no, '@student.com')),
+    LOWER(CONCAT(REPLACE(first_name, ' ', ''), admission_no)),
+    '$2y$10$.5d9/BVqJqa/X1hdVxmLoOemLju0Twam7sQGJyMEtJpbUDhdO5M3u', -- Hash for "password123"
+    'password123',
+    (SELECT id FROM roles WHERE slug = 'student' LIMIT 1),
+    1,
+    NOW(),
+    NOW()
+FROM students 
+WHERE user_id IS NULL;
+
+-- 2. Link the newly created User IDs back to the Students table
+UPDATE students s
+JOIN users u ON u.username = LOWER(CONCAT(REPLACE(s.first_name, ' ', ''), s.admission_no))
+SET s.user_id = u.id
+WHERE s.user_id IS NULL;
+
+-- 3. Insert missing User accounts for Staff (Employees)
+INSERT INTO users (name, email, username, password, raw_password, role_id, status, created_at, updated_at)
+SELECT 
+    staff_name,
+    CONCAT(LOWER(employee_code), '@staff.com'),
+    LOWER(employee_code),
+    '$2y$10$.5d9/BVqJqa/X1hdVxmLoOemLju0Twam7sQGJyMEtJpbUDhdO5M3u', -- Hash for "password123"
+    'password123',
+    (SELECT id FROM roles WHERE slug = 'staff' LIMIT 1),
+    1,
+    NOW(),
+    NOW()
+FROM employees 
+WHERE user_id IS NULL;
+
+-- 4. Link the newly created User IDs back to the Employees table
+UPDATE employees e
+JOIN users u ON u.username = LOWER(e.employee_code)
+SET e.user_id = u.id
+WHERE e.user_id IS NULL;
+
+-- ============================================================================
 -- DONE! All missing tables and columns have been created.
 -- ============================================================================
 SELECT 'All migrations applied successfully!' AS result;

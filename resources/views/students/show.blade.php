@@ -112,12 +112,20 @@
                         <div class="metric-card">
                             <div class="metric-value text-success">₹{{ number_format($paidFees, 0) }}</div>
                             <div class="metric-label">Course Paid</div>
+                            <div class="mt-2" style="font-size: 0.75rem; color: var(--muted);">
+                                <strong>Total Deal:</strong> ₹{{ number_format($netCourseFee ?? ($totalFees ?? 0), 0) }}
+                            </div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="metric-card">
                             <div class="metric-value {{ $dueFees > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($dueFees, 0) }}</div>
                             <div class="metric-label">Course Due</div>
+                            @if($student->fee_tenure > 0)
+                                <div class="mt-2" style="font-size: 0.75rem; color: var(--muted);">
+                                    <strong>EMI:</strong> ₹{{ number_format(($netCourseFee ?? 0) / $student->fee_tenure, 0) }}/mo
+                                </div>
+                            @endif
                             @if($dueSeminarFees > 0 || $dueFines > 0)
                                 <div class="mt-2" style="font-size: 0.75rem;">
                                     @if($dueSeminarFees > 0)
@@ -213,16 +221,30 @@
     <!-- Fee History -->
     <div class="col-12 col-xl-7">
         <div class="profile-card h-100 mb-0">
-            <div class="card-header bg-transparent border-bottom p-4 d-flex justify-content-between align-items-center">
+            <div class="card-header bg-transparent border-bottom p-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar text-first me-2"></i>Fee Receipt History</h5>
-                <div>
-                    <a href="{{ route('students.fee-report', $student->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-print me-1"></i>Print Report</a>
+                <div class="d-flex align-items-center gap-2">
+                    <select id="invoice-category-filter" class="form-select form-select-sm" style="width: auto;">
+                        <option value="">All Categories</option>
+                        <option value="fees">Monthly Fees</option>
+                        <option value="registration">Registration</option>
+                        <option value="prospectus">Prospectus</option>
+                        <option value="seminar">Seminar</option>
+                        <option value="fine">Fine</option>
+                    </select>
+                    <select id="invoice-status-filter" class="form-select form-select-sm" style="width: auto;">
+                        <option value="">All Statuses</option>
+                        <option value="paid">Paid</option>
+                        <option value="unpaid">Unpaid</option>
+                        <option value="partial">Partial</option>
+                    </select>
+                    <a href="{{ route('students.fee-report', $student->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print me-1"></i>Print Report</a>
                     <a href="{{ route('fee_invoices.create', ['student_id' => $student->id]) }}" class="btn btn-sm btn-outline-primary">Generate Receipt</a>
                 </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table history-table table-hover align-middle mb-0">
+                    <table class="table history-table table-hover align-middle mb-0" id="invoice-history-table">
                         <thead>
                             <tr>
                                 <th class="ps-4">Receipt No</th>
@@ -235,7 +257,7 @@
                         </thead>
                         <tbody>
                             @forelse($feeInvoices as $invoice)
-                                <tr>
+                                <tr class="invoice-row" data-category="{{ strtolower($invoice->fee_category) }}" data-status="{{ strtolower($invoice->status) }}">
                                     <td class="fw-bold text-first ps-4">{{ $invoice->invoice_no }}</td>
                                     <td>{{ $invoice->created_at->format('d M Y') }}</td>
                                     <td><span class="text-muted" style="font-size: 0.85rem;">{{ $invoice->fee_category ?: 'Fees' }}</span></td>
@@ -305,4 +327,46 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryFilter = document.getElementById('invoice-category-filter');
+        const statusFilter = document.getElementById('invoice-status-filter');
+        const rows = document.querySelectorAll('.invoice-row');
+
+        function filterInvoices() {
+            const cat = categoryFilter.value.toLowerCase();
+            const stat = statusFilter.value.toLowerCase();
+
+            rows.forEach(row => {
+                const rowCat = row.getAttribute('data-category');
+                const rowStat = row.getAttribute('data-status');
+
+                let showCat = true;
+                if (cat) {
+                    if (cat === 'fees' && !rowCat.includes('registration') && !rowCat.includes('prospectus') && !rowCat.includes('seminar') && !rowCat.includes('fine')) {
+                        showCat = true;
+                    } else if (rowCat.includes(cat)) {
+                        showCat = true;
+                    } else {
+                        showCat = false;
+                    }
+                }
+
+                const showStat = stat === '' || rowStat === stat;
+
+                if (showCat && showStat) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        if (categoryFilter) categoryFilter.addEventListener('change', filterInvoices);
+        if (statusFilter) statusFilter.addEventListener('change', filterInvoices);
+    });
+</script>
 @endsection
