@@ -141,11 +141,14 @@ class AttendanceController extends Controller
                 }
             }
 
+            // Auto-set ₹50 fine for absent students (biometric absent fine)
+            $fineForRecord = ($data['status'] === 'Absent') ? 50 : (float)($data['fine'] ?? 0);
+
             $updateData = [
                 'status' => $data['status'],
                 'check_in_time' => $data['check_in_time'] ?? null,
                 'check_out_time' => $data['check_out_time'] ?? null,
-                'fine' => $data['fine'] ?? 0,
+                'fine' => $fineForRecord,
                 'remarks' => $data['remarks'] ?? null,
             ];
 

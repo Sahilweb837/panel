@@ -391,30 +391,59 @@
         </table>
     </div>
 
+    @php
+        // Calculate sub-total (non-fine items)
+        $subTotal = collect($items)->filter(function($i) {
+            $cat = strtolower($i['category'] ?? '');
+            return !str_contains($cat, 'fine');
+        })->sum('amount');
+
+        // Fine items from fee_items
+        $fineItemsFromList = collect($items)->filter(function($i) {
+            $cat = strtolower($i['category'] ?? '');
+            return str_contains($cat, 'fine');
+        })->values();
+        $lateFineTotal = $fineItemsFromList->filter(fn($i) => str_contains(strtolower($i['category'] ?? ''), 'late'))->sum('amount');
+        $attendanceFineTotal = $fineItemsFromList->filter(fn($i) => str_contains(strtolower($i['category'] ?? ''), 'attendance') || str_contains(strtolower($i['category'] ?? ''), 'absent'))->sum('amount');
+        $otherFines = $fineItemsFromList->sum('amount') - $lateFineTotal - $attendanceFineTotal;
+
+        // Use fine column if no fine items in the list
+        $totalFineAmount = $fineItemsFromList->sum('amount');
+        if ($totalFineAmount == 0 && $feeInvoice->fine > 0) {
+            $totalFineAmount = $feeInvoice->fine;
+        }
+
+        $totalPayable = $subTotal + $totalFineAmount - $feeInvoice->discount;
+    @endphp
+
     <div class="summary-section">
         <div class="summary-card">
+            <div class="summary-row"><span>Sub-total:</span><strong>₹{{ number_format($subTotal, 2) }}</strong></div>
+
             @if($feeInvoice->discount > 0)
             <div class="summary-row"><span>Discount:</span><strong style="color:#10b981;">- ₹{{ number_format($feeInvoice->discount, 2) }}</strong></div>
             @endif
-            
-            @php
-                $fineItems = collect($items)->filter(fn($i) => in_array($i['category'] ?? '', ['Late Fine', 'Attendance Fine']))->values();
-                $lateFineTotal = $fineItems->where('category', 'Late Fine')->sum('amount');
-                $attendanceFineTotal = $fineItems->where('category', 'Attendance Fine')->sum('amount');
-            @endphp
-            
+
             @if($lateFineTotal > 0)
             <div class="summary-row"><span>Late Fine:</span><strong style="color:#dc2626;">+ ₹{{ number_format($lateFineTotal, 2) }}</strong></div>
             @endif
             @if($attendanceFineTotal > 0)
             <div class="summary-row"><span>Attendance Fine:</span><strong style="color:#f59e0b;">+ ₹{{ number_format($attendanceFineTotal, 2) }}</strong></div>
             @endif
-            @if($feeInvoice->fine > 0 && $lateFineTotal == 0 && $attendanceFineTotal == 0)
-            <div class="summary-row"><span>Fine:</span><strong>+ ₹{{ number_format($feeInvoice->fine, 2) }}</strong></div>
+            @if($otherFines > 0)
+            <div class="summary-row"><span>Other Fine:</span><strong style="color:#dc2626;">+ ₹{{ number_format($otherFines, 2) }}</strong></div>
             @endif
-            
+            @if($feeInvoice->fine > 0 && $totalFineAmount == $feeInvoice->fine && $fineItemsFromList->count() == 0)
+            <div class="summary-row"><span>Fine:</span><strong style="color:#dc2626;">+ ₹{{ number_format($feeInvoice->fine, 2) }}</strong></div>
+            @endif
+
+            <div class="summary-row" style="border-top: 1px solid #ddd; margin-top: 4px; padding-top: 6px;">
+                <span><strong>Total Payable:</strong></span>
+                <strong>₹{{ number_format($totalPayable, 2) }}</strong>
+            </div>
+
             <div class="summary-row total">
-                <span>Paid</span>
+                <span>Amount Paid</span>
                 <span>₹{{ number_format($feeInvoice->paid_amount, 2) }}</span>
             </div>
             @if($feeInvoice->due_amount > 0)
@@ -423,11 +452,26 @@
         </div>
     </div>
 
+    {{-- Overall Student Account Summary (Office copy only) --}}
+    @if($index === 1)
+    <div style="padding: 10px 24px; border-top: 2px solid #000; background: #fafafa;">
+        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #666; margin-bottom: 6px;">Overall Student Account</div>
+        <div style="display: flex; gap: 20px; font-size: 0.78rem;">
+            <div><strong>Course Fee:</strong> ₹{{ number_format($overallTotal, 2) }}</div>
+            <div style="color: #10b981;"><strong>Paid:</strong> ₹{{ number_format($overallPaid, 2) }}</div>
+            <div style="color: #dc2626;"><strong>Remaining:</strong> ₹{{ number_format($overallDue, 2) }}</div>
+            @if($totalFinesDue > 0)
+            <div style="color: #f59e0b;"><strong>Unpaid Fines:</strong> ₹{{ number_format($totalFinesDue, 2) }}</div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <div class="footer">
         <div class="notes" style="font-size: 0.72rem; color: #555; line-height: 1.4;">
             * Fees once paid are non-refundable and non-transferable.<br>
-            * Please retain this receipt for future reference.<br>
-            * This receipt is valid only after successful payment.
+            * Prospectus & Registration fees are separate from course fee.<br>
+            * Please retain this receipt for future reference.
             @if($isMonthlyFee)
                 <br>* Billing Period: {{ $billingPeriod }}
             @endif
