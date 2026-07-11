@@ -47,17 +47,6 @@
             z-index: 100;
         }
 
-        /* Particles container */
-        #particles-js {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-
         .brand-logo {
             max-height: 40px;
             object-fit: contain;
@@ -99,22 +88,16 @@
             background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #ff5532 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: fadeDown 0.8s ease forwards;
-            opacity: 0;
         }
 
         .hero-subtitle {
             font-size: 1.25rem;
             color: var(--text-secondary);
             line-height: 1.6;
-            animation: fadeUp 0.8s ease forwards 0.2s;
-            opacity: 0;
         }
 
         .hero-actions {
             margin-top: 2rem;
-            animation: fadeUp 0.8s ease forwards 0.4s;
-            opacity: 0;
         }
 
         .btn-outline-orange {
@@ -157,13 +140,7 @@
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             box-shadow: 0 10px 30px rgba(255, 85, 50, 0.05);
-            opacity: 0;
-            animation: fadeUp 0.8s ease forwards;
         }
-
-        .hub-student { animation-delay: 0.5s; }
-        .hub-staff { animation-delay: 0.7s; }
-        .hub-admin { animation-delay: 0.9s; }
 
         .hub-card::before {
             content: '';
@@ -266,48 +243,27 @@
         }
 
         /* Responsive */
-        @media (max-width: 992px) {
-            .hubs-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
         @media (max-width: 768px) {
-            .hero-title { font-size: 2.5rem; }
             .hubs-container {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
+            }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .main-content {
+                padding: 2rem 1rem;
+            }
+            .hero-glow {
+                width: 300px;
+                height: 300px;
+            }
+            .hub-card {
                 max-width: 450px;
             }
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes glowPulse {
-            0% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.1); }
-            100% { opacity: 0.5; transform: scale(1); }
-        }
-        .hero-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(255, 85, 50, 0.05) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-            animation: glowPulse 8s infinite ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div id="particles-js"></div>
 
     <header>
         <div class="container d-flex align-items-center justify-content-center">
@@ -319,7 +275,6 @@
     </header>
 
     <main class="container main-content">
-        <div class="hero-glow"></div>
         <div class="hero-section">
             <h1 class="hero-title">Netcoder ERP</h1>
             <p class="hero-subtitle">The all-in-one premium institute management space. Streamline your operations, manage students effectively, and empower your staff with cutting-edge tools.</p>
@@ -376,25 +331,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-        particlesJS('particles-js', {
-            "particles": {
-                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#ff5532" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.3, "random": false },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#ff5532", "opacity": 0.2, "width": 1 },
-                "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
-                "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } }, "push": { "particles_nb": 4 } }
-            },
-            "retina_detect": true
-        });
-    </script>
 </body>
 </html>
