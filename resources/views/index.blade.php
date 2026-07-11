@@ -288,7 +288,7 @@
             <!-- Student Hub -->
             <a href="{{ route('login') }}?type=student" class="hub-card hub-student">
                 <div class="hub-icon-wrapper">
-                    <img src="{{ asset('images/student_vector_orange_1783749986028.png') }}" alt="Student Vector" class="hub-vector-img">
+                    <img src="{{ asset('images/student_photo_professional_1783756975009.png') }}" alt="Student Professional" class="hub-vector-img">
                 </div>
                 <h3 class="hub-title">Student Portal</h3>
                 <p class="hub-desc">Access course syllabi, verify biometric attendance logs, review monthly fee installments, and download payment receipts securely.</p>
@@ -300,7 +300,7 @@
             <!-- Staff Hub -->
             <a href="{{ route('login') }}?type=staff" class="hub-card hub-staff">
                 <div class="hub-icon-wrapper">
-                    <img src="{{ asset('images/staff_vector_orange_1783749996536.png') }}" alt="Staff Vector" class="hub-vector-img">
+                    <img src="{{ asset('images/staff_photo_professional_1783756986398.png') }}" alt="Staff Professional" class="hub-vector-img">
                 </div>
                 <h3 class="hub-title">Staff Hub</h3>
                 <p class="hub-desc">Manage lectures, record face attendance, verify daily tasks, and review your salary slips and payroll history with ease.</p>
@@ -312,7 +312,7 @@
             <!-- Admin Hub -->
             <a href="{{ route('login') }}?type=institute" class="hub-card hub-admin">
                 <div class="hub-icon-wrapper">
-                    <img src="{{ asset('images/admin_vector_orange_1783750006567.png') }}" alt="Admin Vector" class="hub-vector-img">
+                    <img src="{{ asset('images/admin_photo_professional_1783756997320.png') }}" alt="Admin Professional" class="hub-vector-img">
                 </div>
                 <h3 class="hub-title">Management Panel</h3>
                 <p class="hub-desc">Configure academic courses, monitor live institutional attendance feeds, manage staff payroll, and oversee financial operations.</p>

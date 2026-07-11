@@ -224,7 +224,7 @@
             </div>
 
             <!-- Dynamic Hero Image based on Login Type -->
-            <img id="login-hero-image" src="{{ asset('images/admin_vector_orange_1783750006567.png') }}" alt="Hero Illustration" class="hero-image animate-float">
+            <img id="login-hero-image" src="{{ asset('images/admin_photo_professional_1783756997320.png') }}" alt="Hero Illustration" class="hero-image animate-float">
 
             <div class="features-list" id="featuresListContainer" style="position: relative; z-index: 2; margin-top: 2rem;">
                 <!-- Dynamically populated by JS -->
@@ -525,7 +525,7 @@
                     label: 'Student Portal',
                     emailPlaceholder: 'Enrollment ID or Email',
                     containerClass: 'type-student',
-                    heroImage: "{{ asset('images/student_vector_orange_1783749986028.png') }}",
+                    heroImage: "{{ asset('images/student_photo_professional_1783756975009.png') }}",
                     features: [
                         { icon: 'fas fa-book', title: 'My Courses', desc: 'Access course syllabi and track your assignments' },
                         { icon: 'fas fa-fingerprint', title: 'Attendance', desc: 'Verify your daily biometric logs securely' },
@@ -543,7 +543,7 @@
                     label: 'Staff Hub',
                     emailPlaceholder: 'Staff Email or Employee Code',
                     containerClass: 'type-staff',
-                    heroImage: "{{ asset('images/staff_vector_orange_1783749996536.png') }}",
+                    heroImage: "{{ asset('images/staff_photo_professional_1783756986398.png') }}",
                     features: [
                         { icon: 'fas fa-chalkboard', title: 'Manage Classes', desc: 'Organize your daily lectures and subjects' },
                         { icon: 'fas fa-check-circle', title: 'Attendance', desc: 'View your biometric and manual time records' },
@@ -561,7 +561,7 @@
                     label: 'Admin Panel',
                     emailPlaceholder: 'Admin Email Address',
                     containerClass: 'type-institute',
-                    heroImage: "{{ asset('images/admin_vector_orange_1783750006567.png') }}",
+                    heroImage: "{{ asset('images/admin_photo_professional_1783756997320.png') }}",
                     features: [
                         { icon: 'fas fa-chart-line', title: 'Smart Analytics', desc: 'Track real-time performance & institutional insights' },
                         { icon: 'fas fa-users', title: 'Manage Students', desc: 'End-to-end student lifecycle & active tracking' },
