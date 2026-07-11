@@ -8,17 +8,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         :root {
-            --bg-base: #0f172a;
-            --bg-surface: #1e293b;
-            --bg-accent: #3b82f6;
-            --bg-accent-hover: #2563eb;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --card-border: #334155;
+            --bg-base: #ffffff;
+            --bg-surface: #ffffff;
+            --bg-accent: #ff5532;
+            --bg-accent-hover: #e04423;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --card-border: #e2e8f0;
             
-            --hub-student: #10b981;
-            --hub-staff: #8b5cf6;
-            --hub-admin: #ef4444;
+            --hub-student: #ff7657;
+            --hub-staff: #ff5532;
+            --hub-admin: #e04423;
         }
 
         body {
@@ -31,17 +31,17 @@
             flex-direction: column;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 25%);
+                radial-gradient(circle at 15% 50%, rgba(255, 85, 50, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 138, 0, 0.08) 0%, transparent 25%);
         }
 
         /* Glass Header */
         header {
             padding: 1.5rem 0;
-            background: rgba(30, 41, 59, 0.5);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--card-border);
+            border-bottom: 1px solid rgba(255, 85, 50, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -53,10 +53,10 @@
         }
 
         .brand-text {
-            font-weight: 800;
-            font-size: 1.25rem;
+            font-weight: 900;
+            font-size: 1.5rem;
             letter-spacing: -0.02em;
-            color: var(--text-primary);
+            color: var(--bg-accent);
             text-decoration: none;
             margin-left: 0.75rem;
         }
@@ -85,9 +85,7 @@
             letter-spacing: -0.04em;
             margin-bottom: 1rem;
             line-height: 1.1;
-            background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-primary);
         }
 
         .hero-subtitle {
@@ -115,8 +113,7 @@
             color: inherit;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(255, 85, 50, 0.05);
         }
 
         .hub-card::before {
@@ -132,10 +129,9 @@
             transition: transform 0.4s ease;
         }
 
-        .hub-card:hover {
             transform: translateY(-8px);
             border-color: var(--hub-color);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(255, 85, 50, 0.15);
         }
 
         .hub-card:hover::before {
@@ -148,12 +144,11 @@
             margin: 0 auto 1.5rem;
             border-radius: 20px;
             display: flex;
-            align-items: center;
             justify-content: center;
             font-size: 2rem;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 85, 50, 0.05);
             color: var(--hub-color);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 85, 50, 0.1);
             transition: all 0.4s ease;
         }
 
@@ -187,9 +182,9 @@
             border-radius: 12px;
             font-weight: 600;
             font-size: 0.95rem;
-            color: var(--text-primary);
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--bg-accent);
+            background: transparent;
+            border: 1px solid var(--bg-accent);
             transition: all 0.3s ease;
             width: 100%;
         }
@@ -201,9 +196,9 @@
         }
 
         /* Specific Hub Colors */
-        .hub-student { --hub-color: var(--hub-student); --hub-shadow: rgba(16, 185, 129, 0.3); }
-        .hub-staff { --hub-color: var(--hub-staff); --hub-shadow: rgba(139, 92, 246, 0.3); }
-        .hub-admin { --hub-color: var(--hub-admin); --hub-shadow: rgba(239, 68, 68, 0.3); }
+        .hub-student { --hub-color: var(--hub-student); --hub-shadow: rgba(255, 118, 87, 0.3); }
+        .hub-staff { --hub-color: var(--hub-staff); --hub-shadow: rgba(255, 85, 50, 0.3); }
+        .hub-admin { --hub-color: var(--hub-admin); --hub-shadow: rgba(224, 68, 35, 0.3); }
 
         footer {
             padding: 2rem;
@@ -233,7 +228,7 @@
 
     <header>
         <div class="container d-flex align-items-center justify-content-center">
-            <img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="brand-logo" onerror="this.src='https://ui-avatars.com/api/?name=NC&background=1e293b&color=f8fafc'">
+            <img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="brand-logo" onerror="this.src='https://ui-avatars.com/api/?name=NC&background=ff5532&color=ffffff'">
             <span class="brand-text">NETCODER ERP</span>
         </div>
     </header>
