@@ -239,10 +239,21 @@ class StudentController extends Controller
             ->latest('created_at')
             ->get();
             
-        $courseInvoices = $feeInvoices->whereNotIn('fee_category', ['Seminar', 'Fine']);
-        $totalFees = $courseInvoices->sum('total_amount') - $courseInvoices->sum('discount');
+        $courseInvoices = $feeInvoices->filter(function ($invoice) {
+            $cat = strtolower($invoice->fee_category ?? '');
+            return !str_contains($cat, 'registration') && 
+                   !str_contains($cat, 'prospectus') && 
+                   !str_contains($cat, 'seminar') && 
+                   !str_contains($cat, 'fine');
+        });
+        
+        $totalCourseFee = $student->course?->fee ?? 0;
+        $discount = $student->discount ?? 0;
+        $netCourseFee = max(0, $totalCourseFee - $discount);
+        
         $paidFees = $courseInvoices->sum('paid_amount');
-        $dueFees = max(0, $totalFees - $paidFees);
+        $dueFees = max(0, $netCourseFee - $paidFees);
+        $totalFees = $netCourseFee;
         
         $seminarInvoices = $feeInvoices->where('fee_category', 'Seminar');
         $totalSeminarFees = $seminarInvoices->sum('total_amount') - $seminarInvoices->sum('discount');
@@ -269,10 +280,21 @@ class StudentController extends Controller
             ->oldest('created_at')
             ->get();
             
-        $courseInvoices = $feeInvoices->whereNotIn('fee_category', ['Seminar', 'Fine']);
-        $totalFees = $courseInvoices->sum('total_amount') - $courseInvoices->sum('discount');
+        $courseInvoices = $feeInvoices->filter(function ($invoice) {
+            $cat = strtolower($invoice->fee_category ?? '');
+            return !str_contains($cat, 'registration') && 
+                   !str_contains($cat, 'prospectus') && 
+                   !str_contains($cat, 'seminar') && 
+                   !str_contains($cat, 'fine');
+        });
+        
+        $totalCourseFee = $student->course?->fee ?? 0;
+        $discount = $student->discount ?? 0;
+        $netCourseFee = max(0, $totalCourseFee - $discount);
+        
         $paidFees = $courseInvoices->sum('paid_amount');
-        $dueFees = max(0, $totalFees - $paidFees);
+        $dueFees = max(0, $netCourseFee - $paidFees);
+        $totalFees = $netCourseFee;
         
         $seminarInvoices = $feeInvoices->where('fee_category', 'Seminar');
         $totalSeminarFees = $seminarInvoices->sum('total_amount') - $seminarInvoices->sum('discount');

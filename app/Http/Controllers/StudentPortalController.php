@@ -81,6 +81,21 @@ class StudentPortalController extends Controller
 
         $invoices = FeeInvoice::where('student_id', $student->id)->latest()->get();
 
+        $courseInvoices = $invoices->filter(function ($invoice) {
+            $cat = strtolower($invoice->fee_category ?? '');
+            return !str_contains($cat, 'registration') && 
+                   !str_contains($cat, 'prospectus') && 
+                   !str_contains($cat, 'seminar') && 
+                   !str_contains($cat, 'fine');
+        });
+
+        $totalCourseFee = $student->course?->fee ?? 0;
+        $discount = $student->discount ?? 0;
+        $netCourseFee = max(0, $totalCourseFee - $discount);
+
+        $coursePaid = $courseInvoices->sum('paid_amount');
+        $remainingCourseFee = max(0, $netCourseFee - $coursePaid);
+
         $feeInvoices = FeeInvoice::where('student_id', $student->id)->latest()->limit(10)->get();
         $dueFees = $feeInvoices->sum('due_amount');
         $paidFees = $feeInvoices->sum('paid_amount');
@@ -100,7 +115,7 @@ class StudentPortalController extends Controller
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
             'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices',
             'dueFees', 'paidFees', 'totalFees', 'milestones', 'completedMilestones',
-            'totalMilestones', 'milestoneProgress'
+            'totalMilestones', 'milestoneProgress', 'coursePaid', 'remainingCourseFee'
         ));
     }
 

@@ -225,7 +225,7 @@ class FeeInvoiceController extends Controller
         }
 
         $totalFine = $lateFine + $attendanceFine;
-        $totalAmount = $netMonthlyFee + $totalFine + $unpaidRegistration + $unpaidProspectus;
+        $totalAmount = $netMonthlyFee + $totalFine;
         
         return [
             'student' => [
@@ -513,6 +513,20 @@ class FeeInvoiceController extends Controller
             }
         }
 
+        $courseInvoices = $allInvoices->filter(function ($invoice) {
+            $cat = strtolower($invoice->fee_category ?? '');
+            return !str_contains($cat, 'registration') && 
+                   !str_contains($cat, 'prospectus') && 
+                   !str_contains($cat, 'seminar') && 
+                   !str_contains($cat, 'fine');
+        });
+
+        $totalCoursePaid = $courseInvoices->sum('paid_amount');
+        $totalCourseFee = $student->course ? $student->course->fee : 0;
+        $discount = $student->discount ?: 0;
+        $netCourseFee = max(0, $totalCourseFee - $discount);
+        $pendingCourseFee = max(0, $netCourseFee - $totalCoursePaid);
+
         return response()->json([
             'success' => true,
             'past_payments' => $pastPayments,
@@ -520,8 +534,10 @@ class FeeInvoiceController extends Controller
             'fine_details' => implode(', ', $fineDetails),
             'prospectus_paid' => $prospectusPaid,
             'registration_paid' => $registrationPaid,
+            'course_paid' => $totalCoursePaid,
+            'pending_dues' => $pendingCourseFee,
             'student_data' => [
-                'course_fee' => $student->course ? $student->course->fee : 0,
+                'course_fee' => $totalCourseFee,
                 'course_duration' => $student->course_duration ?: '',
                 'registration_fee' => $student->registration_fee ?: 0,
                 'prospectus_fee' => $student->prospectus_fee ?: 0,

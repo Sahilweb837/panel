@@ -198,8 +198,8 @@
                 const prosFee = parseFloat(data.prospectus_fee) || 0;
                 const discount = parseFloat(data.discount) || 0;
 
-                const totalPaidSoFar = pastPayments.reduce((sum, p) => sum + parseFloat(p.paid), 0);
-                const pendingDues = Math.max(0, totalCourseFee - totalPaidSoFar);
+                const totalPaidSoFar = parseFloat(json.course_paid) || 0;
+                const pendingDues = parseFloat(json.pending_dues) || 0;
 
                 document.getElementById('student-name-display').textContent = (json.student_data?.student_name || 'Student');
                 document.getElementById('student-course-display').textContent = `${data.course_duration || ''} Course • Fee: ₹${totalCourseFee.toLocaleString()}`;
@@ -229,9 +229,22 @@
 
                 let monthlyAmt = 0;
                 if (totalCourseFee > 0 && tenureLabel) {
-                    const months = tenureLabel === '1 Month' ? 1 : tenureLabel === '3 Months' ? 3 : tenureLabel === '6 Months' ? 6 : 12;
-                    monthlyAmt = totalCourseFee / months;
-                    addRow(`Course Fee (${tenureLabel} EMI)`, monthlyAmt, true, '0');
+                    const durationLower = (data.course_duration || '1 year').toLowerCase();
+                    let courseMonths = 12;
+                    if (durationLower.includes('6 month')) courseMonths = 6;
+                    else if (durationLower.includes('3 month')) courseMonths = 3;
+                    else if (durationLower.includes('1 month')) courseMonths = 1;
+                    else if (durationLower.includes('45 days')) courseMonths = 1.5;
+
+                    let tenureMonths = 12;
+                    if (tenureLabel === '1 Month') tenureMonths = 1;
+                    else if (tenureLabel === '3 Months') tenureMonths = 3;
+                    else if (tenureLabel === '6 Months') tenureMonths = 6;
+
+                    const divisor = Math.max(1, Math.ceil(courseMonths / tenureMonths));
+                    const netCourseFee = Math.max(0, totalCourseFee - discount);
+                    monthlyAmt = Math.round(netCourseFee / divisor);
+                    addRow(`Course Fee (${tenureLabel} EMI)`, monthlyAmt, true, monthlyAmt.toString());
                 }
 
                 if (attendanceFine > 0) {

@@ -261,8 +261,6 @@
             <!-- Fee Status Summary Card -->
             @php
                 $computedDueFees = $invoices->sum('due_amount');
-                $computedPaidFees = $invoices->sum('paid_amount');
-                $computedTotalFees = $invoices->sum('total_amount');
             @endphp
             <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
                 <div class="card-header bg-transparent py-3 border-bottom-0">
@@ -270,12 +268,22 @@
                 </div>
                 <div class="card-body pt-0">
                     <div class="d-flex justify-content-between align-items-center mb-2.5">
-                        <span class="text-muted small">Total Invoiced:</span>
-                        <span class="fw-semibold text-white">₹{{ number_format($computedTotalFees, 2) }}</span>
+                        <span class="text-muted small">Total Course Fee:</span>
+                        <span class="fw-semibold text-white">₹{{ number_format($student->course?->fee ?? 0, 2) }}</span>
+                    </div>
+                    @if(($student->discount ?? 0) > 0)
+                    <div class="d-flex justify-content-between align-items-center mb-2.5">
+                        <span class="text-muted small">Course Discount:</span>
+                        <span class="fw-semibold text-warning">₹{{ number_format($student->discount, 2) }}</span>
+                    </div>
+                    @endif
+                    <div class="d-flex justify-content-between align-items-center mb-2.5">
+                        <span class="text-muted small">Course Paid:</span>
+                        <span class="fw-semibold text-success">₹{{ number_format($coursePaid, 2) }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2.5">
-                        <span class="text-muted small">Total Paid:</span>
-                        <span class="fw-semibold text-success">₹{{ number_format($computedPaidFees, 2) }}</span>
+                        <span class="text-muted small">Course Remaining:</span>
+                        <span class="fw-semibold text-info">₹{{ number_format($remainingCourseFee, 2) }}</span>
                     </div>
                     <hr class="my-2" style="border-color: var(--border-sutil) !important;">
                     <div class="d-flex justify-content-between align-items-center">
