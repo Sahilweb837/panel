@@ -66,17 +66,7 @@ class AuthController extends Controller
             return back()->withErrors(['account_type' => 'This account is not an Institute admin.'])->onlyInput('email');
         }
 
-        // Check if phone number is verified for staff/student
-        if (in_array($roleSlug, ['staff', 'student']) && ! $user->is_phone_verified) {
-            Session::put('pending_email_login', [
-                'user_id' => $user->id,
-                'role_slug' => $roleSlug,
-                'account_type' => $credentials['account_type'],
-            ]);
-            return redirect()->route('login')->with('error', 'Please verify your phone number to continue.')->with('show_otp', true);
-        }
-
-        // Phone verified, proceed with normal login
+        // Normal login
         $this->completeLogin($user, $roleSlug);
 
         $intendedUrl = session()->pull('url.intended');

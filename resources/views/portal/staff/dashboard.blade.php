@@ -178,7 +178,7 @@
 
         <div class="col-12 col-lg-8">
             <div class="row g-3 mb-4">
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4 col-xl-2">
                     <div class="card bg-primary text-white border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body text-center p-3">
                             <i class="fas fa-calendar-check fa-2x mb-2 opacity-75"></i>
@@ -187,7 +187,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4 col-xl-2">
                     <div class="card bg-danger text-white border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body text-center p-3">
                             <i class="fas fa-calendar-times fa-2x mb-2 opacity-75"></i>
@@ -196,7 +196,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4 col-xl-2">
                     <div class="card bg-warning text-white border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body text-center p-3">
                             <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
@@ -205,12 +205,30 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4 col-xl-2">
                     <div class="card bg-info text-white border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body text-center p-3">
                             <i class="fas fa-wallet fa-2x mb-2 opacity-75"></i>
                             <h3 class="fw-bold mb-0">\u20B9{{ number_format($totalIncome, 0) }}</h3>
-                            <span class="small">Income This Month</span>
+                            <span class="small">Income</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="card bg-secondary text-white border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center p-3">
+                            <i class="fas fa-minus-circle fa-2x mb-2 opacity-75"></i>
+                            <h3 class="fw-bold mb-0">\u20B9{{ number_format($totalSalaryDeductions ?? 0, 0) }}</h3>
+                            <span class="small">Deductions</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="card bg-success text-white border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center p-3">
+                            <i class="fas fa-users fa-2x mb-2 opacity-75"></i>
+                            <h3 class="fw-bold mb-0">\u20B9{{ number_format($totalFeesRemaining ?? 0, 0) }}</h3>
+                            <span class="small">Stdnt Due</span>
                         </div>
                     </div>
                 </div>

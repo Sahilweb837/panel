@@ -47,10 +47,17 @@ class StaffPortalController extends Controller
 
         $totalIncome = $incomeRecords->where('status', 'Received')->sum('amount');
 
+        // Calculate Staff's total salary deductions
+        $totalSalaryDeductions = $salarySlips->sum('deductions');
+
+        // Calculate Student Fee Statistics (Global overview for staff)
+        $totalStudents = \App\Models\Student::where('status', true)->count();
+        $totalFeesRemaining = \App\Models\FeeInvoice::where('status', '!=', 'Paid')->sum('due_amount');
+
         return view('portal.staff.dashboard', compact(
             'employee', 'attendances', 'presentDays', 'absentDays', 'lateDays', 'attendancePercentage', 
             'assignedTasks', 'todayUpdate', 'salarySlips', 'offerLetters', 'leaveApplications', 
-            'incomeRecords', 'totalIncome'
+            'incomeRecords', 'totalIncome', 'totalSalaryDeductions', 'totalStudents', 'totalFeesRemaining'
         ));
     }
 
