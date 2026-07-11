@@ -989,6 +989,32 @@
             chatMessages.insertAdjacentHTML('beforeend', optionsHtml);
         }
     </script>
+    @if(session('new_user_credentials'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const creds = @json(session('new_user_credentials'));
+            
+            Swal.fire({
+                title: 'User Created Successfully!',
+                html: `
+                    <div class="text-start mt-3">
+                        <p class="mb-2">A new <strong>${creds.type}</strong> account has been automatically generated.</p>
+                        <div class="bg-light p-3 rounded border">
+                            <p class="mb-1"><strong>Email:</strong> <span class="user-select-all">${creds.email}</span></p>
+                            <p class="mb-1"><strong>Username:</strong> <span class="user-select-all">${creds.username}</span></p>
+                            <p class="mb-0"><strong>Password:</strong> <span class="user-select-all">${creds.password}</span></p>
+                        </div>
+                        <p class="mt-3 text-muted small"><i class="fas fa-info-circle me-1"></i>Please share these credentials securely with the user.</p>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonText: 'Got it!',
+                confirmButtonColor: '#32D74B',
+                allowOutsideClick: false
+            });
+        });
+    </script>
+    @endif
 </body>
 </html>
 

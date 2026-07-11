@@ -221,7 +221,19 @@ class StudentController extends Controller
             ]);
         }
 
-        return redirect()->route('students.index')->with('success', 'Student created successfully. Login generated.');
+        if (isset($user)) {
+            return redirect()->route('students.index')->with([
+                'success' => 'Student created successfully.',
+                'new_user_credentials' => [
+                    'email' => $user->email,
+                    'username' => $user->username,
+                    'password' => $plainPassword,
+                    'type' => 'Student'
+                ]
+            ]);
+        }
+
+        return redirect()->route('students.index')->with('success', 'Student created successfully.');
     }
 
     public function show(Student $student)

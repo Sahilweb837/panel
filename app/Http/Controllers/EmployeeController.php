@@ -81,7 +81,15 @@ class EmployeeController extends Controller
 
         Employee::create($data);
 
-        return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
+        return redirect()->route('employees.index')->with([
+            'success' => 'Employee created successfully.',
+            'new_user_credentials' => [
+                'email' => $user->email,
+                'username' => $user->username,
+                'password' => $request->login_password ?: 'staff123',
+                'type' => 'Staff'
+            ]
+        ]);
     }
 
     public function show(Employee $employee)
