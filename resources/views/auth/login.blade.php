@@ -25,19 +25,25 @@
              background-image: none;
          }
          .login-left.type-student {
-             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><path fill="%23ff5532" opacity="0.03" d="M50 350 L100 50 L150 200 L200 100 L250 250 L300 80 L350 120 L300 350 Z"/><path fill="%23ff5532" opacity="0.02" d="M0 200 Q100 100 200 200 T400 200"/><circle cx="50" cy="50" r="30" fill="%23ff5532" opacity="0.04"/></svg>');
-             background-size: cover;
-             background-position: center;
+             background-color: #ffffff !important;
          }
          .login-left.type-staff {
-             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="%2310b981" opacity="0.03" x="50" y="50" width="100" height="100"/><rect fill="%2310b981" opacity="0.02" x="150" y="150" width="80" height="80"/><circle cx="300" cy="100" r="40" fill="%2310b981" opacity="0.04"/><path fill="%2310b981" opacity="0.02" d="M0 300 Q100 250 200 300 T400 300"/></svg>');
-             background-size: cover;
-             background-position: center;
+             background-color: #ffffff !important;
          }
          .login-left.type-institute {
-             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><path fill="%23ff5532" opacity="0.04" d="M0 0 L200 0 L200 400 L0 400 Z"/><path fill="%23ff5532" opacity="0.03" d="M200 200 L400 0 L400 200 Z"/><path fill="%23ff5532" opacity="0.02" d="M200 200 L400 400 L200 400 Z"/></svg>');
-             background-size: cover;
-             background-position: center;
+             background-color: #ffffff !important;
+         }
+         .hero-image {
+             width: 100%;
+             max-width: 400px;
+             height: auto;
+             max-height: 40vh;
+             object-fit: contain;
+             display: block;
+             margin: 2rem auto 0;
+             z-index: 2;
+             position: relative;
+             transition: all 0.4s ease;
          }
         .login-left h1 {
             color: #1e293b !important;
@@ -177,6 +183,10 @@
              font-size: 0.85rem;
              margin-top: 0.35rem;
          }
+         @keyframes fadeUp {
+             from { opacity: 0; transform: translateY(10px); }
+             to { opacity: 1; transform: translateY(0); }
+         }
      </style>
 </head>
 <body class="login-page">
@@ -207,52 +217,17 @@
 
             <div class="login-header-left" style="position: relative; z-index: 2;">
                 <div class="login-logo-wrapper animate-float">
-                    <img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="login-logo">
+                    <a href="{{ url('/') }}"><img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="login-logo" style="cursor: pointer;"></a>
                 </div>
-                <h1 class="animate-float">Netcoder ERP</h1>
-                <p class="brand-tagline">Premium Institute Management Space</p>
+                <h1 class="animate-float" style="margin-bottom: 0;">Netcoder ERP</h1>
+                <p class="brand-tagline" id="brandTagline">Premium Institute Management Space</p>
             </div>
 
-            <div class="features-list" style="position: relative; z-index: 2;">
-                <div class="feature-item glass-card animate-hover-lift">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div>
-                        <h3>Smart Analytics</h3>
-                        <p>Track real-time performance & institutional insights</p>
-                    </div>
-                </div>
+            <!-- Dynamic Hero Image based on Login Type -->
+            <img id="login-hero-image" src="{{ asset('images/admin_vector_orange_1783750006567.png') }}" alt="Hero Illustration" class="hero-image animate-float">
 
-                <div class="feature-item glass-card animate-hover-lift">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div>
-                        <h3>Manage Students</h3>
-                        <p>End-to-end student lifecycle & active tracking</p>
-                    </div>
-                </div>
-
-                <div class="feature-item glass-card animate-hover-lift">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </div>
-                    <div>
-                        <h3>Fee Management</h3>
-                        <p>Automated invoices, receipts, and smart payments</p>
-                    </div>
-                </div>
-
-                <div class="feature-item glass-card animate-hover-lift">
-                    <div class="feature-icon">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                    <div>
-                        <h3>Staff Management</h3>
-                        <p>Effortless payroll, attendance, and record keeping</p>
-                    </div>
-                </div>
+            <div class="features-list" id="featuresListContainer" style="position: relative; z-index: 2; margin-top: 2rem;">
+                <!-- Dynamically populated by JS -->
             </div>
 
             <div class="login-footer-left" style="position: relative; z-index: 2;">
@@ -543,34 +518,56 @@
                     iconClass: 'fas fa-user-graduate',
                     title: 'Welcome Back, Student',
                     subtitle: 'Sign in to your student portal to continue',
+                    tagline: 'Empowering Your Educational Journey',
                     bg: '#fff5f2',
                     color: '#ff5532',
                     border: '#ffebe6',
                     label: 'Student Portal',
                     emailPlaceholder: 'Enrollment ID or Email',
-                    containerClass: 'type-student'
+                    containerClass: 'type-student',
+                    heroImage: "{{ asset('images/student_vector_orange_1783749986028.png') }}",
+                    features: [
+                        { icon: 'fas fa-book', title: 'My Courses', desc: 'Access course syllabi and track your assignments' },
+                        { icon: 'fas fa-fingerprint', title: 'Attendance', desc: 'Verify your daily biometric logs securely' },
+                        { icon: 'fas fa-file-invoice-dollar', title: 'Fee Status', desc: 'View monthly dues and download payment receipts' }
+                    ]
                 },
                 staff: {
                     iconClass: 'fas fa-chalkboard-teacher',
                     title: 'Welcome Back, Staff',
                     subtitle: 'Sign in to your staff hub to continue',
+                    tagline: 'Streamlined Faculty Management System',
                     bg: '#f0fdf4',
                     color: '#10b981',
                     border: '#d1fae5',
                     label: 'Staff Hub',
                     emailPlaceholder: 'Staff Email or Employee Code',
-                    containerClass: 'type-staff'
+                    containerClass: 'type-staff',
+                    heroImage: "{{ asset('images/staff_vector_orange_1783749996536.png') }}",
+                    features: [
+                        { icon: 'fas fa-chalkboard', title: 'Manage Classes', desc: 'Organize your daily lectures and subjects' },
+                        { icon: 'fas fa-check-circle', title: 'Attendance', desc: 'View your biometric and manual time records' },
+                        { icon: 'fas fa-wallet', title: 'Payroll History', desc: 'Access and download your digital salary slips' }
+                    ]
                 },
                 institute: {
                     iconClass: 'fas fa-user-tie',
                     title: 'Welcome Back, Admin',
                     subtitle: 'Sign in to the management panel to continue',
+                    tagline: 'Premium Institute Management Space',
                     bg: '#fff5f2',
                     color: '#ff5532',
                     border: '#ffebe6',
                     label: 'Admin Panel',
                     emailPlaceholder: 'Admin Email Address',
-                    containerClass: 'type-institute'
+                    containerClass: 'type-institute',
+                    heroImage: "{{ asset('images/admin_vector_orange_1783750006567.png') }}",
+                    features: [
+                        { icon: 'fas fa-chart-line', title: 'Smart Analytics', desc: 'Track real-time performance & institutional insights' },
+                        { icon: 'fas fa-users', title: 'Manage Students', desc: 'End-to-end student lifecycle & active tracking' },
+                        { icon: 'fas fa-file-invoice-dollar', title: 'Fee Management', desc: 'Automated invoices, receipts, and smart payments' },
+                        { icon: 'fas fa-briefcase', title: 'Staff Management', desc: 'Effortless payroll, attendance, and record keeping' }
+                    ]
                 }
             };
 
@@ -583,6 +580,43 @@ const cfg = configs[type] || configs['institute'];
              wrapper.style.background = cfg.bg;
              wrapper.style.color = cfg.color;
              wrapper.style.borderColor = cfg.border;
+
+             const heroImg = document.getElementById('login-hero-image');
+             if (heroImg) {
+                 heroImg.style.opacity = 0;
+                 setTimeout(() => {
+                     heroImg.src = cfg.heroImage;
+                     heroImg.style.opacity = 1;
+                 }, 200);
+             }
+
+             const taglineEl = document.getElementById('brandTagline');
+             if (taglineEl) {
+                 taglineEl.style.opacity = 0;
+                 setTimeout(() => {
+                     taglineEl.textContent = cfg.tagline;
+                     taglineEl.style.opacity = 1;
+                 }, 200);
+             }
+
+             const featuresContainer = document.getElementById('featuresListContainer');
+             if (featuresContainer) {
+                 featuresContainer.style.opacity = 0;
+                 setTimeout(() => {
+                     featuresContainer.innerHTML = cfg.features.map(f => `
+                        <div class="feature-item glass-card animate-hover-lift" style="opacity: 0; animation: fadeUp 0.4s forwards;">
+                            <div class="feature-icon">
+                                <i class="${f.icon}"></i>
+                            </div>
+                            <div>
+                                <h3>${f.title}</h3>
+                                <p>${f.desc}</p>
+                            </div>
+                        </div>
+                     `).join('');
+                     featuresContainer.style.opacity = 1;
+                 }, 200);
+             }
 
              badgeContainer.innerHTML = `
                  <span class="login-type-badge ${type}">
