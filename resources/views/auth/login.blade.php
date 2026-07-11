@@ -238,18 +238,25 @@
         <!-- Right Side - Login Form -->
         <div class="login-right">
             <div class="login-form-wrapper">
-                <div id="changeTypeContainer" style="display: none; margin-bottom: 16px;">
-                    <a href="{{ route('login') }}" class="back-link" style="display: inline-flex;">
-                        <i class="fas fa-arrow-left"></i> Change login type
-                    </a>
-                </div>
-                <div class="login-form-header">
-                    <div class="login-type-icon" id="loginTypeIcon">
+                <div class="login-form-header text-center mb-4">
+                    <div class="login-type-icon mx-auto" id="loginTypeIcon">
                         <i class="fas fa-user-tie" id="loginTypeIconI"></i>
                     </div>
-                    <div id="loginTypeBadge"></div>
-                    <h2 id="loginTitle">Welcome Back, Admin</h2>
-                    <p id="loginSubtitle">Sign in to the management panel to continue</p>
+                    <h2 id="loginTitle">Welcome Back</h2>
+                    <p id="loginSubtitle">Sign in to your account to continue</p>
+                </div>
+
+                <!-- Role Selector Tabs -->
+                <div class="role-selector mb-4 d-flex justify-content-between" style="background: #f1f5f9; padding: 6px; border-radius: 12px;">
+                    <button type="button" class="btn role-tab active flex-fill" data-type="institute" style="border-radius: 8px; font-weight: 600; padding: 10px; border: none; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #1e293b; transition: all 0.3s ease;">
+                        <i class="fas fa-building me-1"></i> Admin
+                    </button>
+                    <button type="button" class="btn role-tab flex-fill mx-1" data-type="staff" style="border-radius: 8px; font-weight: 600; padding: 10px; border: none; background: transparent; color: #64748b; transition: all 0.3s ease;">
+                        <i class="fas fa-chalkboard-teacher me-1"></i> Staff
+                    </button>
+                    <button type="button" class="btn role-tab flex-fill" data-type="student" style="border-radius: 8px; font-weight: 600; padding: 10px; border: none; background: transparent; color: #64748b; transition: all 0.3s ease;">
+                        <i class="fas fa-user-graduate me-1"></i> Student
+                    </button>
                 </div>
 
                 @if ($errors->any())
@@ -257,7 +264,7 @@
                         <i class="fas fa-exclamation-circle"></i>
                         <div>
                             @foreach ($errors->all() as $error)
-                                <p>{{ $error }}</p>
+                                <p class="mb-0">{{ $error }}</p>
                             @endforeach
                         </div>
                     </div>
@@ -640,7 +647,30 @@ const cfg = configs[type] || configs['institute'];
                  loginLeft.classList.remove('type-student', 'type-staff', 'type-institute');
                  loginLeft.classList.add(cfg.containerClass);
              }
+
+             // Update active tab style
+             document.querySelectorAll('.role-tab').forEach(tab => {
+                 if (tab.getAttribute('data-type') === type) {
+                     tab.classList.add('active');
+                     tab.style.background = '#ffffff';
+                     tab.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                     tab.style.color = '#1e293b';
+                 } else {
+                     tab.classList.remove('active');
+                     tab.style.background = 'transparent';
+                     tab.style.boxShadow = 'none';
+                     tab.style.color = '#64748b';
+                 }
+             });
          }
+
+         // Tab click listeners
+         document.querySelectorAll('.role-tab').forEach(tab => {
+             tab.addEventListener('click', function() {
+                 const newType = this.getAttribute('data-type');
+                 updateLoginFormStyle(newType);
+             });
+         });
     </script>
 </body>
 </html>

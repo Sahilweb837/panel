@@ -81,12 +81,23 @@ class EmployeeController extends Controller
 
         Employee::create($data);
 
+        $plainPassword = $request->login_password ?: 'staff123';
+
+        // Dispatch welcome and verification email if it's a real email
+        if (!str_ends_with($user->email, '@staff.com')) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeAndVerifyMail($user, $plainPassword));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send staff welcome email: ' . $e->getMessage());
+            }
+        }
+
         return redirect()->route('employees.index')->with([
             'success' => 'Employee created successfully.',
             'new_user_credentials' => [
                 'email' => $user->email,
                 'username' => $user->username,
-                'password' => $request->login_password ?: 'staff123',
+                'password' => $plainPassword,
                 'type' => 'Staff'
             ]
         ]);

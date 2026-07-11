@@ -222,6 +222,15 @@ class StudentController extends Controller
         }
 
         if (isset($user)) {
+            // Dispatch welcome and verification email if it's a real email
+            if (!str_ends_with($user->email, '@student.com')) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeAndVerifyMail($user, $plainPassword));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send student welcome email: ' . $e->getMessage());
+                }
+            }
+
             return redirect()->route('students.index')->with([
                 'success' => 'Student created successfully.',
                 'new_user_credentials' => [

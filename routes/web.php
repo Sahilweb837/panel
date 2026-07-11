@@ -42,6 +42,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/firebase/send-otp', [\App\Http\Controllers\FirebasePhoneVerificationController::class, 'sendOtp'])->name('firebase.send-otp');
 Route::post('/firebase/verify-otp', [\App\Http\Controllers\FirebasePhoneVerificationController::class, 'verifyOtp'])->name('firebase.verify-otp');
 
+// Email Verification Route
+Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verification.verify');
+
 // Registration Routes
 Route::get('/register/student', [\App\Http\Controllers\RegistrationController::class, 'showStudentRegistration'])->name('register.student');
 Route::post('/register/student', [\App\Http\Controllers\RegistrationController::class, 'registerStudent']);

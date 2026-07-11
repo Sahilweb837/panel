@@ -56,7 +56,10 @@ class ZKTecoADMSController extends Controller
                 $parts = explode("\t", trim($line));
                 if (count($parts) >= 2) {
                     $pin = trim($parts[0]);
-                    $time = trim($parts[1]); 
+                    $rawTime = trim($parts[1]); 
+
+                    // Fix Mintia +30 minutes bug (Device handles +5.5 as +5.0)
+                    $time = date('Y-m-d H:i:s', strtotime($rawTime . ' +30 minutes'));
 
                     $punchDate = date('Y-m-d', strtotime($time));
                     $punchTime = date('H:i:s', strtotime($time));

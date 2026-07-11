@@ -13,7 +13,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (session()->has('user_id')) {
-            return redirect()->route('dashboard');
+            return $this->redirectByRole(session('user_role_slug'));
         }
 
         return view('auth.login');
@@ -47,6 +47,17 @@ class AuthController extends Controller
         if (! $user->status) {
             Session::flash('login_error', 'Your account is currently inactive.');
             return back()->withErrors(['email' => 'Your account is currently inactive.'])->onlyInput('email');
+        }
+
+        // Enforce Email Verification (skip for dummy emails and superadmin)
+        if (
+            is_null($user->email_verified_at) &&
+            !str_ends_with($user->email, '@student.com') &&
+            !str_ends_with($user->email, '@staff.com') &&
+            !in_array($user->email, ['superadmin@gmail.com', 'superadmin@gmai.com'])
+        ) {
+            Session::flash('login_error', 'Please verify your email address to log in. Check your inbox.');
+            return back()->withErrors(['email' => 'Please verify your email address to log in. Check your inbox.'])->onlyInput('email');
         }
 
         $roleSlug = $user->role?->slug;
