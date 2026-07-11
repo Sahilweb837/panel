@@ -47,6 +47,17 @@
             z-index: 100;
         }
 
+        /* Particles container */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         .brand-logo {
             max-height: 40px;
             object-fit: contain;
@@ -139,23 +150,30 @@
         }
 
         .hub-icon-wrapper {
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 120px;
             margin: 0 auto 1.5rem;
-            border-radius: 20px;
+            border-radius: 50%;
             display: flex;
+            align-items: center;
             justify-content: center;
-            font-size: 2rem;
             background: rgba(255, 85, 50, 0.05);
-            color: var(--hub-color);
             border: 1px solid rgba(255, 85, 50, 0.1);
             transition: all 0.4s ease;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        .hub-vector-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         .hub-card:hover .hub-icon-wrapper {
-            background: var(--hub-color);
-            color: #ffffff;
-            transform: scale(1.1) rotate(5deg);
+            background: rgba(255, 85, 50, 0.1);
+            transform: scale(1.1);
             box-shadow: 0 10px 20px var(--hub-shadow);
         }
 
@@ -225,11 +243,14 @@
     </style>
 </head>
 <body>
+    <div id="particles-js"></div>
 
     <header>
         <div class="container d-flex align-items-center justify-content-center">
-            <img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="brand-logo" onerror="this.src='https://ui-avatars.com/api/?name=NC&background=ff5532&color=ffffff'">
-            <span class="brand-text">NETCODER ERP</span>
+            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none">
+                <img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="brand-logo" onerror="this.src='https://ui-avatars.com/api/?name=NC&background=ff5532&color=ffffff'">
+                <span class="brand-text">NETCODER ERP</span>
+            </a>
         </div>
     </header>
 
@@ -244,7 +265,7 @@
             <!-- Student Hub -->
             <a href="{{ route('login') }}?type=student" class="hub-card hub-student">
                 <div class="hub-icon-wrapper">
-                    <i class="fas fa-user-graduate"></i>
+                    <img src="{{ asset('images/student_vector_orange_1783749986028.png') }}" alt="Student Vector" class="hub-vector-img">
                 </div>
                 <h3 class="hub-title">Student Portal</h3>
                 <p class="hub-desc">Access course syllabi, verify biometric attendance logs, review monthly fee installments, and download payment receipts securely.</p>
@@ -256,7 +277,7 @@
             <!-- Staff Hub -->
             <a href="{{ route('login') }}?type=staff" class="hub-card hub-staff">
                 <div class="hub-icon-wrapper">
-                    <i class="fas fa-chalkboard-teacher"></i>
+                    <img src="{{ asset('images/staff_vector_orange_1783749996536.png') }}" alt="Staff Vector" class="hub-vector-img">
                 </div>
                 <h3 class="hub-title">Staff Hub</h3>
                 <p class="hub-desc">Manage lectures, record face attendance, verify daily tasks, and review your salary slips and payroll history with ease.</p>
@@ -268,7 +289,7 @@
             <!-- Admin Hub -->
             <a href="{{ route('login') }}?type=institute" class="hub-card hub-admin">
                 <div class="hub-icon-wrapper">
-                    <i class="fas fa-shield-alt"></i>
+                    <img src="{{ asset('images/admin_vector_orange_1783750006567.png') }}" alt="Admin Vector" class="hub-vector-img">
                 </div>
                 <h3 class="hub-title">Management Panel</h3>
                 <p class="hub-desc">Configure academic courses, monitor live institutional attendance feeds, manage staff payroll, and oversee financial operations.</p>
@@ -281,10 +302,31 @@
     </main>
 
     <footer>
-        <div class="container">
+        <div class="container" style="position: relative; z-index: 10;">
             &copy; 2026 Netcoder ERP. Designed for modern institutional workflows.
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS('particles-js', {
+            "particles": {
+                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#ff5532" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.3, "random": false },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": "#ff5532", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+                "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } }, "push": { "particles_nb": 4 } }
+            },
+            "retina_detect": true
+        });
+    </script>
 </body>
 </html>

@@ -83,12 +83,14 @@
             <button type="button" class="btn btn-link p-0 me-2" id="sidebar-toggle-btn">
                 <i class="fas fa-bars fa-lg"></i>
             </button>
-            <div class="brand-mark-sm">
-                <img src="{{ asset('image.png') }}" alt="Netcoder Fees" class="brand-logo-sm">
-            </div>
-            <div>
-                <h1 class="brand-title-sm mb-0">Netcoder Fees</h1>
-            </div>
+            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
+                <div class="brand-mark-sm me-2">
+                    <img src="{{ asset('image.png') }}" alt="Netcoder Fees" class="brand-logo-sm">
+                </div>
+                <div>
+                    <h1 class="brand-title-sm mb-0">Netcoder Fees</h1>
+                </div>
+            </a>
         </div>
         <button type="button" class="theme-toggle me-2 px-3 py-1" style="height: auto; border-radius: 20px; font-size: 0.8rem;" data-theme-toggle title="Toggle Dark/Light Mode">
             <span class="theme-icon-wrapper" style="width: 14px; height: 14px; font-size: 0.8rem;"><i class="fas fa-moon"></i></span>
@@ -102,13 +104,15 @@
             <i class="fas fa-times"></i>
         </button>
         <div class="brand">
-            <div class="brand-mark">
-                <img src="{{ asset('image.png') }}" alt="Netcoder Fees" class="brand-logo">
-            </div>
-            <div>
-                <h1>Netcoder Fees</h1>
-                <p>Institute ERP</p>
-            </div>
+            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none w-100" style="color: inherit;">
+                <div class="brand-mark">
+                    <img src="{{ asset('image.png') }}" alt="Netcoder Fees" class="brand-logo">
+                </div>
+                <div>
+                    <h1 class="mb-0">Netcoder Fees</h1>
+                    <p class="mb-0">Institute ERP</p>
+                </div>
+            </a>
         </div>
 
         <nav class="nav-menu">
