@@ -187,6 +187,59 @@
              from { opacity: 0; transform: translateY(10px); }
              to { opacity: 1; transform: translateY(0); }
          }
+
+         /* DARK MODE OVERRIDES */
+         html[data-theme="dark"] body.login-page {
+             background-color: #111827 !important;
+             color: #f3f4f6 !important;
+         }
+         html[data-theme="dark"] .login-left,
+         html[data-theme="dark"] .login-right {
+             background-color: #1f2937 !important;
+         }
+         html[data-theme="dark"] .glass-card {
+             border-color: #374151 !important;
+             color: #f3f4f6 !important;
+         }
+         html[data-theme="dark"] .feature-icon,
+         html[data-theme="dark"] .login-type-icon {
+             background: #374151 !important;
+             border-color: #4b5563 !important;
+             color: #ff5532 !important;
+         }
+         html[data-theme="dark"] .form-input {
+             background-color: #374151 !important;
+             color: #f3f4f6 !important;
+             border-color: #4b5563 !important;
+         }
+         html[data-theme="dark"] .form-input:focus {
+             background-color: #1f2937 !important;
+         }
+         html[data-theme="dark"] .form-label,
+         html[data-theme="dark"] .checkbox-label span,
+         html[data-theme="dark"] p {
+             color: #9ca3af !important;
+         }
+         html[data-theme="dark"] .role-btn {
+             background-color: #374151 !important;
+             border-color: #4b5563 !important;
+             color: #d1d5db !important;
+         }
+         html[data-theme="dark"] .role-btn.active {
+             background-color: #ff5532 !important;
+             border-color: #ff5532 !important;
+             color: #fff !important;
+         }
+         html[data-theme="dark"] .login-type-badge {
+             background: #374151 !important;
+             border-color: #4b5563 !important;
+         }
+         html[data-theme="dark"] .login-title,
+         html[data-theme="dark"] h1,
+         html[data-theme="dark"] h2,
+         html[data-theme="dark"] h3 {
+             color: #f9fafb !important;
+         }
      </style>
 </head>
 <body class="login-page">
@@ -223,8 +276,10 @@
                 <p class="brand-tagline" id="brandTagline">Premium Institute Management Space</p>
             </div>
 
-            <!-- Dynamic Hero Image based on Login Type -->
-            <img id="login-hero-image" src="{{ asset('images/admin_photo_professional_1783756997320.png') }}" alt="Hero Illustration" class="hero-image animate-float">
+            <!-- Dynamic Hero Icon based on Login Type -->
+            <div id="login-hero-icon" class="animate-float" style="font-size: 8rem; margin: 3rem auto; text-align: center; transition: all 0.4s ease; z-index: 2; position: relative;">
+                <i id="login-hero-icon-i" class="fas fa-building"></i>
+            </div>
 
             <div class="features-list" id="featuresListContainer" style="position: relative; z-index: 2; margin-top: 2rem;">
                 <!-- Dynamically populated by JS -->
@@ -246,6 +301,7 @@
                     <p id="loginSubtitle">Sign in to your account to continue</p>
                 </div>
 
+                @if(!request()->has('type'))
                 <!-- Role Selector Tabs -->
                 <div class="role-selector mb-4 d-flex justify-content-between" style="background: #f1f5f9; padding: 6px; border-radius: 12px;">
                     <button type="button" class="btn role-tab active flex-fill" data-type="institute" style="border-radius: 8px; font-weight: 600; padding: 10px; border: none; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #1e293b; transition: all 0.3s ease;">
@@ -258,6 +314,7 @@
                         <i class="fas fa-user-graduate me-1"></i> Student
                     </button>
                 </div>
+                @endif
 
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -532,7 +589,7 @@
                     label: 'Student Portal',
                     emailPlaceholder: 'Enrollment ID or Email',
                     containerClass: 'type-student',
-                    heroImage: "{{ asset('images/student_photo_professional_1783756975009.png') }}",
+                    heroIcon: "fas fa-user-graduate",
                     features: [
                         { icon: 'fas fa-book', title: 'My Courses', desc: 'Access course syllabi and track your assignments' },
                         { icon: 'fas fa-fingerprint', title: 'Attendance', desc: 'Verify your daily biometric logs securely' },
@@ -550,7 +607,7 @@
                     label: 'Staff Hub',
                     emailPlaceholder: 'Staff Email or Employee Code',
                     containerClass: 'type-staff',
-                    heroImage: "{{ asset('images/staff_photo_professional_1783756986398.png') }}",
+                    heroIcon: "fas fa-chalkboard-teacher",
                     features: [
                         { icon: 'fas fa-chalkboard', title: 'Manage Classes', desc: 'Organize your daily lectures and subjects' },
                         { icon: 'fas fa-check-circle', title: 'Attendance', desc: 'View your biometric and manual time records' },
@@ -568,7 +625,7 @@
                     label: 'Admin Panel',
                     emailPlaceholder: 'Admin Email Address',
                     containerClass: 'type-institute',
-                    heroImage: "{{ asset('images/admin_photo_professional_1783756997320.png') }}",
+                    heroIcon: "fas fa-building",
                     features: [
                         { icon: 'fas fa-chart-line', title: 'Smart Analytics', desc: 'Track real-time performance & institutional insights' },
                         { icon: 'fas fa-users', title: 'Manage Students', desc: 'End-to-end student lifecycle & active tracking' },
@@ -588,12 +645,14 @@ const cfg = configs[type] || configs['institute'];
              wrapper.style.color = cfg.color;
              wrapper.style.borderColor = cfg.border;
 
-             const heroImg = document.getElementById('login-hero-image');
-             if (heroImg) {
-                 heroImg.style.opacity = 0;
+             const heroIconWrapper = document.getElementById('login-hero-icon');
+             const heroIconI = document.getElementById('login-hero-icon-i');
+             if (heroIconWrapper && heroIconI) {
+                 heroIconWrapper.style.opacity = 0;
                  setTimeout(() => {
-                     heroImg.src = cfg.heroImage;
-                     heroImg.style.opacity = 1;
+                     heroIconI.className = cfg.heroIcon;
+                     heroIconWrapper.style.color = cfg.color;
+                     heroIconWrapper.style.opacity = 1;
                  }, 200);
              }
 
@@ -652,9 +711,9 @@ const cfg = configs[type] || configs['institute'];
              document.querySelectorAll('.role-tab').forEach(tab => {
                  if (tab.getAttribute('data-type') === type) {
                      tab.classList.add('active');
-                     tab.style.background = '#ffffff';
-                     tab.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                     tab.style.color = '#1e293b';
+                     tab.style.background = cfg.color; // Colored background based on type
+                     tab.style.boxShadow = '0 4px 12px ' + cfg.color + '40'; // Soft shadow matching color
+                     tab.style.color = '#ffffff'; // White text when active
                  } else {
                      tab.classList.remove('active');
                      tab.style.background = 'transparent';

@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Netcoder ERP | Premium Institute Management Space</title>
+    <title>Netcoder ERP | Premium Institute Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         :root {
             --bg-base: #ffffff;
-            --bg-surface: #ffffff;
             --bg-accent: #ff5532;
-            --bg-accent-hover: #e04423;
             --text-primary: #1e293b;
             --text-secondary: #64748b;
-            --card-border: #e2e8f0;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(0,0,0,0.05);
             
             --hub-student: #ff7657;
             --hub-staff: #ff5532;
@@ -27,309 +26,314 @@
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
             margin: 0;
-            display: flex;
-            flex-direction: column;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(255, 85, 50, 0.08) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(255, 138, 0, 0.08) 0%, transparent 25%);
+                radial-gradient(circle at 10% 20%, rgba(255, 85, 50, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 138, 0, 0.05) 0%, transparent 40%);
         }
 
-        /* Glass Header */
-        header {
-            padding: 1.5rem 0;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 85, 50, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .brand-logo {
-            max-height: 40px;
-            object-fit: contain;
-        }
-
-        .brand-text {
-            font-weight: 900;
-            font-size: 1.5rem;
-            letter-spacing: -0.02em;
-            color: var(--bg-accent);
-            text-decoration: none;
-            margin-left: 0.75rem;
-        }
-
-        /* Main Container */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem 1rem;
-            position: relative;
-            z-index: 10;
-        }
-
-        .hero-section {
-            text-align: center;
-            margin-bottom: 4rem;
-            max-width: 700px;
-        }
-
-        .hero-title {
-            font-size: 4rem;
-            font-weight: 900;
-            letter-spacing: -0.04em;
-            margin-bottom: 1rem;
-            line-height: 1.1;
-            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #ff5532 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .hero-actions {
-            margin-top: 2rem;
-        }
-
-        .btn-outline-orange {
-            color: var(--bg-accent);
-            border: 2px solid var(--bg-accent);
-            padding: 0.75rem 2rem;
-            border-radius: 50px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-outline-orange:hover {
-            background: var(--bg-accent);
-            color: #ffffff;
-            box-shadow: 0 10px 20px rgba(255, 85, 50, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* 3 Hubs Layout */
-        .hubs-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            max-width: 1100px;
-            width: 100%;
-        }
-
-        .hub-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 2.5rem 2rem;
-            text-align: center;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            box-shadow: 0 10px 30px rgba(255, 85, 50, 0.05);
-        }
-
-        .hub-card::before {
-            content: '';
-            position: absolute;
+        /* Animated Bubbles Background */
+        .bubbles-bg {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: var(--hub-color);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
-        }
-
-        .hub-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--hub-color);
-            box-shadow: 0 20px 40px rgba(255, 85, 50, 0.15);
-        }
-
-        .hub-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .hub-icon-wrapper {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 1.5rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 85, 50, 0.05);
-            border: 1px solid rgba(255, 85, 50, 0.1);
-            transition: all 0.4s ease;
-            overflow: hidden;
-            padding: 10px;
-        }
-
-        .hub-vector-img {
-            width: 100%;
             height: 100%;
-            object-fit: cover;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bubble {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(255, 85, 50, 0.1), rgba(255, 138, 0, 0.05));
             border-radius: 50%;
+            animation: floatBubble infinite ease-in-out;
+        }
+        @keyframes floatBubble {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
         }
 
-        .hub-card:hover .hub-icon-wrapper {
-            background: rgba(255, 85, 50, 0.1);
-            transform: scale(1.1);
-            box-shadow: 0 10px 20px var(--hub-shadow);
+        /* Header */
+        header {
+            padding: 1.5rem 0;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .brand-logo { max-height: 45px; object-fit: contain; }
+        .brand-text {
+            font-weight: 900;
+            font-size: 1.75rem;
+            color: var(--bg-accent);
+            text-decoration: none;
+            margin-left: 1rem;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Split Layout */
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            min-height: 100vh;
+            padding-top: 5rem; /* Space for header */
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 992px) {
+            .split-container {
+                grid-template-columns: 1.2fr 1fr;
+                gap: 4rem;
+                padding: 6rem 2rem 2rem 2rem;
+                align-items: center;
+            }
+        }
+
+        /* Left Side - Vector Graphic & Text */
+        .left-content {
+            padding: 2rem;
+            text-align: center;
+        }
+        @media (min-width: 992px) {
+            .left-content { text-align: left; }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.35rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .vector-wrapper {
+            max-width: 100%;
+            margin-top: 2rem;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Right Side - Login Cards Toggle Hub */
+        .right-content {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-hub-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
         }
 
         .hub-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
             color: var(--text-primary);
         }
-
         .hub-desc {
-            font-size: 0.95rem;
             color: var(--text-secondary);
-            line-height: 1.6;
             margin-bottom: 2rem;
-        }
-
-        .hub-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
             font-size: 0.95rem;
-            color: var(--bg-accent);
-            background: transparent;
-            border: 1px solid var(--bg-accent);
+        }
+
+        /* Stacked Toggle Cards */
+        .portal-card {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
             transition: all 0.3s ease;
-            width: 100%;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
 
-        .hub-card:hover .hub-btn {
-            background: var(--hub-color);
-            border-color: var(--hub-color);
-            color: #ffffff;
+        .portal-card:hover {
+            transform: translateY(-3px);
+            background: #ffffff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            border-color: rgba(0,0,0,0.08);
         }
 
-        /* Specific Hub Colors */
-        .hub-student { --hub-color: var(--hub-student); --hub-shadow: rgba(255, 118, 87, 0.3); }
-        .hub-staff { --hub-color: var(--hub-staff); --hub-shadow: rgba(255, 85, 50, 0.3); }
-        .hub-admin { --hub-color: var(--hub-admin); --hub-shadow: rgba(224, 68, 35, 0.3); }
+        .portal-vector {
+            width: 60px;
+            height: 60px;
+            margin-right: 1.25rem;
+            z-index: 2;
+            flex-shrink: 0;
+        }
 
-        footer {
-            padding: 2rem;
-            text-align: center;
-            color: var(--text-secondary);
+        .portal-info {
+            flex: 1;
+            z-index: 2;
+        }
+        .portal-info h4 {
+            margin: 0 0 0.4rem 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        .portal-info p {
+            margin: 0;
             font-size: 0.9rem;
-            border-top: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            line-height: 1.4;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hubs-container {
-                grid-template-columns: 1fr;
-            }
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            .main-content {
-                padding: 2rem 1rem;
-            }
-            .hero-glow {
-                width: 300px;
-                height: 300px;
-            }
-            .hub-card {
-                max-width: 450px;
-            }
+        .portal-arrow {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            transition: color 0.3s ease;
+            z-index: 2;
         }
+
+        /* Specific Portal Themes */
+        .portal-admin:hover .portal-info h4 { color: #e04423; }
+        .portal-admin:hover .portal-arrow { color: #e04423; }
+
+        .portal-staff:hover .portal-info h4 { color: #10b981; }
+        .portal-staff:hover .portal-arrow { color: #10b981; }
+
+        .portal-student:hover .portal-info h4 { color: #6366f1; }
+        .portal-student:hover .portal-arrow { color: #6366f1; }
+
     </style>
 </head>
 <body>
 
+    <!-- Animated Bubbles -->
+    <div class="bubbles-bg">
+        <div class="bubble" style="left: 10%; width: 80px; height: 80px; animation-duration: 8s; animation-delay: 0s;"></div>
+        <div class="bubble" style="left: 30%; width: 120px; height: 120px; animation-duration: 12s; animation-delay: 2s;"></div>
+        <div class="bubble" style="left: 60%; width: 60px; height: 60px; animation-duration: 7s; animation-delay: 4s;"></div>
+        <div class="bubble" style="left: 85%; width: 150px; height: 150px; animation-duration: 15s; animation-delay: 1s;"></div>
+        <div class="bubble" style="left: 45%; width: 40px; height: 40px; animation-duration: 6s; animation-delay: 5s;"></div>
+    </div>
+
+    <!-- Header (Logo on one side) -->
     <header>
-        <div class="container d-flex align-items-center justify-content-center">
+        <div class="container d-flex align-items-center justify-content-between">
             <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="brand-logo" onerror="this.src='https://ui-avatars.com/api/?name=NC&background=ff5532&color=ffffff'">
-                <span class="brand-text">NETCODER ERP</span>
-            </a>
+                <img src="{{ asset('image.png') }}" alt="Netcoder ERP Logo" class="brand-logo" onerror="this.src='https://ui-avatars.com/api/?name=NC&background=ff5532&color=ffffff'">
+             </a>
+            
+            <div class="d-none d-md-flex align-items-center gap-3">
+                <a href="#portals" class="text-secondary text-decoration-none fw-semibold">Portals</a>
+                <a href="{{ route('login') }}?type=institute" class="btn btn-outline-dark" style="border-radius: 50px; font-weight: 600; padding: 0.4rem 1.2rem;">Admin Login</a>
+            </div>
+            
+            <div class="d-md-none text-secondary fs-3">
+                <i class="fas fa-bars"></i>
+            </div>
         </div>
     </header>
 
-    <main class="container main-content">
-        <div class="hero-section">
-            <h1 class="hero-title">Netcoder ERP</h1>
-            <p class="hero-subtitle">The all-in-one premium institute management space. Streamline your operations, manage students effectively, and empower your staff with cutting-edge tools.</p>
-            <div class="hero-actions">
-                <a href="#portals" class="btn-outline-orange">Access Portals <i class="fas fa-arrow-down ms-2"></i></a>
+    <!-- Split Layout Main Area -->
+    <main class="split-container">
+        
+        <!-- Left Side: Subtitle + Vector Graphic -->
+        <div class="left-content">
+            <p class="hero-subtitle">The all-in-one premium institute management space. Streamline operations, manage students effectively, and empower your staff with cutting-edge tools.</p>
+            
+            <div class="vector-wrapper">
+                @include('partials.hero_illustration')
             </div>
         </div>
 
-        <div id="portals" class="hubs-container">
-            
-            <!-- Student Hub -->
-            <a href="{{ route('login') }}?type=student" class="hub-card hub-student">
-                <div class="hub-icon-wrapper">
-                    <img src="{{ asset('images/student_photo_professional_1783756975009.png') }}" alt="Student Professional" class="hub-vector-img">
-                </div>
-                <h3 class="hub-title">Student Portal</h3>
-                <p class="hub-desc">Access course syllabi, verify biometric attendance logs, review monthly fee installments, and download payment receipts securely.</p>
-                <div class="hub-btn">
-                    Enter Portal <i class="fas fa-arrow-right ms-1"></i>
-                </div>
-            </a>
+        <!-- Right Side: Toggle Login Cards Hub -->
+        <div class="right-content">
+            <div class="login-hub-container">
+                <h2 class="hub-title">Access Portals</h2>
+                <p class="hub-desc">Select your designated portal to securely log in and access your dashboard.</p>
 
-            <!-- Staff Hub -->
-            <a href="{{ route('login') }}?type=staff" class="hub-card hub-staff">
-                <div class="hub-icon-wrapper">
-                    <img src="{{ asset('images/staff_photo_professional_1783756986398.png') }}" alt="Staff Professional" class="hub-vector-img">
-                </div>
-                <h3 class="hub-title">Staff Hub</h3>
-                <p class="hub-desc">Manage lectures, record face attendance, verify daily tasks, and review your salary slips and payroll history with ease.</p>
-                <div class="hub-btn">
-                    Enter Hub <i class="fas fa-arrow-right ms-1"></i>
-                </div>
-            </a>
+                <!-- Admin Card -->
+                <a href="{{ route('login') }}?type=institute" class="portal-card portal-admin">
+                    <div class="portal-vector">
+                        <svg viewBox="0 0 100 100" class="w-100 h-100">
+                            <rect x="10" y="10" width="80" height="80" rx="12" fill="#e04423" opacity="0.1"/>
+                            <rect x="22" y="25" width="25" height="25" rx="6" fill="#e04423"/>
+                            <rect x="53" y="25" width="25" height="25" rx="6" fill="#e04423" opacity="0.7"/>
+                            <rect x="22" y="58" width="56" height="18" rx="6" fill="#e04423" opacity="0.5"/>
+                            <circle cx="34.5" cy="37.5" r="4" fill="#fff"/>
+                        </svg>
+                    </div>
+                    <div class="portal-info">
+                        <h4>Management Panel</h4>
+                        <p>Configure courses & financial operations</p>
+                    </div>
+                    <div class="portal-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
 
-            <!-- Admin Hub -->
-            <a href="{{ route('login') }}?type=institute" class="hub-card hub-admin">
-                <div class="hub-icon-wrapper">
-                    <img src="{{ asset('images/admin_photo_professional_1783756997320.png') }}" alt="Admin Professional" class="hub-vector-img">
-                </div>
-                <h3 class="hub-title">Management Panel</h3>
-                <p class="hub-desc">Configure academic courses, monitor live institutional attendance feeds, manage staff payroll, and oversee financial operations.</p>
-                <div class="hub-btn">
-                    Enter Panel <i class="fas fa-arrow-right ms-1"></i>
-                </div>
-            </a>
+                <!-- Staff Card -->
+                <a href="{{ route('login') }}?type=staff" class="portal-card portal-staff">
+                    <div class="portal-vector">
+                        <svg viewBox="0 0 100 100" class="w-100 h-100">
+                            <rect x="10" y="10" width="80" height="80" rx="12" fill="#10b981" opacity="0.1"/>
+                            <circle cx="50" cy="35" r="16" fill="#10b981"/>
+                            <path d="M22 80 C22 55 78 55 78 80" fill="#10b981" opacity="0.8"/>
+                        </svg>
+                    </div>
+                    <div class="portal-info">
+                        <h4>Staff Hub</h4>
+                        <p>Manage lectures & record attendance</p>
+                    </div>
+                    <div class="portal-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
 
+                <!-- Student Card -->
+                <a href="{{ route('login') }}?type=student" class="portal-card portal-student">
+                    <div class="portal-vector">
+                        <svg viewBox="0 0 100 100" class="w-100 h-100">
+                            <rect x="10" y="10" width="80" height="80" rx="12" fill="#6366f1" opacity="0.1"/>
+                            <path d="M18 45 L50 28 L82 45 L50 62 Z" fill="#6366f1"/>
+                            <path d="M26 51 L50 63 L74 51 L74 68 C74 78 26 78 26 68 Z" fill="#6366f1" opacity="0.8"/>
+                            <rect x="78" y="45" width="4" height="20" fill="#6366f1" rx="2"/>
+                            <circle cx="80" cy="68" r="5" fill="#4f46e5"/>
+                        </svg>
+                    </div>
+                    <div class="portal-info">
+                        <h4>Student Portal</h4>
+                        <p>View attendance logs & fee receipts</p>
+                    </div>
+                    <div class="portal-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                @auth
+                <div class="mt-4 text-center">
+                    <a href="{{ url('/home') }}" class="btn btn-dark px-4 py-2" style="border-radius: 50px; font-weight: 600;">Go to Active Dashboard</a>
+                </div>
+                @endauth
+            </div>
         </div>
+
     </main>
 
-    <footer>
-        <div class="container" style="position: relative; z-index: 10;">
-            &copy; 2026 Netcoder ERP. Designed for modern institutional workflows.
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,86 @@
+/* public/css/main.css */
+/* Premium design system */
+
+/* Import Google Font Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  /* Light theme colors */
+  --color-primary: hsl(210, 60%, 55%); /* cool blue */
+  --color-primary-dark: hsl(210, 60%, 45%);
+  --color-bg: hsl(0, 0%, 98%);
+  --color-bg-gradient-start: hsl(210, 70%, 95%);
+  --color-bg-gradient-end: hsl(210, 45%, 90%);
+  --color-card-bg: rgba(255, 255, 255, 0.8);
+  --color-text: hsl(210, 10%, 20%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: hsl(210, 60%, 65%);
+    --color-bg: hsl(210, 15%, 12%);
+    --color-bg-gradient-start: hsl(210, 20%, 18%);
+    --color-bg-gradient-end: hsl(210, 10%, 14%);
+    --color-card-bg: rgba(0, 0, 0, 0.6);
+    --color-text: hsl(210, 10%, 80%);
+  }
+}
+
+html, body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--color-bg-gradient-start), var(--color-bg-gradient-end));
+  color: var(--color-text);
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Glass‑morphism card */
+.glass-card {
+  background: var(--color-card-bg);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  padding: 2rem;
+  max-width: 42rem;
+  margin: auto;
+}
+
+/* Primary button */
+.btn-primary {
+  display: inline-block;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+/* Background vectors wrapper */
+.background-vectors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.background-vectors svg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.12;
+  transform: rotate(-12deg);
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .glass-card { padding: 1.5rem; }
+}

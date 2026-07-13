@@ -452,6 +452,44 @@
         </div>
     </div>
 
+    @if($oneTime->count() > 0 && $regular->count() == 0 && $feeInvoice->student && $feeInvoice->student->course)
+        @php
+            $course = $feeInvoice->student->course;
+            $baseCourseFee = $course->fee ?? 0;
+            $courseDiscount = $feeInvoice->student->discount ?? 0;
+            $netCourseFee = max(0, $baseCourseFee - $courseDiscount);
+            
+            $tenure = $feeInvoice->student->fee_tenure ?? '1 Month';
+            if ($tenure == '') {
+                $mCount = 1;
+                $tenure = 'Full Course Fee (One Time)';
+            } else {
+                $mCount = match($tenure) { '1 Month' => 1, '3 Months' => 3, '6 Months' => 6, '1 Year' => 12, default => 1 };
+            }
+            $installmentAmount = $netCourseFee / max(1, $mCount);
+        @endphp
+        
+        @if($netCourseFee > 0)
+        <div style="padding: 16px 24px; border-top: 1px dashed #ccc; background: #fafafa;">
+            <h4 style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #555; margin-bottom: 8px;">
+                <i class="fas fa-info-circle"></i> Course Fee Installment Breakdown
+            </h4>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: #333;">
+                <span>Total Course Fee (After ₹{{ number_format($courseDiscount, 2) }} Discount):</span>
+                <strong>₹{{ number_format($netCourseFee, 2) }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: #333;">
+                <span>Selected Tenure:</span>
+                <strong>{{ $tenure }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 6px; padding-top: 6px; border-top: 1px solid #ddd; color: #0d9488; font-weight: 700;">
+                <span>Installment Amount:</span>
+                <span>₹{{ number_format($installmentAmount, 2) }} / installment</span>
+            </div>
+        </div>
+        @endif
+    @endif
+
     {{-- Overall Student Account Summary (Office copy only) --}}
     @if($index === 1)
     <div style="padding: 10px 24px; border-top: 2px solid #000; background: #fafafa;">
