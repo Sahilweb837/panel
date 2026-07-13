@@ -685,11 +685,13 @@ const cfg = configs[type] || configs['institute'];
                  }, 200);
              }
 
-             badgeContainer.innerHTML = `
-                 <span class="login-type-badge ${type}">
-                     <i class="fas fa-circle" style="font-size: 6px;"></i> ${cfg.label}
-                 </span>
-             `;
+             if (badgeContainer) {
+                 badgeContainer.innerHTML = `
+                     <span class="login-type-badge ${type}">
+                         <i class="fas fa-circle" style="font-size: 6px;"></i> ${cfg.label}
+                     </span>
+                 `;
+             }
 
              const emailInput = document.getElementById('email');
              const passwordInput = document.getElementById('password');

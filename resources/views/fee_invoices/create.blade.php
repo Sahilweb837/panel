@@ -431,7 +431,7 @@
             document.getElementById('paid_amount_hidden').value = (baseTotal + fineTotal - discountTotal).toFixed(2);
             document.getElementById('status_hidden').value = 'Paid';
 
-            const form = document.querySelector('form');
+            const form = document.getElementById('create-invoice-form');
             form.submit();
         }
 
