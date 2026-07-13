@@ -455,8 +455,8 @@
     @if($oneTime->count() > 0 && $regular->count() == 0 && $feeInvoice->student && $feeInvoice->student->course)
         @php
             $course = $feeInvoice->student->course;
-            $baseCourseFee = $course->fee ?? 0;
-            $courseDiscount = $feeInvoice->student->discount ?? 0;
+            $baseCourseFee = (float)($course->fee ?? 0);
+            $courseDiscount = (float)($feeInvoice->student->discount ?? 0);
             $netCourseFee = max(0, $baseCourseFee - $courseDiscount);
             
             $tenure = $feeInvoice->student->fee_tenure ?? '1 Month';

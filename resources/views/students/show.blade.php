@@ -121,9 +121,18 @@
                         <div class="metric-card">
                             <div class="metric-value {{ $dueFees > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($dueFees, 0) }}</div>
                             <div class="metric-label">Course Due</div>
-                            @if($student->fee_tenure > 0)
+                            @if($student->fee_tenure)
+                                @php
+                                    $tenureMonths = match($student->fee_tenure) {
+                                        '1 Month' => 1,
+                                        '3 Months' => 3,
+                                        '6 Months' => 6,
+                                        '1 Year' => 12,
+                                        default => 1,
+                                    };
+                                @endphp
                                 <div class="mt-2" style="font-size: 0.75rem; color: var(--muted);">
-                                    <strong>EMI:</strong> ₹{{ number_format(($netCourseFee ?? 0) / $student->fee_tenure, 0) }}/mo
+                                    <strong>EMI:</strong> ₹{{ number_format((($netCourseFee ?? 0) / $tenureMonths), 0) }}/mo
                                 </div>
                             @endif
                             @if($dueSeminarFees > 0 || $dueFines > 0)

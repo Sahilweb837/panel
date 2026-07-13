@@ -251,22 +251,9 @@
         <!-- Left Side - Branding & Features -->
         <div class="login-left" style="position: relative; overflow: hidden;">
             <!-- Premium Orange SVG Vectors/Grids Background -->
-            <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;" xmlns="http://www.w3.org/2000/svg">
-                <!-- Dot Grid -->
-                <pattern id="dot-grid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="1.5" fill="#ff5532" opacity="0.12" />
-                </pattern>
-                <rect width="100%" height="100%" fill="url(#dot-grid)" />
-                
-                <!-- Geometric shapes -->
-                <circle cx="80%" cy="20%" r="180" fill="none" stroke="#ff5532" stroke-width="1.5" opacity="0.08" />
-                <circle cx="80%" cy="20%" r="280" fill="none" stroke="#ff5532" stroke-width="1" stroke-dasharray="8 8" opacity="0.06" />
-                <circle cx="10%" cy="80%" r="120" fill="none" stroke="#ff5532" stroke-width="2" opacity="0.06" />
-                
-                <!-- Wave lines -->
-                <path d="M-50,300 Q150,200 350,320 T750,280" fill="none" stroke="#ff5532" stroke-width="2.5" opacity="0.08" />
-                <path d="M-50,320 Q150,220 350,340 T750,300" fill="none" stroke="#ff5532" stroke-width="1" opacity="0.05" />
-            </svg>
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+                @include('partials.hero_illustration')
+            </div>
 
             <div class="login-header-left" style="position: relative; z-index: 2;">
                 <div class="login-logo-wrapper animate-float">
