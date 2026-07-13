@@ -88,10 +88,10 @@
                             <tr class="table-light-head">
                                 <th class="ps-4"><i class="fas fa-hashtag me-1"></i> Receipt No</th>
                                 <th><i class="fas fa-user-graduate me-1"></i> Student</th>
-                                <th><i class="fas fa-coins me-1"></i> Total (INR)</th>
+                                <th><i class="fas fa-calendar-alt me-1"></i> Billing Month</th>
+                                <th><i class="fas fa-coins me-1"></i> Payable (INR)</th>
                                 <th><i class="fas fa-toggle-on me-1"></i> Status</th>
-                                <th><i class="fas fa-wallet me-1"></i> Due (INR)</th>
-                                <th><i class="fas fa-calendar me-1"></i> Payment Date</th>
+                                <th><i class="fas fa-clock me-1"></i> Date & Time</th>
                                 <th class="text-end pe-4"><i class="fas fa-cogs me-1"></i> Actions</th>
                             </tr>
                         </thead>
@@ -114,6 +114,7 @@
                                             </div>
                                         </div>
                                     </td>
+                                    <td class="text-muted fw-bold">{{ $invoice->fee_category ?? 'Regular Fees' }}</td>
                                     <td class="text-muted fw-bold">{{ number_format($invoice->total_amount, 2) }}</td>
                                     <td>
                                         @php
@@ -124,10 +125,9 @@
                                             {{ $invoice->status }}
                                         </span>
                                     </td>
-                                    <td class="{{ $invoice->due_amount > 0 ? 'text-danger' : 'text-success' }} fw-bold">
-                                        {{ number_format($invoice->due_amount, 2) }}
+                                    <td class="text-muted">
+                                        {{ $invoice->created_at ? $invoice->created_at->format('d M Y, h:i A') : 'N/A' }}
                                     </td>
-                                    <td class="text-muted">{{ $invoice->payment_date ? \Carbon\Carbon::parse($invoice->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                     <td class="text-end pe-4 action-cell">
                                         @if($invoice->trashed())
                                             <form action="{{ route('fee_invoices.restore', $invoice->id) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Restore this receipt?');">
@@ -137,6 +137,9 @@
                                                 </button>
                                             </form>
                                         @else
+                                            <a href="{{ route('fee_invoices.show', $invoice) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
+                                                <i class="fas fa-print me-1"></i>Print
+                                            </a>
                                             @if($invoice->status !== 'Paid')
                                                 <button type="button" class="button button-info small py-1.5 px-3 receive-payment-btn" 
                                                         data-id="{{ $invoice->id }}" 
@@ -148,16 +151,17 @@
                                                         style="background-color: #3b82f6; border-color: #3b82f6;">
                                                     <i class="fas fa-hand-holding-usd me-1"></i>Pay
                                                 </button>
+                                                <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this receipt?');">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="button button-danger small py-1.5 px-3">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="text-muted ms-2 px-2 py-1 bg-light border rounded" style="font-size: 0.8rem; cursor: not-allowed;" title="Record is locked">
+                                                    <i class="fas fa-lock"></i> Locked
+                                                </span>
                                             @endif
-                                            <a href="{{ route('fee_invoices.show', $invoice) }}" class="button button-secondary small py-1.5 px-3" target="_blank">
-                                                <i class="fas fa-print me-1"></i>Print
-                                            </a>
-                                            <form action="{{ route('fee_invoices.destroy', $invoice) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this receipt?');">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="button button-danger small py-1.5 px-3">
-                                                    <i class="fas fa-trash me-1"></i>Delete
-                                                </button>
-                                            </form>
                                         @endif
                                     </td>
                                 </tr>

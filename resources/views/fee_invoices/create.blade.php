@@ -346,10 +346,25 @@
         function recalcTotal() {
             const inputs = document.querySelectorAll('.pay-amount-input');
             let total = 0;
+            let coursePaymentThisTime = 0;
+            
             inputs.forEach(inp => {
-                total += parseFloat(inp.value) || 0;
+                const val = parseFloat(inp.value) || 0;
+                total += val;
+                
+                const type = (inp.dataset.feeType || '').toLowerCase();
+                if (!type.includes('fine') && !type.includes('discount')) {
+                    coursePaymentThisTime += val;
+                }
             });
+            
             document.getElementById('pay-now-total').textContent = `₹${total.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            
+            if (currentStudentData) {
+                const originalPending = parseFloat(currentStudentData.course_account.pending_dues) || 0;
+                const newPending = Math.max(0, originalPending - coursePaymentThisTime);
+                document.getElementById('pending-dues').textContent = `₹${newPending.toLocaleString('en-IN', {minimumFractionDigits: 2})} (After Payment)`;
+            }
         }
 
         function addCustomRow() {
