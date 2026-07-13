@@ -55,7 +55,12 @@ class ZKTecoADMSController extends Controller
                 $parts = explode("\t", trim($line));
                 if (count($parts) >= 2) {
                     $pin = trim($parts[0]);
-                    $time = trim($parts[1]); 
+                    $rawTime = trim($parts[1]); 
+
+                    // Fix ZKTeco machine 30-minute backward offset
+                    $timeObj = new \DateTime($rawTime);
+                    $timeObj->modify('+30 minutes');
+                    $time = $timeObj->format('Y-m-d H:i:s');
 
                     $punchDate = date('Y-m-d', strtotime($time));
                     $punchTime = date('H:i:s', strtotime($time));

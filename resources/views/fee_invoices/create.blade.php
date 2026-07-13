@@ -330,8 +330,9 @@
                     }
                 }
 
-                // ── Custom row ──
+                // ── Custom / Extra Fees Section ──
                 addSectionHeader('Additional / Custom');
+                addRow('Seminar Fine', '0', true, '0');
                 addRow('Custom / Extra Fee', '0', true, '0');
 
                 panel.style.display = 'block';
