@@ -450,7 +450,7 @@ class FeeInvoiceController extends Controller
 
         $invoice = FeeInvoice::create($data);
 
-        return redirect()->route('fee_invoices.show', $invoice)->with('success', 'Fee invoice generated successfully.');
+        return redirect()->route('fee_invoices.index')->with('success', 'Fee invoice generated successfully. Receipt No: ' . $invoice->invoice_no);
     }
 
     // ─────────────────────────────────────────────

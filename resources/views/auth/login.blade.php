@@ -250,13 +250,22 @@
     <main class="login-container">
         <!-- Left Side - Branding & Features -->
         <div class="login-left" style="position: relative; overflow: hidden;">
-            <!-- Premium Orange SVG Vectors/Grids Background -->
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+            <!-- Premium Dynamic SVG Vectors Background -->
+            <div id="vector-institute" class="login-vector-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
                 @include('partials.hero_illustration')
+            </div>
+            <div id="vector-staff" class="login-vector-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none;">
+                @include('partials.hero_staff')
+            </div>
+            <div id="vector-student" class="login-vector-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none;">
+                @include('partials.hero_student')
             </div>
 
             <div class="login-header-left" style="position: relative; z-index: 2;">
-                <div class="login-logo-wrapper animate-float">
+                <a href="{{ url('/') }}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: #fff; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; font-size: 0.75rem; padding: 4px 12px; margin-bottom: 20px; display: inline-block;">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Main Page
+                </a>
+                <div class="login-logo-wrapper animate-float mt-2">
                     <a href="{{ url('/') }}"><img src="{{ asset('image.png') }}" alt="Netcoder ERP" class="login-logo" style="cursor: pointer;"></a>
                 </div>
                 <h1 class="animate-float" style="margin-bottom: 0;">Netcoder ERP</h1>
@@ -562,7 +571,12 @@
             const badgeContainer = document.getElementById('loginTypeBadge');
             const formEl = document.querySelector('.login-form');
 
-            hiddenInput.value = type;
+            // Switch vectors
+            document.querySelectorAll('.login-vector-bg').forEach(el => el.style.display = 'none');
+            const activeVector = document.getElementById('vector-' + type);
+            if (activeVector) {
+                activeVector.style.display = 'block';
+            }
 
             const configs = {
                 student: {
