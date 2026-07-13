@@ -13,7 +13,7 @@
                     </h3>
                 </div>
 
-                <form action="{{ route('fee_invoices.store') }}" method="POST" class="form-card p-0">
+                <form action="{{ route('fee_invoices.store') }}" method="POST" class="form-card p-0" id="create-invoice-form">
                     @csrf
 
                     @if ($errors->any())
@@ -295,10 +295,10 @@
                 if ((regFee > 0 && !json.registration_paid) || (prosFee > 0 && !json.prospectus_paid)) {
                     addSectionHeader('One-Time Fees (Admission)');
                     if (regFee > 0 && !json.registration_paid) {
-                        addRow('Registration Fee', regFee, true, '0');
+                        addRow('Registration Fee', regFee, true, regFee.toFixed(2));
                     }
                     if (prosFee > 0 && !json.prospectus_paid) {
-                        addRow('Prospectus Fee', prosFee, true, '0');
+                        addRow('Prospectus Fee', prosFee, true, prosFee.toFixed(2));
                     }
                 }
 
