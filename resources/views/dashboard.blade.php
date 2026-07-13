@@ -6,13 +6,13 @@
 @section('content')
     <!-- Dashboard Styling -->
     <style>
-        /* Design.md Dark Theme Variable Overrides */
+        /* Design.md Dark Theme Variable Overrides for Dashboard */
         html[data-theme="dark"] {
             --main-bg: #121212 !important;
             --surface: #1E1E1E !important;
             --surface-soft: #252525 !important;
             --border: #2C2C2E !important;
-            --first-color: #00E5FF !important;
+            --first-color: #ff5532 !important;
             --text-main: #FFFFFF !important;
             --text-muted: #98989D !important;
         }
@@ -74,12 +74,12 @@
             100% { background-position: -200% 0; }
         }
 
-        /* Premium Glassmorphic Cards */
+        /* Premium Glassmorphic Cards - Minimalist Redesign */
         .stat-card {
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 12px;
             background: var(--surface);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
             position: relative;
@@ -89,115 +89,75 @@
             background: rgba(31, 41, 55, 0.45);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
             border-color: var(--first-color);
         }
 
         html[data-theme="dark"] .stat-card:hover {
-            box-shadow: 0 20px 40px rgba(255, 85, 50, 0.15);
+            box-shadow: 0 8px 24px rgba(255, 85, 50, 0.1);
             border-color: rgba(255, 85, 50, 0.4);
         }
 
-        /* Gradient Accents for Stat Cards */
+        /* Minimalist Accent Lines instead of Gradients */
         .stat-card::after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: transparent;
-            transition: background 0.3s ease;
-        }
-
-        .stat-card.card-students::after {
-            background: linear-gradient(90deg, #ff5532, #ff8a00);
-        }
-        .stat-card.card-staff::after {
-            background: linear-gradient(90deg, #10b981, #059669);
-        }
-        .stat-card.card-attendance::after {
-            background: linear-gradient(90deg, #f59e0b, #d97706);
-        }
-        .stat-card.card-receipts::after {
-            background: linear-gradient(90deg, #ef4444, #dc2626);
-        }
-
-        /* Glowing Background Highlights */
-        .glow-dot {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.15;
-            top: -20px;
-            right: -20px;
-            z-index: 0;
+            height: 3px;
+            background: var(--first-color);
+            opacity: 0.8;
             transition: opacity 0.3s ease;
         }
-        html[data-theme="dark"] .glow-dot {
-            opacity: 0.25;
-        }
-        .stat-card:hover .glow-dot {
-            opacity: 0.35;
-        }
 
-        .bg-glow-students { background: #ff5532; }
-        .bg-glow-staff { background: #10b981; }
-        .bg-glow-attendance { background: #f59e0b; }
-        .bg-glow-receipts { background: #ef4444; }
-
-        /* Icon Wrapper styling */
+        /* Unified Icon Wrapper styling */
         .stat-icon-wrapper {
-            width: 52px;
-            height: 52px;
-            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            margin-bottom: 15px;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
             position: relative;
             z-index: 1;
             transition: transform 0.3s ease;
+            background: rgba(255, 85, 50, 0.08); 
+            color: var(--first-color);
         }
         .stat-card:hover .stat-icon-wrapper {
-            transform: scale(1.1) rotate(5deg);
+            transform: scale(1.05);
         }
-
-        .stat-icon-students { background: rgba(255, 85, 50, 0.1); color: #ff5532; }
-        .stat-icon-staff { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .stat-icon-attendance { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-        .stat-icon-receipts { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
         .stat-card h3 {
             position: relative;
             z-index: 1;
-            font-size: 2.2rem;
+            font-size: 2rem;
             letter-spacing: -0.5px;
+            font-weight: 700;
         }
 
         .card-header-clean {
             border-bottom: 1px solid var(--border);
-            padding: 20px 24px;
-            background: var(--surface-soft);
+            padding: 16px 20px;
+            background: transparent;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         html[data-theme="dark"] .card-header-clean {
-            background: rgba(55, 65, 81, 0.2);
             border-color: rgba(255, 255, 255, 0.05);
         }
 
         .progress-bar-clean {
-            height: 6px;
+            height: 4px;
             background-color: var(--border);
             border-radius: 999px;
             overflow: hidden;
@@ -211,6 +171,7 @@
         .progress-fill {
             height: 100%;
             border-radius: 999px;
+            background: var(--first-color);
             transition: width 0.6s ease;
         }
 
@@ -342,125 +303,82 @@
             <div class="row g-4 mb-4">
                 <!-- Students Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card card-students h-100">
-                        <div class="glow-dot bg-glow-students"></div>
+                    <div class="card stat-card h-100">
                         <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper stat-icon-students">
+                            <div class="stat-icon-wrapper">
                                 <i class="fas fa-user-graduate"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Students Enrolled</span>
                             <h3 class="fw-bold mb-3 text-dark-title">{{ $studentCount }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 82%; background: linear-gradient(90deg, #ff5532, #ff8a00);"></div>
+                                    <div class="progress-fill" style="width: 82%;"></div>
                                 </div>
                             </div>
-                            <span class="text-success small fw-semibold"><i class="fas fa-arrow-up me-1"></i>Active accounts</span>
+                            <span class="text-muted small fw-semibold">Active accounts</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Staff Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card card-staff h-100">
-                        <div class="glow-dot bg-glow-staff"></div>
+                    <div class="card stat-card h-100">
                         <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper stat-icon-staff">
+                            <div class="stat-icon-wrapper">
                                 <i class="fas fa-users-cog"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Active Staff</span>
                             <h3 class="fw-bold mb-3 text-dark-title">{{ $employeeCount }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 95%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                                    <div class="progress-fill" style="width: 95%;"></div>
                                 </div>
                             </div>
-                            <span class="text-success small fw-semibold"><i class="fas fa-check-circle me-1"></i>Fully Verified</span>
+                            <span class="text-muted small fw-semibold">Fully Verified</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Attendance Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card card-attendance h-100">
-                        <div class="glow-dot bg-glow-attendance"></div>
+                    <div class="card stat-card h-100">
                         <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper stat-icon-attendance">
+                            <div class="stat-icon-wrapper">
                                 <i class="fas fa-calendar-alt"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Attendance Today</span>
                             <h3 class="fw-bold mb-3 text-dark-title">{{ $attendanceCount }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 74%; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
+                                    <div class="progress-fill" style="width: 74%;"></div>
                                 </div>
                             </div>
-                            <span class="text-warning small fw-semibold"><i class="fas fa-clock me-1"></i>Daily Logged</span>
+                            <span class="text-muted small fw-semibold">Daily Logged</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pending Receipts Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card card-receipts h-100">
-                        <div class="glow-dot bg-glow-receipts"></div>
+                    <div class="card stat-card h-100">
                         <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper stat-icon-receipts">
+                            <div class="stat-icon-wrapper">
                                 <i class="fas fa-file-invoice-dollar"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Pending Receipts</span>
                             <h3 class="fw-bold mb-3 text-dark-title">{{ $dueInvoices }}</h3>
                             <div class="w-100 mb-2">
                                 <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 38%; background: linear-gradient(90deg, #ef4444, #dc2626);"></div>
+                                    <div class="progress-fill" style="width: 38%;"></div>
                                 </div>
                             </div>
-                            <span class="text-danger small fw-semibold"><i class="fas fa-exclamation-circle me-1"></i>Needs Attention</span>
+                            <span class="text-muted small fw-semibold">Needs Attention</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Biometric Connection Status -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card stat-card" style="border-radius: 16px;">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    @php
-                                        $isAdmsConnected = isset($biometricDevice) && $biometricDevice->last_sync && \Carbon\Carbon::parse($biometricDevice->last_sync)->diffInMinutes(now()) < 5;
-                                    @endphp
-                                    <div style="width: 48px; height: 48px; background: {{ $isAdmsConnected ? 'rgba(16, 185, 129, 0.1)' : 'rgba(108, 117, 125, 0.1)' }}; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-satellite-dish {{ $isAdmsConnected ? 'text-success' : 'text-secondary' }} fs-5"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="fw-bold mb-1">ZKTeco Biometric Connection</h5>
-                                        @if($isAdmsConnected)
-                                            <span class="badge bg-success"><i class="fas fa-circle blink-animation me-1"></i> Online & Live</span>
-                                            <small class="text-muted ms-2">Syncing punches automatically. Last ping: {{ \Carbon\Carbon::parse($biometricDevice->last_sync)->diffForHumans() }}</small>
-                                        @else
-                                            <span class="badge bg-secondary"><i class="fas fa-circle me-1"></i> Offline</span>
-                                            <small class="text-muted ms-2">
-                                                @if(isset($biometricDevice) && $biometricDevice->last_sync)
-                                                    Last seen: {{ \Carbon\Carbon::parse($biometricDevice->last_sync)->diffForHumans() }}
-                                                @else
-                                                    Device has never connected to ADMS.
-                                                @endif
-                                            </small>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('biometric.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2">
-                                        <i class="fas fa-cog me-2"></i>Hardware Setup
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Biometric Connection Status End -->
 
             <!-- Financial Summary Cashflow Deck -->
             <div class="row g-4 mb-4">

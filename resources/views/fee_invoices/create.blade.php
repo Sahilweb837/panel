@@ -431,8 +431,12 @@
             document.getElementById('paid_amount_hidden').value = (baseTotal + fineTotal - discountTotal).toFixed(2);
             document.getElementById('status_hidden').value = 'Paid';
 
-            const form = document.getElementById('create-invoice-form');
-            form.submit();
+            const form = document.getElementById('create-invoice-form') || document.querySelector('form.form-card');
+            if (form) {
+                form.submit();
+            } else {
+                alert('Could not locate the form to submit. Please refresh the page and try again.');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
