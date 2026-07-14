@@ -34,10 +34,8 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'No account found with this email address.'])->onlyInput('email');
         }
 
-        $isSuperAdmin = in_array($credentials['email'], ['superadmin@gmail.com', 'superadmin@gmai.com']);
-        $passwordMatches = $isSuperAdmin
-            ? $credentials['password'] === 'admin123'
-            : Hash::check($credentials['password'], $user->password);
+        // Always use Hash::check – superadmin password must be stored as a bcrypt hash
+        $passwordMatches = Hash::check($credentials['password'], $user->password);
 
         if (! $passwordMatches) {
             Session::flash('login_error', 'Incorrect password. Please try again.');
@@ -49,12 +47,11 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Your account is currently inactive.'])->onlyInput('email');
         }
 
-        // Enforce Email Verification (skip for dummy emails and superadmin)
+        // Enforce Email Verification (skip for dummy emails)
         if (
             is_null($user->email_verified_at) &&
             !str_ends_with($user->email, '@student.com') &&
-            !str_ends_with($user->email, '@staff.com') &&
-            !in_array($user->email, ['superadmin@gmail.com', 'superadmin@gmai.com'])
+            !str_ends_with($user->email, '@staff.com')
         ) {
             Session::flash('login_error', 'Please verify your email address to log in. Check your inbox.');
             return back()->withErrors(['email' => 'Please verify your email address to log in. Check your inbox.'])->onlyInput('email');
@@ -77,8 +74,17 @@ class AuthController extends Controller
             return back()->withErrors(['account_type' => 'This account is not an Institute admin.'])->onlyInput('email');
         }
 
-        // Normal login
+        // Regenerate session ID to prevent session fixation attacks
+        $request->session()->regenerate();
+
+        // Complete login
         $this->completeLogin($user, $roleSlug);
+
+        // Always redirect by role – never use url.intended for students/staff to avoid
+        // them being sent to admin pages they may have tried to access before.
+        if (in_array($roleSlug, ['student', 'staff'])) {
+            return $this->redirectByRole($roleSlug);
+        }
 
         $intendedUrl = session()->pull('url.intended');
         if ($intendedUrl) {
@@ -108,14 +114,12 @@ class AuthController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Session::forget('user_id');
-        Session::forget('user_name');
-        Session::forget('user_role');
-        Session::forget('user_role_slug');
-        Session::forget('pending_email_login');
         Session::flush();
+        // Invalidate the session and regenerate CSRF token
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'You have been logged out successfully.');
     }

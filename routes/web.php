@@ -145,11 +145,12 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('client_invoices/{id}/restore', [ClientInvoiceController::class, 'restore'])->name('client_invoices.restore');
     Route::resource('client_invoices', ClientInvoiceController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 
-// Prospect Management Routes
-Route::get('prospects/create', [ProspectController::class, 'create'])->name('prospects.create');
-Route::post('prospects', [ProspectController::class, 'store'])->name('prospects.store');
-Route::get('prospects/{id}/invoice', [ProspectController::class, 'invoice'])->name('prospects.invoice');
-Route::post('prospects/{id}/pay', [ProspectController::class, 'pay'])->name('prospects.pay');
+    // Prospect Management Routes
+    Route::get('prospects/create', [ProspectController::class, 'create'])->name('prospects.create');
+    Route::post('prospects', [ProspectController::class, 'store'])->name('prospects.store');
+    Route::get('prospects/{id}/invoice', [ProspectController::class, 'invoice'])->name('prospects.invoice');
+    Route::post('prospects/{id}/pay', [ProspectController::class, 'pay'])->name('prospects.pay');
+    Route::post('prospects/{id}/fine', [ProspectController::class, 'addFine'])->name('prospects.fine');
 
     // Salary Calculation API
     Route::get('salary_slips/calculate_deduction', [SalarySlipController::class, 'calculateDeduction'])->name('salary_slips.calculate_deduction');
