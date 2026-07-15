@@ -21,7 +21,6 @@ use App\Http\Controllers\ClientInvoiceController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RegistrationController;
-use App\Http\Controllers\FirebasePhoneVerificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,12 +37,6 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Firebase Phone OTP Verification Routes
-Route::post('/firebase/send-otp', [\App\Http\Controllers\FirebasePhoneVerificationController::class, 'sendOtp'])->name('firebase.send-otp');
-Route::post('/firebase/verify-otp', [\App\Http\Controllers\FirebasePhoneVerificationController::class, 'verifyOtp'])->name('firebase.verify-otp');
-
-// Email Verification Route
-Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verification.verify');
 
 // Registration Routes
 Route::get('/register/student', [\App\Http\Controllers\RegistrationController::class, 'showStudentRegistration'])->name('register.student');

@@ -47,16 +47,6 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Your account is currently inactive.'])->onlyInput('email');
         }
 
-        // Enforce Email Verification (skip for dummy emails)
-        if (
-            is_null($user->email_verified_at) &&
-            !str_ends_with($user->email, '@student.com') &&
-            !str_ends_with($user->email, '@staff.com')
-        ) {
-            Session::flash('login_error', 'Please verify your email address to log in. Check your inbox.');
-            return back()->withErrors(['email' => 'Please verify your email address to log in. Check your inbox.'])->onlyInput('email');
-        }
-
         $roleSlug = $user->role?->slug;
 
         if ($credentials['account_type'] === 'staff' && $roleSlug !== 'staff') {
@@ -100,7 +90,6 @@ class AuthController extends Controller
         Session::put('user_name', $user->name);
         Session::put('user_role', $user->role?->role_name ?? 'User');
         Session::put('user_role_slug', $roleSlug ?? 'user');
-        Session::forget('pending_email_login');
     }
 
     public function redirectByRole($roleSlug)
