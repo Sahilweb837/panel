@@ -291,17 +291,6 @@
                     tbody.appendChild(tr);
                 }
 
-                // ── One-Time Fees Section ──
-                if ((regFee > 0 && !json.registration_paid) || (prosFee > 0 && !json.prospectus_paid)) {
-                    addSectionHeader('One-Time Fees (Admission)');
-                    if (regFee > 0 && !json.registration_paid) {
-                        addRow('Registration Fee', regFee, true, regFee.toFixed(2));
-                    }
-                    if (prosFee > 0 && !json.prospectus_paid) {
-                        addRow('Prospectus Fee', prosFee, true, prosFee.toFixed(2));
-                    }
-                }
-
                 // Show badges for already-paid one-time fees
                 if (json.registration_paid || json.prospectus_paid) {
                     let badges = [];
@@ -312,28 +301,30 @@
                     tbody.appendChild(tr);
                 }
 
-                // ── Course Fee Section ──
-                addSectionHeader(`Course Fee — ${tenureLabel} Installment`);
-                if (netInstallment > 0) {
-                    addRow(`Course Fee (${tenureLabel} EMI)`, netInstallment, true, netInstallment.toFixed(2));
+                // ── Course Fee Section (Combines One-Time Fees if not paid) ──
+                let currentInstallmentAmount = netInstallment;
+                let feeLabel = `Course Fee (${tenureLabel})`;
+                let extraLabels = [];
+
+                if (regFee > 0 && !json.registration_paid) {
+                    currentInstallmentAmount += regFee;
+                    extraLabels.push('Registration');
+                }
+                if (prosFee > 0 && !json.prospectus_paid) {
+                    currentInstallmentAmount += prosFee;
+                    extraLabels.push('Prospectus');
                 }
 
-                // ── Fines Section ──
-                if (attendanceFine > 0 || lateFine > 0) {
-                    addSectionHeader('Fines & Penalties');
-                    if (attendanceFine > 0) {
-                        addRow('Attendance Fine (₹50/day absent)', attendanceFine, true, attendanceFine.toFixed(2), 'text-danger');
-                        document.getElementById('remarks').value = `Attendance Fine: ${fineDetails}`;
-                    }
-                    if (lateFine > 0) {
-                        addRow('Late Payment Fine', lateFine, true, lateFine.toFixed(2), 'text-warning');
-                    }
+                if (extraLabels.length > 0) {
+                    feeLabel += ` + ` + extraLabels.join(' + ');
                 }
 
-                // ── Custom / Extra Fees Section ──
-                addSectionHeader('Additional / Custom');
-                addRow('Seminar Fine', '0', true, '0');
-                addRow('Custom / Extra Fee', '0', true, '0');
+                addSectionHeader(`Fee Details`);
+                if (currentInstallmentAmount > 0) {
+                    addRow(feeLabel, currentInstallmentAmount, true, currentInstallmentAmount.toFixed(2));
+                }
+
+                // Note: Fines and custom extras have been removed for simplicity as per requirements.
 
                 panel.style.display = 'block';
                 recalcTotal();
