@@ -74,6 +74,21 @@
     @vite(['resources/css/app.css'])
 </head>
 <body class="app-shell">
+    <!-- Page Loader -->
+    <div id="global-page-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--main-bg, #ffffff); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.4s ease;">
+        <div class="spinner-border" style="color: var(--first-color, #ff5532); width: 3rem; height: 3rem; margin-bottom: 1rem;" role="status"></div>
+        <div style="color: var(--text-color, #333); font-weight: 600; font-family: 'Inter', sans-serif;">Loading Dashboard...</div>
+    </div>
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('global-page-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 400);
+            }
+        });
+    </script>
+
     <!-- Sidebar Overlay Backdrop for Mobile -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -145,9 +160,26 @@
                         @endif
                         @if($isSuperOrRoot || in_array('attendances', $access))
                         <li><a href="{{ route('attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('attendances.index') ? 'active' : '' }}"><span>Student Attendance</span></a></li>
-                        <li><a href="{{ route('attendances.live') }}" class="nav-link py-2 {{ request()->routeIs('attendances.live') ? 'active' : '' }}"><span>Live Feed</span></a></li>
-                        <li><a href="{{ route('biometric.index') }}" class="nav-link py-2 {{ request()->routeIs('biometric.*') ? 'active' : '' }}"><span>Biometric Sync</span></a></li>
                         @endif
+                    </ul>
+                </div>
+            </div>
+            @endif
+
+            {{-- LIVE FEED & BIOMETRIC --}}
+            @if($isSuperOrRoot || in_array('attendances', $access))
+            <div class="nav-item">
+                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#attendanceMenu" role="button" aria-expanded="false" aria-controls="attendanceMenu">
+                    <div>
+                        <i class="fas fa-fingerprint me-2"></i>
+                        <span>Live Feed & Biometric</span>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('attendances.live', 'biometric.*') ? 'show' : '' }}" id="attendanceMenu" data-bs-parent="#sidebarAccordion">
+                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <li><a href="{{ route('attendances.live') }}" class="nav-link py-2 {{ request()->routeIs('attendances.live') ? 'active' : '' }}"><span>Live Feed Viewer</span></a></li>
+                        <li><a href="{{ route('biometric.index') }}" class="nav-link py-2 {{ request()->routeIs('biometric.*') ? 'active' : '' }}"><span>ZKTeco Device Sync</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -269,7 +301,10 @@
                 <div class="collapse {{ request()->routeIs('backups.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
                     <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
                         @if($isSuperOrRoot)
-                        <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><span>Backups</span></a></li>
+                        <li><a href="#" class="nav-link py-2"><span>Company Profile</span></a></li>
+                        <li><a href="#" class="nav-link py-2"><span>Role & Permissions</span></a></li>
+                        <li><a href="#" class="nav-link py-2"><span>Email Templates</span></a></li>
+                        <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><span>System Backups</span></a></li>
                         @endif
                         <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><span>Toggle Theme</span></a></li>
                         <li>
@@ -314,14 +349,21 @@
     </aside>
 
     <main class="main-content">
-        <header class="topbar">
+        <header class="topbar d-flex justify-content-between align-items-center">
             <div>
-                <h2>@yield('page-title', 'Management')</h2>
-                <p class="page-subtitle">Manage courses, students, fees, attendance, salaries and expenses.</p>
+                <h2 class="mb-1">@yield('page-title', 'Management')</h2>
+                <p class="page-subtitle mb-0 d-none d-md-block">Manage courses, students, fees, attendance, salaries and expenses.</p>
             </div>
-            <button type="button" class="theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
-                <span class="theme-icon-wrapper"><i class="fas fa-moon"></i></span>
-            </button>
+            
+            <div class="d-flex align-items-center gap-3">
+                <div class="search-bar position-relative d-none d-lg-block">
+                    <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
+                    <input type="text" class="form-control rounded-pill ps-5" placeholder="Search dashboard..." style="width: 260px; background-color: var(--surface-soft, #f8f9fa); border-color: var(--border, #e9ecef); color: var(--text-color, #333);">
+                </div>
+                <button type="button" class="theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
+                    <span class="theme-icon-wrapper"><i class="fas fa-moon"></i></span>
+                </button>
+            </div>
         </header>
 
         <section class="page-body">
