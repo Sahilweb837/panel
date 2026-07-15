@@ -280,6 +280,31 @@
             box-shadow: 0 0 0 2px var(--first-color);
             transform: scale(1.1);
         }
+
+        /* Responsive Improvements */
+        @media (max-width: 767.98px) {
+            .financial-stat-box.border-end {
+                border-right: none !important;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 1rem;
+            }
+            html[data-theme="dark"] .financial-stat-box.border-end {
+                border-color: rgba(255, 255, 255, 0.05);
+            }
+            
+            .stat-card h3 {
+                font-size: 1.6rem;
+            }
+            .stat-icon-wrapper {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+            .shortcut-btn {
+                padding: 12px 10px;
+            }
+        }
     </style>
 
     <div class="dashboard-container">
