@@ -152,11 +152,10 @@
                     </div>
                     <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                 </a>
-                <div class="collapse {{ request()->routeIs('students.*', 'credentials.*', 'attendances.*', 'biometric.*') ? 'show' : '' }}" id="studentMenu" data-bs-parent="#sidebarAccordion">
+                <div class="collapse {{ request()->routeIs('students.*', 'attendances.*', 'biometric.*') ? 'show' : '' }}" id="studentMenu" data-bs-parent="#sidebarAccordion">
                     <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
                         @if($isSuperOrRoot || in_array('students', $access))
                         <li><a href="{{ route('students.index') }}" class="nav-link py-2 {{ request()->routeIs('students.*') ? 'active' : '' }}"><span>Students</span></a></li>
-                        <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><span>Credentials</span></a></li>
                         @endif
                         @if($isSuperOrRoot || in_array('attendances', $access))
                         <li><a href="{{ route('attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('attendances.index') ? 'active' : '' }}"><span>Student Attendance</span></a></li>
@@ -298,11 +297,12 @@
                     </div>
                     <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                 </a>
-                <div class="collapse {{ request()->routeIs('backups.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
+                <div class="collapse {{ request()->routeIs('backups.*', 'credentials.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
                     <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
                         @if($isSuperOrRoot)
                         <li><a href="#" class="nav-link py-2"><span>Company Profile</span></a></li>
                         <li><a href="#" class="nav-link py-2"><span>Role & Permissions</span></a></li>
+                        <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><span>Credentials</span></a></li>
                         <li><a href="#" class="nav-link py-2"><span>Email Templates</span></a></li>
                         <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><span>System Backups</span></a></li>
                         @endif

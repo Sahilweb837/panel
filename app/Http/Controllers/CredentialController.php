@@ -31,4 +31,71 @@ class CredentialController extends Controller
 
         return view('credentials.index', compact('users'));
     }
+
+    public function create()
+    {
+        $roles = \App\Models\Role::whereIn('slug', ['student', 'staff'])->get();
+        return view('credentials.create', compact('roles'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'nullable|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'raw_password' => $request->password,
+            'role_id' => $request->role_id,
+        ]);
+
+        return redirect()->route('credentials.index')->with('success', 'Credential created successfully.');
+    }
+
+    public function edit(User $credential)
+    {
+        $roles = \App\Models\Role::whereIn('slug', ['student', 'staff'])->get();
+        return view('credentials.edit', compact('credential', 'roles'));
+    }
+
+    public function update(Request $request, User $credential)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $credential->id,
+            'email' => 'nullable|email|max:255|unique:users,email,' . $credential->id,
+            'password' => 'nullable|string|min:6',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'role_id' => $request->role_id,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+            $data['raw_password'] = $request->password;
+        }
+
+        $credential->update($data);
+
+        return redirect()->route('credentials.index')->with('success', 'Credential updated successfully.');
+    }
+
+    public function destroy(User $credential)
+    {
+        $credential->delete();
+        return redirect()->route('credentials.index')->with('success', 'Credential deleted successfully.');
+    }
 }

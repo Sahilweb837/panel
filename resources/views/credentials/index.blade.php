@@ -48,6 +48,9 @@
                         </a>
                     @endif
                 </form>
+                <a href="{{ route('credentials.create') }}" class="button button-primary px-4 py-2">
+                    <i class="fas fa-plus me-2"></i>Create Credential
+                </a>
             </div>
 
             <div class="card premium-stat-card border-0 p-0 overflow-hidden mb-4">
@@ -60,6 +63,7 @@
                                 <th class="text-uppercase text-secondary small fw-bold py-3 px-4">Login Email</th>
                                 <th class="text-uppercase text-secondary small fw-bold py-3 px-4">Register ID / Username</th>
                                 <th class="text-uppercase text-secondary small fw-bold py-3 px-4">Password</th>
+                                <th class="text-uppercase text-secondary small fw-bold py-3 px-4 text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,15 +79,29 @@
                                     <td class="py-3 px-4 fw-bold" style="color: #2c3e50;">{{ $user->username }}</td>
                                     <td class="py-3 px-4">
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="password-field" style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                                            <span class="password-field" style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e9ecef; color: #333;">
                                                 {{ $user->raw_password ?? 'Encrypted' }}
                                             </span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="{{ route('credentials.edit', $user->id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('credentials.destroy', $user->id) }}" method="POST" onsubmit="return confirmAction(event, 'Are you sure you want to delete this credential? This will also remove the user\'s login access.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
+                                    <td colspan="6" class="text-center py-5 text-muted">
                                         <i class="fas fa-users fa-3x mb-3 text-muted opacity-50"></i>
                                         <p class="mb-0">No records found matching your criteria.</p>
                                     </td>
