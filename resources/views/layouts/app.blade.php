@@ -72,6 +72,63 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css'])
+    <style>
+        /* Premium Dashboard Sidebar & Logo Enhancements */
+        .sidebar {
+            background: linear-gradient(180deg, var(--sidebar-bg) 0%, rgba(0,0,0,0.01) 100%);
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+            font-family: 'Outfit', 'Inter', sans-serif;
+        }
+        
+        html[data-theme="dark"] .sidebar {
+            background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+            border-right: 1px solid #1e293b;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+        }
+
+        .brand-mark.html-logo, .brand-mark-sm.html-logo {
+            background: linear-gradient(135deg, rgba(255, 85, 50, 0.1), rgba(255, 85, 50, 0.2));
+            color: var(--first-color, #ff5532);
+            border: 1px solid rgba(255, 85, 50, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 85, 50, 0.15);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .brand-mark.html-logo:hover, .brand-mark-sm.html-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(255, 85, 50, 0.25);
+        }
+        
+        .brand h1, .brand-title-sm {
+            font-weight: 700 !important;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--text), var(--muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-link {
+            border-radius: 10px;
+            margin-bottom: 4px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+        }
+        
+        .nav-link:hover {
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(255, 85, 50, 0.12), transparent);
+            border-left: 3px solid var(--first-color);
+        }
+    </style>
 </head>
 <body class="app-shell">
     <!-- Page Loader -->
@@ -99,8 +156,8 @@
                 <i class="fas fa-bars fa-lg"></i>
             </button>
             <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
-                <div class="brand-mark-sm me-2">
-                    <img src="{{ asset('image.png') }}" alt="Netcoder Fees" class="brand-logo-sm">
+                <div class="brand-mark-sm me-2 html-logo">
+                    <i class="fas fa-layer-group"></i>
                 </div>
                 <div>
                     <h1 class="brand-title-sm mb-0">Netcoder Fees</h1>
@@ -120,8 +177,8 @@
         </button>
         <div class="brand">
             <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none w-100" style="color: inherit;">
-                <div class="brand-mark">
-                    <img src="{{ asset('image.png') }}" alt="Netcoder Fees" class="brand-logo">
+                <div class="brand-mark html-logo">
+                    <i class="fas fa-layer-group"></i>
                 </div>
                 <div>
                     <h1 class="mb-0">Netcoder Fees</h1>
