@@ -32,6 +32,7 @@ class User extends Authenticatable
         'is_phone_verified',
         'firebase_uid',
         'phone_verified_at',
+        'raw_password',
     ];
 
     /**

@@ -114,10 +114,12 @@
                                 name="role" 
                                 required 
                                 class="form-input {{ $errors->has('role') ? 'is-invalid' : '' }}"
+                                onchange="toggleStudentFields(this.value)"
                             >
                                 <option value="">-- Select Role --</option>
                                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="staff" {{ old('role') === 'staff' ? 'selected' : '' }}>Staff</option>
+                                <option value="student" {{ old('role') === 'student' ? 'selected' : '' }}>Student</option>
                             </select>
                             @error('role')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
@@ -158,7 +160,41 @@
                         </div>
                     </div>
 
-                    <div class="form-group border rounded p-4 mb-4 mt-4" style="background: var(--surface-soft); border: 1px solid var(--border) !important; border-radius: 12px !important;">
+                    {{-- Student-Specific Fields --}}
+                    <div id="student-fields" style="display: {{ old('role') === 'student' ? 'block' : 'none' }}; margin-top:1rem;">
+                        <div class="card p-4" style="border-radius:12px; background:var(--surface-soft); border:1px solid var(--border) !important;">
+                            <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--first-color); margin-bottom:1rem;"><i class="fas fa-user-graduate me-2"></i>Student Profile Details</div>
+                            <div class="form-group-grid">
+                                <div class="form-group">
+                                    <label class="fw-semibold mb-2">First Name</label>
+                                    <input type="text" name="first_name" value="{{ old('first_name') }}" placeholder="Student first name" class="form-input" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="fw-semibold mb-2">Last Name</label>
+                                    <input type="text" name="last_name" value="{{ old('last_name') }}" placeholder="Student last name" class="form-input" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="fw-semibold mb-2"><i class="fas fa-id-card text-first me-1"></i> Admission No.</label>
+                                    <input type="text" name="admission_no" value="{{ old('admission_no') }}" placeholder="e.g. ADM-2026-001" class="form-input" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="fw-semibold mb-2"><i class="fas fa-phone text-first me-1"></i> Phone</label>
+                                    <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Student phone number" class="form-input" />
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="fw-semibold mb-2"><i class="fas fa-book text-first me-1"></i> Enroll in Course</label>
+                                    <select name="course_id" class="form-input">
+                                        <option value="">-- Select Course (Optional) --</option>
+                                        @foreach($courses as $course)
+                                            <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>{{ $course->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="access-permissions" class="form-group border rounded p-4 mb-4 mt-4" style="background: var(--surface-soft); border: 1px solid var(--border) !important; border-radius: 12px !important; display: {{ old('role') === 'student' ? 'none' : 'block' }};">
                         <label style="font-weight: 700; color: var(--first-color); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; display: block; margin-bottom: 16px;">
                             <i class="fas fa-shield-halved me-2"></i>Module Access Permissions
                         </label>
@@ -255,16 +291,26 @@
         </div>
     </div>
 
-    <!-- Script to simulate dynamic lazy loading and skeleton fading -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('page-skeleton');
             const content = document.getElementById('page-content');
-            
             setTimeout(() => {
                 if (skeleton) skeleton.classList.add('fade-out');
                 if (content) content.style.opacity = '1';
             }, 600);
         });
+
+        function toggleStudentFields(role) {
+            const sf = document.getElementById('student-fields');
+            const accessSection = document.getElementById('access-permissions');
+            if (role === 'student') {
+                sf.style.display = 'block';
+                if (accessSection) accessSection.style.display = 'none';
+            } else {
+                sf.style.display = 'none';
+                if (accessSection) accessSection.style.display = 'block';
+            }
+        }
     </script>
 @endsection

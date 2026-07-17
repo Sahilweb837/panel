@@ -160,7 +160,7 @@
                     <i class="fas fa-layer-group"></i>
                 </div>
                 <div>
-                    <h1 class="brand-title-sm mb-0">Netcoder Fees</h1>
+                    <h1 class="brand-title-sm mb-0">Netcoder</h1>
                 </div>
             </a>
         </div>
@@ -181,8 +181,8 @@
                     <i class="fas fa-layer-group"></i>
                 </div>
                 <div>
-                    <h1 class="mb-0">Netcoder Fees</h1>
-                    <p class="mb-0">Institute ERP</p>
+                    <h1 class="mb-0">Netcoder</h1>
+                    <p class="mb-0">Dashboard</p>
                 </div>
             </a>
         </div>

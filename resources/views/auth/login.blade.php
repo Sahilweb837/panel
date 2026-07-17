@@ -52,14 +52,14 @@
         /* Left Side */
         .login-left {
             flex: 1;
-            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            background: var(--bg-light);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: #ffffff;
+            color: var(--text-dark);
             padding: 3rem;
         }
 
@@ -70,7 +70,7 @@
             transform: translate(-50%, -50%);
             width: 120%;
             height: 120%;
-            opacity: 0.15;
+            opacity: 1;
             pointer-events: none;
             transition: opacity 0.5s ease;
         }
@@ -109,7 +109,7 @@
 
         .left-subtitle {
             font-size: 1.1rem;
-            color: #cbd5e1;
+            color: var(--text-muted);
             margin-bottom: 3rem;
         }
 
@@ -121,9 +121,9 @@
         }
 
         .glass-feature {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
             padding: 1.5rem;
             border-radius: 16px;
             display: flex;
@@ -362,7 +362,7 @@
             position: absolute;
             top: 2rem;
             left: 2rem;
-            color: rgba(255,255,255,0.7);
+            color: var(--text-muted);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -373,7 +373,7 @@
         }
 
         .back-link:hover {
-            color: white;
+            color: var(--text-dark);
         }
 
         /* Responsive */
@@ -409,7 +409,7 @@
 
             <div class="left-content-wrapper">
                 <div class="brand-logo-html">
-                    <i class="fas fa-layer-group"></i> Netcoder ERP
+                    <i class="fas fa-layer-group"></i> Netcoder
                 </div>
                 <h1 class="left-title" id="leftTitle">Transform Your <br>Institution</h1>
                 <p class="left-subtitle" id="leftSubtitle">The all-in-one premium management ecosystem.</p>
@@ -579,7 +579,7 @@
                     activeVec.style.display = 'block';
                     // Trigger reflow
                     void activeVec.offsetWidth;
-                    activeVec.style.opacity = 0.15;
+                    activeVec.style.opacity = 1;
                 }
             }, 300);
 

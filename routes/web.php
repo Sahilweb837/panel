@@ -86,6 +86,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('sub-admins/trash', [SubAdminController::class, 'trash'])->name('sub-admins.trash');
     Route::post('sub-admins/{id}/restore', [SubAdminController::class, 'restore'])->name('sub-admins.restore');
+    Route::get('sub-admins/{user}/password', [SubAdminController::class, 'showPassword'])->name('sub-admins.password');
     Route::resource('sub-admins', SubAdminController::class)->except(['show']);
     
     Route::get('backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');
