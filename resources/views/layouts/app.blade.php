@@ -150,18 +150,16 @@
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <!-- Mobile Top Navigation Bar -->
-    <header class="mobile-navbar d-lg-none d-flex align-items-center justify-content-between p-3 border-bottom">
-        <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-link p-0 me-2" id="sidebar-toggle-btn">
+    <header class="mobile-navbar d-lg-none d-flex align-items-center justify-content-between p-3 border-bottom" style="background: var(--sidebar-bg); z-index: 1000;">
+        <div class="d-flex align-items-center gap-3">
+            <button type="button" class="btn btn-link p-0" id="sidebar-toggle-btn" style="color: var(--text);">
                 <i class="fas fa-bars fa-lg"></i>
             </button>
-            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
-                <div class="brand-mark-sm me-2 html-logo">
-                    <i class="fas fa-layer-group"></i>
+            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none" style="color: inherit; gap: 10px;">
+                <div class="brand-mark-sm html-logo" style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--first-color), #ffa032); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; box-shadow: 0 2px 8px rgba(255,85,50,0.3); border: none;">
+                    N
                 </div>
-                <div>
-                    <h1 class="brand-title-sm mb-0">Netcoder</h1>
-                </div>
+                <h1 class="brand-title-sm mb-0" style="font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text);">Netcoder</h1>
             </a>
         </div>
         <button type="button" class="theme-toggle me-2 px-3 py-1" style="height: auto; border-radius: 20px; font-size: 0.8rem;" data-theme-toggle title="Toggle Dark/Light Mode">
@@ -175,14 +173,14 @@
         <button type="button" class="btn-close-custom d-lg-none" id="sidebar-close-btn" aria-label="Close">
             <i class="fas fa-times"></i>
         </button>
-        <div class="brand">
-            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none w-100" style="color: inherit;">
-                <div class="brand-mark html-logo">
-                    <i class="fas fa-layer-group"></i>
+        <div class="brand px-4 py-4" style="margin-bottom: 1rem;">
+            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none w-100" style="color: inherit; gap: 12px;">
+                <div class="brand-mark html-logo" style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--first-color), #ffa032); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; box-shadow: 0 4px 15px rgba(255,85,50,0.3); border: none;">
+                    N
                 </div>
-                <div>
-                    <h1 class="mb-0">Netcoder</h1>
-                    <p class="mb-0">Dashboard</p>
+                <div style="line-height: 1.2;">
+                    <h1 class="mb-0" style="font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text); background: none; -webkit-text-fill-color: var(--text);">Netcoder</h1>
+                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--first-color);">Dashboard</span>
                 </div>
             </a>
         </div>
@@ -362,12 +360,22 @@
                         <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><span>Credentials</span></a></li>
                         <li><a href="#" class="nav-link py-2"><span>Email Templates</span></a></li>
                         <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><span>System Backups</span></a></li>
+                        <li>
+                            <form action="{{ route('clear-cache') }}" method="POST" class="d-inline w-100" style="display:block;">
+                                @csrf
+                                <a href="#" class="nav-link py-2 text-warning" onclick="this.closest('form').submit(); return false;">
+                                    <i class="fas fa-broom me-2" style="width:16px;"></i><span>Clear Cache</span>
+                                </a>
+                            </form>
+                        </li>
                         @endif
                         <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><span>Toggle Theme</span></a></li>
                         <li>
-                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline w-100" style="display:block;">
                                 @csrf
-                                <a href="#" class="nav-link py-2 text-danger" onclick="this.closest('form').submit(); return false;"><span>Logout</span></a>
+                                <a href="#" class="nav-link py-2 text-danger" onclick="this.closest('form').submit(); return false;">
+                                    <i class="fas fa-power-off me-2" style="width:16px;"></i><span>Logout</span>
+                                </a>
                             </form>
                         </li>
                     </ul>

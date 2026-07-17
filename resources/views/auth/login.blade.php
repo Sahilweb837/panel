@@ -396,20 +396,13 @@
                 <i class="fas fa-arrow-left"></i> Back to Main Site
             </a>
 
-            <!-- Vectors -->
-            <div id="vector-institute" class="login-vector-bg">
-                @include('partials.hero_illustration')
-            </div>
-            <div id="vector-staff" class="login-vector-bg" style="display: none;">
-                @include('partials.hero_staff')
-            </div>
-            <div id="vector-student" class="login-vector-bg" style="display: none;">
-                @include('partials.hero_student')
-            </div>
-
+            <!-- Clean text logo -->
             <div class="left-content-wrapper">
-                <div class="brand-logo-html">
-                    <i class="fas fa-layer-group"></i> Netcoder
+                <div class="brand-logo-html" style="font-size: 2rem; font-weight: 800; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 2rem; letter-spacing: -0.5px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--brand-primary), #ffa032); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 4px 15px rgba(255, 85, 50, 0.3);">
+                        N
+                    </div>
+                    Netcoder
                 </div>
                 <h1 class="left-title" id="leftTitle">Transform Your <br>Institution</h1>
                 <p class="left-subtitle" id="leftSubtitle">The all-in-one premium management ecosystem.</p>
@@ -542,7 +535,7 @@
                     { icon: 'fa-clipboard-check', title: 'Automated Attendance', desc: 'Seamless biometric integration' },
                     { icon: 'fa-wallet', title: 'Payroll History', desc: 'Instant access to digital slips' }
                 ],
-                color: '#10b981'
+                color: '#ff5532'
             },
             student: {
                 title: 'Accelerate Your<br>Learning',
@@ -551,7 +544,7 @@
                     { icon: 'fa-book-reader', title: 'Course Hub', desc: 'Access materials anywhere' },
                     { icon: 'fa-file-invoice-dollar', title: 'Fee Management', desc: 'Transparent due tracking' }
                 ],
-                color: '#3b82f6'
+                color: '#ff5532'
             }
         };
 
@@ -569,19 +562,6 @@
                     btn.style.color = ''; // reset
                 }
             });
-
-            // Update Vectors
-            document.querySelectorAll('.login-vector-bg').forEach(el => el.style.opacity = 0);
-            setTimeout(() => {
-                document.querySelectorAll('.login-vector-bg').forEach(el => el.style.display = 'none');
-                const activeVec = document.getElementById(`vector-${role}`);
-                if(activeVec) {
-                    activeVec.style.display = 'block';
-                    // Trigger reflow
-                    void activeVec.offsetWidth;
-                    activeVec.style.opacity = 1;
-                }
-            }, 300);
 
             // Update Text Content
             document.getElementById('leftTitle').innerHTML = configs[role].title;
