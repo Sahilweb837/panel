@@ -396,13 +396,10 @@
                 <i class="fas fa-arrow-left"></i> Back to Main Site
             </a>
 
-            <!-- Clean text logo -->
+            <!-- Clean image logo -->
             <div class="left-content-wrapper">
-                <div class="brand-logo-html" style="font-size: 2rem; font-weight: 800; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 2rem; letter-spacing: -0.5px;">
-                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--brand-primary), #ffa032); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 4px 15px rgba(255, 85, 50, 0.3);">
-                        N
-                    </div>
-                    Netcoder
+                <div class="brand-logo-html" style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
+                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 64px; width: auto; object-fit: contain; max-width: 100%;">
                 </div>
                 <h1 class="left-title" id="leftTitle">Transform Your <br>Institution</h1>
                 <p class="left-subtitle" id="leftSubtitle">The all-in-one premium management ecosystem.</p>

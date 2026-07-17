@@ -155,11 +155,8 @@
             <button type="button" class="btn btn-link p-0" id="sidebar-toggle-btn" style="color: var(--text);">
                 <i class="fas fa-bars fa-lg"></i>
             </button>
-            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none" style="color: inherit; gap: 10px;">
-                <div class="brand-mark-sm html-logo" style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--first-color), #ffa032); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; box-shadow: 0 2px 8px rgba(255,85,50,0.3); border: none;">
-                    N
-                </div>
-                <h1 class="brand-title-sm mb-0" style="font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text);">Netcoder</h1>
+            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
+                <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 32px; width: auto; object-fit: contain; max-width: 200px;">
             </a>
         </div>
         <button type="button" class="theme-toggle me-2 px-3 py-1" style="height: auto; border-radius: 20px; font-size: 0.8rem;" data-theme-toggle title="Toggle Dark/Light Mode">
@@ -173,15 +170,9 @@
         <button type="button" class="btn-close-custom d-lg-none" id="sidebar-close-btn" aria-label="Close">
             <i class="fas fa-times"></i>
         </button>
-        <div class="brand px-4 py-4" style="margin-bottom: 1rem;">
-            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none w-100" style="color: inherit; gap: 12px;">
-                <div class="brand-mark html-logo" style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--first-color), #ffa032); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; box-shadow: 0 4px 15px rgba(255,85,50,0.3); border: none;">
-                    N
-                </div>
-                <div style="line-height: 1.2;">
-                    <h1 class="mb-0" style="font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text); background: none; -webkit-text-fill-color: var(--text);">Netcoder</h1>
-                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--first-color);">Dashboard</span>
-                </div>
+        <div class="brand px-4 py-4" style="margin-bottom: 1rem; display: flex; align-items: center;">
+            <a href="{{ url('/') }}" class="text-decoration-none w-100 text-center" style="color: inherit;">
+                <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 48px; width: auto; object-fit: contain; max-width: 100%;">
             </a>
         </div>
 
