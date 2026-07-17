@@ -3,220 +3,481 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-     <!-- Custom Premium Styles -->
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+    <title>Netcoder - Premium Institute Management</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
     <style>
-        *, ::after, ::before { box-sizing: border-box; }
-        .min-h-screen { min-height: 100vh; }
-        
-        .hub-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            z-index: 10;
-            position: relative;
+        :root {
+            --brand-primary: #ff5532;
+            --brand-dark: #cc4428;
+            --brand-light: #fff5f2;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --font-main: 'Outfit', sans-serif;
         }
 
-        .hub-header {
+        body {
+            font-family: var(--font-main);
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand img {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: var(--text-dark) !important;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--brand-primary) !important;
+        }
+
+        .btn-brand {
+            background: var(--brand-primary);
+            color: white;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-brand:hover {
+            background: var(--brand-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 85, 50, 0.2);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 180px 0 100px 0;
+            background: linear-gradient(135deg, var(--brand-light) 0%, var(--surface) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            background: rgba(255, 85, 50, 0.1);
+            color: var(--brand-primary);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1.5px;
+        }
+
+        .hero-title span {
+            color: var(--brand-primary);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* Portals Section */
+        .portals-section {
+            padding: 100px 0;
+            background: var(--surface);
+        }
+
+        .section-header {
             text-align: center;
             margin-bottom: 4rem;
         }
 
-        .hub-header h1 {
-            font-size: 3rem;
+        .section-header h2 {
+            font-size: 2.5rem;
             font-weight: 800;
-            color: var(--color-text);
             margin-bottom: 1rem;
         }
 
-        .hub-header p {
-            font-size: 1.25rem;
-            color: var(--color-text);
-            opacity: 0.8;
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
         }
 
-        .cards-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            .cards-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .hub-card {
-            background: var(--color-card-bg);
-            backdrop-filter: blur(12px) saturate(180%);
-            -webkit-backdrop-filter: blur(12px) saturate(180%);
-            border-radius: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        .portal-card {
+            background: var(--surface);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 3rem 2rem;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
             display: flex;
             flex-direction: column;
             text-decoration: none;
-            color: var(--color-text);
-            overflow: hidden; /* For image corners */
+            color: inherit;
         }
 
-        .hub-card:hover {
+        .portal-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border-color: rgba(255, 85, 50, 0.3);
+            border-color: var(--brand-primary);
+            box-shadow: 0 20px 40px rgba(255, 85, 50, 0.08);
         }
 
-        .card-img-wrapper {
-            width: 100%;
-            height: 200px;
-            position: relative;
-            background: #f1f5f9;
-            overflow: hidden;
+        .portal-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 2rem auto;
+            transition: all 0.3s ease;
         }
 
-        .card-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        
-        .hub-card:hover .card-img-wrapper img {
-            transform: scale(1.05);
+        .portal-admin .portal-icon { background: rgba(255, 85, 50, 0.1); color: #ff5532; }
+        .portal-staff .portal-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .portal-student .portal-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+        .portal-card:hover .portal-icon {
+            transform: scale(1.1);
         }
 
-        /* Floating Icon inside image */
-        .card-icon-overlay {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+        .portal-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .portal-card p {
+            color: var(--text-muted);
+            flex-grow: 1;
+            margin-bottom: 2rem;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 100px 0;
+            background: var(--bg-light);
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: var(--brand-light);
+            color: var(--brand-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 2;
+            flex-shrink: 0;
         }
 
-        .card-body {
-            padding: 3rem 2rem 2rem 2rem;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .hub-card h2 {
-            font-size: 1.5rem;
+        .feature-content h4 {
+            font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
-        .hub-card p {
-            font-size: 1rem;
-            opacity: 0.7;
-            margin-bottom: 2rem;
-            line-height: 1.5;
-            flex-grow: 1;
+        .feature-content p {
+            color: var(--text-muted);
+            line-height: 1.6;
         }
 
-        .card-btn {
-            padding: 0.75rem 2rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            width: 100%;
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            background: var(--brand-primary);
+            color: white;
+            text-align: center;
         }
 
-        /* Specific Card Styles */
-        .card-admin .card-icon-overlay { background: #ff5532; color: #fff; }
-        .card-admin .card-btn { background: #fff5f2; color: #ff5532; border: 1px solid #ffebe6; }
-        .card-admin:hover .card-btn { background: #ff5532; color: #fff; }
+        .cta-section h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+        
+        .cta-btn {
+            background: white;
+            color: var(--brand-primary);
+            font-weight: 800;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
 
-        .card-staff .card-icon-overlay { background: #10b981; color: #fff; }
-        .card-staff .card-btn { background: #f0fdf4; color: #10b981; border: 1px solid #d1fae5; }
-        .card-staff:hover .card-btn { background: #10b981; color: #fff; }
+        .cta-btn:hover {
+            transform: scale(1.05);
+            color: var(--brand-primary);
+        }
 
-        .card-student .card-icon-overlay { background: #6366f1; color: #fff; }
-        .card-student .card-btn { background: #eef2ff; color: #6366f1; border: 1px solid #e0e7ff; }
-        .card-student:hover .card-btn { background: #6366f1; color: #fff; }
-
+        /* Footer */
+        .footer {
+            background: var(--surface);
+            padding: 4rem 0 2rem 0;
+            border-top: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
-    <div class="relative min-h-screen">
-        <!-- Abstract Vector Background -->
-        <div class="background-vectors">
-            @include('partials.background_vectors')
-        </div>
 
-        <div class="hub-container">
-            <div class="hub-header">
-                 <p>Select your portal to securely log in and access your personalized dashboard.</p>
+    <!-- Navbar -->
+    <nav class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/" class="navbar-brand m-0 p-0">
+                <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo">
+            </a>
+            <div class="d-none d-md-flex align-items-center">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#portals" class="nav-link">Portals</a>
+                <a href="#contact" class="nav-link">Contact</a>
             </div>
-
-            <div class="cards-grid">
-                <!-- Admin Card -->
-                <a href="{{ route('login') }}?type=institute" class="hub-card card-admin">
-                    <div class="card-img-wrapper">
-                        <img src="{{ asset('images/admin_photo_professional_1783756997320.png') }}" alt="Admin Portal">
-                        <div class="card-icon-overlay"><i class="fas fa-building"></i></div>
-                    </div>
-                    <div class="card-body">
-                        <h2>Admin Portal</h2>
-                        <p>Manage institute operations, view analytics, and control staff and student records.</p>
-                        <div class="card-btn">Login as Admin</div>
-                    </div>
+            <div>
+                <a href="{{ route('login') }}" class="btn-brand">
+                    <i class="fas fa-sign-in-alt"></i> Login
                 </a>
+            </div>
+        </div>
+    </nav>
 
-                <!-- Staff Card -->
-                <a href="{{ route('login') }}?type=staff" class="hub-card card-staff">
-                    <div class="card-img-wrapper">
-                        <img src="{{ asset('images/staff_photo_professional_1783756986398.png') }}" alt="Staff Portal">
-                        <div class="card-icon-overlay"><i class="fas fa-chalkboard-teacher"></i></div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-badge"><i class="fas fa-star me-2"></i>#1 Premium Management Software</div>
+                    <h1 class="hero-title">Transform Your <br><span>Institution</span> Today</h1>
+                    <p class="hero-subtitle">Netcoder provides an all-in-one ecosystem for managing students, staff, attendance, payroll, and fees effortlessly.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#portals" class="btn-brand" style="padding: 14px 32px; font-size: 1.1rem;">
+                            Get Started <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="#features" class="btn btn-light" style="padding: 14px 32px; font-size: 1.1rem; font-weight: 700; border-radius: 50px; color: var(--text-dark);">
+                            Explore Features
+                        </a>
                     </div>
-                    <div class="card-body">
-                        <h2>Staff Portal</h2>
-                        <p>Access your classes, mark attendance, and manage your payroll and digital records.</p>
-                        <div class="card-btn">Login as Staff</div>
-                    </div>
-                </a>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0 text-center">
+                    <img src="{{ asset('images/admin_photo_professional_1783756997320.png') }}" alt="Dashboard Preview" class="img-fluid rounded-4 shadow-lg" style="border: 1px solid var(--border); max-height: 500px; object-fit: cover;">
+                </div>
+            </div>
+        </div>
+    </section>
 
-                <!-- Student Card -->
-                <a href="{{ route('login') }}?type=student" class="hub-card card-student">
-                    <div class="card-img-wrapper">
-                        <img src="{{ asset('images/student_photo_professional_1783756975009.png') }}" alt="Student Portal">
-                        <div class="card-icon-overlay"><i class="fas fa-user-graduate"></i></div>
-                    </div>
-                    <div class="card-body">
-                        <h2>Student Portal</h2>
-                        <p>Track your assignments, view attendance logs, and download fee receipts.</p>
-                        <div class="card-btn">Login as Student</div>
-                    </div>
-                </a>
+    <!-- Portals Section -->
+    <section id="portals" class="portals-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Access Your Workspace</h2>
+                <p>Select your dedicated portal to securely log in and access your personalized dashboard.</p>
             </div>
             
-            @auth
-            <div style="margin-top: 3rem; text-align: center;">
-                <a href="{{ url('/home') }}" style="display: inline-block; padding: 1rem 3rem; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 1rem; font-weight: 700; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">Go to Active Dashboard</a>
+            <div class="row g-4">
+                <!-- Admin -->
+                <div class="col-md-4">
+                    <a href="{{ route('login') }}?type=institute" class="portal-card portal-admin">
+                        <div class="portal-icon"><i class="fas fa-building"></i></div>
+                        <h3>Admin Portal</h3>
+                        <p>Manage entire institute operations, view deep analytics, and control all staff and student records globally.</p>
+                        <span class="btn-brand mt-auto w-100 justify-content-center">Login as Admin</span>
+                    </a>
+                </div>
+                <!-- Staff -->
+                <div class="col-md-4">
+                    <a href="{{ route('login') }}?type=staff" class="portal-card portal-staff">
+                        <div class="portal-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <h3>Staff Portal</h3>
+                        <p>Access your classes, mark student attendance, view assigned tasks, and manage your monthly payroll.</p>
+                        <span class="btn-brand mt-auto w-100 justify-content-center" style="background: #10b981;">Login as Staff</span>
+                    </a>
+                </div>
+                <!-- Student -->
+                <div class="col-md-4">
+                    <a href="{{ route('login') }}?type=student" class="portal-card portal-student">
+                        <div class="portal-icon"><i class="fas fa-user-graduate"></i></div>
+                        <h3>Student Portal</h3>
+                        <p>Track your academic progress, download syllabus, view attendance fines, and pay fee installments securely.</p>
+                        <span class="btn-brand mt-auto w-100 justify-content-center" style="background: #3b82f6;">Login as Student</span>
+                    </a>
+                </div>
             </div>
-            @endauth
         </div>
-    </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-5 mb-5 mb-lg-0">
+                    <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem;">Powerful Features Built for Modern Needs</h2>
+                    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem;">Everything you need to run your institution efficiently. From biometric syncing to automated payroll calculations.</p>
+                    <a href="{{ route('login') }}" class="btn-brand">Try It Now</a>
+                </div>
+                <div class="col-lg-7">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-fingerprint"></i></div>
+                                <div class="feature-content">
+                                    <h4>Biometric Sync</h4>
+                                    <p>Direct integration with ZKTeco devices for automated real-time staff and student attendance.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                                <div class="feature-content">
+                                    <h4>Fee Management</h4>
+                                    <p>Automated invoice generation, partial payment tracking, and due amount notifications.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-wallet"></i></div>
+                                <div class="feature-content">
+                                    <h4>Smart Payroll</h4>
+                                    <p>Automatically deduct salaries based on late arrivals or absent days synced from biometrics.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                                <div class="feature-content">
+                                    <h4>Role Security</h4>
+                                    <p>Advanced permission control for Sub-Admins, ensuring data privacy and secure access.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Digitize Your Institute?</h2>
+            <p class="mb-5" style="font-size: 1.25rem; opacity: 0.9;">Join modern institutes using Netcoder to streamline their operations.</p>
+            <a href="{{ route('login') }}" class="cta-btn">Access Dashboard <i class="fas fa-arrow-right ms-2"></i></a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-4 mb-4">
+                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 48px; margin-bottom: 1.5rem;">
+                    <p style="color: var(--text-muted);">Premium institution management software designed for speed, security, and scalability.</p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5 style="font-weight: 700; margin-bottom: 1.25rem;">Quick Links</h5>
+                    <ul class="list-unstyled" style="line-height: 2;">
+                        <li><a href="#features" style="color: var(--text-muted); text-decoration: none;">Features</a></li>
+                        <li><a href="#portals" style="color: var(--text-muted); text-decoration: none;">Portals</a></li>
+                        <li><a href="{{ route('login') }}" style="color: var(--text-muted); text-decoration: none;">Login</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 style="font-weight: 700; margin-bottom: 1.25rem;">Contact</h5>
+                    <ul class="list-unstyled" style="line-height: 2; color: var(--text-muted);">
+                        <li><i class="fas fa-envelope me-2"></i> info@netcoder.in</li>
+                        <li><i class="fas fa-phone me-2"></i> Support Team</li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 style="font-weight: 700; margin-bottom: 1.25rem;">Socials</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" style="color: var(--brand-primary); font-size: 1.5rem;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" style="color: var(--brand-primary); font-size: 1.5rem;"><i class="fab fa-facebook"></i></a>
+                        <a href="#" style="color: var(--brand-primary); font-size: 1.5rem;"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-4" style="border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.9rem;">
+                &copy; {{ date('Y') }} Netcoder. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar blur effect on scroll
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.navbar-custom');
+            if (window.scrollY > 50) {
+                nav.style.boxShadow = '0 4px 20px rgba(0,0,0,0.05)';
+            } else {
+                nav.style.boxShadow = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
