@@ -182,6 +182,11 @@
                                     <a href="{{ route('students.edit', $student) }}" class="button button-secondary small flex-grow-1 py-2">
                                         <i class="fas fa-edit me-1"></i>Edit
                                     </a>
+                                    @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin']) && $student->user_id)
+                                    <button type="button" class="button button-secondary small flex-grow-1 py-2 view-password-btn" data-url="{{ route('sub-admins.password.show', $student->user_id) }}">
+                                        <i class="fas fa-key me-1"></i>Key
+                                    </button>
+                                    @endif
                                     <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-form flex-grow-1" onsubmit="return confirmAction(event, 'Are you sure you want to delete this student record?');">
                                         @csrf
                                         @method('DELETE')
@@ -219,6 +224,78 @@
                 if (skeleton) skeleton.classList.add('fade-out');
                 if (content) content.style.opacity = '1';
             }, 600);
+
+            // Password modal
+            document.querySelectorAll('.view-password-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const url = this.dataset.url;
+                    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.json())
+                        .then(data => {
+                            if(data.error) {
+                                alert(data.error);
+                                return;
+                            }
+                            document.getElementById('pw-name').textContent = data.name || '—';
+                            document.getElementById('pw-email').textContent = data.email || '—';
+                            document.getElementById('pw-password').textContent = data.password || '—';
+                            const modal = document.getElementById('passwordModal');
+                            modal.style.display = 'flex';
+                        })
+                        .catch(() => alert('Could not fetch password. Please try again.'));
+                });
+            });
         });
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function copyPassword() {
+            const pw = document.getElementById('pw-password').textContent;
+            navigator.clipboard.writeText(pw).then(() => {
+                const btn = document.querySelector('#passwordModal button[onclick="copyPassword()"]');
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 2000);
+            });
+        }
+
+        const passModal = document.getElementById('passwordModal');
+        if(passModal) {
+            passModal.addEventListener('click', function(e) {
+                if (e.target === this) closePasswordModal();
+            });
+        }
     </script>
+
+    {{-- Password Viewer Modal --}}
+    <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div class="card" style="max-width:440px; width:90%; padding:2rem; position:relative; border-radius:16px;">
+            <button onclick="closePasswordModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.2rem; color:var(--muted); cursor:pointer;"><i class="fas fa-times"></i></button>
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <div style="width:56px; height:56px; border-radius:14px; background:rgba(255,85,50,0.1); color:var(--first-color); font-size:1.5rem; display:inline-flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h5 style="font-weight:700; margin:0;">Account Credentials</h5>
+                <p style="color:var(--muted); font-size:0.85rem; margin-top:4px;">Super Admin Only — Confidential</p>
+            </div>
+            <div style="display:grid; gap:1rem;">
+                <div style="background:var(--surface-soft); border-radius:10px; padding:1rem;">
+                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Name</div>
+                    <div id="pw-name" style="font-weight:600;">—</div>
+                </div>
+                <div style="background:var(--surface-soft); border-radius:10px; padding:1rem;">
+                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Email / Login ID</div>
+                    <div id="pw-email" style="font-weight:600;">—</div>
+                </div>
+                <div style="background:var(--surface-soft); border-radius:10px; padding:1rem;">
+                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Password (Plain Text)</div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div id="pw-password" style="font-weight:700; font-size:1.1rem; font-family:monospace; color:var(--first-color); flex:1;">—</div>
+                        <button onclick="copyPassword()" style="background:var(--first-color); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-size:0.8rem; cursor:pointer;"><i class="fas fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
