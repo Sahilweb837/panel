@@ -187,6 +187,11 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/messages/{id}/read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.read');
     Route::delete('/messages/{id}', [\App\Http\Controllers\MessageController::class, 'destroy'])->name('messages.destroy');
 
+    // Connections Routes
+    Route::get('/connections', [\App\Http\Controllers\EmployeeConnectionController::class, 'index'])->name('connections.index');
+    Route::post('/connections', [\App\Http\Controllers\EmployeeConnectionController::class, 'store'])->name('connections.store');
+    Route::put('/connections/{connection}', [\App\Http\Controllers\EmployeeConnectionController::class, 'update'])->name('connections.update');
+
     // Daily Updates routes
     Route::resource('daily-updates', \App\Http\Controllers\DailyUpdateController::class)->only(['index', 'store']);
 

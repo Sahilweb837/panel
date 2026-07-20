@@ -75,4 +75,14 @@ class User extends Authenticatable
     {
         $this->attributes['password'] = Hash::needsRehash($value) ? Hash::make($value) : $value;
     }
+
+    public function sentConnections()
+    {
+        return $this->hasMany(EmployeeConnection::class, 'requester_id');
+    }
+
+    public function receivedConnections()
+    {
+        return $this->hasMany(EmployeeConnection::class, 'recipient_id');
+    }
 }

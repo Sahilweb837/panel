@@ -45,6 +45,9 @@ class Message extends Model
                 if (in_array($userRoleSlug, ['super-admin', 'superadmin', 'root-admin'])) {
                     $q->orWhere('receiver_role', 'admin');
                 }
+                if ($userRoleSlug === 'staff') {
+                    $q->orWhereIn('receiver_role', ['admin', 'employee']);
+                }
             }
         });
     }

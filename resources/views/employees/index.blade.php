@@ -122,6 +122,44 @@
                                                 <i class="fas fa-key me-1"></i>Key
                                             </button>
                                             @endif
+                                            
+                                            @if(Auth::check() && Auth::id() !== $employee->user_id && $employee->user_id)
+                                                @php
+                                                    $connection = \App\Models\EmployeeConnection::where(function($q) use ($employee) {
+                                                        $q->where('requester_id', Auth::id())->where('recipient_id', $employee->user_id);
+                                                    })->orWhere(function($q) use ($employee) {
+                                                        $q->where('recipient_id', Auth::id())->where('requester_id', $employee->user_id);
+                                                    })->first();
+                                                @endphp
+                                                @if(!$connection)
+                                                    <form action="{{ route('connections.store') }}" method="POST" class="inline-form d-inline">
+                                                        @csrf
+                                                        <input type="hidden" name="recipient_id" value="{{ $employee->user_id }}">
+                                                        <button type="submit" class="button button-success small py-1.5 px-3">
+                                                            <i class="fas fa-user-plus me-1"></i>Connect
+                                                        </button>
+                                                    </form>
+                                                @elseif($connection->status === 'pending')
+                                                    @if($connection->requester_id === Auth::id())
+                                                        <button disabled class="button button-secondary small py-1.5 px-3 text-muted">
+                                                            Pending
+                                                        </button>
+                                                    @else
+                                                        <form action="{{ route('connections.update', $connection) }}" method="POST" class="inline-form d-inline">
+                                                            @csrf @method('PUT')
+                                                            <input type="hidden" name="status" value="accepted">
+                                                            <button type="submit" class="button button-success small py-1.5 px-3">
+                                                                Accept
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @elseif($connection->status === 'accepted')
+                                                    <button disabled class="button button-primary small py-1.5 px-3 text-white" style="background-color: #28a745; border-color: #28a745;">
+                                                        <i class="fas fa-user-check me-1"></i>Connected
+                                                    </button>
+                                                @endif
+                                            @endif
+
                                             <form action="{{ route('employees.destroy', $employee) }}" method="POST" class="inline-form d-inline" onsubmit="return confirmAction(event, 'Are you sure you want to delete this staff record?');">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="button button-danger small py-1.5 px-3">
