@@ -159,11 +159,21 @@
                                                         {{ strtoupper(substr($attendance->employee?->user?->name ?? 'S', 0, 1)) }}
                                                     @endif
                                                 </div>
-                                                <div>
-                                                    <strong class="text-dark-title">{{ $attendance->employee?->user?->name ?? 'N/A' }}</strong>
-                                                    <p class="text-muted small">{{ $attendance->employee?->user?->email }}</p>
-                                                </div>
-                                            </div>
+                                                 <div>
+                                                     <div class="d-flex align-items-center gap-2">
+                                                         <strong class="text-dark-title">{{ $attendance->employee?->user?->name ?? 'N/A' }}</strong>
+                                                         @php
+                                                             $isOnline = $attendance->employee?->user?->last_seen_at && \Carbon\Carbon::parse($attendance->employee->user->last_seen_at)->gt(\Carbon\Carbon::now()->subMinutes(3));
+                                                         @endphp
+                                                         @if($isOnline)
+                                                             <span class="badge bg-success rounded-pill px-2 py-0.5" style="font-size:0.65rem;"><i class="fas fa-circle me-1" style="font-size:0.45rem;"></i>Online</span>
+                                                         @else
+                                                             <span class="badge bg-secondary rounded-pill px-2 py-0.5" style="font-size:0.65rem;">Offline</span>
+                                                         @endif
+                                                     </div>
+                                                     <p class="text-muted small mb-0">{{ $attendance->employee?->user?->email }}</p>
+                                                 </div>
+                                             </div>
                                         </td>
                                         <td><span class="badge bg-light text-dark border p-2" style="font-size: 0.8rem; font-weight: 600;">{{ $attendance->employee?->employee_code }}</span></td>
                                         <td>
@@ -177,20 +187,25 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <div class="d-flex flex-column align-items-center gap-1 justify-content-center">
-                                                @if($attendance->check_in_time)
-                                                    <span class="badge bg-light text-success border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
-                                                        <i class="fas fa-sign-in-alt me-1 text-success"></i>{{ \Carbon\Carbon::parse($attendance->check_in_time)->format('h:i A') }}
-                                                    </span>
-                                                @endif
-                                                @if($attendance->check_out_time)
-                                                    <span class="badge bg-light text-danger border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
-                                                        <i class="fas fa-sign-out-alt me-1 text-danger"></i>{{ \Carbon\Carbon::parse($attendance->check_out_time)->format('h:i A') }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted small" style="font-size: 0.75rem;">No Out Punch</span>
-                                                @endif
-                                            </div>
+                                             <div class="d-flex flex-column align-items-center gap-1 justify-content-center">
+                                                 @if($attendance->check_in_time)
+                                                     <span class="badge bg-light text-success border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
+                                                         <i class="fas fa-sign-in-alt me-1 text-success"></i>{{ \Carbon\Carbon::parse($attendance->check_in_time)->format('h:i A') }}
+                                                     </span>
+                                                 @endif
+                                                 @if($attendance->latitude && $attendance->longitude)
+                                                     <a href="https://maps.google.com/?q={{ $attendance->latitude }},{{ $attendance->longitude }}" target="_blank" class="badge bg-light text-primary border text-decoration-none p-1 px-2" style="font-size:0.72rem;" title="View GPS Location on Google Maps">
+                                                         <i class="fas fa-map-marker-alt text-danger me-1"></i>GPS Map
+                                                     </a>
+                                                 @endif
+                                                 @if($attendance->check_out_time)
+                                                     <span class="badge bg-light text-danger border px-2 py-1.5" style="font-size: 0.8rem; font-weight: 600; min-width: 95px;">
+                                                         <i class="fas fa-sign-out-alt me-1 text-danger"></i>{{ \Carbon\Carbon::parse($attendance->check_out_time)->format('h:i A') }}
+                                                     </span>
+                                                 @else
+                                                     <span class="text-muted small" style="font-size: 0.75rem;">No Out Punch</span>
+                                                 @endif
+                                             </div>
                                         </td>
                                         <td class="text-muted" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                             {{ $attendance->remarks ?: '-' }}

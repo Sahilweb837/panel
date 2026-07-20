@@ -203,7 +203,7 @@
                 <h6 class="modal-title fw-bold mb-0"><i class="fas fa-paper-plane me-2"></i>Compose Message / Broadcast Notice</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('messages.store') }}" method="POST">
+            <form action="{{ route('messages.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
@@ -255,6 +255,12 @@
                             <label class="form-label fw-bold small">Message Body</label>
                             <textarea name="body" rows="5" class="form-input" placeholder="Type your message details here..." required></textarea>
                         </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold small"><i class="fas fa-paperclip me-1 text-primary"></i>Image / Picture Attachment (Optional)</label>
+                            <input type="file" name="attachment" accept="image/*" class="form-input">
+                            <small class="text-muted d-block mt-1" style="font-size:0.75rem;">Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)</small>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -286,6 +292,15 @@
                     </div>
                 </div>
                 <div class="p-3 border rounded-3 bg-white" style="min-height: 120px; font-size: 0.95rem; white-space: pre-wrap;" id="viewModalBody"></div>
+
+                <div id="viewModalAttachmentContainer" class="mt-3 text-center" style="display:none;">
+                    <div class="p-2 border rounded-3 bg-light d-inline-block">
+                        <img id="viewModalAttachmentImg" src="" alt="Picture Attachment" loading="lazy" style="max-width: 100%; max-height: 300px; border-radius: 10px; object-fit: contain;" />
+                        <a id="viewModalAttachmentLink" href="" target="_blank" class="d-block mt-2 text-decoration-none small fw-bold text-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>View Full Image / Attachment
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="button button-secondary" data-bs-dismiss="modal">Close</button>
@@ -323,6 +338,7 @@
                 const body = this.dataset.body;
                 const priority = this.dataset.priority;
                 const date = this.dataset.date;
+                const attachment = this.dataset.attachment;
 
                 document.getElementById('viewModalSubject').innerText = subject;
                 document.getElementById('viewModalSender').innerText = sender;
@@ -333,16 +349,35 @@
                 prioEl.innerText = priority;
                 prioEl.className = 'badge px-2 py-1 priority-' + priority.toLowerCase();
 
+                const attachContainer = document.getElementById('viewModalAttachmentContainer');
+                const attachImg = document.getElementById('viewModalAttachmentImg');
+                const attachLink = document.getElementById('viewModalAttachmentLink');
+
+                if (attachment && attachment.trim() !== '') {
+                    attachImg.src = attachment;
+                    attachLink.href = attachment;
+                    attachContainer.style.display = 'block';
+                } else {
+                    attachContainer.style.display = 'none';
+                }
+
                 viewModal.show();
 
-                // Mark message as read via AJAX
+                // Safely mark message as read via AJAX
                 fetch(`/messages/${id}/read`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Content-Type': 'application/json'
                     }
-                }).catch(err => console.error(err));
+                })
+                .then(res => {
+                    if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+                        return res.json();
+                    }
+                    return null;
+                })
+                .catch(err => console.error(err));
             });
         });
     });

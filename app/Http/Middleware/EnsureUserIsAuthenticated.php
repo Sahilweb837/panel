@@ -38,7 +38,7 @@ class EnsureUserIsAuthenticated
         // ----------------------------------------------------------------
         if ($roleSlug === 'student') {
             $route = $request->route() ? $request->route()->getName() : '';
-            if ($request->routeIs('logout') || str_starts_with($route, 'student.')) {
+            if ($request->routeIs('logout') || str_starts_with($route, 'student.') || str_starts_with($route, 'messages.')) {
                 return $next($request);
             }
             // Block everything else – send back to student portal
@@ -47,11 +47,11 @@ class EnsureUserIsAuthenticated
         }
 
         // ----------------------------------------------------------------
-        // STAFF: can ONLY access staff.* routes + logout
+        // STAFF: can ONLY access staff.* routes + logout + messages.*
         // ----------------------------------------------------------------
         if ($roleSlug === 'staff') {
             $route = $request->route() ? $request->route()->getName() : '';
-            if ($request->routeIs('logout') || str_starts_with($route, 'staff.')) {
+            if ($request->routeIs('logout') || str_starts_with($route, 'staff.') || str_starts_with($route, 'messages.')) {
                 return $next($request);
             }
             // Block everything else – send back to staff portal

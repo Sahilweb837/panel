@@ -15,6 +15,7 @@ class Message extends Model
         'receiver_role',
         'subject',
         'body',
+        'attachment_path',
         'priority',
         'is_read',
     ];

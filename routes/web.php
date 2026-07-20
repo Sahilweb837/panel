@@ -106,11 +106,17 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('biometric/test', [BiometricController::class, 'testConnection'])->name('biometric.test');
     Route::post('biometric/sync', [BiometricController::class, 'syncLogs'])->name('biometric.sync');
     
+    Route::get('courses/{id}/milestones', [\App\Http\Controllers\CourseMilestoneController::class, 'index'])->name('courses.milestones.index');
+    Route::post('courses/{id}/milestones', [\App\Http\Controllers\CourseMilestoneController::class, 'store'])->name('courses.milestones.store');
+    Route::post('courses/milestones/{id}/toggle', [\App\Http\Controllers\CourseMilestoneController::class, 'toggleCompletion'])->name('courses.milestones.toggle');
+    Route::delete('courses/milestones/{id}', [\App\Http\Controllers\CourseMilestoneController::class, 'destroy'])->name('courses.milestones.destroy');
+
     Route::resource('courses', CourseController::class)->except(['show']);
     Route::post('students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
     Route::get('students/{student}/fee-report', [StudentController::class, 'feeReport'])->name('students.fee-report');
     Route::resource('students', StudentController::class);
     
+    Route::get('sub-admins/{id}/password', [\App\Http\Controllers\CredentialController::class, 'showPassword'])->name('sub-admins.password.show');
     Route::resource('credentials', CredentialController::class)->except(['show']);
     Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
     Route::post('attendances/generate-fines', [AttendanceController::class, 'generateFines'])->name('attendances.generate-fines');
@@ -169,7 +175,11 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/offer-letters', [\App\Http\Controllers\StaffPortalController::class, 'offerLetters'])->name('staff.offer-letters');
         Route::get('/leave', [\App\Http\Controllers\StaffPortalController::class, 'leaveApplications'])->name('staff.leave');
         Route::get('/income', [\App\Http\Controllers\StaffPortalController::class, 'incomeRecords'])->name('staff.income');
+        Route::post('/checkin-location', [\App\Http\Controllers\EmployeeAttendanceController::class, 'checkinWithLocation'])->name('staff.checkin-location');
     });
+
+    // Staff Online Heartbeat Ping Route
+    Route::post('/api/staff/ping', [\App\Http\Controllers\StaffStatusController::class, 'ping'])->name('staff.ping');
 
     // Face Attendance API Route (Inside Auth for CSRF protection and session validation)
     Route::post('/api/attendance/face-check', [\App\Http\Controllers\FaceAttendanceController::class, 'store'])->name('attendance.face.store');

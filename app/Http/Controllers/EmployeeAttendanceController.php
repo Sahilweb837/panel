@@ -197,4 +197,46 @@ class EmployeeAttendanceController extends Controller
 
         return view('employee_attendances.print', compact('attendances'));
     }
+
+    public function checkinWithLocation(Request $request)
+    {
+        $userId = session('user_id');
+        $employee = Employee::where('user_id', $userId)->first();
+
+        if (!$employee) {
+            return response()->json(['error' => 'No staff profile associated with this user account.'], 404);
+        }
+
+        $request->validate([
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'location_address' => 'nullable|string|max:255',
+        ]);
+
+        $today = Carbon::today()->toDateString();
+        $now = Carbon::now()->format('H:i:s');
+
+        $attendance = EmployeeAttendance::updateOrCreate(
+            [
+                'employee_id' => $employee->id,
+                'attendance_date' => $today,
+            ],
+            [
+                'status' => 'Present',
+                'check_in_time' => $now,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'location_address' => $request->location_address ?? 'GPS Captured Location',
+                'device_name' => 'Web Browser GPS',
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance check-in recorded successfully with GPS location!',
+            'check_in_time' => Carbon::now()->format('h:i A'),
+            'latitude' => $attendance->latitude,
+            'longitude' => $attendance->longitude,
+        ]);
+    }
 }

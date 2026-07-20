@@ -459,11 +459,90 @@
                 </div>
             @endif
 
-            @yield('content')
         </section>
     </main>
+
+    <!-- Global Floating Toast Notification Container -->
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/js/app.js'])
+
+    <script>
+        // Global Toast Notification Helper
+        window.showToast = function(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toastId = 'toast-' + Date.now();
+            const bgClass = type === 'success' ? 'bg-success text-white' : (type === 'danger' ? 'bg-danger text-white' : (type === 'warning' ? 'bg-warning text-dark' : 'bg-dark text-white'));
+            const icon = type === 'success' ? 'fa-check-circle' : (type === 'danger' ? 'fa-exclamation-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-bell'));
+
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow-lg mb-2" role="alert" aria-live="assertive" aria-atomic="true" style="border-radius: 12px; font-family: var(--font-sans);">
+                    <div class="d-flex">
+                        <div class="toast-body d-flex align-items-center gap-2">
+                            <i class="fas ${icon} fa-lg"></i>
+                            <div>
+                                <strong>${title}</strong>
+                                <div style="font-size: 0.82rem; opacity: 0.9;">${message}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastEl = document.getElementById(toastId);
+            const bsToast = new bootstrap.Toast(toastEl, { delay: 4500 });
+            bsToast.show();
+        };
+
+        // Staff Online Heartbeat & Toast Notification Listener
+        document.addEventListener('DOMContentLoaded', () => {
+            let previousOnlineIds = new Set();
+            let isFirstPing = true;
+
+            function sendHeartbeatPing() {
+                fetch("{{ route('staff.ping') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => {
+                    if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
+                        return null;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.success && data.online_staff) {
+                        const currentOnlineIds = new Set(data.online_staff.map(s => s.id));
+
+                        if (!isFirstPing) {
+                            // Detect newly online users
+                            data.online_staff.forEach(s => {
+                                if (!previousOnlineIds.has(s.id) && s.id !== data.current_user_id) {
+                                    window.showToast('User Online', `⚡ ${s.name} (${s.role}) is now Online`, 'success');
+                                }
+                            });
+                        }
+
+                        previousOnlineIds = currentOnlineIds;
+                        isFirstPing = false;
+                    }
+                })
+                .catch(err => console.error('Ping error:', err));
+            }
+
+            // Initial ping + repeat every 40s
+            sendHeartbeatPing();
+            setInterval(sendHeartbeatPing, 40000);
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.querySelector('.sidebar');

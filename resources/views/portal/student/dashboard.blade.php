@@ -265,6 +265,82 @@
                 @endif
             </div>
         </div>
+
+        {{-- Course Syllabus Progress & Daily Covered Milestones Tracker --}}
+        <div class="col-12 mt-4">
+            <div class="card premium-stat-card p-0 overflow-hidden">
+                <div class="premium-card-header bg-transparent border-bottom p-3 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2 text-dark-title">
+                        <i class="fas fa-list-check text-primary"></i> Course Syllabus Coverage & Daily Milestones
+                    </h6>
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-1 fw-bold">
+                        {{ $completedCourseMilestones }} / {{ $totalCourseMilestones }} Covered ({{ $courseMilestoneProgress }}%)
+                    </span>
+                </div>
+                <div class="p-4">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold small text-muted">Overall Course Syllabus Completion</span>
+                            <strong class="text-success">{{ $courseMilestoneProgress }}%</strong>
+                        </div>
+                        <div class="progress" style="height: 10px; border-radius: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $courseMilestoneProgress }}%;" aria-valuenow="{{ $courseMilestoneProgress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mt-3">
+                        <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">Status</th>
+                                    <th>Topic / Milestone</th>
+                                    <th>Covered By</th>
+                                    <th>Date Covered</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($courseMilestones as $cm)
+                                    <tr class="{{ $cm->is_completed ? 'table-success-subtle' : '' }}">
+                                        <td>
+                                            @if($cm->is_completed)
+                                                <span class="badge bg-success rounded-circle p-1"><i class="fas fa-check"></i></span>
+                                            @else
+                                                <span class="badge bg-secondary-subtle text-muted rounded-circle p-1"><i class="fas fa-minus"></i></span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <strong class="{{ $cm->is_completed ? 'text-decoration-line-through text-muted' : 'text-dark-title' }}">
+                                                {{ $cm->milestone_title }}
+                                            </strong>
+                                            @if($cm->description)
+                                                <small class="text-muted d-block mt-0.5" style="font-size: 0.78rem;">{{ $cm->description }}</small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($cm->is_completed)
+                                                <span class="badge bg-light text-success border px-2 py-1"><i class="fas fa-user-tie me-1"></i>{{ $cm->covered_by ?? 'Instructor' }}</span>
+                                            @else
+                                                <span class="text-muted small">Pending</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-muted small">
+                                            {{ $cm->completed_at ? $cm->completed_at->format('M d, Y h:i A') : '-' }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            <i class="fas fa-book-open fa-2x mb-2 d-block text-muted"></i>
+                                            No course syllabus milestones defined by instructor yet.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- ── ROW 3: Fee Invoices + Milestones ── --}}
