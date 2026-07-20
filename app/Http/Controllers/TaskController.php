@@ -22,7 +22,7 @@ class TaskController extends Controller
             return view('tasks.index', compact('tasks'));
         }
 
-        // Super Admin sees all tasks
+        // Super Admin & Admin see all tasks + Analytics Reports
         $query = Task::with(['employee.user', 'creator']);
 
         if ($request->filled('status')) {
@@ -31,9 +31,39 @@ class TaskController extends Controller
         if ($request->filled('priority')) {
             $query->where('priority', $request->priority);
         }
+        if ($request->filled('assigned_to')) {
+            $query->where('assigned_to', $request->assigned_to);
+        }
 
         $tasks = $query->latest()->paginate(15)->withQueryString();
-        return view('tasks.index', compact('tasks'));
+
+        $totalTasksCount = Task::count();
+        $pendingTasksCount = Task::where('status', 'Pending')->count();
+        $inProgressTasksCount = Task::where('status', 'In Progress')->count();
+        $completedTasksCount = Task::where('status', 'Completed')->count();
+        $completionRate = $totalTasksCount > 0 ? round(($completedTasksCount / $totalTasksCount) * 100) : 0;
+
+        $employeeTaskReports = Employee::with('user')->get()->map(function($emp) {
+            $assigned = Task::where('assigned_to', $emp->id)->count();
+            $done = Task::where('assigned_to', $emp->id)->where('status', 'Completed')->count();
+            $pending = Task::where('assigned_to', $emp->id)->where('status', 'Pending')->count();
+            $inProgress = Task::where('assigned_to', $emp->id)->where('status', 'In Progress')->count();
+            $rate = $assigned > 0 ? round(($done / $assigned) * 100) : 0;
+            return [
+                'employee' => $emp,
+                'assigned' => $assigned,
+                'done' => $done,
+                'pending' => $pending,
+                'in_progress' => $inProgress,
+                'rate' => $rate
+            ];
+        })->filter(fn($r) => $r['assigned'] > 0)->sortByDesc('rate')->values();
+
+        return view('tasks.index', compact(
+            'tasks', 'totalTasksCount', 'pendingTasksCount',
+            'inProgressTasksCount', 'completedTasksCount',
+            'completionRate', 'employeeTaskReports'
+        ));
     }
 
     public function create()

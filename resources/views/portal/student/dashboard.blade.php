@@ -153,6 +153,13 @@
                                     ({{ $student->fee_tenure ?? 'per tenure' }})
                                 </div>
                             @endif
+
+                            <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <span class="text-muted small"><i class="fas fa-shield-alt text-success me-1"></i>Instant 1st Month Fee QR Invoice</span>
+                                <button type="button" class="button button-primary px-4 py-2" id="openPayNowModalBtn">
+                                    <i class="fas fa-qrcode me-2"></i>Pay Fee Online / Pay Now
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -347,4 +354,166 @@
     </div>
 
 </div>
+
+<!-- UPI Payment QR Code Modal -->
+<div class="modal fade" id="payNowModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #ff5532 0%, #e04423 100%);">
+                <h6 class="modal-title fw-bold mb-0">
+                    <i class="fas fa-qrcode me-2"></i>Scan & Pay Fee via UPI
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div id="payModalLoading" class="py-4">
+                    <div class="spinner-border text-danger" role="status"></div>
+                    <p class="text-muted small mt-2">Generating Monthly Invoice & UPI QR Code...</p>
+                </div>
+
+                <div id="payModalContent" style="display: none;">
+                    <div class="badge bg-light text-dark border px-3 py-2 rounded-pill mb-3 fw-bold" style="font-size: 0.85rem;">
+                        Invoice No: <span id="modalInvoiceNo" class="text-danger font-monospace"></span>
+                    </div>
+                    
+                    <h3 class="fw-bold mb-1" style="color: var(--first-color);">₹<span id="modalAmount"></span></h3>
+                    <p class="text-muted small mb-3" id="modalCategory"></p>
+
+                    <!-- QR Code Display Box -->
+                    <div class="p-3 bg-white border rounded-4 d-inline-block shadow-sm mb-3">
+                        <img id="modalQrCodeImg" src="" alt="UPI QR Code" style="width: 220px; height: 220px; border-radius: 12px; display: block; margin: 0 auto;" />
+                        <div class="mt-2 d-flex justify-content-center gap-1 flex-wrap">
+                            <span class="badge bg-primary" style="font-size:0.7rem;"><i class="fab fa-google-pay me-1"></i>GPay</span>
+                            <span class="badge" style="background:#5f259f; font-size:0.7rem;"><i class="fas fa-mobile-alt me-1"></i>PhonePe</span>
+                            <span class="badge bg-info text-dark" style="font-size:0.7rem;"><i class="fas fa-wallet me-1"></i>Paytm</span>
+                            <span class="badge bg-success" style="font-size:0.7rem;"><i class="fas fa-university me-1"></i>BHIM UPI</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-3 border bg-light text-start mb-3" style="font-size: 0.85rem;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted fw-bold">Official UPI VPA ID:</span>
+                            <strong id="modalUpiId" class="font-monospace text-primary">netcoder@upi</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted fw-bold">Student Name:</span>
+                            <strong id="modalStudentName"></strong>
+                        </div>
+                    </div>
+
+                    <!-- Payment Confirmation Section -->
+                    <div class="border-top pt-3 text-start">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Already Paid? Enter Transaction Txn ID / Ref No.</label>
+                        <input type="hidden" id="modalInvoiceIdHidden" value="" />
+                        <div class="input-group mb-2">
+                            <input type="text" id="modalTxnIdInput" class="form-control" placeholder="e.g. 340918239012" />
+                            <button class="btn btn-success fw-bold" id="confirmTxnBtn" type="button">
+                                <i class="fas fa-check-circle me-1"></i>Submit Txn ID
+                            </button>
+                        </div>
+                        <div id="confirmFeedback" style="display:none;" class="alert alert-success p-2 small mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const payBtn = document.getElementById('openPayNowModalBtn');
+        const modalEl = document.getElementById('payNowModal');
+        const loadingEl = document.getElementById('payModalLoading');
+        const contentEl = document.getElementById('payModalContent');
+        const confirmBtn = document.getElementById('confirmTxnBtn');
+        const feedbackEl = document.getElementById('confirmFeedback');
+
+        if (!payBtn || !modalEl) return;
+
+        const payModal = new bootstrap.Modal(modalEl);
+
+        payBtn.addEventListener('click', function() {
+            loadingEl.style.display = 'block';
+            contentEl.style.display = 'none';
+            feedbackEl.style.display = 'none';
+            payModal.show();
+
+            fetch("{{ route('student.pay-now') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                loadingEl.style.display = 'none';
+                if (data.success) {
+                    document.getElementById('modalInvoiceNo').innerText = data.invoice_no;
+                    document.getElementById('modalAmount').innerText = data.amount;
+                    document.getElementById('modalCategory').innerText = data.fee_category;
+                    document.getElementById('modalUpiId').innerText = data.upi_id;
+                    document.getElementById('modalStudentName').innerText = data.student_name;
+                    document.getElementById('modalQrCodeImg').src = data.qr_image_url;
+                    document.getElementById('modalInvoiceIdHidden').value = data.invoice_id;
+                    contentEl.style.display = 'block';
+                } else {
+                    alert(data.error || 'Failed to generate invoice.');
+                    payModal.hide();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                loadingEl.style.display = 'none';
+                alert('Connection error while loading payment details.');
+            });
+        });
+
+        confirmBtn.addEventListener('click', function() {
+            const invoiceId = document.getElementById('modalInvoiceIdHidden').value;
+            const txnId = document.getElementById('modalTxnIdInput').value.trim();
+
+            if (!txnId) {
+                alert('Please enter your UPI transaction reference ID.');
+                return;
+            }
+
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+
+            fetch("{{ route('student.confirm-payment') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    invoice_id: invoiceId,
+                    txn_id: txnId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i>Submit Txn ID';
+
+                if (data.success) {
+                    feedbackEl.innerText = data.message;
+                    feedbackEl.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    alert(data.message || 'Error confirming transaction.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i>Submit Txn ID';
+                alert('Server error confirming transaction.');
+            });
+        });
+    });
+</script>
 @endsection

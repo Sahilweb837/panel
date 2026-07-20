@@ -143,4 +143,105 @@ class StudentPortalController extends Controller
 
         return redirect()->route('student.dashboard')->with('success', 'You have successfully enrolled/updated your course to: ' . $course->name);
     }
+
+    public function payNow(Request $request)
+    {
+        $userId = session('user_id');
+        $student = Student::with('course')->where('user_id', $userId)->first();
+
+        if (!$student) {
+            return response()->json(['error' => 'Student profile not found.'], 404);
+        }
+
+        // Calculate monthly installment amount
+        $tenureLabel = $student->fee_tenure ?? '1 Year';
+        $tenureMonths = match($tenureLabel) {
+            '1 Month' => 1,
+            '3 Months' => 3,
+            '6 Months' => 6,
+            '1 Year' => 12,
+            default => 12,
+        };
+        $courseFee = $student->course ? $student->course->fee : 0;
+        $discount = $student->discount ?? 0;
+        $durationLower = strtolower($student->course_duration ?? '1 year');
+        $courseMonths = match(true) {
+            str_contains($durationLower, '1 year') || str_contains($durationLower, '12 month') => 12,
+            str_contains($durationLower, '6 month') => 6,
+            str_contains($durationLower, '3 month') => 3,
+            str_contains($durationLower, '1 month') => 1,
+            default => 12,
+        };
+
+        $divisor = max(1, (int) ceil($courseMonths / $tenureMonths));
+        $monthlyCourseFee = round($courseFee / $divisor, 2);
+        $monthlyDiscount = round($discount / $divisor, 2);
+        $netMonthlyFee = max(0, $monthlyCourseFee - $monthlyDiscount);
+
+        // Check if unpaid invoice already exists for this student
+        $existingInvoice = FeeInvoice::where('student_id', $student->id)
+            ->where('status', '!=', 'Paid')
+            ->latest()
+            ->first();
+
+        if (!$existingInvoice) {
+            // Auto-generate 1st Month / Current Month Fee Invoice in SQL
+            $invPrefix = \App\Models\Setting::get('fin_invoice_prefix', 'ADM-');
+            $invoiceNo = $invPrefix . date('Ym') . '-' . sprintf('%03d', $student->id);
+
+            $existingInvoice = FeeInvoice::create([
+                'student_id' => $student->id,
+                'invoice_no' => $invoiceNo,
+                'fee_category' => '1st Month Course Installment Fee',
+                'total_amount' => $netMonthlyFee > 0 ? $netMonthlyFee : 1000,
+                'paid_amount' => 0,
+                'due_amount' => $netMonthlyFee > 0 ? $netMonthlyFee : 1000,
+                'due_date' => Carbon::now()->addDays(7),
+                'status' => 'Unpaid',
+                'payment_mode' => 'Online UPI',
+                'notes' => 'Auto-generated invoice via Student Portal Pay Now.',
+            ]);
+        }
+
+        $payableAmount = $existingInvoice->due_amount > 0 ? $existingInvoice->due_amount : $existingInvoice->total_amount;
+        $upiId = \App\Models\Setting::get('fin_upi_id', 'netcoder@upi');
+        $instituteName = \App\Models\Setting::get('institute_name', 'Netcoder Learning');
+
+        // Standard UPI Deep Link String
+        $upiString = "upi://pay?pa={$upiId}&pn=" . urlencode($instituteName) . "&am={$payableAmount}&tr={$existingInvoice->invoice_no}&cu=INR&tn=" . urlencode("Fee Payment " . $existingInvoice->invoice_no);
+
+        // QR Code Server API URL
+        $qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" . urlencode($upiString);
+
+        return response()->json([
+            'success' => true,
+            'invoice_no' => $existingInvoice->invoice_no,
+            'fee_category' => $existingInvoice->fee_category,
+            'amount' => $payableAmount,
+            'student_name' => trim($student->first_name . ' ' . ($student->last_name ?? '')),
+            'admission_no' => $student->admission_no,
+            'upi_id' => $upiId,
+            'upi_string' => $upiString,
+            'qr_image_url' => $qrImageUrl,
+            'invoice_id' => $existingInvoice->id,
+        ]);
+    }
+
+    public function submitPaymentConfirmation(Request $request)
+    {
+        $request->validate([
+            'invoice_id' => 'required|exists:fee_invoices,id',
+            'txn_id' => 'required|string|max:100',
+        ]);
+
+        $invoice = FeeInvoice::findOrFail($request->invoice_id);
+        $invoice->paid_amount = $invoice->total_amount;
+        $invoice->due_amount = 0;
+        $invoice->status = 'Paid';
+        $invoice->payment_mode = 'UPI / Online';
+        $invoice->notes = ($invoice->notes ? $invoice->notes . ' | ' : '') . 'Txn Ref: ' . $request->txn_id;
+        $invoice->save();
+
+        return response()->json(['success' => true, 'message' => 'Payment confirmation received! Invoice status updated to Paid.']);
+    }
 }

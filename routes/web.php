@@ -157,6 +157,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::prefix('student')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\StudentPortalController::class, 'dashboard'])->name('student.dashboard');
         Route::post('/select-course', [\App\Http\Controllers\StudentPortalController::class, 'selectCourse'])->name('student.select-course');
+        Route::post('/pay-now', [\App\Http\Controllers\StudentPortalController::class, 'payNow'])->name('student.pay-now');
+        Route::post('/confirm-payment', [\App\Http\Controllers\StudentPortalController::class, 'submitPaymentConfirmation'])->name('student.confirm-payment');
         Route::get('/attendance', [\App\Http\Controllers\FaceAttendanceController::class, 'captureView'])->name('student.attendance.capture');
     });
 

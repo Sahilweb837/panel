@@ -5,6 +5,101 @@
 
 @section('content')
     <div class="tasks-container">
+        @if(session('user_role_slug') !== 'staff')
+            {{-- Task Analytics Stat Cards --}}
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card premium-stat-card p-3 d-flex flex-row align-items-center gap-3">
+                        <div style="width:48px; height:48px; border-radius:12px; background:rgba(59,130,246,0.1); color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted);">Total Tasks</div>
+                            <div style="font-size:1.4rem; font-weight:800;" class="text-dark-title">{{ $totalTasksCount ?? 0 }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card premium-stat-card p-3 d-flex flex-row align-items-center gap-3">
+                        <div style="width:48px; height:48px; border-radius:12px; background:rgba(16,185,129,0.1); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#10b981;">Completed</div>
+                            <div style="font-size:1.4rem; font-weight:800; color:#10b981;">{{ $completedTasksCount ?? 0 }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card premium-stat-card p-3 d-flex flex-row align-items-center gap-3">
+                        <div style="width:48px; height:48px; border-radius:12px; background:rgba(245,158,11,0.1); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#f59e0b;">In Progress</div>
+                            <div style="font-size:1.4rem; font-weight:800; color:#f59e0b;">{{ $inProgressTasksCount ?? 0 }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card premium-stat-card p-3 d-flex flex-row align-items-center gap-3">
+                        <div style="width:48px; height:48px; border-radius:12px; background:rgba(239,68,68,0.1); color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted);">Completion Rate</div>
+                            <div style="font-size:1.4rem; font-weight:800; color:var(--first-color);">{{ $completionRate ?? 0 }}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Staff Task Performance Report --}}
+            @if(isset($employeeTaskReports) && count($employeeTaskReports) > 0)
+            <div class="card premium-stat-card p-0 mb-4 overflow-hidden">
+                <div class="premium-card-header bg-transparent border-bottom p-3 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold text-dark-title"><i class="fas fa-users-cog text-first me-2"></i>Staff Task Performance Report</h6>
+                    <small class="text-muted">Analytics by Staff Member</small>
+                </div>
+                <div class="table-responsive">
+                    <table class="table premium-table align-middle mb-0" style="font-size: 0.85rem;">
+                        <thead>
+                            <tr class="table-light-head">
+                                <th class="ps-4">Staff Member</th>
+                                <th>Total Assigned</th>
+                                <th>Completed</th>
+                                <th>In Progress</th>
+                                <th>Pending</th>
+                                <th>Completion Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($employeeTaskReports as $rep)
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark-title">
+                                        {{ $rep['employee']->user?->name ?? 'Staff #'.$rep['employee']->id }}
+                                        <small class="text-muted ms-1">({{ $rep['employee']->employee_code }})</small>
+                                    </td>
+                                    <td><span class="badge bg-secondary">{{ $rep['assigned'] }}</span></td>
+                                    <td><span class="badge bg-success">{{ $rep['done'] }}</span></td>
+                                    <td><span class="badge bg-warning text-dark">{{ $rep['in_progress'] }}</span></td>
+                                    <td><span class="badge bg-danger">{{ $rep['pending'] }}</span></td>
+                                    <td style="width: 220px;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="fee-bar-bg flex-grow-1" style="height: 6px; background: var(--border);">
+                                                <div class="fee-bar-fill" style="width: {{ $rep['rate'] }}%; background: var(--first-color); height: 100%; border-radius: 4px;"></div>
+                                            </div>
+                                            <strong style="font-size: 0.8rem;">{{ $rep['rate'] }}%</strong>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+        @endif
         <div class="toolbar mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
             @if(session('user_role_slug') !== 'staff')
                 <form method="GET" action="{{ route('tasks.index') }}" class="filter-form d-flex align-items-center gap-2 flex-grow-1">
