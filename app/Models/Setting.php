@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class Setting extends Model
 {
@@ -21,26 +22,40 @@ class Setting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        return Cache::remember("sys_setting_{$key}", 3600, function () use ($key, $default) {
-            $setting = static::where('key', $key)->first();
-            return $setting ? $setting->value : $default;
-        });
+        try {
+            if (!Schema::hasTable('settings')) {
+                return $default;
+            }
+            return Cache::remember("sys_setting_{$key}", 3600, function () use ($key, $default) {
+                $setting = static::where('key', $key)->first();
+                return $setting ? $setting->value : $default;
+            });
+        } catch (\Throwable $e) {
+            return $default;
+        }
     }
 
     /**
      * Set or update a setting by key.
      */
-    public static function set(string $key, mixed $value, string $group = 'general'): static
+    public static function set(string $key, mixed $value, string $group = 'general'): static|null
     {
-        $setting = static::updateOrCreate(
-            ['key' => $key],
-            ['value' => $value, 'group' => $group]
-        );
+        try {
+            if (!Schema::hasTable('settings')) {
+                return null;
+            }
+            $setting = static::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value, 'group' => $group]
+            );
 
-        Cache::forget("sys_setting_{$key}");
-        Cache::forget('sys_settings_all');
+            Cache::forget("sys_setting_{$key}");
+            Cache::forget('sys_settings_all');
 
-        return $setting;
+            return $setting;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**
@@ -48,13 +63,20 @@ class Setting extends Model
      */
     public static function getAllGrouped(): array
     {
-        return Cache::remember('sys_settings_all', 3600, function () {
-            $all = static::all();
-            $grouped = [];
-            foreach ($all as $setting) {
-                $grouped[$setting->group][$setting->key] = $setting->value;
+        try {
+            if (!Schema::hasTable('settings')) {
+                return [];
             }
-            return $grouped;
-        });
+            return Cache::remember('sys_settings_all', 3600, function () {
+                $all = static::all();
+                $grouped = [];
+                foreach ($all as $setting) {
+                    $grouped[$setting->group][$setting->key] = $setting->value;
+                }
+                return $grouped;
+            });
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 }

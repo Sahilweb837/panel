@@ -1,0 +1,33 @@
+=============================================================================
+HOW TO FIX MISSING `settings` TABLE ERROR ON CLOUDWAYS / PRODUCTION SERVER
+=============================================================================
+
+Error Message:
+SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ccjkrdwumr.settings' doesn't exist
+
+-----------------------------------------------------------------------------
+OPTION 1: RUN MIGRATIONS VIA SSH / COMMAND LINE (RECOMMENDED)
+-----------------------------------------------------------------------------
+Run the following terminal command in your application root directory on the server:
+
+    php artisan migrate --path=database/migrations/2026_07_20_120000_create_settings_table.php
+
+Or run all outstanding migrations:
+
+    php artisan migrate --force
+
+-----------------------------------------------------------------------------
+OPTION 2: IMPORT THE SQL FILE VIA PHPMYADMIN / ADMINER / CLOUDWAYS DB MANAGER
+-----------------------------------------------------------------------------
+1. Log in to phpMyAdmin / Cloudways Database Manager / Adminer.
+2. Select your database (e.g. `ccjkrdwumr`).
+3. Click on the "SQL" or "Import" tab.
+4. Copy and paste the contents of `database/sql/create_settings_table.sql` OR upload the file.
+5. Click "Execute" or "Go".
+
+-----------------------------------------------------------------------------
+AUTOMATIC FALLBACK PROTECTION APPLIED
+-----------------------------------------------------------------------------
+The `Setting.php` Eloquent Model has been updated with safety try-catch blocks.
+Even if the `settings` table is not yet created on the database server, the application will NOT crash with a 500 SQL error. It will seamlessly fall back to system default values!
+=============================================================================
