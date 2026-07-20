@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('students', 'fee_tenure')) {
-            Schema::table('students', function (Blueprint $table) {
-                $table->string('fee_tenure', 50)->nullable()->after('prospectus_fee');
-            });
-        }
+        Schema::table('students', function (Blueprint $table) {
+            $table->string('fee_tenure', 50)->nullable()->after('prospectus_fee');
+        });
     }
 
     /**

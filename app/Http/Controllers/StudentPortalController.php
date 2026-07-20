@@ -114,25 +114,12 @@ class StudentPortalController extends Controller
         $totalMilestones = $milestones->count();
         $milestoneProgress = $totalMilestones > 0 ? round(($completedMilestones / $totalMilestones) * 100) : 0;
 
-        $courseMilestones = collect();
-        if ($student->course_id) {
-            $courseMilestones = \App\Models\CourseMilestone::where('course_id', $student->course_id)
-                ->orderBy('order_index')
-                ->orderBy('id')
-                ->get();
-        }
-
-        $completedCourseMilestones = $courseMilestones->where('is_completed', true)->count();
-        $totalCourseMilestones = $courseMilestones->count();
-        $courseMilestoneProgress = $totalCourseMilestones > 0 ? round(($completedCourseMilestones / $totalCourseMilestones) * 100) : 0;
-
         return view('portal.student.dashboard', compact(
             'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
             'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices',
             'dueFees', 'paidFees', 'totalFees', 'milestones', 'completedMilestones',
-            'totalMilestones', 'milestoneProgress', 'remainingCourseFee', 'netCourseFee',
-            'courseMilestones', 'completedCourseMilestones', 'totalCourseMilestones', 'courseMilestoneProgress'
+            'totalMilestones', 'milestoneProgress', 'coursePaid', 'remainingCourseFee'
         ));
     }
 

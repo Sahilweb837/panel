@@ -72,20 +72,19 @@
                                 <h3 class="fw-bold mb-2 text-dark-title" style="font-size: 1.25rem; {{ request('trashed') ? 'text-decoration: line-through; color: #dc3545;' : '' }}">{{ $course->name }}</h3>
                                 <p class="text-muted small mb-3"><i class="fas fa-clock me-1"></i>Duration: {{ $course->duration ?? 'Flexible duration' }}</p>
                                 
-                                <div class="mb-3">
-                                    <a href="{{ route('courses.milestones.index', $course->id) }}" class="button button-secondary btn-sm w-100 py-2 rounded-3 d-flex align-items-center justify-content-center gap-1 mb-2" style="font-size: 0.82rem; font-weight: 700;">
-                                        <i class="fas fa-list-check text-primary me-1"></i>Syllabus & Milestones ({{ $course->milestones()->where('is_completed', true)->count() }}/{{ $course->milestones()->count() }})
-                                    </a>
-                                    @if($course->syllabus_path)
+                                @if($course->syllabus_path)
+                                    <div class="mb-3">
                                         <a href="{{ Storage::url($course->syllabus_path) }}" target="_blank" class="btn btn-outline-primary btn-sm w-100 py-2 rounded-3 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.8rem; font-weight: 600;">
-                                            <i class="fas fa-file-pdf"></i> Download PDF Syllabus
+                                            <i class="fas fa-file-pdf"></i> View Syllabus
                                         </a>
-                                    @else
+                                    </div>
+                                @else
+                                    <div class="mb-3">
                                         <button disabled class="btn btn-outline-secondary btn-sm w-100 py-2 rounded-3 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.8rem; font-weight: 600; opacity: 0.5;">
                                             <i class="fas fa-times-circle"></i> No Syllabus
                                         </button>
-                                    @endif
-                                </div>
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="border-top pt-3 mt-3">

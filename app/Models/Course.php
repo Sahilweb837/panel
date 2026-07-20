@@ -23,9 +23,4 @@ class Course extends Model
     {
         return $this->hasMany(Student::class);
     }
-
-    public function milestones()
-    {
-        return $this->hasMany(CourseMilestone::class)->orderBy('order_index')->orderBy('id');
-    }
 }

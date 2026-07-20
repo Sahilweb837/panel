@@ -17,9 +17,6 @@ class EnsureUserIsAuthenticated
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->session()->has('user_id')) {
-            if ($request->expectsJson()) {
-                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-            }
             $request->session()->put('url.intended', $request->fullUrl());
             return redirect()->route('login');
         }
@@ -27,9 +24,6 @@ class EnsureUserIsAuthenticated
         $user = User::with('role')->find($request->session()->get('user_id'));
 
         if (! $user) {
-            if ($request->expectsJson()) {
-                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-            }
             $request->session()->flush();
             return redirect()->route('login');
         }
@@ -39,17 +33,12 @@ class EnsureUserIsAuthenticated
         $roleSlug = $user->role?->slug;
         $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
 
-        // Global routes accessible to all authenticated users
-        if ($request->routeIs('staff.ping')) {
-            return $next($request);
-        }
-
         // ----------------------------------------------------------------
         // STUDENT: can ONLY access student.* routes + logout
         // ----------------------------------------------------------------
         if ($roleSlug === 'student') {
             $route = $request->route() ? $request->route()->getName() : '';
-            if ($request->routeIs('logout') || str_starts_with($route, 'student.') || str_starts_with($route, 'messages.')) {
+            if ($request->routeIs('logout') || str_starts_with($route, 'student.')) {
                 return $next($request);
             }
             // Block everything else – send back to student portal
@@ -58,11 +47,11 @@ class EnsureUserIsAuthenticated
         }
 
         // ----------------------------------------------------------------
-        // STAFF: can ONLY access staff.* routes + logout + messages.*
+        // STAFF: can ONLY access staff.* routes + logout
         // ----------------------------------------------------------------
         if ($roleSlug === 'staff') {
             $route = $request->route() ? $request->route()->getName() : '';
-            if ($request->routeIs('logout') || str_starts_with($route, 'staff.') || str_starts_with($route, 'messages.')) {
+            if ($request->routeIs('logout') || str_starts_with($route, 'staff.')) {
                 return $next($request);
             }
             // Block everything else – send back to staff portal

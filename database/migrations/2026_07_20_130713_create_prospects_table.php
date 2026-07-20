@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create the prospects table only if it does not already exist.
-        if (!Schema::hasTable('prospects')) {
-            Schema::create('prospects', function (Blueprint $table) {
-                $table->id();
-                $table->timestamps();
-            });
-        }
+        Schema::create('prospects', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
     }
 
     /**
