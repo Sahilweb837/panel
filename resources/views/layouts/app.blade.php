@@ -352,6 +352,7 @@
                     <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
                         @if($isSuperOrRoot)
                         <li><a href="{{ route('settings.index') }}" class="nav-link py-2 {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
+                        <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
                         <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><i class="fas fa-key me-2" style="width:16px;"></i><span>Credentials</span></a></li>
                         <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><i class="fas fa-database me-2" style="width:16px;"></i><span>System Backups</span></a></li>
                         <li>
@@ -362,6 +363,8 @@
                                 </a>
                             </form>
                         </li>
+                        @else
+                        <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
                         @endif
                         <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><i class="fas fa-moon me-2" style="width:16px;"></i><span>Toggle Theme</span></a></li>
                         <li>
@@ -414,6 +417,20 @@
             </div>
             
             <div class="d-flex align-items-center gap-3">
+                @php
+                    $navUnreadCount = 0;
+                    if (session('user_id')) {
+                        $navUnreadCount = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->where('is_read', false)->count();
+                    }
+                @endphp
+                <a href="{{ route('messages.index') }}" class="btn position-relative" title="Message & Notice Center" style="background: var(--surface-soft, #f8f9fa); border: 1px solid var(--border, #e9ecef); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-color, #333);">
+                    <i class="fas fa-envelope"></i>
+                    @if($navUnreadCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                            {{ $navUnreadCount }}
+                        </span>
+                    @endif
+                </a>
                 <div class="search-bar position-relative d-none d-lg-block">
                     <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
                     <input type="text" class="form-control rounded-pill ps-5" placeholder="Search dashboard..." style="width: 260px; background-color: var(--surface-soft, #f8f9fa); border-color: var(--border, #e9ecef); color: var(--text-color, #333);">

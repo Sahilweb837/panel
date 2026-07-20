@@ -181,6 +181,12 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/tasks/{id}/status', [\App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.update_status');
     Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show', 'edit', 'update']);
 
+    // Internal Messaging Suite routes
+    Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
+    Route::post('/messages/{id}/read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.read');
+    Route::delete('/messages/{id}', [\App\Http\Controllers\MessageController::class, 'destroy'])->name('messages.destroy');
+
     // Daily Updates routes
     Route::resource('daily-updates', \App\Http\Controllers\DailyUpdateController::class)->only(['index', 'store']);
 
