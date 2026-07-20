@@ -90,6 +90,9 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('sub-admins/{user}/password-update', [SubAdminController::class, 'updatePassword'])->name('sub-admins.password.update');
     Route::resource('sub-admins', SubAdminController::class)->except(['show']);
     
+    Route::get('settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+    
     Route::get('backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');
     Route::post('backups/create', [\App\Http\Controllers\BackupController::class, 'create'])->name('backups.create');
     Route::get('backups/{fileName}/download', [\App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');

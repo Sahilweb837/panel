@@ -447,8 +447,8 @@
                     <input type="hidden" name="account_type" id="account_type" value="{{ request('type', old('account_type', 'institute')) }}">
 
                     <div class="form-floating">
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="name@example.com" required>
-                        <label for="email"><i class="fas fa-envelope me-2"></i> Email Address</label>
+                        <input type="text" class="form-control @error('email') is-invalid @enderror" id="login_id" name="login_id" value="{{ old('login_id', old('email')) }}" placeholder="Email, Username, or Student ID" required>
+                        <label for="login_id"><i class="fas fa-user-circle me-2"></i> Email / Username / Student ID</label>
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

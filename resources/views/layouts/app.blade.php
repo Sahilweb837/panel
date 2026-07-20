@@ -348,14 +348,12 @@
                     </div>
                     <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                 </a>
-                <div class="collapse {{ request()->routeIs('backups.*', 'credentials.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
+                <div class="collapse {{ request()->routeIs('settings.*', 'backups.*', 'credentials.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
                     <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
                         @if($isSuperOrRoot)
-                        <li><a href="#" class="nav-link py-2"><span>Company Profile</span></a></li>
-                        <li><a href="#" class="nav-link py-2"><span>Role & Permissions</span></a></li>
-                        <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><span>Credentials</span></a></li>
-                        <li><a href="#" class="nav-link py-2"><span>Email Templates</span></a></li>
-                        <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><span>System Backups</span></a></li>
+                        <li><a href="{{ route('settings.index') }}" class="nav-link py-2 {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
+                        <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><i class="fas fa-key me-2" style="width:16px;"></i><span>Credentials</span></a></li>
+                        <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><i class="fas fa-database me-2" style="width:16px;"></i><span>System Backups</span></a></li>
                         <li>
                             <form action="{{ route('clear-cache') }}" method="POST" class="d-inline w-100" style="display:block;">
                                 @csrf
@@ -365,7 +363,7 @@
                             </form>
                         </li>
                         @endif
-                        <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><span>Toggle Theme</span></a></li>
+                        <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><i class="fas fa-moon me-2" style="width:16px;"></i><span>Toggle Theme</span></a></li>
                         <li>
                             <form action="{{ route('logout') }}" method="POST" class="d-inline w-100" style="display:block;">
                                 @csrf
@@ -378,12 +376,16 @@
                 </div>
             </div>
 
-        <div class="sidebar-footer">
-            <p>Logged in as</p>
-            <strong>{{ session('user_name', 'Guest') }}</strong>
-            @if(session('user_role'))
-                <small class="text-muted d-block mb-2">{{ session('user_role') }}</small>
-            @endif
+        <div class="sidebar-footer" style="padding: 16px; background: rgba(255, 85, 50, 0.04); border-radius: 14px; margin: 15px 12px; border: 1px solid rgba(255, 85, 50, 0.15);">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge" style="background: rgba(255, 85, 50, 0.15); color: var(--first-color); font-weight: 700; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px;">
+                    <i class="fas fa-user-shield me-1"></i>{{ session('user_role', 'Super Admin') }}
+                </span>
+                <span class="badge bg-success rounded-pill" style="font-size: 0.65rem;"><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Online</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Logged in as</div>
+            <strong style="font-size: 1rem; color: var(--text); font-weight: 700; display: block; margin-bottom: 8px;">{{ session('user_name', 'Super Admin') }}</strong>
+            
             @php
                 $currentUser = null;
                 if (session('user_id')) {
@@ -391,19 +393,14 @@
                 }
             @endphp
             @if($currentUser && $currentUser->phone_number)
-                <small class="d-block mb-1">
+                <small class="d-block mb-2 text-muted" style="font-size: 0.78rem;">
                     <i class="fas fa-phone me-1"></i>{{ $currentUser->phone_number }}
-                    @if($currentUser->is_phone_verified)
-                        <span class="badge bg-success rounded-pill ms-1">Verified</span>
-                    @else
-                        <span class="badge bg-warning rounded-pill ms-1">Unverified</span>
-                    @endif
                 </small>
             @endif
-            <form action="{{ route('logout') }}" method="POST" class="logout-form">
+            <form action="{{ route('logout') }}" method="POST" class="logout-form mt-2">
                 @csrf
-                <button type="submit" class="button button-secondary">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <button type="submit" class="button button-secondary w-100 py-2" style="font-size: 0.85rem; border-radius: 8px;">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
                 </button>
             </form>
         </div>
