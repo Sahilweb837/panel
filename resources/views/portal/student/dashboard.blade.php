@@ -20,7 +20,7 @@
         font-size: 1.2rem; flex-shrink: 0;
     }
     .s-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 2px; }
-    .s-stat-value { font-size: 1.5rem; font-weight: 800; font-family: 'Outfit', sans-serif; line-height: 1; color: var(--text); }
+    .s-stat-value { font-size: 1.5rem; font-weight: 800; font-family: 'Poppins', sans-serif; line-height: 1; color: var(--text); }
 
     .fee-bar-bg { height: 10px; border-radius: 20px; background: var(--border, #e2e8f0); overflow: hidden; }
     .fee-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--first-color, #ff5532), #ffa032); transition: width 0.8s ease; }

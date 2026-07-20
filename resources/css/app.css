@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+
 :root {
+  --font-sans: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --header-height: 3.5rem;
   --first-color: #ff5532;
   --second-color: #575757;
@@ -61,10 +64,31 @@ html[data-theme="dark"] {
 }
 
 html,
+body,
+button,
+input,
+select,
+textarea,
+table,
+th,
+td,
+h1, h2, h3, h4, h5, h6,
+.sidebar,
+.brand,
+.nav-link,
+.card,
+.dropdown-menu,
+.modal,
+.tooltip,
+.badge,
+.btn {
+  font-family: var(--font-sans) !important;
+}
+
+html,
 body {
   margin: 0;
   min-height: 100%;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--body-color);
   color: var(--text);
   font-size: var(--normal-font-size);

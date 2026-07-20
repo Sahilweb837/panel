@@ -27,12 +27,12 @@
         html[data-theme="dark"] .sk-card {
             background: linear-gradient(90deg, #1E1E1E 25%, #2C2C2E 50%, #1E1E1E 75%) !important;
         }
-        /* JetBrains Mono typography for numerical values */
+        /* Poppins typography for numerical values and headings */
         html[data-theme="dark"] .metric-number,
         html[data-theme="dark"] .stat-card h3,
         html[data-theme="dark"] .table td,
         html[data-theme="dark"] .value-accent {
-            font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+            font-family: 'Poppins', sans-serif !important;
         }
 
         .dashboard-container {

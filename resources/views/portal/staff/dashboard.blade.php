@@ -36,7 +36,7 @@
     .portal-stat-value {
         font-size: 1.6rem;
         font-weight: 800;
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Poppins', sans-serif;
         line-height: 1;
         color: var(--text);
     }
@@ -68,7 +68,7 @@
     .salary-row.total-row {
         background: rgba(255,85,50,0.05);
         font-weight: 800;
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Poppins', sans-serif;
         font-size: 1.1rem;
         color: var(--first-color);
     }

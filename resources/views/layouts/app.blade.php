@@ -68,6 +68,9 @@
             }
         };
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -78,7 +81,7 @@
             background: linear-gradient(180deg, var(--sidebar-bg) 0%, rgba(0,0,0,0.01) 100%);
             border-right: 1px solid rgba(226, 232, 240, 0.8);
             box-shadow: 4px 0 24px rgba(0,0,0,0.02);
-            font-family: 'Outfit', 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
         
         html[data-theme="dark"] .sidebar {
@@ -111,6 +114,7 @@
             background: linear-gradient(90deg, var(--text), var(--muted));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-family: 'Poppins', sans-serif;
         }
         
         .nav-link {
@@ -118,6 +122,7 @@
             margin-bottom: 4px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 600;
+            font-family: 'Poppins', sans-serif;
         }
         
         .nav-link:hover {
@@ -134,7 +139,7 @@
     <!-- Page Loader -->
     <div id="global-page-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--main-bg, #ffffff); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.4s ease;">
         <div class="spinner-border" style="color: var(--first-color, #ff5532); width: 3rem; height: 3rem; margin-bottom: 1rem;" role="status"></div>
-        <div style="color: var(--text-color, #333); font-weight: 600; font-family: 'Inter', sans-serif;">Loading Dashboard...</div>
+        <div style="color: var(--text-color, #333); font-weight: 600; font-family: 'Poppins', sans-serif;">Loading Dashboard...</div>
     </div>
     <script>
         window.addEventListener('load', function() {
