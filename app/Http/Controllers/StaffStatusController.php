@@ -11,10 +11,10 @@ class StaffStatusController extends Controller
 {
     public function ping(Request $request)
     {
-        $userId = session('user_id');
+        $userId = auth()->id();
 
         if (!$userId) {
-            return response()->json(['success' => false, 'online_staff' => []]);
+            return response()->json(['success' => false, 'online_staff' => []], 401);
         }
 
         User::where('id', $userId)->update([

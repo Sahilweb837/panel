@@ -179,7 +179,7 @@ Route::middleware(['auth.custom'])->group(function () {
     });
 
     // Staff Online Heartbeat Ping Route
-    Route::post('/api/staff/ping', [\App\Http\Controllers\StaffStatusController::class, 'ping'])->name('staff.ping');
+    Route::post('/api/staff/ping', [\App\Http\Controllers\StaffStatusController::class, 'ping'])->middleware('auth.custom')->name('staff.ping');
 
     // Face Attendance API Route (Inside Auth for CSRF protection and session validation)
     Route::post('/api/attendance/face-check', [\App\Http\Controllers\FaceAttendanceController::class, 'store'])->name('attendance.face.store');
