@@ -17,6 +17,9 @@ class EnsureUserIsAuthenticated
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->session()->has('user_id')) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            }
             $request->session()->put('url.intended', $request->fullUrl());
             return redirect()->route('login');
         }
@@ -24,6 +27,9 @@ class EnsureUserIsAuthenticated
         $user = User::with('role')->find($request->session()->get('user_id'));
 
         if (! $user) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            }
             $request->session()->flush();
             return redirect()->route('login');
         }
@@ -32,6 +38,11 @@ class EnsureUserIsAuthenticated
 
         $roleSlug = $user->role?->slug;
         $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
+
+        // Global routes accessible to all authenticated users
+        if ($request->routeIs('staff.ping')) {
+            return $next($request);
+        }
 
         // ----------------------------------------------------------------
         // STUDENT: can ONLY access student.* routes + logout
