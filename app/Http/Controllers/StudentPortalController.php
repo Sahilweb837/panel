@@ -18,6 +18,10 @@ class StudentPortalController extends Controller
         $student = Student::with(['course', 'user'])->where('user_id', $userId)->first();
 
         if (!$student) {
+            $roleSlug = session('user_role_slug');
+            if (in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin'])) {
+                return redirect()->route('dashboard');
+            }
             return redirect()->route('login')->withErrors(['email' => 'No student profile associated with this account.']);
         }
 
