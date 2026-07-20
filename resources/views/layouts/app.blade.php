@@ -512,14 +512,9 @@
                         'Content-Type': 'application/json'
                     }
                 })
-                .then(res => {
-                    if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
-                        return null;
-                    }
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
-                    if (data && data.success && data.online_staff) {
+                    if (data.success && data.online_staff) {
                         const currentOnlineIds = new Set(data.online_staff.map(s => s.id));
 
                         if (!isFirstPing) {

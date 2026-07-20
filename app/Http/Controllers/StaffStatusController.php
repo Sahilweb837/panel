@@ -13,13 +13,11 @@ class StaffStatusController extends Controller
     {
         $userId = session('user_id');
 
-        if (!$userId) {
-            return response()->json(['success' => false, 'online_staff' => []]);
+        if ($userId) {
+            User::where('id', $userId)->update([
+                'last_seen_at' => Carbon::now()
+            ]);
         }
-
-        User::where('id', $userId)->update([
-            'last_seen_at' => Carbon::now()
-        ]);
 
         // Return online staff list (active in last 3 minutes)
         $threshold = Carbon::now()->subMinutes(3);

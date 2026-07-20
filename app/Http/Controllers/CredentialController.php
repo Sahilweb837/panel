@@ -142,16 +142,4 @@ class CredentialController extends Controller
         $credential->delete();
         return redirect()->route('credentials.index')->with('success', 'Credential deleted successfully.');
     }
-
-    public function showPassword($id)
-    {
-        $user = User::findOrFail($id);
-        return response()->json([
-            'success' => true,
-            'name' => $user->name,
-            'username' => $user->username,
-            'email' => $user->email,
-            'password' => $user->raw_password ?? 'Encrypted / Default Password'
-        ]);
-    }
 }

@@ -111,7 +111,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('students/{student}/fee-report', [StudentController::class, 'feeReport'])->name('students.fee-report');
     Route::resource('students', StudentController::class);
     
-    Route::get('sub-admins/{id}/password', [\App\Http\Controllers\CredentialController::class, 'showPassword'])->name('sub-admins.password.show');
     Route::resource('credentials', CredentialController::class)->except(['show']);
     Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
     Route::post('attendances/generate-fines', [AttendanceController::class, 'generateFines'])->name('attendances.generate-fines');
