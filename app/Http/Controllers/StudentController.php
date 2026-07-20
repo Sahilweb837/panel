@@ -125,6 +125,17 @@ class StudentController extends Controller
             }
             $request->merge(['roll_no' => $nextRollNo]);
         }
+        if (!$request->filled('first_name')) {
+            $request->merge(['first_name' => 'Student-' . str_replace('NT-ENR-', '', $request->admission_no ?? rand(100, 999))]);
+        }
+
+        if (!$request->filled('gender')) {
+            $request->merge(['gender' => 'Male']);
+        }
+
+        if (!$request->filled('student_type')) {
+            $request->merge(['student_type' => 'Regular (On Campus)']);
+        }
 
         $data = $request->validate([
             'admission_no' => ['required', 'string', 'max:50', 'unique:students,admission_no'],

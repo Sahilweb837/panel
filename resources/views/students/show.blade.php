@@ -221,6 +221,94 @@
                         </table>
                     </div>
                 </div>
+
+                @if($student->user || in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']))
+                <!-- Student Portal Credentials Card -->
+                <div class="card border border-primary border-opacity-25 rounded-3 p-3 mt-4" style="background: rgba(255, 85, 50, 0.03);">
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 85, 50, 0.15); color: var(--first-color);">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0" style="font-size: 1rem; color: var(--dark-title);">Student Login Credentials</h6>
+                        </div>
+                        <span class="badge bg-success"><i class="fas fa-shield-check me-1"></i>Active Portal Access</span>
+                    </div>
+
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12 col-md-4">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Login Username / ID</small>
+                            <div class="fw-bold text-dark-title" style="font-size: 0.95rem;">{{ $student->user?->username ?? $student->admission_no }}</div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Current Password (Plain Text)</small>
+                            <div class="d-flex align-items-center gap-2">
+                                <span id="show-raw-pw" class="fw-bold font-monospace" style="color: var(--first-color); font-size: 1rem;">
+                                    {{ $student->user?->raw_password ?? ($student->admission_no ?? 'N/A') }}
+                                </span>
+                                <button type="button" class="btn btn-sm btn-light border p-1 px-2" onclick="navigator.clipboard.writeText('{{ $student->user?->raw_password ?? $student->admission_no }}')" title="Copy Password">
+                                    <i class="fas fa-copy text-muted"></i>
+                                </button>
+                            </div>
+                        </div>
+                        @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']) && $student->user_id)
+                        <div class="col-12 col-md-4">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Update Password</small>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="show-new-password" class="form-control" placeholder="New Password..." minlength="6">
+                                <button class="btn btn-primary" type="button" onclick="updateStudentPasswordDirect({{ $student->user_id }})">
+                                    <i class="fas fa-save me-1"></i>Save
+                                </button>
+                            </div>
+                            <div id="show-pw-msg" class="small mt-1" style="display:none;"></div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                <script>
+                    function updateStudentPasswordDirect(userId) {
+                        const newPw = document.getElementById('show-new-password').value.trim();
+                        const msgEl = document.getElementById('show-pw-msg');
+                        if (!newPw || newPw.length < 6) {
+                            msgEl.style.display = 'block';
+                            msgEl.className = 'small text-danger fw-bold mt-1';
+                            msgEl.textContent = 'Minimum 6 characters required.';
+                            return;
+                        }
+
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+                        fetch(`/sub-admins/${userId}/password-update`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({ password: newPw })
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('show-raw-pw').textContent = data.password;
+                                document.getElementById('show-new-password').value = '';
+                                msgEl.style.display = 'block';
+                                msgEl.className = 'small text-success fw-bold mt-1';
+                                msgEl.textContent = 'Password updated successfully!';
+                                setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+                            } else {
+                                msgEl.style.display = 'block';
+                                msgEl.className = 'small text-danger fw-bold mt-1';
+                                msgEl.textContent = data.error || 'Failed to update.';
+                            }
+                        })
+                        .catch(() => {
+                            msgEl.style.display = 'block';
+                            msgEl.className = 'small text-danger fw-bold mt-1';
+                            msgEl.textContent = 'Error updating password.';
+                        });
+                    }
+                </script>
+                @endif
             </div>
         </div>
     </div>

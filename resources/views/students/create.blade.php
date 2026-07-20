@@ -57,9 +57,9 @@
                     <div class="form-group-grid mb-4">
                         <div class="form-group">
                             <label for="admission_no" class="fw-semibold mb-2">
-                                <i class="fas fa-hashtag text-first me-2"></i>Admission Number
+                                <i class="fas fa-hashtag text-first me-2"></i>Admission Number <small class="text-muted fw-normal">(Auto-generated)</small>
                             </label>
-                            <input type="text" id="admission_no" name="admission_no" value="{{ old('admission_no', $nextAdmissionNo) }}" required placeholder="e.g. NT-ENR-001" class="form-input {{ $errors->has('admission_no') ? 'is-invalid' : '' }}" />
+                            <input type="text" id="admission_no" name="admission_no" value="{{ old('admission_no', $nextAdmissionNo) }}" placeholder="e.g. NT-ENR-001 (Auto-generated if blank)" class="form-input {{ $errors->has('admission_no') ? 'is-invalid' : '' }}" />
                             @error('admission_no')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
@@ -67,9 +67,9 @@
 
                         <div class="form-group">
                             <label for="roll_no" class="fw-semibold mb-2">
-                                <i class="fas fa-list-ol text-first me-2"></i>Roll Number
+                                <i class="fas fa-list-ol text-first me-2"></i>Roll Number <small class="text-muted fw-normal">(Auto-generated)</small>
                             </label>
-                            <input type="text" id="roll_no" name="roll_no" value="{{ old('roll_no', $nextRollNo) }}" placeholder="e.g. 101" class="form-input {{ $errors->has('roll_no') ? 'is-invalid' : '' }}" />
+                            <input type="text" id="roll_no" name="roll_no" value="{{ old('roll_no', $nextRollNo) }}" placeholder="e.g. 101 (Auto-generated if blank)" class="form-input {{ $errors->has('roll_no') ? 'is-invalid' : '' }}" />
                             @error('roll_no')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
@@ -101,9 +101,9 @@
                     <div class="form-group-grid mb-4">
                         <div class="form-group">
                             <label for="first_name" class="fw-semibold mb-2">
-                                <i class="fas fa-font text-first me-2"></i>First Name
+                                <i class="fas fa-font text-first me-2"></i>First Name <small class="text-muted fw-normal">(Optional)</small>
                             </label>
-                            <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}" required placeholder="e.g. Sahil" class="form-input {{ $errors->has('first_name') ? 'is-invalid' : '' }}" />
+                            <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}" placeholder="e.g. Sahil (Auto-generated if blank)" class="form-input {{ $errors->has('first_name') ? 'is-invalid' : '' }}" />
                             @error('first_name')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror

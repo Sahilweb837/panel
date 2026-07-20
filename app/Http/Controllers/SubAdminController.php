@@ -195,21 +195,52 @@ class SubAdminController extends Controller
     }
 
     /**
-     * Super Admin: View raw/plaintext password for a user (AJAX)
+     * View raw/plaintext password for a user (AJAX) - Authorized Admins & SubAdmins
      */
     public function showPassword(User $user)
     {
-        // Double-check only superadmin can call this
         $roleSlug = session('user_role_slug');
-        if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin'])) {
+        if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         return response()->json([
+            'id'       => $user->id,
             'name'     => $user->name,
             'email'    => $user->email,
+            'username' => $user->username,
             'password' => $user->raw_password ?? '(Not recorded — was set before this feature)',
         ]);
+    }
+
+    /**
+     * Update user password (AJAX / POST) - Authorized Admins & SubAdmins
+     */
+    public function updatePassword(Request $request, User $user)
+    {
+        $roleSlug = session('user_role_slug');
+        if (!in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'password' => 'required|string|min:6',
+        ]);
+
+        $newPassword = $request->input('password');
+        $user->password = Hash::make($newPassword);
+        $user->raw_password = $newPassword;
+        $user->save();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password updated successfully.',
+                'password' => $newPassword
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Password updated successfully.');
     }
 
     /**
