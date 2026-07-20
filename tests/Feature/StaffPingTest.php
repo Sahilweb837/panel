@@ -23,7 +23,7 @@ class StaffPingTest extends TestCase
     public function authenticated_user_updates_last_seen_and_receives_online_staff()
     {
         // Create a staff role
-        $role = \App\Models\Role::create(['name' => 'Staff', 'slug' => 'staff']);
+        $role = \App\Models\Role::create(['role_name' => 'Staff', 'slug' => 'staff']);
 
         // Create a staff user
         $user = User::factory()->create([

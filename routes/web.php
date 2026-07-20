@@ -21,6 +21,7 @@ use App\Http\Controllers\ClientInvoiceController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\ProspectController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
