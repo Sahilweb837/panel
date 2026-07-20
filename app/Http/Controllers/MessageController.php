@@ -46,14 +46,8 @@ class MessageController extends Controller
             'receiver_role' => 'required_if:recipient_type,role|nullable|in:all,staff,student,admin',
             'subject' => 'required|string|max:255',
             'body' => 'required|string',
-            'attachment' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'priority' => 'required|in:Normal,Important,Urgent',
         ]);
-
-        $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('messages', 'public');
-        }
 
         Message::create([
             'sender_id' => $userId,
@@ -61,7 +55,6 @@ class MessageController extends Controller
             'receiver_role' => $request->recipient_type === 'role' ? $request->receiver_role : null,
             'subject' => $request->subject,
             'body' => $request->body,
-            'attachment_path' => $attachmentPath,
             'priority' => $request->priority,
             'is_read' => false,
         ]);

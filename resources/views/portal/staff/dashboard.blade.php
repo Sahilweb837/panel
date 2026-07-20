@@ -162,12 +162,8 @@
                     <div style="font-size:0.75rem; color:var(--muted);">Joined: <strong>{{ $joiningDate?->format('M d, Y') ?? 'N/A' }}</strong></div>
                 </div>
                 <a href="{{ route('staff.attendance.capture') }}" class="button button-primary w-100 mt-3 py-2">
-                    <i class="fas fa-camera me-2"></i>Mark Face Attendance
+                    <i class="fas fa-camera me-2"></i>Mark Attendance
                 </a>
-                <button type="button" class="button button-secondary w-100 mt-2 py-2" id="gpsCheckInBtn">
-                    <i class="fas fa-location-arrow me-2 text-danger"></i>Check-In with GPS Location
-                </button>
-                <div id="gpsStatusFeedback" style="display:none; font-size:0.75rem;" class="mt-2 alert alert-info p-2 mb-0"></div>
             </div>
         </div>
 
@@ -487,77 +483,5 @@
             }
         });
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const gpsBtn = document.getElementById('gpsCheckInBtn');
-        const feedbackEl = document.getElementById('gpsStatusFeedback');
-
-        if (!gpsBtn) return;
-
-        gpsBtn.addEventListener('click', function() {
-            if (!navigator.geolocation) {
-                alert('Geolocation is not supported by your browser.');
-                return;
-            }
-
-            gpsBtn.disabled = true;
-            gpsBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting GPS Location...';
-            feedbackEl.style.display = 'block';
-            feedbackEl.className = 'mt-2 alert alert-info p-2 mb-0';
-            feedbackEl.innerText = 'Requesting GPS Location permissions...';
-
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    feedbackEl.innerText = `GPS Location Acquired (${lat.toFixed(4)}, ${lng.toFixed(4)}). Saving check-in...`;
-
-                    fetch("{{ route('staff.checkin-location') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            latitude: lat,
-                            longitude: lng,
-                            location_address: `GPS Pin (${lat.toFixed(5)}, ${lng.toFixed(5)})`
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        gpsBtn.disabled = false;
-                        gpsBtn.innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Checked In with GPS';
-
-                        if (data.success) {
-                            feedbackEl.className = 'mt-2 alert alert-success p-2 mb-0';
-                            feedbackEl.innerText = `${data.message} (${data.check_in_time})`;
-                            if (window.showToast) {
-                                window.showToast('GPS Check-In Success', data.message, 'success');
-                            }
-                            setTimeout(() => { window.location.reload(); }, 2000);
-                        } else {
-                            feedbackEl.className = 'mt-2 alert alert-danger p-2 mb-0';
-                            feedbackEl.innerText = data.error || 'Failed to record check-in.';
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        gpsBtn.disabled = false;
-                        gpsBtn.innerHTML = '<i class="fas fa-location-arrow me-2 text-danger"></i>Check-In with GPS Location';
-                        feedbackEl.className = 'mt-2 alert alert-danger p-2 mb-0';
-                        feedbackEl.innerText = 'Connection error saving GPS check-in.';
-                    });
-                },
-                function(error) {
-                    gpsBtn.disabled = false;
-                    gpsBtn.innerHTML = '<i class="fas fa-location-arrow me-2 text-danger"></i>Check-In with GPS Location';
-                    feedbackEl.className = 'mt-2 alert alert-danger p-2 mb-0';
-                    feedbackEl.innerText = 'Location permission denied or unavailable.';
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        });
-    });
 </script>
 @endsection

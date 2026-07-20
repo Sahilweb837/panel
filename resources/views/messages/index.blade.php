@@ -203,7 +203,7 @@
                 <h6 class="modal-title fw-bold mb-0"><i class="fas fa-paper-plane me-2"></i>Compose Message / Broadcast Notice</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('messages.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('messages.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
@@ -254,12 +254,6 @@
                         <div class="col-12">
                             <label class="form-label fw-bold small">Message Body</label>
                             <textarea name="body" rows="5" class="form-input" placeholder="Type your message details here..." required></textarea>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label fw-bold small"><i class="fas fa-paperclip me-1 text-primary"></i>Image / Picture Attachment (Optional)</label>
-                            <input type="file" name="attachment" accept="image/*" class="form-input">
-                            <small class="text-muted d-block mt-1" style="font-size:0.75rem;">Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)</small>
                         </div>
                     </div>
                 </div>
