@@ -8,10 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('fee_invoices', function (Blueprint $table) {
-            $table->unsignedTinyInteger('billing_month')->nullable()->after('fee_category');
-            $table->unsignedInteger('billing_year')->nullable()->after('billing_month');
-        });
+        if (!Schema::hasColumn('fee_invoices', 'billing_month')) {
+            Schema::table('fee_invoices', function (Blueprint $table) {
+                $table->unsignedTinyInteger('billing_month')->nullable()->after('fee_category');
+                $table->unsignedInteger('billing_year')->nullable()->after('billing_month');
+            });
+        }
     }
 
     public function down(): void
