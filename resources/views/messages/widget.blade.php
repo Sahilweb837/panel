@@ -206,9 +206,14 @@
 <div class="messages-widget-container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="fw-bold mb-0"><i class="fas fa-envelope-open-text text-first me-2"></i>Messages & Communications</h5>
-        <button type="button" class="button button-primary py-1 px-3" data-bs-toggle="modal" data-bs-target="#composeWidgetModal">
-            <i class="fas fa-edit me-1"></i>Compose
-        </button>
+        <div class="d-flex gap-2">
+            <a href="{{ route('messages.full') }}" class="button button-secondary py-1 px-3">
+                <i class="fas fa-expand-arrows-alt me-1"></i>Full Screen App
+            </a>
+            <button type="button" class="button button-primary py-1 px-3" data-bs-toggle="modal" data-bs-target="#composeWidgetModal">
+                <i class="fas fa-edit me-1"></i>Compose
+            </button>
+        </div>
     </div>
 
     <div class="msg-widget-card p-0 overflow-hidden">

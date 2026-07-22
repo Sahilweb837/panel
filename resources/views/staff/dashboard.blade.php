@@ -389,55 +389,10 @@
                 </div>
             </div>
 
-            <!-- Recent Messages -->
+            <!-- Embedded Messages Widget -->
             <div class="row g-4 mt-2">
                 <div class="col-12">
-                    <div class="card premium-stat-card h-100">
-                        <div class="premium-card-header bg-transparent d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                                <i class="fas fa-envelope text-first"></i> Recent Messages
-                            </h5>
-                            <a href="{{ route('messages.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">View Inbox</a>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table premium-table table-hover align-middle mb-0">
-                                    <tbody>
-                                        @forelse($recentMessages ?? [] as $message)
-                                            <tr class="{{ $message->is_read ? 'text-muted' : 'fw-bold' }}" style="{{ $message->is_read ? 'background-color: transparent;' : 'background-color: rgba(255, 85, 50, 0.05);' }}">
-                                                <td class="ps-4" style="width: 50px;">
-                                                    <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--first-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                                        {{ strtoupper(substr($message->sender->first_name ?? $message->sender->name, 0, 1)) }}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="text-dark-title">{{ $message->sender->first_name ?? $message->sender->name }} {{ $message->sender->last_name ?? '' }}</div>
-                                                    <div class="small text-muted">{{ $message->sender->role->name ?? 'Unknown Role' }}</div>
-                                                </td>
-                                                <td>
-                                                    <div class="text-dark-title">{{ $message->subject }}</div>
-                                                    <div class="small text-muted text-truncate" style="max-width: 300px;">{{ Str::limit($message->body, 50) }}</div>
-                                                </td>
-                                                <td class="text-end pe-4">
-                                                    <div class="small text-muted mb-1">{{ $message->created_at->diffForHumans() }}</div>
-                                                    @if(!$message->is_read)
-                                                        <span class="badge bg-danger rounded-pill">New</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted py-5 ps-4">
-                                                    <i class="fas fa-envelope-open-text fa-2x mb-3 d-block text-muted" style="opacity: 0.5;"></i>
-                                                    No messages in your inbox.
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    @include('messages.widget')
                 </div>
             </div>
 

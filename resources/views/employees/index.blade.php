@@ -118,7 +118,7 @@
                                                 <i class="fas fa-edit me-1"></i>Edit
                                             </a>
                                             @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin']) && $employee->user_id)
-                                            <button type="button" class="button button-secondary small py-1.5 px-3 view-password-btn" data-url="{{ route('sub-admins.password.show', $employee->user_id) }}">
+                                            <button type="button" class="button button-secondary small py-1.5 px-3 view-password-btn" data-url="{{ route('sub-admins.password', $employee->user_id) }}">
                                                 <i class="fas fa-key me-1"></i>Key
                                             </button>
                                             @endif
