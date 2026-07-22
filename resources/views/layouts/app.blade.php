@@ -187,6 +187,17 @@
                 <span>Dashboard</span>
             </a>
             
+            <a href="{{ route('messages.index') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
+                <i class="fas fa-envelope"></i>
+                <span>Messages Inbox</span>
+                @php
+                    $unreadMessages = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->unread()->count();
+                @endphp
+                @if($unreadMessages > 0)
+                    <span class="badge bg-danger ms-auto rounded-pill">{{ $unreadMessages }}</span>
+                @endif
+            </a>
+            
             @php
                 $roleSlug = $currentUser->role?->slug ?? null;
                 $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
@@ -353,6 +364,7 @@
                         @if($isSuperOrRoot)
                         <li><a href="{{ route('settings.index') }}" class="nav-link py-2 {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
                         <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
+                        <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
                         <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><i class="fas fa-key me-2" style="width:16px;"></i><span>Credentials</span></a></li>
                         <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><i class="fas fa-database me-2" style="width:16px;"></i><span>System Backups</span></a></li>
                         <li>
@@ -365,6 +377,7 @@
                         </li>
                         @else
                         <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
+                        <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
                         @endif
                         <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><i class="fas fa-moon me-2" style="width:16px;"></i><span>Toggle Theme</span></a></li>
                         <li>

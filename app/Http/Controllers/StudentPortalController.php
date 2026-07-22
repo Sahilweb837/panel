@@ -113,13 +113,16 @@ class StudentPortalController extends Controller
         $completedMilestones = $milestones->where('status', 'Completed')->count();
         $totalMilestones = $milestones->count();
         $milestoneProgress = $totalMilestones > 0 ? round(($completedMilestones / $totalMilestones) * 100) : 0;
+        
+        $unreadMessageCount = \App\Models\Message::forUser($userId, session('user_role_slug'))->unread()->count();
 
         return view('portal.student.dashboard', compact(
             'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
             'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices',
             'dueFees', 'paidFees', 'totalFees', 'milestones', 'completedMilestones',
-            'totalMilestones', 'milestoneProgress', 'coursePaid', 'remainingCourseFee'
+            'totalMilestones', 'milestoneProgress', 'coursePaid', 'remainingCourseFee',
+            'unreadMessageCount'
         ));
     }
 

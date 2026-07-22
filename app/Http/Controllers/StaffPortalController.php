@@ -101,6 +101,8 @@ class StaffPortalController extends Controller
         $attendances = EmployeeAttendance::where('employee_id', $employee->id)
             ->latest('attendance_date')->limit(30)->get();
 
+        $unreadMessageCount = \App\Models\Message::forUser($userId, session('user_role_slug'))->unread()->count();
+
         return view('portal.staff.dashboard', compact(
             'employee',
             'attendances',
@@ -114,7 +116,7 @@ class StaffPortalController extends Controller
             'joiningDate', 'experience',
             'assignedTasks', 'todayUpdate',
             'salarySlips', 'offerLetters', 'leaveApplications',
-            'incomeRecords', 'totalIncome',
+            'incomeRecords', 'totalIncome', 'unreadMessageCount',
         ));
     }
 

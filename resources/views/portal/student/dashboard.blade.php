@@ -45,6 +45,17 @@
         </div>
     @endif
 
+    @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
+        <div class="alert d-flex align-items-center rounded-3 mb-4 border-0 shadow-sm" style="background: rgba(99, 102, 241, 0.1); color: #4338ca; border-left: 4px solid #6366f1 !important;">
+            <i class="fas fa-envelope-open-text fa-2x me-3"></i>
+            <div>
+                <strong>You have {{ $unreadMessageCount }} unread message(s)!</strong><br>
+                <span style="font-size: 0.85rem;">Please check your inbox to stay updated.</span>
+            </div>
+            <a href="{{ route('messages.index') }}" class="btn btn-sm ms-auto px-4" style="background: #6366f1; color: #fff; border-radius: 50px; font-weight: 600;">View Inbox</a>
+        </div>
+    @endif
+
     {{-- ── ROW 1: Profile + Stats ── --}}
     <div class="row g-3 mb-4">
 
