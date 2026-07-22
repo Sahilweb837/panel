@@ -81,7 +81,7 @@ class MessageController extends Controller
             'is_read' => false,
         ]);
 
-        return redirect()->route('messages.index')->with('success', 'Message sent successfully.');
+        return back()->with('success', 'Message sent successfully.');
     }
 
     public function markAsRead(Request $request, $id)
@@ -110,10 +110,10 @@ class MessageController extends Controller
 
         if ($message->sender_id === $userId || $message->receiver_id === $userId || in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin'])) {
             $message->delete();
-            return redirect()->route('messages.index')->with('success', 'Message deleted successfully.');
+            return back()->with('success', 'Message deleted successfully.');
         }
         
-        return redirect()->route('messages.index')->with('error', 'Unauthorized.');
+        return back()->with('error', 'Unauthorized.');
     }
 
     public function chat($userId = null)
@@ -189,6 +189,6 @@ class MessageController extends Controller
             'is_read' => false,
         ]);
 
-        return redirect()->route('messages.chat', $request->receiver_id)->with('success', 'Message sent!');
+        return back()->with('success', 'Message sent!');
     }
 }

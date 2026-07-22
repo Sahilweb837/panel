@@ -472,55 +472,8 @@
         </div>
     </div>
 
-    {{-- ── Recent Messages ── --}}
-    <div class="row g-3 mt-1">
-        <div class="col-12">
-            <div class="card premium-stat-card p-0 overflow-hidden">
-                <div class="premium-card-header bg-transparent border-bottom p-3 px-4 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fas fa-envelope text-first"></i> Recent Messages
-                    </h6>
-                    <a href="{{ route('messages.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">View Inbox</a>
-                </div>
-                <div class="p-0">
-                    <table class="table premium-table align-middle mb-0">
-                        <tbody>
-                            @forelse($recentMessages ?? [] as $message)
-                                <tr class="{{ $message->is_read ? 'text-muted' : 'fw-bold' }}" style="{{ $message->is_read ? '' : 'background-color: rgba(255, 85, 50, 0.05);' }}">
-                                    <td class="ps-4" style="width: 50px;">
-                                        <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--first-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                            {{ strtoupper(substr($message->sender->first_name ?? $message->sender->name, 0, 1)) }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="text-dark-title" style="font-size: 0.9rem;">{{ $message->sender->first_name ?? $message->sender->name }} {{ $message->sender->last_name ?? '' }}</div>
-                                        <div class="small text-muted" style="font-size: 0.75rem;">{{ $message->sender->role->name ?? 'Unknown Role' }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="text-dark-title" style="font-size: 0.9rem;">{{ $message->subject }}</div>
-                                        <div class="small text-muted text-truncate" style="max-width: 300px; font-size: 0.75rem;">{{ Str::limit($message->body, 50) }}</div>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <div class="small text-muted mb-1" style="font-size: 0.75rem;">{{ $message->created_at->diffForHumans() }}</div>
-                                        @if(!$message->is_read)
-                                            <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem;">New</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
-                                        <i class="fas fa-envelope-open-text fa-2x mb-2 d-block" style="opacity: 0.5;"></i>
-                                        No messages in your inbox.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- ── Embedded Messages Widget ── --}}
+    @include('messages.widget')
 
 </div>
 

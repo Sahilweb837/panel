@@ -731,6 +731,11 @@
         </div>
     </div>
 
+    {{-- ── Embedded Messages Widget ── --}}
+    <div class="container-fluid px-0 mt-4">
+        @include('messages.widget')
+    </div>
+
     <!-- Script to simulate dynamic lazy loading and skeleton fading, and theme management -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
