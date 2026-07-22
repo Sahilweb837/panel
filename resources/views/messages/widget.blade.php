@@ -4,6 +4,7 @@
         border: 1px solid var(--border);
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        font-family: 'Poppins', 'Outfit', sans-serif;
     }
     .unread-row {
         background: rgba(255, 85, 50, 0.04) !important;
@@ -145,6 +146,60 @@
         font-size: 3rem;
         margin-bottom: 1rem;
         opacity: 0.5;
+    }
+    
+    /* Mobile Responsiveness for Widget */
+    @media (max-width: 768px) {
+        .chat-widget-container {
+            flex-direction: column;
+            height: 650px;
+        }
+        .chat-widget-sidebar {
+            width: 100%;
+            height: 200px;
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+            flex: none;
+        }
+        .chat-widget-users {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 5px;
+        }
+        .chat-widget-user-item {
+            flex-direction: column;
+            border-bottom: none;
+            border-right: 1px solid rgba(0,0,0,0.02);
+            padding: 0.5rem;
+            min-width: 80px;
+            text-align: center;
+        }
+        .chat-widget-user-item:hover, .chat-widget-user-item.active {
+            border-left: none;
+            border-bottom: 3px solid var(--primary);
+            background: rgba(255, 85, 50, 0.05);
+        }
+        .chat-widget-avatar {
+            margin-right: 0;
+            margin-bottom: 0.25rem;
+        }
+        .chat-widget-main {
+            height: 450px;
+            flex: none;
+        }
+        .msg-widget-card .nav-pills {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .table-responsive {
+            border: 0;
+        }
+        .table-light-head th {
+            white-space: nowrap;
+        }
     }
 </style>
 
@@ -313,7 +368,7 @@
                         <div class="chat-widget-sidebar-header text-muted small text-uppercase">
                             Contacts
                         </div>
-                        <div class="chat-widget-users">
+                        <div class="chat-widget-users" style="padding-top: 5px;">
                             @php
                                 $groupedRecipients = $recipients->groupBy(function($user) {
                                     return $user->role->role_name ?? 'Users';
@@ -321,16 +376,17 @@
                             @endphp
 
                             @foreach($groupedRecipients as $roleName => $users)
-                                <div class="px-3 py-1 bg-light fw-bold text-muted" style="font-size: 0.7rem; text-transform: uppercase;">
+                                <div class="px-3 py-1 bg-light fw-bold text-muted d-none d-md-block" style="font-size: 0.7rem; text-transform: uppercase;">
                                     {{ $roleName }}
                                 </div>
                                 @foreach($users as $user)
-                                    <a href="?chat_user={{ $user->id }}#widget-chat" class="chat-widget-user-item {{ (request('chat_user') == $user->id) ? 'active' : '' }}">
+                                    <a href="?chat_user={{ $user->id }}#widget-chat" class="chat-widget-user-item {{ (request('chat_user') == $user->id) ? 'active' : '' }}" title="{{ $user->name }} ({{ $roleName }})">
                                         <div class="chat-widget-avatar">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}
                                         </div>
                                         <div class="overflow-hidden">
-                                            <div class="fw-bold text-truncate text-dark" style="font-size: 0.85rem;">{{ $user->name }}</div>
+                                            <div class="fw-bold text-truncate text-dark" style="font-size: 0.85rem;">{{ Str::limit($user->name, 12) }}</div>
+                                            <div class="small text-muted d-md-none" style="font-size: 0.65rem;">{{ Str::limit($roleName, 10) }}</div>
                                         </div>
                                     </a>
                                 @endforeach
@@ -389,7 +445,7 @@
 </div>
 
 <!-- COMPOSE MESSAGE MODAL -->
-<div class="modal fade" id="composeWidgetModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="composeWidgetModal" tabindex="-1" aria-hidden="true" style="font-family: 'Poppins', 'Outfit', sans-serif;">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
             <div class="modal-header text-white" style="background: linear-gradient(135deg, #ff5532 0%, #e04423 100%);">
@@ -467,25 +523,39 @@
 </div>
 
 <!-- VIEW MESSAGE MODAL -->
-<div class="modal fade" id="viewWidgetMsgModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
-            <div class="modal-header">
-                <h6 class="modal-title fw-bold text-dark-title mb-0" id="viewWidgetModalSubject"></h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="viewWidgetMsgModal" tabindex="-1" aria-hidden="true" style="font-family: 'Poppins', 'Outfit', sans-serif;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px; overflow: hidden;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-bottom: none;">
+                <h6 class="modal-title fw-bold mb-0" style="font-size: 1.1rem;"><i class="fas fa-envelope-open-text me-2"></i><span id="viewWidgetModalSubject"></span></h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded-3 border bg-light" style="font-size: 0.82rem;">
-                    <div>
-                        <span class="text-muted fw-bold">From:</span>
-                        <strong id="viewWidgetModalSender" class="text-dark-title"></strong>
+            <div class="modal-body p-4 bg-light">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 p-3 rounded-4 bg-white shadow-sm" style="border: 1px solid var(--border);">
+                    <div class="d-flex align-items-center mb-2 mb-md-0">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold me-3 shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 1.2rem;" id="viewWidgetModalAvatar">
+                            M
+                        </div>
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase letter-spacing-1">From</span>
+                            <div id="viewWidgetModalSender" class="text-dark-title fw-bold fs-6"></div>
+                        </div>
                     </div>
-                    <div class="text-end">
-                        <span id="viewWidgetModalPriority" class="badge px-2 py-1"></span>
-                        <small id="viewWidgetModalDate" class="text-muted d-block mt-1"></small>
+                    <div class="text-md-end border-top border-md-0 pt-2 pt-md-0 mt-2 mt-md-0 border-light">
+                        <span id="viewWidgetModalPriority" class="badge px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.75rem;"></span>
+                        <div id="viewWidgetModalDate" class="text-muted small fw-bold mt-2"><i class="far fa-clock me-1"></i></div>
                     </div>
                 </div>
-                <div class="p-3 border rounded-3 bg-white" style="min-height: 120px; font-size: 0.95rem; white-space: pre-wrap;" id="viewWidgetModalBody"></div>
+                
+                <div class="p-4 rounded-4 bg-white shadow-sm position-relative" style="min-height: 150px; font-size: 0.95rem; line-height: 1.6; border: 1px solid var(--border);">
+                    <div class="position-absolute" style="top: 10px; right: 15px; opacity: 0.05; font-size: 4rem;">
+                        <i class="fas fa-quote-right"></i>
+                    </div>
+                    <div id="viewWidgetModalBody" style="white-space: pre-wrap; color: var(--text-color, #334155); position: relative; z-index: 1;"></div>
+                </div>
+            </div>
+            <div class="modal-footer bg-white border-top-0">
+                <button type="button" class="button button-secondary px-4 py-2" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -528,12 +598,23 @@
 
                     document.getElementById('viewWidgetModalSubject').innerText = subject;
                     document.getElementById('viewWidgetModalSender').innerText = sender;
+                    
+                    const avatarEl = document.getElementById('viewWidgetModalAvatar');
+                    if(avatarEl) {
+                        avatarEl.innerText = sender ? sender.charAt(0).toUpperCase() : 'S';
+                    }
+
                     document.getElementById('viewWidgetModalBody').innerText = body;
-                    document.getElementById('viewWidgetModalDate').innerText = date;
+                    document.getElementById('viewWidgetModalDate').innerHTML = `<i class="far fa-clock me-1"></i> ${date}`;
 
                     const prioEl = document.getElementById('viewWidgetModalPriority');
-                    prioEl.innerText = priority;
-                    prioEl.className = 'badge px-2 py-1 priority-' + priority.toLowerCase();
+                    prioEl.innerText = priority.toUpperCase();
+                    
+                    let bgClass = '';
+                    if (priority.toLowerCase() === 'urgent') bgClass = 'bg-danger';
+                    else if (priority.toLowerCase() === 'important') bgClass = 'bg-warning text-dark';
+                    else bgClass = 'bg-primary';
+                    prioEl.className = 'badge px-3 py-2 rounded-pill shadow-sm ' + bgClass;
 
                     viewModal.show();
 
