@@ -112,6 +112,9 @@ class MessageController extends Controller
             $message->delete();
             return redirect()->route('messages.index')->with('success', 'Message deleted successfully.');
         }
+        
+        return redirect()->route('messages.index')->with('error', 'Unauthorized.');
+    }
 
     public function chat($userId = null)
     {

@@ -56,6 +56,8 @@ class ZKTecoADMSController extends Controller
                 if (count($parts) >= 2) {
                     $pin = trim($parts[0]);
                     $rawTime = trim($parts[1]); 
+                    $state = isset($parts[2]) ? trim($parts[2]) : '0';
+                    $isCheckOut = ($state === '1' || $state === '5');
 
                     // Fix ZKTeco machine 30-minute backward offset
                     $timeObj = new \DateTime($rawTime);
@@ -71,28 +73,25 @@ class ZKTecoADMSController extends Controller
                     // 1. Try to find if it's a student
                     $student = Student::where('biometric_id', $pin)->first();
                     if ($student) {
-                        $attendance = Attendance::firstOrCreate(
-                            ['student_id' => $student->id, 'attendance_date' => $punchDate],
-                            [
-                                'check_in_time' => $punchTime,
+                        $attendance = Attendance::where('student_id', $student->id)
+                            ->where('attendance_date', $punchDate)
+                            ->first();
+
+                        if (!$attendance) {
+                            $attendance = Attendance::create([
+                                'student_id' => $student->id,
+                                'attendance_date' => $punchDate,
+                                'check_in_time' => $isCheckOut ? null : $punchTime,
+                                'check_out_time' => $isCheckOut ? $punchTime : null,
                                 'status' => $punchStatus,
                                 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')',
                                 'created_at' => $time
-                            ]
-                        );
-
-                        // If it already existed but check_in_time was null (e.g. photo arrived first)
-                        if (!$attendance->check_in_time) {
-                            $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
+                            ]);
                         } else {
-                            $checkInTimestamp = strtotime($attendance->check_in_time);
-                            $punchTimestamp = strtotime($punchTime);
-
-                            // Prevent accidental double punches: Only set Check-Out if it is empty and punch is at least 60 seconds after Check-In
-                            if (($punchTimestamp - $checkInTimestamp) > 60) {
-                                if (!$attendance->check_out_time) {
-                                    $attendance->update(['check_out_time' => $punchTime]);
-                                }
+                            if ($isCheckOut) {
+                                $attendance->update(['check_out_time' => $punchTime]);
+                            } elseif (!$attendance->check_in_time) {
+                                $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
                             }
                         }
                     }
@@ -100,28 +99,25 @@ class ZKTecoADMSController extends Controller
                     // 2. Try to find if it's an employee
                     $employee = Employee::where('biometric_id', $pin)->first();
                     if ($employee) {
-                        $attendance = EmployeeAttendance::firstOrCreate(
-                            ['employee_id' => $employee->id, 'attendance_date' => $punchDate],
-                            [
-                                'check_in_time' => $punchTime,
+                        $attendance = EmployeeAttendance::where('employee_id', $employee->id)
+                            ->where('attendance_date', $punchDate)
+                            ->first();
+
+                        if (!$attendance) {
+                            $attendance = EmployeeAttendance::create([
+                                'employee_id' => $employee->id,
+                                'attendance_date' => $punchDate,
+                                'check_in_time' => $isCheckOut ? null : $punchTime,
+                                'check_out_time' => $isCheckOut ? $punchTime : null,
                                 'status' => $punchStatus,
                                 'device_name' => 'ADMS ZKTeco Device (' . $sn . ')',
                                 'created_at' => $time
-                            ]
-                        );
-
-                        // If it already existed but check_in_time was null
-                        if (!$attendance->check_in_time) {
-                            $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
+                            ]);
                         } else {
-                            $checkInTimestamp = strtotime($attendance->check_in_time);
-                            $punchTimestamp = strtotime($punchTime);
-
-                            // Prevent accidental double punches: Only set Check-Out if it is empty and punch is at least 60 seconds after Check-In
-                            if (($punchTimestamp - $checkInTimestamp) > 60) {
-                                if (!$attendance->check_out_time) {
-                                    $attendance->update(['check_out_time' => $punchTime]);
-                                }
+                            if ($isCheckOut) {
+                                $attendance->update(['check_out_time' => $punchTime]);
+                            } elseif (!$attendance->check_in_time) {
+                                $attendance->update(['check_in_time' => $punchTime, 'status' => $punchStatus]);
                             }
                         }
                     }
