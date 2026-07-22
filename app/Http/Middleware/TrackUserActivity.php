@@ -19,9 +19,13 @@ class TrackUserActivity
             $user = \App\Models\User::find(session('user_id'));
             if ($user) {
                 // To avoid too many DB writes, we can update it only if it's more than 1 minute old
-                if (!$user->last_activity_at || now()->diffInMinutes($user->last_activity_at) >= 1) {
-                    $user->last_activity_at = now();
-                    $user->save();
+                try {
+                    if (!$user->last_activity_at || now()->diffInMinutes($user->last_activity_at) >= 1) {
+                        $user->last_activity_at = now();
+                        $user->save();
+                    }
+                } catch (\Exception $e) {
+                    // Gracefully ignore if the last_activity_at column doesn't exist yet (e.g., pending migrations)
                 }
             }
         }
