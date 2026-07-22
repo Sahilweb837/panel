@@ -27,18 +27,40 @@ class MessageController extends Controller
         $unreadCount = $inboxMessages->where('is_read', false)->count();
 
         // Users to select as recipient
-        $recipients = User::with('role')
+        $isAdmin = in_array($userRoleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']);
+        
+        $recipientsQuery = User::with('role')
             ->where('id', '!=', $userId)
-            ->where('status', true)
-            ->orderBy('name')
-            ->get();
+            ->where('status', true);
 
-        return view('messages.index', compact('inboxMessages', 'sentMessages', 'unreadCount', 'recipients'));
+        if (!$isAdmin) {
+            if ($userRoleSlug === 'staff') {
+                // Staff can only message Admins and Students
+                $recipientsQuery->whereHas('role', function($q) {
+                    $q->whereIn('slug', ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin', 'student']);
+                });
+            } elseif ($userRoleSlug === 'student') {
+                // Students can only message Admins and Staff
+                $recipientsQuery->whereHas('role', function($q) {
+                    $q->whereIn('slug', ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin', 'staff']);
+                });
+            }
+        }
+        
+        $recipients = $recipientsQuery->orderBy('name')->get();
+
+        return view('messages.index', compact('inboxMessages', 'sentMessages', 'unreadCount', 'recipients', 'isAdmin'));
     }
 
     public function store(Request $request)
     {
         $userId = session('user_id');
+        $userRoleSlug = session('user_role_slug');
+        $isAdmin = in_array($userRoleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']);
+
+        if (!$isAdmin) {
+            $request->merge(['recipient_type' => 'user']);
+        }
 
         $request->validate([
             'recipient_type' => 'required|in:user,role',

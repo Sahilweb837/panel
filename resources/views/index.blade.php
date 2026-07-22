@@ -370,8 +370,7 @@
         <div class="container d-flex align-items-center justify-content-between">
             <a href="{{ url('/') }}" class="navbar-brand">
                 <img src="{{ asset('image.png') }}" alt="Logo" class="brand-logo" onerror="this.src='https://ui-avatars.com/api/?name=NC&background=ff5532&color=ffffff'">
-                <span class="brand-text">Netcoder ERP</span>
-            </a>
+             </a>
             
             <div class="d-none d-md-flex align-items-center gap-4">
                 @auth

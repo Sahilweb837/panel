@@ -207,26 +207,32 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">Recipient Type</label>
-                            <select name="recipient_type" id="recipient_type" class="form-input" required>
-                                <option value="user">Specific Registered User</option>
-                                <option value="role">Broadcast to Role Group</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6" id="user_select_box">
-                            <label class="form-label fw-bold small">Select User</label>
-                            <select name="receiver_id" class="form-input">
+                        @if(isset($isAdmin) && $isAdmin)
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Recipient Type</label>
+                                <select name="recipient_type" id="recipient_type" class="form-input" required>
+                                    <option value="user">Specific Registered User</option>
+                                    <option value="role">Broadcast to Role Group</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6" id="user_select_box">
+                        @else
+                            <input type="hidden" name="recipient_type" value="user">
+                            <div class="col-12" id="user_select_box">
+                        @endif
+                            <label class="form-label fw-bold small">Select Recipient</label>
+                            <select name="receiver_id" class="form-input" required>
                                 <option value="">-- Choose User --</option>
                                 @foreach($recipients as $user)
                                     <option value="{{ $user->id }}">
-                                        {{ $user->name }} ({{ $user->role?->role_name ?? 'User' }} - {{ $user->email ?? $user->username }})
+                                        {{ $user->name }} ({{ $user->role?->role_name ?? 'User' }})
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
+                        @if(isset($isAdmin) && $isAdmin)
                         <div class="col-md-6" id="role_select_box" style="display: none;">
                             <label class="form-label fw-bold small">Select Broadcast Target Role</label>
                             <select name="receiver_role" class="form-input">
@@ -236,6 +242,7 @@
                                 <option value="admin">🛡️ All Admins / Super Admins</option>
                             </select>
                         </div>
+                        @endif
 
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Priority Level</label>
@@ -300,15 +307,17 @@
         const userBox = document.getElementById('user_select_box');
         const roleBox = document.getElementById('role_select_box');
 
-        recipTypeSelect.addEventListener('change', function() {
-            if (this.value === 'role') {
-                userBox.style.display = 'none';
-                roleBox.style.display = 'block';
-            } else {
-                userBox.style.display = 'block';
-                roleBox.style.display = 'none';
-            }
-        });
+        if (recipTypeSelect) {
+            recipTypeSelect.addEventListener('change', function() {
+                if (this.value === 'role') {
+                    if (userBox) userBox.style.display = 'none';
+                    if (roleBox) roleBox.style.display = 'block';
+                } else {
+                    if (userBox) userBox.style.display = 'block';
+                    if (roleBox) roleBox.style.display = 'none';
+                }
+            });
+        }
 
         // View Message Logic
         const viewModalEl = document.getElementById('viewMsgModal');
