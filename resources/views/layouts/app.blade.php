@@ -187,14 +187,16 @@
                 <span>Dashboard</span>
             </a>
             
-            <a href="{{ route('messages.index') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
+            <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
                 <i class="fas fa-envelope"></i>
-                <span>Messages Inbox</span>
+                <span>Messages</span>
                 @php
                     $unreadMessages = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->unread()->count();
                 @endphp
                 @if($unreadMessages > 0)
-                    <span class="badge bg-danger ms-auto rounded-pill">{{ $unreadMessages }}</span>
+                    <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge">{{ $unreadMessages }}</span>
+                @else
+                    <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge" style="display:none;"></span>
                 @endif
             </a>
             

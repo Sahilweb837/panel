@@ -472,7 +472,13 @@
         </div>
     </div>
 
-    {{-- ── Embedded Messages Widget ── --}}
+    {{-- ── Embedded Messages Panel ── --}}
+    <div class="mt-4 mb-2 d-flex align-items-center justify-content-between">
+        <h5 class="fw-bold mb-0"><i class="fas fa-comments text-first me-2"></i>Messages & Inbox</h5>
+        <a href="{{ route('messages.full') }}" class="button button-primary py-2 px-4" style="font-size:0.85rem;">
+            <i class="fas fa-expand-alt me-2"></i>Open Full Messages Panel
+        </a>
+    </div>
     @include('messages.widget')
 
 </div>

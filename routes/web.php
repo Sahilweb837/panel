@@ -188,6 +188,11 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
     Route::post('/messages/{id}/read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.read');
     Route::delete('/messages/{id}', [\App\Http\Controllers\MessageController::class, 'destroy'])->name('messages.destroy');
+    // AJAX polling for live chat
+    Route::get('/api/messages/poll/{userId}', [\App\Http\Controllers\MessageController::class, 'pollChat'])->name('messages.poll');
+    Route::get('/api/messages/unread-count', [\App\Http\Controllers\MessageController::class, 'unreadCount'])->name('messages.unread-count');
+    Route::get('/api/messages/inbox-poll', [\App\Http\Controllers\MessageController::class, 'pollInbox'])->name('messages.inbox-poll');
+    Route::get('/messages/full', [\App\Http\Controllers\MessageController::class, 'fullPage'])->name('messages.full');
 
     // Connections Routes
     Route::get('/connections', [\App\Http\Controllers\EmployeeConnectionController::class, 'index'])->name('connections.index');
