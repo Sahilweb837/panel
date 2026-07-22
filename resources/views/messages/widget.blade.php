@@ -367,7 +367,7 @@
                             </div>
 
                             <div class="chat-widget-footer">
-                                <form action="{{ route('messages.chat.store') }}" method="POST" class="d-flex gap-2">
+                                <form id="widgetChatForm" action="{{ route('messages.chat.store') }}" method="POST" class="d-flex gap-2">
                                     @csrf
                                     <input type="hidden" name="receiver_id" value="{{ $selectedChatUser->id }}">
                                     <input type="text" name="body" class="form-control rounded-pill px-3 py-1 border-0" style="background: #f1f5f9; font-size: 0.9rem;" placeholder="Type a message..." required autocomplete="off">
@@ -396,7 +396,7 @@
                 <h6 class="modal-title fw-bold mb-0"><i class="fas fa-paper-plane me-2"></i>Compose Message / Broadcast</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('messages.store') }}" method="POST">
+            <form id="widgetComposeForm" action="{{ route('messages.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
@@ -542,7 +542,8 @@
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         }
                     }).then(res => res.json())
                       .then(data => {
@@ -574,6 +575,112 @@
             setTimeout(() => {
                 document.querySelector('.messages-widget-container').scrollIntoView({ behavior: 'smooth' });
             }, 500);
+        }
+
+        // Compose Form AJAX Submit
+        const composeForm = document.getElementById('widgetComposeForm');
+        if (composeForm) {
+            composeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(composeForm);
+                const submitBtn = composeForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                submitBtn.disabled = true;
+
+                fetch(composeForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    if (data.success) {
+                        composeForm.reset();
+                        bootstrap.Modal.getInstance(document.getElementById('composeWidgetModal')).hide();
+                        
+                        // Add to sent items table dynamically
+                        const sentTableBody = document.querySelector('#widget-sent tbody');
+                        if (sentTableBody) {
+                            // Check if empty state row exists and remove it
+                            const emptyRow = sentTableBody.querySelector('td[colspan="5"]');
+                            if (emptyRow) emptyRow.closest('tr').remove();
+                            
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="ps-4">
+                                    <span class="badge bg-primary text-uppercase">Just Sent</span>
+                                </td>
+                                <td class="fw-bold text-dark-title">${data.data.subject || 'Message'}</td>
+                                <td>
+                                    <span class="badge priority-${(data.data.priority || 'normal').toLowerCase()} px-2 py-1">
+                                        ${data.data.priority || 'Normal'}
+                                    </span>
+                                </td>
+                                <td class="text-muted small">Just now</td>
+                                <td class="pe-4 text-end">
+                                    <button class="button button-danger btn-sm py-1 px-2" disabled><i class="fas fa-check"></i></button>
+                                </td>
+                            `;
+                            sentTableBody.insertBefore(tr, sentTableBody.firstChild);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
+        }
+
+        // Chat Form AJAX Submit
+        const chatForm = document.getElementById('widgetChatForm');
+        if (chatForm) {
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(chatForm);
+                const input = chatForm.querySelector('input[name="body"]');
+                const submitBtn = chatForm.querySelector('button[type="submit"]');
+                
+                if (!input.value.trim()) return;
+
+                const bodyText = input.value;
+                input.value = '';
+                submitBtn.disabled = true;
+
+                fetch(chatForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    submitBtn.disabled = false;
+                    if (data.success && chatWidgetBody) {
+                        const newBubble = document.createElement('div');
+                        newBubble.className = 'chat-widget-bubble bubble-sent';
+                        newBubble.innerHTML = `
+                            ${data.data.body}
+                            <span class="chat-widget-time">${data.data.time}</span>
+                        `;
+                        chatWidgetBody.appendChild(newBubble);
+                        chatWidgetBody.scrollTop = chatWidgetBody.scrollHeight;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    submitBtn.disabled = false;
+                });
+            });
         }
     });
 </script>

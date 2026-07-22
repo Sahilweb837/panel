@@ -71,7 +71,7 @@ class MessageController extends Controller
             'priority' => 'required|in:Normal,Important,Urgent',
         ]);
 
-        Message::create([
+        $message = Message::create([
             'sender_id' => $userId,
             'receiver_id' => $request->recipient_type === 'user' ? $request->receiver_id : null,
             'receiver_role' => $request->recipient_type === 'role' ? $request->receiver_role : null,
@@ -80,6 +80,10 @@ class MessageController extends Controller
             'priority' => $request->priority,
             'is_read' => false,
         ]);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Message sent successfully.', 'data' => $message]);
+        }
 
         return back()->with('success', 'Message sent successfully.');
     }
@@ -179,7 +183,7 @@ class MessageController extends Controller
 
         $currentUserId = session('user_id');
 
-        Message::create([
+        $message = Message::create([
             'sender_id' => $currentUserId,
             'receiver_id' => $request->receiver_id,
             'receiver_role' => null,
@@ -188,6 +192,18 @@ class MessageController extends Controller
             'priority' => 'Normal',
             'is_read' => false,
         ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true, 
+                'message' => 'Message sent!', 
+                'data' => [
+                    'body' => $message->body,
+                    'time' => $message->created_at->format('h:i A'),
+                    'sender_id' => $currentUserId
+                ]
+            ]);
+        }
 
         return back()->with('success', 'Message sent!');
     }
