@@ -269,6 +269,8 @@
                                     </td>
                                     <td>
                                         <a href="#" class="view-msg-btn text-decoration-none text-dark-title fw-bold"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#viewWidgetMsgModal"
                                            data-id="{{ $msg->id }}"
                                            data-subject="{{ $msg->subject }}"
                                            data-sender="{{ $msg->sender?->name ?? 'System' }}"
@@ -286,6 +288,8 @@
                                     <td class="text-muted small">{{ $msg->created_at->diffForHumans() }}</td>
                                     <td class="pe-4 text-end">
                                         <button class="button button-secondary btn-sm py-1 px-2 view-msg-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewWidgetMsgModal"
                                                 data-id="{{ $msg->id }}"
                                                 data-subject="{{ $msg->subject }}"
                                                 data-sender="{{ $msg->sender?->name ?? 'System Announcement' }}"
@@ -580,65 +584,62 @@
             });
         }
 
-        // View Message Logic
+        // View Message Logic (Using native Bootstrap modal events for reliability)
         const viewModalEl = document.getElementById('viewWidgetMsgModal');
         if (viewModalEl) {
-            const viewModal = new bootstrap.Modal(viewModalEl);
+            viewModalEl.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.dataset.id;
+                const subject = button.dataset.subject;
+                const sender = button.dataset.sender;
+                const bodyEl = document.getElementById('widget-msg-body-' + id);
+                const body = bodyEl ? bodyEl.innerText || bodyEl.textContent : '';
+                const priority = button.dataset.priority;
+                const date = button.dataset.date;
 
-            document.querySelectorAll('.view-msg-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const id = this.dataset.id;
-                    const subject = this.dataset.subject;
-                    const sender = this.dataset.sender;
-                    const bodyEl = document.getElementById('widget-msg-body-' + id);
-                    const body = bodyEl ? bodyEl.innerText || bodyEl.textContent : '';
-                    const priority = this.dataset.priority;
-                    const date = this.dataset.date;
+                document.getElementById('viewWidgetModalSubject').innerText = subject;
+                document.getElementById('viewWidgetModalSender').innerText = sender;
+                
+                const avatarEl = document.getElementById('viewWidgetModalAvatar');
+                if(avatarEl) {
+                    avatarEl.innerText = sender ? sender.charAt(0).toUpperCase() : 'S';
+                }
 
-                    document.getElementById('viewWidgetModalSubject').innerText = subject;
-                    document.getElementById('viewWidgetModalSender').innerText = sender;
-                    
-                    const avatarEl = document.getElementById('viewWidgetModalAvatar');
-                    if(avatarEl) {
-                        avatarEl.innerText = sender ? sender.charAt(0).toUpperCase() : 'S';
+                document.getElementById('viewWidgetModalBody').innerText = body;
+                document.getElementById('viewWidgetModalDate').innerHTML = `<i class="far fa-clock me-1"></i> ${date}`;
+
+                const prioEl = document.getElementById('viewWidgetModalPriority');
+                prioEl.innerText = priority.toUpperCase();
+                
+                let bgClass = '';
+                if (priority.toLowerCase() === 'urgent') bgClass = 'bg-danger';
+                else if (priority.toLowerCase() === 'important') bgClass = 'bg-warning text-dark';
+                else bgClass = 'bg-primary';
+                prioEl.className = 'badge px-3 py-2 rounded-pill shadow-sm ' + bgClass;
+
+                // Mark message as read via AJAX
+                fetch(`/messages/${id}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
-
-                    document.getElementById('viewWidgetModalBody').innerText = body;
-                    document.getElementById('viewWidgetModalDate').innerHTML = `<i class="far fa-clock me-1"></i> ${date}`;
-
-                    const prioEl = document.getElementById('viewWidgetModalPriority');
-                    prioEl.innerText = priority.toUpperCase();
-                    
-                    let bgClass = '';
-                    if (priority.toLowerCase() === 'urgent') bgClass = 'bg-danger';
-                    else if (priority.toLowerCase() === 'important') bgClass = 'bg-warning text-dark';
-                    else bgClass = 'bg-primary';
-                    prioEl.className = 'badge px-3 py-2 rounded-pill shadow-sm ' + bgClass;
-
-                    viewModal.show();
-
-                    // Mark message as read via AJAX
-                    fetch(`/messages/${id}/read`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    }).then(res => res.json())
-                      .then(data => {
-                          if(data.success) {
-                              this.closest('tr').classList.remove('unread-row');
-                              const badge = this.closest('tr').querySelector('.badge');
-                              if (badge) {
+                }).then(res => res.json())
+                  .then(data => {
+                      if(data.success) {
+                          const tr = button.closest('tr');
+                          if (tr) {
+                              tr.classList.remove('unread-row');
+                              const badge = tr.querySelector('.badge');
+                              if (badge && badge.innerText === 'NEW') {
                                   badge.className = 'badge bg-light text-muted border';
                                   badge.innerText = 'READ';
                               }
                           }
-                      })
-                      .catch(err => console.error(err));
-                });
+                      }
+                  })
+                  .catch(err => console.error(err));
             });
         }
 
