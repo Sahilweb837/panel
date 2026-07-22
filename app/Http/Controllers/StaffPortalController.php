@@ -17,6 +17,9 @@ class StaffPortalController extends Controller
     {
         $userId = session('user_id');
         $employee = Employee::with('user')->where('user_id', $userId)->first();
+        
+        $studentCount = \App\Models\Student::count();
+        $attendanceCount = \App\Models\Attendance::count();
 
         if (!$employee) {
             return redirect()->route('login')->withErrors(['email' => 'No staff profile associated with this account.']);
@@ -101,11 +104,12 @@ class StaffPortalController extends Controller
         $attendances = EmployeeAttendance::where('employee_id', $employee->id)
             ->latest('attendance_date')->limit(30)->get();
 
-        $unreadMessageCount = \App\Models\Message::forUser($userId, session('user_role_slug'))->unread()->count();
         $recentMessages = \App\Models\Message::forUser($userId, session('user_role_slug'))->latest()->limit(5)->get();
+        $unreadMessageCount = \App\Models\Message::forUser($userId, session('user_role_slug'))->unread()->count();
 
-        return view('portal.staff.dashboard', compact(
+        return view('staff.dashboard', compact(
             'employee',
+            'studentCount', 'attendanceCount',
             'attendances',
             'monthAttendances',
             'presentDays', 'absentDays', 'lateDays', 'leaveDays',

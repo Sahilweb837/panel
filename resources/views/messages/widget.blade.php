@@ -268,7 +268,7 @@
                                         <small class="text-muted">{{ $msg->sender?->role?->role_name ?? 'Notice' }}</small>
                                     </td>
                                     <td>
-                                        <a href="#" class="view-msg-btn text-decoration-none text-dark-title fw-bold"
+                                        <a href="javascript:void(0)" class="view-msg-btn text-decoration-none text-dark-title fw-bold"
                                            data-bs-toggle="modal"
                                            data-bs-target="#viewWidgetMsgModal"
                                            data-id="{{ $msg->id }}"
