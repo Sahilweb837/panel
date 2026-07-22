@@ -164,16 +164,26 @@
             Contacts
         </div>
         <div class="chat-users">
-            @foreach($recipients as $user)
-                <a href="{{ route('messages.chat', $user->id) }}" class="chat-user-item {{ isset($selectedUser) && $selectedUser->id == $user->id ? 'active' : '' }}">
-                    <div class="chat-avatar">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
-                    <div class="overflow-hidden">
-                        <div class="fw-bold text-truncate text-dark" style="font-size: 0.95rem;">{{ $user->name }}</div>
-                        <div class="small text-muted text-truncate">{{ $user->role?->role_name ?? 'User' }}</div>
-                    </div>
-                </a>
+            @php
+                $groupedRecipients = $recipients->groupBy(function($user) {
+                    return $user->role->role_name ?? 'Users';
+                });
+            @endphp
+
+            @foreach($groupedRecipients as $roleName => $users)
+                <div class="px-3 py-2 bg-light fw-bold text-muted" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    {{ $roleName }} ({{ $users->count() }})
+                </div>
+                @foreach($users as $user)
+                    <a href="{{ route('messages.chat', $user->id) }}" class="chat-user-item {{ isset($selectedUser) && $selectedUser->id == $user->id ? 'active' : '' }}">
+                        <div class="chat-avatar" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="fw-bold text-truncate text-dark" style="font-size: 0.9rem;">{{ $user->name }}</div>
+                        </div>
+                    </a>
+                @endforeach
             @endforeach
         </div>
     </div>
