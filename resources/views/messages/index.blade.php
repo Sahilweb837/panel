@@ -61,9 +61,14 @@
             </li>
         </ul>
 
-        <button type="button" class="button button-primary py-2 px-4" data-bs-toggle="modal" data-bs-target="#composeModal">
-            <i class="fas fa-edit me-2"></i>Compose Message / Notice
-        </button>
+        <div class="d-flex gap-2">
+            <a href="{{ route('messages.chat') }}" class="button button-success py-2 px-4" style="background: #10b981; color: #fff; border: none; font-weight: 600; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center;">
+                <i class="fas fa-comments me-2"></i>Live Chat Mode
+            </a>
+            <button type="button" class="button button-primary py-2 px-4" data-bs-toggle="modal" data-bs-target="#composeModal">
+                <i class="fas fa-edit me-2"></i>Compose Message / Notice
+            </button>
+        </div>
     </div>
 
     <div class="tab-content" id="msgTabsContent">
@@ -101,11 +106,11 @@
                                            data-id="{{ $msg->id }}"
                                            data-subject="{{ $msg->subject }}"
                                            data-sender="{{ $msg->sender?->name ?? 'System Announcement' }}"
-                                           data-body="{{ $msg->body }}"
                                            data-priority="{{ $msg->priority }}"
                                            data-date="{{ $msg->created_at->format('M d, Y h:i A') }}">
                                             {{ $msg->subject }}
                                         </a>
+                                        <div id="msg-body-{{ $msg->id }}" style="display: none;">{{ $msg->body }}</div>
                                     </td>
                                     <td>
                                         <span class="badge priority-{{ strtolower($msg->priority) }} px-2 py-1">
@@ -118,7 +123,6 @@
                                                 data-id="{{ $msg->id }}"
                                                 data-subject="{{ $msg->subject }}"
                                                 data-sender="{{ $msg->sender?->name ?? 'System Announcement' }}"
-                                                data-body="{{ $msg->body }}"
                                                 data-priority="{{ $msg->priority }}"
                                                 data-date="{{ $msg->created_at->format('M d, Y h:i A') }}">
                                             <i class="fas fa-eye me-1"></i>Read
@@ -329,7 +333,8 @@
                 const id = this.dataset.id;
                 const subject = this.dataset.subject;
                 const sender = this.dataset.sender;
-                const body = this.dataset.body;
+                const bodyEl = document.getElementById('msg-body-' + id);
+                const body = bodyEl ? bodyEl.innerText || bodyEl.textContent : '';
                 const priority = this.dataset.priority;
                 const date = this.dataset.date;
 

@@ -113,6 +113,79 @@ class MessageController extends Controller
             return redirect()->route('messages.index')->with('success', 'Message deleted successfully.');
         }
 
-        return redirect()->route('messages.index')->with('error', 'Unauthorized to delete this message.');
+    public function chat($userId = null)
+    {
+        $currentUserId = session('user_id');
+        $userRoleSlug = session('user_role_slug');
+        $isAdmin = in_array($userRoleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']);
+
+        // Get recipients for sidebar based on role
+        $recipientsQuery = User::with('role')->where('id', '!=', $currentUserId)->where('status', true);
+        if (!$isAdmin) {
+            if ($userRoleSlug === 'staff') {
+                $recipientsQuery->whereHas('role', function($q) {
+                    $q->whereIn('slug', ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin', 'student']);
+                });
+            } elseif ($userRoleSlug === 'student') {
+                $recipientsQuery->whereHas('role', function($q) {
+                    $q->whereIn('slug', ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin', 'staff']);
+                });
+            }
+        }
+        $recipients = $recipientsQuery->orderBy('name')->get();
+
+        $selectedUser = null;
+        $chatMessages = collect();
+
+        if ($userId) {
+            $selectedUser = User::findOrFail($userId);
+            // Verify permission to chat with this user
+            if (!$isAdmin) {
+                if ($userRoleSlug === 'staff' && !in_array($selectedUser->role->slug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin', 'student'])) {
+                    abort(403, 'Unauthorized');
+                }
+                if ($userRoleSlug === 'student' && !in_array($selectedUser->role->slug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin', 'staff'])) {
+                    abort(403, 'Unauthorized');
+                }
+            }
+
+            // Fetch chat history between current user and selected user
+            $chatMessages = Message::with(['sender', 'receiver'])
+                ->where(function($q) use ($currentUserId, $userId) {
+                    $q->where('sender_id', $currentUserId)->where('receiver_id', $userId);
+                })
+                ->orWhere(function($q) use ($currentUserId, $userId) {
+                    $q->where('sender_id', $userId)->where('receiver_id', $currentUserId);
+                })
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            // Mark received messages from this user as read
+            Message::where('sender_id', $userId)->where('receiver_id', $currentUserId)->where('is_read', false)->update(['is_read' => true]);
+        }
+
+        return view('messages.chat', compact('recipients', 'selectedUser', 'chatMessages', 'isAdmin'));
+    }
+
+    public function storeChat(Request $request)
+    {
+        $request->validate([
+            'receiver_id' => 'required|exists:users,id',
+            'body' => 'required|string',
+        ]);
+
+        $currentUserId = session('user_id');
+
+        Message::create([
+            'sender_id' => $currentUserId,
+            'receiver_id' => $request->receiver_id,
+            'receiver_role' => null,
+            'subject' => 'Chat Message', // Default for chat
+            'body' => $request->body,
+            'priority' => 'Normal',
+            'is_read' => false,
+        ]);
+
+        return redirect()->route('messages.chat', $request->receiver_id)->with('success', 'Message sent!');
     }
 }

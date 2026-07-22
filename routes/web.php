@@ -183,6 +183,8 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Internal Messaging Suite routes
     Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/chat/{user?}', [\App\Http\Controllers\MessageController::class, 'chat'])->name('messages.chat');
+    Route::post('/messages/chat/send', [\App\Http\Controllers\MessageController::class, 'storeChat'])->name('messages.chat.store');
     Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
     Route::post('/messages/{id}/read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.read');
     Route::delete('/messages/{id}', [\App\Http\Controllers\MessageController::class, 'destroy'])->name('messages.destroy');
