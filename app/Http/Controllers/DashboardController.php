@@ -91,8 +91,10 @@ class DashboardController extends Controller
             ? SalarySlip::where('employee_id', $employee->id)->latest()->limit(6)->get()
             : collect();
 
+        $recentMessages = \App\Models\Message::forUser($user->id, $user->role?->slug)->latest()->limit(5)->get();
+
         return view('staff.dashboard', compact(
-            'employee', 'salarySlips', 'assignedTasks', 'todayUpdate'
+            'employee', 'salarySlips', 'assignedTasks', 'todayUpdate', 'recentMessages'
         ));
     }
 
@@ -164,10 +166,12 @@ class DashboardController extends Controller
 
         $invoices = FeeInvoice::where('student_id', $student->id)->latest()->get();
 
+        $recentMessages = \App\Models\Message::forUser($user->id, $user->role?->slug)->latest()->limit(5)->get();
+
         return view('portal.student.dashboard', compact(
             'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
-            'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices'
+            'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices', 'recentMessages'
         ));
     }
 
