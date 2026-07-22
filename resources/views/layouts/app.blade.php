@@ -441,8 +441,11 @@
                 <a href="{{ route('messages.index') }}" class="btn position-relative" title="Message & Notice Center" style="background: var(--surface-soft, #f8f9fa); border: 1px solid var(--border, #e9ecef); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-color, #333);">
                     <i class="fas fa-envelope"></i>
                     @if($navUnreadCount > 0)
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                        <span id="topbarUnreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
                             {{ $navUnreadCount }}
+                        </span>
+                    @else
+                        <span id="topbarUnreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; display:none;">
                         </span>
                     @endif
                 </a>
@@ -520,6 +523,30 @@
             });
             return false;
         };
+
+        // Global Unread Message Poller
+        setInterval(() => {
+            if (document.hidden) return; // don't poll if tab is hidden
+            fetch('/api/messages/unread-count', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => {
+                    if (r.ok) return r.json();
+                    throw new Error('Network response was not ok');
+                })
+                .then(d => {
+                    const sbBadge = document.getElementById('globalUnreadBadge');
+                    const tbBadge = document.getElementById('topbarUnreadBadge');
+                    
+                    if (d.count > 0) {
+                        if (sbBadge) { sbBadge.textContent = d.count; sbBadge.style.display = 'inline-block'; }
+                        if (tbBadge) { tbBadge.textContent = d.count; tbBadge.style.display = 'inline-block'; }
+                        // Also show a toast notification if it increases? We could track previous count
+                    } else {
+                        if (sbBadge) sbBadge.style.display = 'none';
+                        if (tbBadge) tbBadge.style.display = 'none';
+                    }
+                })
+                .catch(err => console.log('Error polling unread count:', err));
+        }, 15000); // Poll every 15 seconds
     </script>
 
     @php

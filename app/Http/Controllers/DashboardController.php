@@ -27,8 +27,8 @@ class DashboardController extends Controller
             return $this->studentDashboard($user);
         }
 
-        if ($roleSlug === 'staff') {
-            return $this->staffDashboard($user);
+        if ($roleSlug === 'staff' || $roleSlug === 'employee') {
+            return redirect()->route('staff.dashboard');
         }
 
         return $this->adminDashboard($user);
@@ -72,30 +72,7 @@ class DashboardController extends Controller
 
     protected function staffDashboard($user)
     {
-        $employee = $user->employee;
-
-        $assignedTasks = $employee
-            ? \App\Models\Task::where('assigned_to', $employee->id)
-                ->orderByRaw("FIELD(status, 'In Progress', 'Pending', 'Completed')")
-                ->orderBy('due_date', 'asc')
-                ->get()
-            : collect();
-
-        $todayUpdate = $employee
-            ? \App\Models\DailyUpdate::where('employee_id', $employee->id)
-                ->whereDate('date', now()->toDateString())
-                ->first()
-            : null;
-
-        $salarySlips = $employee
-            ? SalarySlip::where('employee_id', $employee->id)->latest()->limit(6)->get()
-            : collect();
-
-        $recentMessages = \App\Models\Message::forUser($user->id, $user->role?->slug)->latest()->limit(5)->get();
-
-        return view('staff.dashboard', compact(
-            'employee', 'salarySlips', 'assignedTasks', 'todayUpdate', 'recentMessages'
-        ));
+        return redirect()->route('staff.dashboard');
     }
 
     protected function studentDashboard($user)
