@@ -53,10 +53,20 @@ class DashboardController extends Controller
 
         $biometricDevice = \App\Models\BiometricDevice::first();
 
+        // Calculate Working Hours 10 to 5 stat (employees present between 10 AM and 5 PM today)
+        $workingHoursEmployeesCount = \App\Models\EmployeeAttendance::whereDate('attendance_date', today())
+            ->whereTime('check_in_time', '<=', '17:00:00')
+            ->where(function($query) {
+                $query->whereNull('check_out_time')
+                      ->orWhereTime('check_out_time', '>=', '10:00:00');
+            })
+            ->count();
+
         return view('dashboard', compact(
             'studentCount', 'employeeCount', 'attendanceCount', 'expenseCount',
             'dueInvoices', 'recentAttendances', 'recentInvoices', 'recentStudents',
-            'recentStaff', 'totalIncome', 'totalExpense', 'totalPendingFees', 'biometricDevice'
+            'recentStaff', 'totalIncome', 'totalExpense', 'totalPendingFees', 'biometricDevice',
+            'workingHoursEmployeesCount'
         ));
     }
 

@@ -401,6 +401,25 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Working Hours 10 to 5 Stat -->
+                <div class="col-12 col-sm-6 col-xl-3 mt-xl-0">
+                    <div class="card stat-card h-100">
+                        <div class="card-body p-4 position-relative" style="z-index: 1;">
+                            <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.08); color: #10b981;">
+                                <i class="fas fa-business-time"></i>
+                            </div>
+                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Core Work Hours (10-5)</span>
+                            <h3 class="fw-bold mb-3 text-dark-title">{{ $workingHoursEmployeesCount ?? 0 }}</h3>
+                            <div class="w-100 mb-2">
+                                <div class="progress-bar-clean">
+                                    <div class="progress-fill" style="width: 100%; background: #10b981;"></div>
+                                </div>
+                            </div>
+                            <span class="text-muted small fw-semibold">Employees Present Today</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Biometric Connection Status End -->
@@ -695,7 +714,10 @@
                                         </div>
                                         <div class="d-flex justify-content-between w-100 text-muted small mt-auto pt-2 border-top">
                                             <span class="text-truncate" style="max-width: 65%;"><i class="fas fa-briefcase me-1"></i>{{ $staff->designation ?? 'Staff' }}</span>
-                                            <span class="badge bg-{{ $staff->status ? 'success' : 'danger' }}">{{ $staff->status ? 'Active' : 'Inactive' }}</span>
+                                            @php
+                                                $isActiveNow = $staff->user && $staff->user->last_activity_at && now()->diffInMinutes($staff->user->last_activity_at) <= 2;
+                                            @endphp
+                                            <span class="badge bg-{{ $isActiveNow ? 'success' : 'secondary' }}">{{ $isActiveNow ? 'Active Now' : 'Offline' }}</span>
                                         </div>
                                     </div>
                                 </a>
