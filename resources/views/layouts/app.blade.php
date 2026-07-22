@@ -520,6 +520,10 @@
         };
     </script>
 
+    @php
+        $showChatbot = in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']);
+    @endphp
+    @if($showChatbot)
     <!-- Chatbot Floating Button with Notification Pulse -->
     <div id="chatbot-trigger" class="chatbot-fab">
         <i class="fas fa-robot fa-lg"></i>
@@ -1153,6 +1157,8 @@
             chatMessages.insertAdjacentHTML('beforeend', optionsHtml);
         }
     </script>
+    @endif
+    
     @if(session('new_user_credentials'))
     <script>
         document.addEventListener('DOMContentLoaded', function() {
