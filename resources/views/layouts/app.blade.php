@@ -135,7 +135,7 @@
         }
     </style>
 </head>
-<body class="app-shell">
+<body class="bg-light">
     <!-- Page Loader -->
     <div id="global-page-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--main-bg, #ffffff); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.4s ease;">
         <div class="spinner-border" style="color: var(--first-color, #ff5532); width: 3rem; height: 3rem; margin-bottom: 1rem;" role="status"></div>
@@ -151,35 +151,36 @@
         });
     </script>
 
-    <!-- Sidebar Overlay Backdrop for Mobile -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <!-- Mobile Top Navigation Bar -->
-    <header class="mobile-navbar d-lg-none d-flex align-items-center justify-content-between p-3 border-bottom" style="background: var(--sidebar-bg); z-index: 1000;">
-        <div class="d-flex align-items-center gap-3">
-            <button type="button" class="btn btn-link p-0" id="sidebar-toggle-btn" style="color: var(--text);">
-                <i class="fas fa-bars fa-lg"></i>
-            </button>
-            <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
-                <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 32px; width: auto; object-fit: contain; max-width: 200px;">
-            </a>
-        </div>
+    <div class="d-flex flex-column flex-lg-row min-vh-100 w-100">
+        <!-- Mobile Top Navigation Bar -->
+        <header class="d-lg-none d-flex align-items-center justify-content-between p-3 border-bottom bg-white shadow-sm sticky-top w-100" style="z-index: 1030;">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-light border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+                    <i class="fas fa-bars fa-lg"></i>
+                </button>
+                <a href="{{ url('/') }}" class="text-decoration-none">
+                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 32px; width: auto; object-fit: contain;">
+                </a>
+            </div>
         <button type="button" class="theme-toggle me-2 px-3 py-1" style="height: auto; border-radius: 20px; font-size: 0.8rem;" data-theme-toggle title="Toggle Dark/Light Mode">
             <span class="theme-icon-wrapper" style="width: 14px; height: 14px; font-size: 0.8rem;"><i class="fas fa-moon"></i></span>
             <span class="btn-text d-none d-sm-inline">Theme</span>
         </button>
-    </header>
+        </header>
 
-    <aside class="sidebar">
-        <!-- Close button for Mobile sidebar -->
-        <button type="button" class="btn-close-custom d-lg-none" id="sidebar-close-btn" aria-label="Close">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="brand px-4 py-4" style="margin-bottom: 1rem; display: flex; align-items: center;">
-            <a href="{{ url('/') }}" class="text-decoration-none w-100 text-center" style="color: inherit;">
-                <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 48px; width: auto; object-fit: contain; max-width: 100%;">
-            </a>
-        </div>
+        <!-- Sidebar Offcanvas -->
+        <aside class="offcanvas-lg offcanvas-start bg-white border-end shadow-sm d-flex flex-column flex-shrink-0" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
+            <div class="offcanvas-header d-lg-none border-bottom">
+                <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 32px;">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas"></button>
+            </div>
+            
+            <div class="offcanvas-body d-flex flex-column p-0 overflow-y-auto">
+                <div class="d-none d-lg-flex p-4 mb-2 align-items-center justify-content-center">
+                    <a href="{{ url('/') }}" class="text-decoration-none w-100 text-center">
+                        <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 48px; max-width: 100%; object-fit: contain;">
+                    </a>
+                </div>
 
         <nav class="nav-menu accordion" id="sidebarAccordion">
             <a href="{{ route('dashboard') }}" class="nav-link{{ request()->routeIs('dashboard') ? ' active' : '' }}">
@@ -453,14 +454,16 @@
                 </button>
             </form>
         </div>
-    </aside>
+        </div>
+        </aside>
 
-    <main class="main-content">
-        <header class="topbar d-flex justify-content-between align-items-center">
-            <div>
-                <h2 class="mb-1">@yield('page-title', 'Management')</h2>
-                <p class="page-subtitle mb-0 d-none d-md-block">Manage courses, students, fees, attendance, salaries and expenses.</p>
-            </div>
+        <!-- Main Content -->
+        <main class="flex-grow-1 d-flex flex-column" style="min-width: 0;">
+            <header class="d-flex justify-content-between align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
+                <div>
+                    <h4 class="mb-1 fw-bold">@yield('page-title', 'Management')</h4>
+                    <p class="text-muted small mb-0 d-none d-md-block">Manage courses, students, fees, attendance, salaries and expenses.</p>
+                </div>
             
             <div class="d-flex align-items-center gap-3">
                 @php
@@ -509,27 +512,11 @@
             @endif
 
             @yield('content')
-        </section>
-    </main>
+        </main>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/js/app.js'])
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            const toggleBtn = document.getElementById('sidebar-toggle-btn');
-            const closeBtn = document.getElementById('sidebar-close-btn');
-            const overlay = document.getElementById('sidebar-overlay');
-
-            const toggleSidebar = () => {
-                sidebar.classList.toggle('show');
-                overlay.classList.toggle('show');
-                document.body.classList.toggle('sidebar-open');
-            };
-
-            if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
-            if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
-            if (overlay) overlay.addEventListener('click', toggleSidebar);
-        });
 
         // Global function to replace native confirm() with SweetAlert2
         window.confirmAction = function(event, message) {
@@ -1268,6 +1255,35 @@
     </div>
 </div>
 
+    <!-- Push Notification Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Request Notification Permission on load
+            if ("Notification" in window) {
+                if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+                    Notification.requestPermission();
+                }
+            }
+            
+            // Function to trigger push notification
+            window.sendPushNotification = function(title, body) {
+                if ("Notification" in window && Notification.permission === "granted") {
+                    var notification = new Notification(title, {
+                        body: body,
+                        icon: '/favicon.ico' // adjust icon if needed
+                    });
+                }
+            };
+
+            // Check if there's any flash message meant for a push notification
+            @if(session('push_notification'))
+                window.sendPushNotification(
+                    "{{ session('push_notification.title') }}", 
+                    "{{ session('push_notification.body') }}"
+                );
+            @endif
+        });
+    </script>
 </body>
 </html>
 

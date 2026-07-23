@@ -4,341 +4,23 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-    <!-- Dashboard Styling -->
-    <style>
-        /* Design.md Dark Theme Variable Overrides for Dashboard */
-        html[data-theme="dark"] {
-            --main-bg: #121212 !important;
-            --surface: #1E1E1E !important;
-            --surface-soft: #252525 !important;
-            --border: #2C2C2E !important;
-            --first-color: #ff5532 !important;
-            --text-main: #FFFFFF !important;
-            --text-muted: #98989D !important;
-        }
-        html[data-theme="dark"] .stat-card {
-            background: #1E1E1E !important;
-            border: 1px solid #2C2C2E !important;
-        }
-        html[data-theme="dark"] .stat-card:hover {
-            border-color: #00E5FF !important;
-            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.2) !important;
-        }
-        html[data-theme="dark"] .sk-card {
-            background: linear-gradient(90deg, #1E1E1E 25%, #2C2C2E 50%, #1E1E1E 75%) !important;
-        }
-        /* Poppins typography for numerical values and headings */
-        html[data-theme="dark"] .metric-number,
-        html[data-theme="dark"] .stat-card h3,
-        html[data-theme="dark"] .table td,
-        html[data-theme="dark"] .value-accent {
-            font-family: 'Poppins', sans-serif !important;
-        }
 
-        .dashboard-container {
-            position: relative;
-            z-index: 1;
-        }
-
-        .skeleton-loader-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--main-bg);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            pointer-events: none;
-            opacity: 1;
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .skeleton-loader-overlay.fade-out {
-            opacity: 0;
-            display: none !important;
-        }
-
-        .sk-card {
-            background: linear-gradient(90deg, var(--surface-soft) 25%, var(--border) 50%, var(--surface-soft) 75%);
-            background-size: 200% 100%;
-            animation: loadingSkeleton 1.5s infinite linear;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-        }
-
-        @keyframes loadingSkeleton {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        /* Premium Glassmorphic Cards - Minimalist Redesign */
-        .stat-card {
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--surface);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            position: relative;
-        }
-
-        html[data-theme="dark"] .stat-card {
-            background: rgba(31, 41, 55, 0.45);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-            border-color: var(--first-color);
-        }
-
-        html[data-theme="dark"] .stat-card:hover {
-            box-shadow: 0 8px 24px rgba(255, 85, 50, 0.1);
-            border-color: rgba(255, 85, 50, 0.4);
-        }
-
-        /* Minimalist Accent Lines instead of Gradients */
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--first-color);
-            opacity: 0.8;
-            transition: opacity 0.3s ease;
-        }
-
-        /* Unified Icon Wrapper styling */
-        .stat-icon-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-            position: relative;
-            z-index: 1;
-            transition: transform 0.3s ease;
-            background: rgba(255, 85, 50, 0.08); 
-            color: var(--first-color);
-        }
-        .stat-card:hover .stat-icon-wrapper {
-            transform: scale(1.05);
-        }
-
-        .stat-card h3 {
-            position: relative;
-            z-index: 1;
-            font-size: 2rem;
-            letter-spacing: -0.5px;
-            font-weight: 700;
-        }
-
-        .card-header-clean {
-            border-bottom: 1px solid var(--border);
-            padding: 16px 20px;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        html[data-theme="dark"] .card-header-clean {
-            border-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .progress-bar-clean {
-            height: 4px;
-            background-color: var(--border);
-            border-radius: 999px;
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-        }
-        html[data-theme="dark"] .progress-bar-clean {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 999px;
-            background: var(--first-color);
-            transition: width 0.6s ease;
-        }
-
-        .table-clean th {
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.72rem;
-            color: var(--muted);
-            background-color: var(--surface-soft);
-            border-bottom: 2px solid var(--border) !important;
-            padding: 14px 20px;
-            letter-spacing: 0.5px;
-        }
-        html[data-theme="dark"] .table-clean th {
-            background-color: rgba(55, 65, 81, 0.3);
-            border-color: rgba(255, 255, 255, 0.05) !important;
-        }
-
-        .table-clean td {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-        html[data-theme="dark"] .table-clean td {
-            border-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .shortcut-btn {
-            border: 1px solid var(--border);
-            background: var(--surface);
-            border-radius: 12px;
-            padding: 20px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-align: center;
-            color: var(--text);
-            font-weight: 600;
-            font-size: 0.9rem;
-            position: relative;
-            overflow: hidden;
-        }
-        html[data-theme="dark"] .shortcut-btn {
-            background: rgba(31, 41, 55, 0.3);
-            border-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .shortcut-btn:hover {
-            border-color: var(--first-color);
-            color: var(--first-color);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(255, 85, 50, 0.08);
-            background: rgba(255, 85, 50, 0.02);
-        }
-
-        .shortcut-btn i {
-            font-size: 1.4rem;
-            color: var(--muted);
-            transition: all 0.3s ease;
-        }
-
-        .shortcut-btn:hover i {
-            color: var(--first-color);
-            transform: scale(1.1);
-        }
-
-        /* ADMS live pulse animation */
-        .blink-animation {
-            animation: pulse 1.8s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
-        }
-
-        /* Cashflow overview metrics styling */
-        .financial-stat-box {
-            padding: 15px;
-            transition: all 0.3s ease;
-            border-radius: 12px;
-        }
-        .financial-stat-box:hover {
-            background: var(--surface-soft);
-        }
-        html[data-theme="dark"] .financial-stat-box:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        /* Color Picker Styling */
-        .color-dot {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 3px solid var(--surface);
-            box-shadow: 0 0 0 1px var(--border);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-        .color-dot:hover {
-            transform: scale(1.15);
-        }
-        .color-dot.active-accent {
-            box-shadow: 0 0 0 2px var(--first-color);
-            transform: scale(1.1);
-        }
-
-        /* Responsive Improvements */
-        @media (max-width: 767.98px) {
-            .financial-stat-box.border-end {
-                border-right: none !important;
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 1rem;
-            }
-            html[data-theme="dark"] .financial-stat-box.border-end {
-                border-color: rgba(255, 255, 255, 0.05);
-            }
-            
-            .stat-card h3 {
-                font-size: 1.6rem;
-            }
-            .stat-icon-wrapper {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-                margin-bottom: 8px;
-            }
-            .shortcut-btn {
-                padding: 12px 10px;
-            }
-        }
-    </style>
-
-    <div class="dashboard-container">
-        <!-- Lazy Loading Skeleton screens overlay -->
-        <div class="skeleton-loader-overlay" id="dashboard-skeleton">
-            <div class="row g-4">
-                <div class="col-12 col-sm-6 col-xl-3"><div class="sk-card" style="height: 140px;"></div></div>
-                <div class="col-12 col-sm-6 col-xl-3"><div class="sk-card" style="height: 140px;"></div></div>
-                <div class="col-12 col-sm-6 col-xl-3"><div class="sk-card" style="height: 140px;"></div></div>
-                <div class="col-12 col-sm-6 col-xl-3"><div class="sk-card" style="height: 140px;"></div></div>
-            </div>
-            <div class="row g-4 mt-1">
-                <div class="col-12 col-lg-8"><div class="sk-card" style="height: 380px;"></div></div>
-                <div class="col-12 col-lg-4"><div class="sk-card" style="height: 380px;"></div></div>
-            </div>
-        </div>
-
+    <div class="position-relative">
         <!-- Main Real Dashboard Content -->
         <div id="dashboard-content" style="opacity: 0; transition: opacity 0.5s ease;">
             <!-- Stat Cards Deck -->
             <div class="row g-4 mb-4">
                 <!-- Students Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                        <div class="card-body p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
                                 <i class="fas fa-user-graduate"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Students Enrolled</span>
-                            <h3 class="fw-bold mb-3 text-dark-title">{{ $studentCount }}</h3>
-                            <div class="w-100 mb-2">
-                                <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 82%;"></div>
-                                </div>
+                            <h3 class="fw-bold mb-3 fs-2">{{ $studentCount }}</h3>
+                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
+                                <div class="progress-bar bg-primary w-75"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Active accounts</span>
                         </div>
@@ -347,17 +29,15 @@
 
                 <!-- Staff Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                        <div class="card-body p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
                                 <i class="fas fa-users-cog"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Active Staff</span>
-                            <h3 class="fw-bold mb-3 text-dark-title">{{ $employeeCount }}</h3>
-                            <div class="w-100 mb-2">
-                                <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 95%;"></div>
-                                </div>
+                            <h3 class="fw-bold mb-3 fs-2">{{ $employeeCount }}</h3>
+                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
+                                <div class="progress-bar bg-primary w-100"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Fully Verified</span>
                         </div>
@@ -366,17 +46,15 @@
 
                 <!-- Attendance Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                        <div class="card-body p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
                                 <i class="fas fa-calendar-alt"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Attendance Today</span>
-                            <h3 class="fw-bold mb-3 text-dark-title">{{ $attendanceCount }}</h3>
-                            <div class="w-100 mb-2">
-                                <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 74%;"></div>
-                                </div>
+                            <h3 class="fw-bold mb-3 fs-2">{{ $attendanceCount }}</h3>
+                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
+                                <div class="progress-bar bg-primary w-75"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Daily Logged</span>
                         </div>
@@ -385,17 +63,15 @@
 
                 <!-- Pending Receipts Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                        <div class="card-body p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
                                 <i class="fas fa-file-invoice-dollar"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Pending Receipts</span>
-                            <h3 class="fw-bold mb-3 text-dark-title">{{ $dueInvoices }}</h3>
-                            <div class="w-100 mb-2">
-                                <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 38%;"></div>
-                                </div>
+                            <h3 class="fw-bold mb-3 fs-2">{{ $dueInvoices }}</h3>
+                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
+                                <div class="progress-bar bg-primary w-25"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Needs Attention</span>
                         </div>
@@ -404,9 +80,9 @@
 
                 <!-- Working Hours 10 to 5 Stat -->
                 <div class="col-12 col-sm-6 col-xl-3 mt-xl-0">
-                    <div class="card stat-card h-100">
-                        <div class="card-body p-4 position-relative" style="z-index: 1;">
-                            <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.08); color: #10b981;">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-success border-3">
+                        <div class="card-body p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
                                 <i class="fas fa-business-time"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Core Work Hours (10-5)</span>

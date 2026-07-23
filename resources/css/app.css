@@ -130,17 +130,7 @@ a {
   color: inherit;
 }
 
-.app-shell {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  min-height: 100vh;
-}
 
-.sidebar {
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border);
-  padding: 28px 20px;
-}
 
 .brand {
   display: flex;
@@ -250,33 +240,7 @@ a {
   gap: 8px;
 }
 
-.main-content {
-  padding: 30px;
-  background: var(--main-bg);
-}
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.topbar h2 {
-  margin: 0;
-  font-size: 1.85rem;
-}
-
-.page-subtitle {
-  margin: 6px 0 0;
-  color: var(--muted);
-}
-
-.page-body {
-  display: grid;
-  gap: 20px;
-}
 
 .alert {
   display: flex;
