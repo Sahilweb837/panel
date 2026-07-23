@@ -388,7 +388,7 @@
                     <div class="header-sub">Direct Message</div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="button button-success py-1 px-3" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#jitsiModal">
+                    <button type="button" class="button button-success py-1 px-3" style="font-size:0.8rem;" onclick="startVideoCall()">
                         <i class="fas fa-video me-1"></i> Video Call
                     </button>
                     <a href="{{ route('messages.full') }}" class="button button-secondary py-1 px-3" style="font-size:0.8rem;">
@@ -423,7 +423,16 @@
                             @endif
                             <div>
                                 <div class="chat-bubble {{ $isMine ? 'mine-bubble' : 'theirs' }}">
-                                    {{ $msg->body }}
+                                    @if($msg->body === '[VIDEO_CALL_INVITE]')
+                                        <div class="text-center">
+                                            <i class="fas fa-video fa-2x mb-2 {{ $isMine ? 'text-white' : 'text-success' }}"></i><br>
+                                            <button class="button {{ $isMine ? 'button-light' : 'button-success' }} btn-sm" data-bs-toggle="modal" data-bs-target="#jitsiModal">
+                                                Join Video Call
+                                            </button>
+                                        </div>
+                                    @else
+                                        {{ $msg->body }}
+                                    @endif
                                     @if($msg->attachment)
                                         <div class="mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.2);">
                                             <a href="{{ asset('uploads/messages/'.$msg->attachment) }}" target="_blank" class="text-decoration-none" style="font-size:0.8rem; color:inherit;">
@@ -835,17 +844,32 @@ function appendBubble(msg, isMine) {
         </div>`;
     }
 
+    
+    let bodyHtml = '';
+    if (msg.body === '[VIDEO_CALL_INVITE]') {
+        bodyHtml = `
+            <div class="text-center">
+                <i class="fas fa-video fa-2x mb-2 ${isMine ? 'text-white' : 'text-success'}"></i><br>
+                <button class="button ${isMine ? 'button-light' : 'button-success'} btn-sm" data-bs-toggle="modal" data-bs-target="#jitsiModal">
+                    Join Video Call
+                </button>
+            </div>
+        `;
+    } else {
+        bodyHtml = escHtml(msg.body);
+    }
+
     if (!isMine) {
         div.innerHTML = `
             <div class="avatar-sm" style="background:var(--first-color);">${msg.sender ? msg.sender[0].toUpperCase() : '?'}</div>
             <div>
-                <div class="chat-bubble theirs">${escHtml(msg.body)}${attachmentHtml}</div>
+                <div class="chat-bubble theirs">${bodyHtml}${attachmentHtml}</div>
                 <div class="chat-time">${msg.time}</div>
             </div>`;
     } else {
         div.innerHTML = `
             <div>
-                <div class="chat-bubble mine-bubble">${escHtml(msg.body)}${attachmentHtml}</div>
+                <div class="chat-bubble mine-bubble">${bodyHtml}${attachmentHtml}</div>
                 <div class="chat-time">${msg.time}</div>
             </div>`;
     }
@@ -998,6 +1022,28 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+function startVideoCall() {
+    const chatForm = document.getElementById('chatForm');
+    if (!chatForm) return;
+
+    // Send the invite message
+    const formData = new FormData(chatForm);
+    formData.set('body', '[VIDEO_CALL_INVITE]');
+    formData.delete('attachment'); // don't send attachments with the call invite
+
+    fetch(chatForm.action, {
+        method: 'POST', body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    }).then(r => r.json()).then(d => {
+        if (d.success) {
+            appendBubble(d.data, true);
+            // Open the modal for the caller
+            const jitsiModal = new bootstrap.Modal(document.getElementById('jitsiModal'));
+            jitsiModal.show();
+        }
+    });
+}
 </script>
 @endif
 
