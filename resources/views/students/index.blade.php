@@ -134,8 +134,16 @@
                                             <p class="text-muted small mb-0"><i class="fas fa-id-card me-1"></i>{{ $student->admission_no }}{{ $student->roll_no ? ' / '.$student->roll_no : '' }}</p>
                                         </div>
                                     </div>
-                                    <span class="status-pill {{ $student->status ? 'active' : 'inactive' }}" style="padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem;">
-                                        {{ $student->status ? 'Active' : 'Inactive' }}
+                                    @php
+                                        $displayStatus = $student->status ? 'Active' : 'Inactive';
+                                        $statusClass = $student->status ? 'active' : 'inactive';
+                                        if ($student->status && ($student->student_type ?? '') === 'Regular (Internship)') {
+                                            $displayStatus = 'Intern';
+                                            $statusClass = 'intern';
+                                        }
+                                    @endphp
+                                    <span class="status-pill {{ $statusClass }}" style="padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; {{ $statusClass === 'intern' ? 'background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;' : '' }}">
+                                        {{ $displayStatus }}
                                     </span>
                                 </div>
 
@@ -183,7 +191,7 @@
                                         <i class="fas fa-edit me-1"></i>Edit
                                     </a>
                                     @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']) && $student->user_id)
-                                    <button type="button" class="button button-secondary small flex-grow-1 py-2 view-password-btn" data-user-id="{{ $student->user_id }}" data-url="{{ route('sub-admins.password.show', $student->user_id) }}">
+                                    <button type="button" class="button button-secondary small flex-grow-1 py-2 view-password-btn" data-user-id="{{ $student->user_id }}" data-url="{{ route('sub-admins.password', $student->user_id) }}">
                                         <i class="fas fa-key me-1"></i>Key
                                     </button>
                                     @endif

@@ -1,4 +1,20 @@
 @extends('layouts.app')
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+    .ql-toolbar {
+        border-radius: 8px 8px 0 0;
+        background: #f8fafc;
+        border-color: var(--border) !important;
+    }
+    .ql-container {
+        border-radius: 0 0 8px 8px;
+        border-color: var(--border) !important;
+        font-family: inherit;
+    }
+    .ql-editor {
+        min-height: 120px;
+    }
+</style>
 
 @section('title', 'Netcoder SMS — Messages')
 @section('page-title', 'Messages')
@@ -481,7 +497,7 @@
             <div class="sms-content">
                 @forelse($inboxMessages as $msg)
                     <div class="inbox-msg-row {{ !$msg->is_read ? 'unread' : '' }}"
-                         onclick="openInboxMsg({{ $msg->id }}, '{{ addslashes($msg->subject) }}', '{{ addslashes($msg->sender?->name ?? 'System') }}', '{{ $msg->priority }}', '{{ $msg->created_at->format('M d, Y h:i A') }}', {{ json_encode($msg->body) }})"
+                         onclick="openInboxMsg({{ $msg->id }}, '{{ addslashes($msg->subject) }}', '{{ addslashes($msg->sender?->name ?? 'System') }}', '{{ $msg->priority }}', '{{ $msg->created_at->format('M d, Y h:i A') }}', document.getElementById('msg-body-{{ $msg->id }}').innerHTML, '{{ $msg->attachment ? asset('uploads/messages/'.$msg->attachment) : '' }}')"
                          style="cursor:pointer;">
                         <div class="inbox-avatar" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($msg->sender?->name ?? 'S') % 5] }}">
                             {{ strtoupper(substr($msg->sender?->name ?? 'S', 0, 1)) }}
@@ -496,9 +512,11 @@
                                 </div>
                                 <span class="inbox-time">{{ $msg->created_at->diffForHumans() }}</span>
                             </div>
-                            <div class="inbox-subject fw-semibold">{{ $msg->subject }}</div>
+                            <div class="inbox-subject fw-semibold">{{ $msg->subject }}
+                                @if($msg->attachment) <i class="fas fa-paperclip ms-1 text-primary"></i> @endif
+                            </div>
                             <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                {{ Str::limit($msg->body, 80) }}
+                                {!! Str::limit(strip_tags($msg->body), 80) !!}
                             </div>
                         </div>
                         {{-- hidden body for JS --}}
@@ -538,7 +556,7 @@
                 <h6 class="modal-title fw-bold mb-0"><i class="fas fa-edit me-2"></i>New Message</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form id="composeForm" action="{{ route('messages.store') }}" method="POST">
+            <form id="composeForm" action="{{ route('messages.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
@@ -591,7 +609,12 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Message</label>
-                            <textarea name="body" rows="5" class="form-input" placeholder="Write your message..." required></textarea>
+                            <input type="hidden" name="body" id="full_message_body">
+                            <div id="full_quill_editor" style="height: 150px; background: #fff; border-radius: 0 0 8px 8px; border: 1px solid var(--border);"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Attachment (Optional)</label>
+                            <input type="file" name="attachment" class="form-control" accept="image/*,.pdf,.doc,.docx,.zip">
                         </div>
                     </div>
                 </div>
@@ -628,6 +651,7 @@
     </div>
 </div>
 
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
 const CSRF = '{{ csrf_token() }}';
 @if(request('chat_user') && $selectedChatUser)
@@ -635,6 +659,31 @@ const CHAT_USER_ID = {{ $selectedChatUser->id }};
 @endif
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    /* ─── Initialize Quill Editor for Compose Modal ─── */
+    var fullQuill = null;
+    if (document.getElementById('full_quill_editor')) {
+        fullQuill = new Quill('#full_quill_editor', {
+            theme: 'snow',
+            placeholder: 'Write your message details here...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+    }
 
     /* ─── Compose form AJAX ─── */
     const composeForm = document.getElementById('composeForm');
@@ -651,6 +700,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         composeForm.addEventListener('submit', function (e) {
             e.preventDefault();
+            if(fullQuill) {
+                document.getElementById('full_message_body').value = fullQuill.root.innerHTML;
+            }
             const btn = document.getElementById('composeSendBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending…'; btn.disabled = true;
             fetch(composeForm.action, {
@@ -661,6 +713,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (d.success) {
                     bootstrap.Modal.getInstance(document.getElementById('composeModal')).hide();
                     composeForm.reset();
+                    if(fullQuill) fullQuill.setContents([]);
                     showToast('Message sent!', 'success');
                 }
             }).catch(() => { btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Message'; btn.disabled = false; });
@@ -776,7 +829,7 @@ function escHtml(s) {
 }
 
 /* ─── Inbox message detail ─── */
-function openInboxMsg(id, subject, sender, priority, date, body) {
+function openInboxMsg(id, subject, sender, priority, date, body, attachment) {
     // Mark as read
     fetch(`/messages/${id}/read`, {
         method: 'POST',
@@ -795,33 +848,48 @@ function openInboxMsg(id, subject, sender, priority, date, body) {
 
     if (panelBody && window.innerWidth > 768) {
         panelTitle.innerHTML = `<i class="fas fa-envelope-open text-first me-2"></i>Message`;
+        let attHtml = '';
+        if(attachment && attachment !== '') {
+            attHtml = `
+            <div class="mt-4 pt-3 border-top border-light">
+                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Attachment</div>
+                <a href="${attachment}" target="_blank" class="button button-secondary py-1 px-3" style="font-size:0.8rem;"><i class="fas fa-paperclip me-2"></i>View Attachment</a>
+            </div>`;
+        }
         panelBody.innerHTML = `
             <div class="mb-3">
                 <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Subject</div>
-                <div class="fw-bold" style="font-size:0.95rem;">${escHtml(subject)}</div>
+                <div style="font-weight:700;font-size:1.05rem;">${subject}</div>
             </div>
-            <div class="mb-3 d-flex gap-3 flex-wrap">
+            <div class="mb-4 d-flex justify-content-between align-items-end border-bottom border-light pb-3">
                 <div>
                     <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">From</div>
-                    <div class="fw-semibold">${escHtml(sender)}</div>
+                    <div class="fw-semibold">${sender}</div>
                 </div>
-                <div>
-                    <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Priority</div>
+                <div class="text-end">
+                    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">${date}</div>
                     <span class="prio-badge prio-${priority}">${priority}</span>
                 </div>
             </div>
-            <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Message</div>
-            <div style="background:var(--surface-soft);border-radius:10px;padding:14px;font-size:0.9rem;line-height:1.7;white-space:pre-wrap;">${escHtml(body)}</div>
-            <div class="mt-3 text-muted" style="font-size:0.75rem;">${date}</div>
+            <div style="font-size:0.95rem;line-height:1.6;white-space:pre-wrap;">${body}</div>
+            ${attHtml}
         `;
     } else {
-        // On mobile – modal
-        document.getElementById('modalSubject').textContent = subject;
-        document.getElementById('modalSender').textContent = sender;
-        document.getElementById('modalBody').textContent = body;
-        document.getElementById('modalDate').textContent = date;
-        const p = document.getElementById('modalPriority');
-        p.textContent = priority; p.className = `prio-badge prio-${priority}`;
+        // Mobile – modal
+        document.getElementById('modalSubject').innerText = subject;
+        document.getElementById('modalSender').innerText = sender;
+        document.getElementById('modalDate').innerText = date;
+        const mp = document.getElementById('modalPriority');
+        mp.className = 'prio-badge prio-' + priority; mp.innerText = priority;
+        let attHtml = '';
+        if(attachment && attachment !== '') {
+            attHtml = `
+            <div class="mt-4 pt-3 border-top border-light">
+                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Attachment</div>
+                <a href="${attachment}" target="_blank" class="button button-secondary py-1 px-3" style="font-size:0.8rem;"><i class="fas fa-paperclip me-2"></i>View Attachment</a>
+            </div>`;
+        }
+        document.getElementById('modalBody').innerHTML = body + attHtml;
         new bootstrap.Modal(document.getElementById('msgDetailModal')).show();
     }
 }

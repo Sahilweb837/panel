@@ -73,6 +73,7 @@ Route::get('/run-migrations', function () {
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/clear-cache', [DashboardController::class, 'clearCache'])->name('clear-cache');
+    Route::post('/profile/photo', [AuthController::class, 'updateProfilePic'])->name('profile.photo.update');
     Route::get('student-expenses', [StudentExpenseController::class, 'index'])->name('student_expenses.index');
     
     // Export CSV and PDF routes (must be defined BEFORE resource controllers so they aren't caught by wildcard resource routes)

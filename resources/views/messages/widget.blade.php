@@ -1,3 +1,4 @@
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <style>
     .msg-widget-card {
         background: var(--surface);
@@ -6,6 +7,20 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         font-family: 'Poppins', 'Outfit', sans-serif;
     }
+    .ql-toolbar {
+        border-radius: 8px 8px 0 0;
+        background: #f8fafc;
+        border-color: var(--border) !important;
+    }
+    .ql-container {
+        border-radius: 0 0 8px 8px;
+        border-color: var(--border) !important;
+        font-family: inherit;
+    }
+    .ql-editor {
+        min-height: 120px;
+    }
+    /* Rest of the original styles */
     .unread-row {
         background: rgba(255, 85, 50, 0.04) !important;
         font-weight: 700;
@@ -280,17 +295,20 @@
                                            data-subject="{{ $msg->subject }}"
                                            data-sender="{{ $msg->sender?->name ?? 'System' }}"
                                            data-priority="{{ $msg->priority }}"
-                                           data-date="{{ $msg->created_at->format('M d, Y h:i A') }}">
+                                           data-date="{{ $msg->created_at->format('M d, Y h:i A') }}"
+                                           data-attachment="{{ $msg->attachment ? asset('uploads/messages/'.$msg->attachment) : '' }}">
                                             {{ Str::limit($msg->subject, 35) }}
                                         </a>
-                                        <div id="widget-msg-body-{{ $msg->id }}" style="display: none;">{{ $msg->body }}</div>
+                                        <div id="widget-msg-body-{{ $msg->id }}" style="display: none;">{!! $msg->body !!}</div>
                                     </td>
                                     <td>
                                         <span class="badge priority-{{ strtolower($msg->priority) }} px-2 py-1">
                                             {{ $msg->priority }}
                                         </span>
                                     </td>
-                                    <td class="text-muted small">{{ $msg->created_at->diffForHumans() }}</td>
+                                    <td class="text-muted small">{{ $msg->created_at->diffForHumans() }}
+                                        @if($msg->attachment) <i class="fas fa-paperclip ms-1 text-primary"></i> @endif
+                                    </td>
                                     <td class="pe-4 text-end">
                                         <button class="button button-secondary btn-sm py-1 px-2 view-msg-btn"
                                                 data-bs-toggle="modal"
@@ -299,7 +317,8 @@
                                                 data-subject="{{ $msg->subject }}"
                                                 data-sender="{{ $msg->sender?->name ?? 'System Announcement' }}"
                                                 data-priority="{{ $msg->priority }}"
-                                                data-date="{{ $msg->created_at->format('M d, Y h:i A') }}">
+                                                data-date="{{ $msg->created_at->format('M d, Y h:i A') }}"
+                                                data-attachment="{{ $msg->attachment ? asset('uploads/messages/'.$msg->attachment) : '' }}">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
@@ -340,7 +359,9 @@
                                             <span class="badge bg-primary text-uppercase">Broadcast: {{ $msg->receiver_role }}</span>
                                         @endif
                                     </td>
-                                    <td class="fw-bold text-dark-title">{{ Str::limit($msg->subject, 40) }}</td>
+                                    <td class="fw-bold text-dark-title">{{ Str::limit($msg->subject, 40) }}
+                                        @if($msg->attachment) <i class="fas fa-paperclip ms-1 text-primary"></i> @endif
+                                    </td>
                                     <td>
                                         <span class="badge priority-{{ strtolower($msg->priority) }} px-2 py-1">
                                             {{ $msg->priority }}
@@ -381,7 +402,7 @@
                 <h6 class="modal-title fw-bold mb-0"><i class="fas fa-paper-plane me-2"></i>Compose Message / Broadcast</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form id="widgetComposeForm" action="{{ route('messages.store') }}" method="POST">
+            <form id="widgetComposeForm" action="{{ route('messages.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
@@ -438,7 +459,13 @@
 
                         <div class="col-12">
                             <label class="form-label fw-bold small">Message Body</label>
-                            <textarea name="body" rows="4" class="form-input" placeholder="Type your message details here..." required></textarea>
+                            <input type="hidden" name="body" id="widget_message_body">
+                            <div id="widget_quill_editor" style="height: 150px; background: #fff; border-radius: 0 0 8px 8px; border: 1px solid var(--border);"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Attachment (Optional)</label>
+                            <input type="file" name="attachment" class="form-control" accept="image/*,.pdf,.doc,.docx,.zip">
                         </div>
                     </div>
                 </div>
@@ -482,6 +509,11 @@
                     </div>
                     <div id="viewWidgetModalBody" style="white-space: pre-wrap; color: var(--text-color, #334155); position: relative; z-index: 1;"></div>
                 </div>
+                
+                <div id="viewWidgetModalAttachmentContainer" class="mt-3 p-3 rounded-3 bg-white shadow-sm border" style="display: none;">
+                    <h6 class="fw-bold mb-2 small"><i class="fas fa-paperclip me-2"></i>Attachment</h6>
+                    <a id="viewWidgetModalAttachmentLink" href="#" target="_blank" class="button button-secondary py-1 px-3" style="font-size: 0.85rem;">View Attachment</a>
+                </div>
             </div>
             <div class="modal-footer bg-white border-top-0">
                 <button type="button" class="button button-secondary px-4 py-2" data-bs-dismiss="modal">Close</button>
@@ -518,9 +550,10 @@
                 const subject = button.dataset.subject;
                 const sender = button.dataset.sender;
                 const bodyEl = document.getElementById('widget-msg-body-' + id);
-                const body = bodyEl ? bodyEl.innerText || bodyEl.textContent : '';
+                const body = bodyEl ? bodyEl.innerHTML : '';
                 const priority = button.dataset.priority;
                 const date = button.dataset.date;
+                const attachment = button.dataset.attachment;
 
                 document.getElementById('viewWidgetModalSubject').innerText = subject;
                 document.getElementById('viewWidgetModalSender').innerText = sender;
@@ -530,7 +563,7 @@
                     avatarEl.innerText = sender ? sender.charAt(0).toUpperCase() : 'S';
                 }
 
-                document.getElementById('viewWidgetModalBody').innerText = body;
+                document.getElementById('viewWidgetModalBody').innerHTML = body;
                 document.getElementById('viewWidgetModalDate').innerHTML = `<i class="far fa-clock me-1"></i> ${date}`;
 
                 const prioEl = document.getElementById('viewWidgetModalPriority');
@@ -541,6 +574,15 @@
                 else if (priority.toLowerCase() === 'important') bgClass = 'bg-warning text-dark';
                 else bgClass = 'bg-primary';
                 prioEl.className = 'badge px-3 py-2 rounded-pill shadow-sm ' + bgClass;
+                
+                const attContainer = document.getElementById('viewWidgetModalAttachmentContainer');
+                const attLink = document.getElementById('viewWidgetModalAttachmentLink');
+                if (attachment && attachment !== '') {
+                    attContainer.style.display = 'block';
+                    attLink.href = attachment;
+                } else {
+                    attContainer.style.display = 'none';
+                }
 
                 // Mark message as read via AJAX
                 fetch(`/messages/${id}/read`, {
@@ -573,12 +615,39 @@
         if (chatWidgetBody) {
             chatWidgetBody.scrollTop = chatWidgetBody.scrollHeight;
         }
+    </script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Quill Editor
+        var widgetQuill = new Quill('#widget_quill_editor', {
+            theme: 'snow',
+            placeholder: 'Type your message details here...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
 
-        // Compose Form AJAX Submit
+        // Sync Quill content to hidden input before form submit
         const composeForm = document.getElementById('widgetComposeForm');
         if (composeForm) {
             composeForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                document.getElementById('widget_message_body').value = widgetQuill.root.innerHTML;
+                
                 const formData = new FormData(composeForm);
                 const submitBtn = composeForm.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;

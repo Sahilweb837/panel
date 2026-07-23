@@ -148,13 +148,16 @@
 
         {{-- Profile Card --}}
         <div class="col-12 col-md-4 col-xl-3">
-            <div class="profile-card-portal h-100">
-                <div class="profile-avatar-portal">
+            <div class="profile-card-portal h-100 position-relative">
+                <div class="profile-avatar-portal position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#profilePicModal">
                     @if($employee->user?->profile_pic && $employee->user?->profile_pic !== 'default.png')
-                        <img src="{{ Storage::url('profiles/'.$employee->user->profile_pic) }}" class="rounded-circle" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="{{ asset('uploads/profiles/'.$employee->user->profile_pic) }}" class="rounded-circle" style="width:100%; height:100%; object-fit:cover;">
                     @else
                         <i class="fas fa-user-tie"></i>
                     @endif
+                    <div class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 26px; height: 26px; font-size: 0.75rem; transform: translate(10%, 10%); border: 2px solid #fff;">
+                        <i class="fas fa-camera"></i>
+                    </div>
                 </div>
                 <h5 class="fw-bold mb-1">{{ $employee->user?->name ?? $employee->employee_code }}</h5>
                 <p style="color:var(--muted); font-size:0.85rem; margin-bottom:0.75rem;">{{ $employee->designation ?? 'Staff Member' }}</p>
@@ -481,6 +484,30 @@
     </div>
     @include('messages.widget')
 
+</div>
+
+<!-- Profile Picture Upload Modal -->
+<div class="modal fade" id="profilePicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+            <div class="modal-header bg-light border-0">
+                <h6 class="modal-title fw-bold"><i class="fas fa-camera text-primary me-2"></i>Update Profile Picture</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('profile.photo.update') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body p-4 text-center">
+                    <label for="profile_pic" class="form-label fw-bold text-start w-100">Choose New Photo (JPG/PNG)</label>
+                    <input class="form-control" type="file" id="profile_pic" name="profile_pic" accept="image/png, image/jpeg, image/jpg" required>
+                    <div class="form-text mt-3 text-start"><i class="fas fa-info-circle me-1"></i> Max file size: 2MB. Square images look best.</div>
+                </div>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="button button-secondary px-4 py-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="button button-primary px-4 py-2"><i class="fas fa-upload me-2"></i>Upload Photo</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>

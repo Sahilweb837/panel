@@ -91,7 +91,15 @@
                     <h3>{{ $student->first_name }} {{ $student->last_name }}</h3>
                     <p>Admission No: <strong>{{ $student->admission_no }}</strong> | Course: <strong>{{ $student->course?->name ?? 'N/A' }}</strong></p>
                     <div class="mt-2">
-                        <span class="badge bg-{{ $student->status ? 'success' : 'danger' }}">{{ $student->status ? 'Active' : 'Inactive' }}</span>
+                        @php
+                            $badgeColor = $student->status ? 'success' : 'danger';
+                            $statusText = $student->status ? 'Active' : 'Inactive';
+                            if ($student->status && ($student->student_type ?? '') === 'Regular (Internship)') {
+                                $badgeColor = 'info'; // Or custom color for intern
+                                $statusText = 'Intern';
+                            }
+                        @endphp
+                        <span class="badge bg-{{ $badgeColor }}">{{ $statusText }}</span>
                         <span class="badge bg-primary">{{ $student->student_type }}</span>
                         @if($student->course_duration)
                             <span class="badge bg-secondary"><i class="fas fa-clock me-1"></i>{{ $student->course_duration }}</span>

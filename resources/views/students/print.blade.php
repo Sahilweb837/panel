@@ -42,8 +42,16 @@
                     <td>{{ $student->course?->name ?? '-' }}</td>
                     <td>{{ $student->student_type }}</td>
                     <td style="text-align: center;">
-                        <span class="badge {{ $student->status ? 'badge-success' : 'badge-danger' }}">
-                            {{ $student->status ? 'Active' : 'Inactive' }}
+                        @php
+                            $badgeColor = $student->status ? 'badge-success' : 'badge-danger';
+                            $statusText = $student->status ? 'Active' : 'Inactive';
+                            if ($student->status && ($student->student_type ?? '') === 'Regular (Internship)') {
+                                $badgeColor = 'badge-info';
+                                $statusText = 'Intern';
+                            }
+                        @endphp
+                        <span class="badge {{ $badgeColor }}">
+                            {{ $statusText }}
                         </span>
                     </td>
                 </tr>

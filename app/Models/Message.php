@@ -17,6 +17,7 @@ class Message extends Model
         'body',
         'priority',
         'is_read',
+        'attachment',
     ];
 
     public function sender()

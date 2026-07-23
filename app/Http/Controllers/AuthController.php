@@ -139,4 +139,32 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'You have been logged out successfully.');
     }
+
+    public function updateProfilePic(Request $request)
+    {
+        $request->validate([
+            'profile_pic' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = User::find(session('user_id'));
+        if (!$user) {
+            return back()->with('error', 'User not found.');
+        }
+
+        if ($request->hasFile('profile_pic')) {
+            $file = $request->file('profile_pic');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/profiles'), $filename);
+
+            // Delete old file if it exists and isn't the default
+            if ($user->profile_pic && $user->profile_pic !== 'default.png' && file_exists(public_path('uploads/profiles/' . $user->profile_pic))) {
+                unlink(public_path('uploads/profiles/' . $user->profile_pic));
+            }
+
+            $user->profile_pic = $filename;
+            $user->save();
+        }
+
+        return back()->with('success', 'Profile photo updated successfully.');
+    }
 }

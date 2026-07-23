@@ -111,6 +111,14 @@ class MessageController extends Controller
             'priority'       => 'required|in:Normal,Important,Urgent',
         ]);
 
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/messages'), $filename);
+            $attachmentPath = $filename;
+        }
+
         $message = Message::create([
             'sender_id'    => $userId,
             'receiver_id'  => $request->recipient_type === 'user' ? $request->receiver_id : null,
@@ -119,6 +127,7 @@ class MessageController extends Controller
             'body'         => $request->body,
             'priority'     => $request->priority,
             'is_read'      => false,
+            'attachment'   => $attachmentPath,
         ]);
 
         if ($request->ajax()) {
