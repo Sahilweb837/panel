@@ -12,10 +12,11 @@ class EmployeeConnectionController extends Controller
 {
     public function index()
     {
-        $pendingConnections = Auth::user()->receivedConnections()->where('status', 'pending')->with('requester')->get();
-        $connectedUsers = EmployeeConnection::where(function($query) {
-                $query->where('requester_id', Auth::id())
-                      ->orWhere('recipient_id', Auth::id());
+        $userId = session('user_id');
+        $pendingConnections = EmployeeConnection::where('recipient_id', $userId)->where('status', 'pending')->with('requester')->get();
+        $connectedUsers = EmployeeConnection::where(function($query) use ($userId) {
+                $query->where('requester_id', $userId)
+                      ->orWhere('recipient_id', $userId);
             })
             ->where('status', 'accepted')
             ->get();
@@ -29,16 +30,18 @@ class EmployeeConnectionController extends Controller
             'recipient_id' => 'required|exists:users,id',
         ]);
 
-        if (Auth::id() == $request->recipient_id) {
+        $userId = session('user_id');
+
+        if ($userId == $request->recipient_id) {
             return back()->with('error', 'You cannot connect with yourself.');
         }
 
-        $existing = EmployeeConnection::where(function($query) use ($request) {
-                $query->where('requester_id', Auth::id())
+        $existing = EmployeeConnection::where(function($query) use ($userId, $request) {
+                $query->where('requester_id', $userId)
                       ->where('recipient_id', $request->recipient_id);
-            })->orWhere(function($query) use ($request) {
+            })->orWhere(function($query) use ($userId, $request) {
                 $query->where('requester_id', $request->recipient_id)
-                      ->where('recipient_id', Auth::id());
+                      ->where('recipient_id', $userId);
             })->first();
 
         if ($existing) {
@@ -46,7 +49,7 @@ class EmployeeConnectionController extends Controller
         }
 
         EmployeeConnection::create([
-            'requester_id' => Auth::id(),
+            'requester_id' => $userId,
             'recipient_id' => $request->recipient_id,
             'status' => 'pending',
         ]);
@@ -56,7 +59,7 @@ class EmployeeConnectionController extends Controller
 
     public function update(Request $request, EmployeeConnection $connection)
     {
-        if ($connection->recipient_id !== Auth::id()) {
+        if ($connection->recipient_id !== session('user_id')) {
             abort(403);
         }
 
