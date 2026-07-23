@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\MeetingParticipant;
 use App\Models\MeetingMessage;
 use App\Models\MeetingFile;
+use App\Models\Message;
 use Illuminate\Http\Request;
 
 class MeetingController extends Controller
@@ -74,7 +75,26 @@ class MeetingController extends Controller
                     'user_id' => $userId,
                     'invitation_status' => 'Pending',
                 ]);
+
+                if ($link) {
+                    Message::create([
+                        'sender_id' => session('user_id'),
+                        'receiver_id' => $userId,
+                        'subject' => 'Meeting Invitation: ' . $meeting->title,
+                        'body' => "You have been invited to an online meeting.\n\nDate: " . $request->meeting_date . "\nTime: " . $request->start_time . "\nMode: " . $request->meeting_mode . "\nJoin Link: " . $link,
+                        'priority' => 'normal',
+                        'is_read' => false,
+                    ]);
+                }
             }
+        }
+
+        if ($link) {
+            MeetingMessage::create([
+                'meeting_id' => $meeting->id,
+                'sender_id' => session('user_id'),
+                'message' => 'The online meeting room is ready. You can join the video call using this link: ' . $link,
+            ]);
         }
 
         return redirect()->route('meetings.index')->with('success', 'Meeting scheduled successfully.');

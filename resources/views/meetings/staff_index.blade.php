@@ -78,9 +78,16 @@
                             </form>
                         </div>
                     @elseif($myStatus == 'Accepted')
-                        <a href="{{ route('meetings.show', $meeting->id) }}" class="btn btn-primary w-100 mt-2">
-                            <i class="fas fa-sign-in-alt"></i> View Meeting Details
-                        </a>
+                        <div class="d-flex gap-2 mt-2">
+                            <a href="{{ route('meetings.show', $meeting->id) }}" class="btn btn-primary flex-fill">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+                            @if(in_array($meeting->meeting_mode, ['Online', 'Hybrid']) && $meeting->meeting_link)
+                            <a href="{{ $meeting->meeting_link }}" target="_blank" class="btn btn-success flex-fill">
+                                <i class="fas fa-video"></i> Join
+                            </a>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>
