@@ -2,39 +2,54 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Meeting extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'host_id', 'title', 'description', 'meeting_time',
-        'room_id', 'status', 'invite_all',
+        'title',
+        'description',
+        'department_id',
+        'meeting_date',
+        'start_time',
+        'end_time',
+        'meeting_mode',
+        'meeting_link',
+        'location',
+        'created_by',
+        'status',
     ];
 
-    protected $casts = [
-        'meeting_time' => 'datetime',
-        'invite_all'   => 'boolean',
-    ];
-
-    public function host(): BelongsTo
+    public function department()
     {
-        return $this->belongsTo(User::class, 'host_id');
+        return $this->belongsTo(Department::class);
     }
 
-    public function invites(): HasMany
+    public function creator()
     {
-        return $this->hasMany(MeetingInvite::class);
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function invitedUsers()
+    public function participants()
     {
-        return $this->hasManyThrough(User::class, MeetingInvite::class, 'meeting_id', 'id', 'id', 'user_id');
+        return $this->hasMany(MeetingParticipant::class);
     }
 
-    public function scopeUpcoming($query)
+    public function minutes()
     {
-        return $query->where('meeting_time', '>=', now())->where('status', 'scheduled');
+        return $this->hasMany(MeetingMinute::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(MeetingMessage::class);
+    }
+
+    public function files()
+    {
+        return $this->hasMany(MeetingFile::class);
     }
 }

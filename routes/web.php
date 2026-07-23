@@ -137,6 +137,17 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('salary_slips/{id}/restore', [SalarySlipController::class, 'restore'])->name('salary_slips.restore');
     Route::resource('salary_slips', SalarySlipController::class)->only(['index', 'create', 'store', 'destroy', 'show']);
 
+    // Meeting Management
+    Route::resource('departments', \App\Http\Controllers\DepartmentController::class)->except(['create', 'show', 'edit']);
+    Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
+    Route::post('meetings/participants/{participant}/status', [\App\Http\Controllers\MeetingController::class, 'updateStatus'])->name('meetings.updateStatus');
+    Route::post('meetings/{meeting}/chat', [\App\Http\Controllers\MeetingController::class, 'storeMessage'])->name('meetings.chat.store');
+    Route::get('meetings/{meeting}/chat', [\App\Http\Controllers\MeetingController::class, 'getMessages'])->name('meetings.chat.index');
+    Route::post('meetings/{meeting}/files', [\App\Http\Controllers\MeetingController::class, 'storeFile'])->name('meetings.files.store');
+    Route::get('meetings/join/{id}', function($id) {
+        return view('meetings.join', compact('id'));
+    })->name('meetings.join');
+
     // Client Management
     Route::post('clients/{id}/restore', [ClientController::class, 'restore'])->name('clients.restore');
     Route::resource('clients', ClientController::class);

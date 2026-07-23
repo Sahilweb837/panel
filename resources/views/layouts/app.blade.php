@@ -205,6 +205,25 @@
                 $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
                 $access = $currentUser->access ?? [];
             @endphp
+            
+            {{-- MEETING MANAGEMENT --}}
+            <div class="nav-item">
+                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#meetingMenu" role="button" aria-expanded="false" aria-controls="meetingMenu">
+                    <div>
+                        <i class="fas fa-handshake me-2"></i>
+                        <span>Meeting Management</span>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('meetings.*', 'departments.*') ? 'show' : '' }}" id="meetingMenu" data-bs-parent="#sidebarAccordion">
+                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        @if($isSuperOrRoot)
+                            <li><a href="{{ route('departments.index') }}" class="nav-link py-2 {{ request()->routeIs('departments.*') ? 'active' : '' }}"><span>Departments</span></a></li>
+                        @endif
+                        <li><a href="{{ route('meetings.index') }}" class="nav-link py-2 {{ request()->routeIs('meetings.*') ? 'active' : '' }}"><span>Meetings</span></a></li>
+                    </ul>
+                </div>
+            </div>
 
             {{-- STUDENT MANAGEMENT --}}
             @if($isSuperOrRoot || in_array('students', $access) || in_array('attendances', $access))
