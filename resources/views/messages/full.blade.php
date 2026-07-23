@@ -169,11 +169,14 @@
 }
 .chat-bubble {
     max-width: 65%;
+    width: fit-content;
+    min-width: 80px;
     padding: 9px 14px;
     border-radius: 18px;
     font-size: 0.9rem;
     line-height: 1.5;
     word-break: break-word;
+    white-space: pre-wrap;
 }
 .chat-bubble.theirs {
     background: var(--surface-soft);

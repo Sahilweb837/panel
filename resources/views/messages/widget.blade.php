@@ -99,11 +99,15 @@
     }
     .chat-widget-bubble {
         max-width: 70%;
+        width: fit-content;
+        min-width: 80px;
         padding: 0.75rem 1rem;
         border-radius: 14px;
         position: relative;
         font-size: 0.9rem;
         line-height: 1.4;
+        word-break: break-word;
+        white-space: pre-wrap;
     }
     .bubble-sent {
         align-self: flex-end;
@@ -233,11 +237,7 @@
                         <i class="fas fa-paper-plane me-1"></i>Sent Items
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link px-3 py-1 fw-bold" id="widget-chat-tab" data-bs-toggle="pill" data-bs-target="#widget-chat" type="button" role="tab">
-                        <i class="fas fa-comments me-1"></i>Live Chat
-                    </button>
-                </li>
+
             </ul>
         </div>
 
@@ -369,86 +369,6 @@
                 </div>
             </div>
 
-            <!-- LIVE CHAT TAB -->
-            <div class="tab-pane fade" id="widget-chat" role="tabpanel">
-                <div class="chat-widget-container">
-                    <!-- Sidebar -->
-                    <div class="chat-widget-sidebar">
-                        <div class="chat-widget-sidebar-header text-muted small text-uppercase">
-                            Contacts
-                        </div>
-                        <div class="chat-widget-users" style="padding-top: 5px;">
-                            @php
-                                $groupedRecipients = $recipients->groupBy(function($user) {
-                                    return $user->role->role_name ?? 'Users';
-                                });
-                            @endphp
-
-                            @foreach($groupedRecipients as $roleName => $users)
-                                <div class="px-3 py-1 bg-light fw-bold text-muted d-none d-md-block" style="font-size: 0.7rem; text-transform: uppercase;">
-                                    {{ $roleName }}
-                                </div>
-                                @foreach($users as $user)
-                                    <a href="?chat_user={{ $user->id }}#widget-chat" class="chat-widget-user-item {{ (request('chat_user') == $user->id) ? 'active' : '' }}" title="{{ $user->name }} ({{ $roleName }})">
-                                        <div class="chat-widget-avatar">
-                                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                                        </div>
-                                        <div class="overflow-hidden">
-                                            <div class="fw-bold text-truncate text-dark" style="font-size: 0.85rem;">{{ Str::limit($user->name, 12) }}</div>
-                                            <div class="small text-muted d-md-none" style="font-size: 0.65rem;">{{ Str::limit($roleName, 10) }}</div>
-                                        </div>
-                                    </a>
-                                @endforeach
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Main Chat Area -->
-                    @if(request('chat_user') && $selectedChatUser)
-                        <div class="chat-widget-main">
-                            <div class="chat-widget-header">
-                                <div class="chat-widget-avatar">
-                                    {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 fw-bold">{{ $selectedChatUser->name }}</h6>
-                                    <small class="text-muted" style="font-size: 0.75rem;">{{ $selectedChatUser->role?->role_name ?? 'User' }}</small>
-                                </div>
-                            </div>
-                            
-                            <div class="chat-widget-body" id="chatWidgetBody">
-                                @if($chatMessages->isEmpty())
-                                    <div class="text-center text-muted my-auto">
-                                        <p class="small">No messages yet. Say hi!</p>
-                                    </div>
-                                @else
-                                    @foreach($chatMessages as $msg)
-                                        <div class="chat-widget-bubble {{ $msg->sender_id == session('user_id') ? 'bubble-sent' : 'bubble-received' }}">
-                                            {{ $msg->body }}
-                                            <span class="chat-widget-time">{{ $msg->created_at->format('h:i A') }}</span>
-                                        </div>
-                                    @endforeach
-                                @endif
-                            </div>
-
-                            <div class="chat-widget-footer">
-                                <form id="widgetChatForm" action="{{ route('messages.chat.store') }}" method="POST" class="d-flex gap-2">
-                                    @csrf
-                                    <input type="hidden" name="receiver_id" value="{{ $selectedChatUser->id }}">
-                                    <input type="text" name="body" class="form-control rounded-pill px-3 py-1 border-0" style="background: #f1f5f9; font-size: 0.9rem;" placeholder="Type a message..." required autocomplete="off">
-                                    <button type="submit" class="button button-primary rounded-pill px-3 py-1"><i class="fas fa-paper-plane"></i></button>
-                                </form>
-                            </div>
-                        </div>
-                    @else
-                        <div class="empty-chat-widget">
-                            <i class="fas fa-comments"></i>
-                            <h6>Select a conversation</h6>
-                            <p class="small">Choose a contact to start chatting</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
         </div>
     </div>
 </div>

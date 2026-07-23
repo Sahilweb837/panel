@@ -95,11 +95,15 @@
 
     .chat-bubble {
         max-width: 70%;
+        width: fit-content;
+        min-width: 80px;
         padding: 1rem 1.25rem;
         border-radius: 18px;
         position: relative;
         font-size: 0.95rem;
         line-height: 1.4;
+        word-break: break-word;
+        white-space: pre-wrap;
     }
 
     .bubble-sent {
