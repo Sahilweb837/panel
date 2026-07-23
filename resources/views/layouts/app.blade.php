@@ -401,21 +401,33 @@
                 </span>
                 <span class="badge bg-success rounded-pill" style="font-size: 0.65rem;"><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Online</span>
             </div>
-            <div style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Logged in as</div>
-            <strong style="font-size: 1rem; color: var(--text); font-weight: 700; display: block; margin-bottom: 8px;">{{ session('user_name', 'Super Admin') }}</strong>
-            
             @php
                 $currentUser = null;
                 if (session('user_id')) {
                     $currentUser = \App\Models\User::find(session('user_id'));
                 }
             @endphp
+            <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+                @if($currentUser && $currentUser->profile_pic)
+                    <img src="{{ asset('uploads/profiles/' . $currentUser->profile_pic) }}" alt="Profile" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,0,0,0.1);">
+                @else
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width:36px;height:36px;background:linear-gradient(135deg,var(--first-color),var(--first-color-alt));font-size:1rem;">
+                        {{ strtoupper(substr(session('user_name', 'A'), 0, 1)) }}
+                    </div>
+                @endif
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Logged in as</div>
+                    <strong style="font-size: 0.95rem; color: var(--text); font-weight: 700; display: block;">{{ session('user_name', 'Super Admin') }}</strong>
+                </div>
+            </div>
+            
             @if($currentUser && $currentUser->phone_number)
                 <small class="d-block mb-2 text-muted" style="font-size: 0.78rem;">
                     <i class="fas fa-phone me-1"></i>{{ $currentUser->phone_number }}
                 </small>
             @endif
-            <form action="{{ route('logout') }}" method="POST" class="logout-form mt-2">
+            <button class="button button-primary w-100 py-1 mb-2" style="font-size: 0.8rem;" data-bs-toggle="modal" data-bs-target="#appProfilePicModal"><i class="fas fa-camera me-1"></i> Change Photo</button>
+            <form action="{{ route('logout') }}" method="POST" class="logout-form mt-1">
                 @csrf
                 <button type="submit" class="button button-secondary w-100 py-2" style="font-size: 0.85rem; border-radius: 8px;">
                     <i class="fas fa-sign-out-alt me-1"></i> Logout
@@ -1214,6 +1226,29 @@
         });
     </script>
     @endif
+<div class="modal fade" id="appProfilePicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+            <div class="modal-header bg-light border-0">
+                <h6 class="modal-title fw-bold"><i class="fas fa-camera text-primary me-2"></i>Update Profile Picture</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('profile.photo.update') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body p-4 text-center">
+                    <label for="profile_pic" class="form-label fw-bold text-start w-100">Choose New Photo (JPG/PNG)</label>
+                    <input class="form-control" type="file" id="profile_pic" name="profile_pic" accept="image/png, image/jpeg, image/jpg" required>
+                    <div class="form-text mt-3 text-start"><i class="fas fa-info-circle me-1"></i> Max file size: 2MB. Square images look best.</div>
+                </div>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="button button-secondary px-4 py-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="button button-primary px-4 py-2"><i class="fas fa-upload me-2"></i>Upload Photo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
 
