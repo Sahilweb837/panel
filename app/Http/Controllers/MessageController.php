@@ -218,9 +218,17 @@ class MessageController extends Controller
         $request->validate([
             'receiver_id' => 'required|exists:users,id',
             'body'        => 'required|string',
+            'attachment'  => 'nullable|file|max:5120',
         ]);
 
         $currentUserId = session('user_id');
+        
+        $attachmentName = null;
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $attachmentName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/messages'), $attachmentName);
+        }
 
         $message = Message::create([
             'sender_id'    => $currentUserId,
@@ -230,16 +238,18 @@ class MessageController extends Controller
             'body'         => $request->body,
             'priority'     => 'Normal',
             'is_read'      => false,
+            'attachment'   => $attachmentName,
         ]);
 
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'data'    => [
-                    'id'        => $message->id,
-                    'body'      => $message->body,
-                    'time'      => $message->created_at->format('h:i A'),
-                    'sender_id' => $currentUserId,
+                    'id'         => $message->id,
+                    'body'       => $message->body,
+                    'time'       => $message->created_at->format('h:i A'),
+                    'sender_id'  => $currentUserId,
+                    'attachment' => $attachmentName ? asset('uploads/messages/' . $attachmentName) : null,
                 ],
             ]);
         }

@@ -373,9 +373,13 @@
             <div class="sms-main-header">
                 <div>
                     <div class="header-title">
-                        <div class="user-avatar-sm" style="width:32px;height:32px;font-size:0.9rem;border-radius:50%;background:var(--first-color);color:#fff;display:flex;align-items:center;justify-content:center;">
-                            {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
-                        </div>
+                        @if($selectedChatUser->profile_pic)
+                            <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="user-avatar-sm" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                        @else
+                            <div class="user-avatar-sm" style="width:32px;height:32px;font-size:0.9rem;border-radius:50%;background:var(--first-color);color:#fff;display:flex;align-items:center;justify-content:center;">
+                                {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
+                            </div>
+                        @endif
                         {{ $selectedChatUser->name }}
                         <span style="background:rgba(16,185,129,.12);color:#059669;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">
                             {{ $selectedChatUser->role?->role_name ?? 'User' }}
@@ -383,9 +387,14 @@
                     </div>
                     <div class="header-sub">Direct Message</div>
                 </div>
-                <a href="{{ route('messages.full') }}" class="button button-secondary py-1 px-3" style="font-size:0.8rem;">
-                    <i class="fas fa-arrow-left me-1"></i> Back
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="button button-success py-1 px-3" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#jitsiModal">
+                        <i class="fas fa-video me-1"></i> Video Call
+                    </button>
+                    <a href="{{ route('messages.full') }}" class="button button-secondary py-1 px-3" style="font-size:0.8rem;">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                </div>
             </div>
 
             <div class="sms-content" id="chatScrollArea">
@@ -404,12 +413,25 @@
                         @endif
                         <div class="chat-bubble-group {{ $isMine ? 'mine' : '' }}" data-msg-id="{{ $msg->id }}">
                             @if(!$isMine)
-                                <div class="avatar-sm" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($selectedChatUser->name) % 5] }}">
-                                    {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
-                                </div>
+                                @if($selectedChatUser->profile_pic)
+                                    <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="avatar-sm" style="object-fit:cover;">
+                                @else
+                                    <div class="avatar-sm" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($selectedChatUser->name) % 5] }}">
+                                        {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
+                                    </div>
+                                @endif
                             @endif
                             <div>
-                                <div class="chat-bubble {{ $isMine ? 'mine-bubble' : 'theirs' }}">{{ $msg->body }}</div>
+                                <div class="chat-bubble {{ $isMine ? 'mine-bubble' : 'theirs' }}">
+                                    {{ $msg->body }}
+                                    @if($msg->attachment)
+                                        <div class="mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.2);">
+                                            <a href="{{ asset('uploads/messages/'.$msg->attachment) }}" target="_blank" class="text-decoration-none" style="font-size:0.8rem; color:inherit;">
+                                                <i class="fas fa-paperclip me-1"></i> View Attachment
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
                                 <div class="chat-time">{{ $msg->created_at->format('h:i A') }}</div>
                             </div>
                         </div>
@@ -424,9 +446,13 @@
             </div>
 
             <div class="sms-input-bar">
-                <form id="chatForm" action="{{ route('messages.chat.store') }}" method="POST">
+                <form id="chatForm" action="{{ route('messages.chat.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="receiver_id" value="{{ $selectedChatUser->id }}">
+                    <label class="btn btn-light mb-0 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border-radius: 12px; cursor: pointer; border: 1.5px solid var(--border);">
+                        <i class="fas fa-paperclip text-muted"></i>
+                        <input type="file" name="attachment" style="display: none;" onchange="document.getElementById('chatInput').placeholder = this.files[0] ? this.files[0].name + ' selected...' : 'Message {{ $selectedChatUser->name }}...'">
+                    </label>
                     <textarea name="body" id="chatInput" rows="1" class="chat-input" placeholder="Message {{ $selectedChatUser->name }}..." required></textarea>
                     <button type="submit" class="sms-send-btn"><i class="fas fa-paper-plane"></i></button>
                 </form>
@@ -799,17 +825,27 @@ function appendBubble(msg, isMine) {
     const div = document.createElement('div');
     div.className = 'chat-bubble-group' + (isMine ? ' mine' : '');
     div.dataset.msgId = msg.id;
+    let attachmentHtml = '';
+    if (msg.attachment) {
+        attachmentHtml = `
+        <div class="mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.2);">
+            <a href="${msg.attachment}" target="_blank" class="${isMine ? 'text-white' : ''} text-decoration-none" style="font-size:0.8rem;">
+                <i class="fas fa-paperclip me-1"></i> View Attachment
+            </a>
+        </div>`;
+    }
+
     if (!isMine) {
         div.innerHTML = `
             <div class="avatar-sm" style="background:var(--first-color);">${msg.sender ? msg.sender[0].toUpperCase() : '?'}</div>
             <div>
-                <div class="chat-bubble theirs">${escHtml(msg.body)}</div>
+                <div class="chat-bubble theirs">${escHtml(msg.body)}${attachmentHtml}</div>
                 <div class="chat-time">${msg.time}</div>
             </div>`;
     } else {
         div.innerHTML = `
             <div>
-                <div class="chat-bubble mine-bubble">${escHtml(msg.body)}</div>
+                <div class="chat-bubble mine-bubble">${escHtml(msg.body)}${attachmentHtml}</div>
                 <div class="chat-time">${msg.time}</div>
             </div>`;
     }
@@ -909,4 +945,60 @@ function showToast(msg, type) {
     setTimeout(() => t.remove(), 3500);
 }
 </script>
+
+<!-- Jitsi Video Call Modal -->
+@if(request('chat_user') && $selectedChatUser)
+<div class="modal fade" id="jitsiModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90vw;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px; overflow: hidden; background: #1a1a1a;">
+            <div class="modal-header border-0 bg-dark text-white px-4 py-3">
+                <h6 class="modal-title fw-bold m-0"><i class="fas fa-video me-2 text-success"></i> Video Call with {{ $selectedChatUser->name }}</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="closeJitsiBtn"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 75vh;">
+                <div id="meet" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://meet.jit.si/external_api.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const jitsiModal = document.getElementById('jitsiModal');
+    let api = null;
+
+    if(jitsiModal) {
+        jitsiModal.addEventListener('shown.bs.modal', function () {
+            const domain = 'meet.jit.si';
+            const roomName = 'FeesManager-Call-' + Math.min({{ session('user_id') }}, {{ $selectedChatUser->id }}) + '-' + Math.max({{ session('user_id') }}, {{ $selectedChatUser->id }});
+            
+            const options = {
+                roomName: roomName,
+                width: '100%',
+                height: '100%',
+                parentNode: document.querySelector('#meet'),
+                userInfo: {
+                    displayName: '{{ session('user_name', 'User') }}'
+                },
+                configOverwrite: { 
+                    prejoinPageEnabled: false,
+                    startWithAudioMuted: false,
+                    startWithVideoMuted: false
+                }
+            };
+            api = new JitsiMeetExternalAPI(domain, options);
+        });
+
+        jitsiModal.addEventListener('hidden.bs.modal', function () {
+            if (api) {
+                api.dispose();
+                api = null;
+            }
+        });
+    }
+});
+</script>
+@endif
+
 @endsection
