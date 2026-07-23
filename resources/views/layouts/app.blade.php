@@ -133,6 +133,62 @@
             background: linear-gradient(90deg, rgba(255, 85, 50, 0.12), transparent);
             border-left: 3px solid var(--first-color);
         }
+
+        /* App-like Mobile Bottom Navigation */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            z-index: 1030;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+
+        html[data-theme="dark"] .mobile-bottom-nav {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            border-top-color: rgba(255,255,255,0.05);
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--first-color);
+        }
+
+        .mobile-nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 767.98px) {
+            body {
+                padding-bottom: 70px !important; /* Space for bottom nav */
+            }
+            .chatbot-fab {
+                bottom: 85px !important; /* Move chatbot above bottom nav */
+            }
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -1248,12 +1304,75 @@
                 </div>
                 <div class="modal-footer border-0 bg-light">
                     <button type="button" class="button button-secondary px-4 py-2" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="button button-primary px-4 py-2"><i class="fas fa-upload me-2"></i>Upload Photo</button>
-                </div>
             </form>
         </div>
     </div>
 </div>
+
+    <!-- Mobile Bottom Navigation Bar (App-like experience) -->
+    <style>
+        @media (max-width: 767px) {
+            body { padding-bottom: 70px; }
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 65px;
+                background: #fff;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+                z-index: 1000;
+                border-top: 1px solid #eee;
+            }
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                color: #6c757d;
+                text-decoration: none;
+                font-size: 10px;
+                font-weight: 600;
+            }
+            .mobile-nav-item i { font-size: 18px; margin-bottom: 3px; }
+            .mobile-nav-item.active { color: #0d6efd; }
+        }
+    </style>
+    <div class="mobile-bottom-nav d-block d-md-none">
+        <a href="{{ route('dashboard') }}" class="mobile-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{{ route('meetings.index') }}" class="mobile-nav-item {{ request()->routeIs('meetings.*') ? 'active' : '' }}">
+            <i class="fas fa-video"></i>
+            <span>Meetings</span>
+        </a>
+        @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']))
+        <a href="{{ route('students.index') }}" class="mobile-nav-item {{ request()->routeIs('students.*') ? 'active' : '' }}">
+            <i class="fas fa-user-graduate"></i>
+            <span>Students</span>
+        </a>
+        <a href="{{ route('fee_invoices.index') }}" class="mobile-nav-item {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}">
+            <i class="fas fa-money-bill"></i>
+            <span>Fees</span>
+        </a>
+        @else
+        <a href="{{ route('employee-attendances.index') }}" class="mobile-nav-item {{ request()->routeIs('employee-attendances.*') ? 'active' : '' }}">
+            <i class="fas fa-calendar-check"></i>
+            <span>Attendance</span>
+        </a>
+        <a href="{{ route('salary_slips.index') }}" class="mobile-nav-item {{ request()->routeIs('salary_slips.*') ? 'active' : '' }}">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Salary</span>
+        </a>
+        @endif
+        <a href="{{ route('settings.index') }}" class="mobile-nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </div>
 
     <!-- Push Notification Script -->
     <script>

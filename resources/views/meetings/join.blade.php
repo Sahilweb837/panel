@@ -197,6 +197,9 @@
         <button class="control-btn" onclick="copyInviteLink()" title="Copy Meeting Link">
             <i class="fas fa-link"></i>
         </button>
+        <button class="control-btn" id="btnScreen" onclick="toggleScreenShare()" title="Share Screen">
+            <i class="fas fa-desktop"></i>
+        </button>
         <button class="control-btn danger ms-3" onclick="endCall()" title="End Call">
             <i class="fas fa-phone-slash"></i>
         </button>
@@ -226,6 +229,8 @@
 
         let isAudioMuted = false;
         let isVideoMuted = false;
+        let isScreenSharing = false;
+        let screenStream = null;
 
         async function startMeeting() {
             document.getElementById('joinPanel').style.display = 'none';
@@ -333,6 +338,57 @@
         function copyInviteLink() {
             navigator.clipboard.writeText(window.location.href);
             alert("Meeting link copied to clipboard!");
+        }
+
+        async function toggleScreenShare() {
+            if (!isScreenSharing) {
+                try {
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                    const screenTrack = screenStream.getVideoTracks()[0];
+                    
+                    // Show screen on local video
+                    localVideo.srcObject = screenStream;
+
+                    // Send screen track to peers
+                    if (currentCall) {
+                        const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                        if (sender) sender.replaceTrack(screenTrack);
+                    }
+
+                    // Handle native browser 'stop sharing' button
+                    screenTrack.onended = () => {
+                        stopScreenShare();
+                    };
+                    
+                    isScreenSharing = true;
+                    document.getElementById('btnScreen').classList.add('active');
+                } catch (err) {
+                    console.error("Error sharing screen:", err);
+                }
+            } else {
+                stopScreenShare();
+            }
+        }
+
+        function stopScreenShare() {
+            if (!isScreenSharing) return;
+            
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Restore camera to local video
+            localVideo.srcObject = localStream;
+
+            // Restore camera track to peers
+            const videoTrack = localStream.getVideoTracks()[0];
+            if (currentCall && videoTrack) {
+                const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                if (sender) sender.replaceTrack(videoTrack);
+            }
+            
+            isScreenSharing = false;
+            document.getElementById('btnScreen').classList.remove('active');
         }
 
         function endCall() {
