@@ -21,7 +21,7 @@ class DashboardController extends Controller
             return redirect()->route('login');
         }
 
-        $roleSlug = $user->role?->slug;
+        $roleSlug = strtolower($user->role?->slug ?? '');
 
         if ($roleSlug === 'student') {
             return $this->studentDashboard($user);

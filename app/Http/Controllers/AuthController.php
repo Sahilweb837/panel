@@ -115,11 +115,12 @@ class AuthController extends Controller
         Session::put('user_id', $user->id);
         Session::put('user_name', $displayName);
         Session::put('user_role', $user->role?->role_name ?? ucfirst($roleSlug ?? 'User'));
-        Session::put('user_role_slug', $roleSlug ?? 'user');
+        Session::put('user_role_slug', strtolower($roleSlug ?? 'user'));
     }
 
     public function redirectByRole($roleSlug)
     {
+        $roleSlug = strtolower($roleSlug ?? '');
         if ($roleSlug === 'student') {
             return redirect()->route('student.dashboard');
         } elseif ($roleSlug === 'staff') {

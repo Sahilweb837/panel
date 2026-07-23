@@ -574,16 +574,6 @@
             chatWidgetBody.scrollTop = chatWidgetBody.scrollHeight;
         }
 
-        // Show chat tab if chat_user is in URL
-        if (window.location.search.includes('chat_user=')) {
-            const chatTab = new bootstrap.Tab(document.getElementById('widget-chat-tab'));
-            chatTab.show();
-            // scroll to the widget
-            setTimeout(() => {
-                document.querySelector('.messages-widget-container').scrollIntoView({ behavior: 'smooth' });
-            }, 500);
-        }
-
         // Compose Form AJAX Submit
         const composeForm = document.getElementById('widgetComposeForm');
         if (composeForm) {
@@ -641,50 +631,6 @@
                 .catch(err => {
                     console.error(err);
                     submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
-            });
-        }
-
-        // Chat Form AJAX Submit
-        const chatForm = document.getElementById('widgetChatForm');
-        if (chatForm) {
-            chatForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(chatForm);
-                const input = chatForm.querySelector('input[name="body"]');
-                const submitBtn = chatForm.querySelector('button[type="submit"]');
-                
-                if (!input.value.trim()) return;
-
-                const bodyText = input.value;
-                input.value = '';
-                submitBtn.disabled = true;
-
-                fetch(chatForm.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    submitBtn.disabled = false;
-                    if (data.success && chatWidgetBody) {
-                        const newBubble = document.createElement('div');
-                        newBubble.className = 'chat-widget-bubble bubble-sent';
-                        newBubble.innerHTML = `
-                            ${data.data.body}
-                            <span class="chat-widget-time">${data.data.time}</span>
-                        `;
-                        chatWidgetBody.appendChild(newBubble);
-                        chatWidgetBody.scrollTop = chatWidgetBody.scrollHeight;
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
                     submitBtn.disabled = false;
                 });
             });
