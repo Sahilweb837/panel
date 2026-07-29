@@ -39,14 +39,11 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Direct login routes
-Route::get('/students', function () {
-    return redirect()->route('login', ['type' => 'student']);
-});
-Route::get('/staff', function () {
-    return redirect()->route('login', ['type' => 'staff']);
-});
+Route::get('/students', [AuthController::class, 'showStudentLogin'])->name('login.student');
+Route::get('/staff', [AuthController::class, 'showStaffLogin'])->name('login.staff');
+Route::get('/admin', [AuthController::class, 'showAdminLogin'])->name('login.admin');
 Route::get('/superadmin', function () {
-    return redirect()->route('login', ['type' => 'institute']);
+    return redirect()->route('login.admin');
 });
 
 

@@ -19,6 +19,30 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    public function showStudentLogin()
+    {
+        if (session()->has('user_id')) {
+            return $this->redirectByRole(session('user_role_slug'));
+        }
+        return view('auth.student-login');
+    }
+
+    public function showStaffLogin()
+    {
+        if (session()->has('user_id')) {
+            return $this->redirectByRole(session('user_role_slug'));
+        }
+        return view('auth.staff-login');
+    }
+
+    public function showAdminLogin()
+    {
+        if (session()->has('user_id')) {
+            return $this->redirectByRole(session('user_role_slug'));
+        }
+        return view('auth.admin-login');
+    }
+
     public function login(Request $request)
     {
         $loginId = trim($request->input('login_id', $request->input('email')));
