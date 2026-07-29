@@ -5,35 +5,62 @@
 
 @section('content')
 <style>
+    .premium-stat-card {
+        background: var(--surface, #fff);
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .premium-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 36px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+    }
     .s-stat-card {
-        background: var(--card-bg, #fff);
-        border: 1px solid var(--border, #e2e8f0);
-        border-radius: 14px;
-        padding: 1.25rem 1.5rem;
+        background: var(--surface, #fff);
+        border: none;
+        border-radius: 16px;
+        padding: 1.5rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.25rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .s-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.02);
     }
     .s-stat-icon {
-        width: 48px; height: 48px; border-radius: 12px;
+        width: 52px; height: 52px; border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem; flex-shrink: 0;
+        font-size: 1.3rem; flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
-    .s-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 2px; }
-    .s-stat-value { font-size: 1.5rem; font-weight: 800; font-family: 'Poppins', sans-serif; line-height: 1; color: var(--text); }
+    .s-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+    .s-stat-value { font-size: 1.7rem; font-weight: 800; font-family: 'Outfit', 'Poppins', sans-serif; line-height: 1; color: var(--text); }
 
-    .fee-bar-bg { height: 10px; border-radius: 20px; background: var(--border, #e2e8f0); overflow: hidden; }
-    .fee-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--first-color, #ff5532), #ffa032); transition: width 0.8s ease; }
+    .fee-bar-bg { height: 12px; border-radius: 20px; background: var(--surface-soft, #f1f5f9); overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.04); }
+    .fee-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--first-color, #ff5532), #ff8f32); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(255,85,50,0.4); }
 
-    .att-row { display:flex; align-items:center; gap:0.75rem; padding:0.7rem 1.25rem; border-bottom:1px solid var(--border, #e2e8f0); font-size:0.875rem; }
+    .att-row { display:flex; align-items:center; gap:1rem; padding:0.8rem 1.5rem; border-bottom:1px solid var(--border, #e2e8f0); font-size:0.875rem; transition: background 0.2s; }
+    .att-row:hover { background: var(--surface-soft); }
     .att-row:last-child { border-bottom: none; }
-    .att-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .att-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
-    .milestone-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1.25rem; border-bottom:1px solid var(--border, #e2e8f0); }
+    .milestone-item { display:flex; align-items:center; gap:1rem; padding:0.85rem 1.5rem; border-bottom:1px solid var(--border, #e2e8f0); transition: background 0.2s; }
+    .milestone-item:hover { background: var(--surface-soft); }
     .milestone-item:last-child { border-bottom: none; }
-    .ms-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .ms-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
-    .info-chip2 { display:inline-flex; align-items:center; gap:5px; background:var(--surface-soft,#f8fafc); border:1px solid var(--border,#e2e8f0); border-radius:20px; padding:4px 10px; font-size:0.78rem; font-weight:600; margin:2px; }
+    .info-chip2 { display:inline-flex; align-items:center; gap:6px; background:var(--surface-soft,#f8fafc); border:1px solid var(--border,#e2e8f0); border-radius:24px; padding:6px 12px; font-size:0.75rem; font-weight:700; margin:3px; transition: all 0.2s; }
+    .info-chip2:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.04); }
+    
+    .msg-alert { background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.15)); border: 1px solid rgba(99,102,241,0.2); border-left: 4px solid #6366f1 !important; }
+    .premium-card-header { background: rgba(255,255,255,0.6) !important; backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.04) !important; }
+    
+    .btn-gradient { background: linear-gradient(135deg, var(--first-color), #e04423); color: #fff; border: none; border-radius: 14px; font-weight: 600; padding: 10px 24px; box-shadow: 0 6px 16px rgba(255,85,50,0.25); transition: all 0.2s ease; }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,85,50,0.35); color: #fff; }
 </style>
 
 <div class="container-fluid px-0">
@@ -46,13 +73,13 @@
     @endif
 
     @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
-        <div class="alert d-flex align-items-center rounded-3 mb-4 border-0 shadow-sm" style="background: rgba(99, 102, 241, 0.1); color: #4338ca; border-left: 4px solid #6366f1 !important;">
-            <i class="fas fa-envelope-open-text fa-2x me-3"></i>
+        <div class="alert msg-alert d-flex align-items-center rounded-3 mb-4 shadow-sm" style="color: #4338ca;">
+            <i class="fas fa-envelope-open-text fa-2x me-3" style="filter: drop-shadow(0 2px 4px rgba(99,102,241,0.3));"></i>
             <div>
-                <strong>You have {{ $unreadMessageCount }} unread message(s)!</strong><br>
-                <span style="font-size: 0.85rem;">Please check your inbox to stay updated.</span>
+                <strong style="font-size:1.05rem;">You have {{ $unreadMessageCount }} unread message(s)!</strong><br>
+                <span style="font-size: 0.85rem; opacity:0.8;">Please check your inbox to stay updated.</span>
             </div>
-            <a href="{{ route('messages.index') }}" class="btn btn-sm ms-auto px-4" style="background: #6366f1; color: #fff; border-radius: 50px; font-weight: 600;">View Inbox</a>
+            <a href="{{ route('messages.index') }}" class="btn btn-sm ms-auto px-4" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; border-radius: 50px; font-weight: 600; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">View Inbox</a>
         </div>
     @endif
 
@@ -62,11 +89,11 @@
         {{-- Profile --}}
         <div class="col-12 col-md-4 col-xl-3">
             <div class="card premium-stat-card p-4 text-center h-100">
-                <div style="width:72px; height:72px; border-radius:50%; background:rgba(255,85,50,0.08); color:var(--first-color); display:flex; align-items:center; justify-content:center; font-size:1.75rem; margin:0 auto 1rem;">
+                <div style="width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg, rgba(255,85,50,0.1), rgba(255,85,50,0.2)); color:var(--first-color); display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 1.2rem; box-shadow: inset 0 2px 6px rgba(255,85,50,0.15);">
                     <i class="fas fa-user-graduate"></i>
                 </div>
-                <h5 class="fw-bold mb-1">{{ $student->first_name }} {{ $student->last_name }}</h5>
-                <p style="font-size:0.85rem; color:var(--muted); margin-bottom:0.75rem;">
+                <h5 class="fw-bold mb-1" style="font-family:'Outfit',sans-serif;">{{ $student->first_name }} {{ $student->last_name }}</h5>
+                <p style="font-size:0.9rem; font-weight:500; color:var(--muted); margin-bottom:1rem;">
                     {{ $student->course?->name ?? 'No course enrolled' }}
                 </p>
                 <div>
@@ -165,10 +192,10 @@
                                 </div>
                             @endif
 
-                            <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <span class="text-muted small"><i class="fas fa-shield-alt text-success me-1"></i>Instant 1st Month Fee QR Invoice</span>
-                                <button type="button" class="button button-primary px-4 py-2" id="openPayNowModalBtn">
-                                    <i class="fas fa-qrcode me-2"></i>Pay Fee Online / Pay Now
+                            <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <span class="text-muted" style="font-size:0.85rem; font-weight:600;"><i class="fas fa-shield-alt text-success me-1"></i>Secure Online Payment</span>
+                                <button type="button" class="btn-gradient" id="openPayNowModalBtn">
+                                    <i class="fas fa-qrcode me-2"></i>Pay Fee Online
                                 </button>
                             </div>
                         </div>
@@ -240,7 +267,7 @@
                             </div>
                         </div>
                         @if($student->course->syllabus_path)
-                            <a href="{{ Storage::url($student->course->syllabus_path) }}" target="_blank" class="button button-primary w-100">
+                            <a href="{{ Storage::url($student->course->syllabus_path) }}" target="_blank" class="btn-gradient w-100 text-center text-decoration-none d-inline-block">
                                 <i class="fas fa-file-pdf me-2"></i>Download Syllabus
                             </a>
                         @else
@@ -264,13 +291,13 @@
                         </div>
                         <form method="POST" action="{{ route('student.select-course') }}">
                             @csrf
-                            <select name="course_id" class="form-input w-100 mb-3" required>
+                            <select name="course_id" class="form-control form-control-lg mb-3" style="border-radius:12px;" required>
                                 <option value="">-- Select a Course to Enroll --</option>
                                 @foreach($courses as $c)
                                     <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->duration ?? 'N/A' }})</option>
                                 @endforeach
                             </select>
-                            <button type="submit" class="button button-primary w-100"><i class="fas fa-check me-2"></i>Enroll Now</button>
+                            <button type="submit" class="btn-gradient w-100"><i class="fas fa-check me-2"></i>Enroll Now</button>
                         </form>
                     </div>
                 @endif

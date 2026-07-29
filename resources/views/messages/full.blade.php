@@ -27,10 +27,27 @@
     height: calc(100vh - 130px);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.08);
-    border: 1px solid var(--border);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    border: none;
     background: var(--surface);
     font-family: 'Outfit', 'Inter', sans-serif;
+    position: relative;
+}
+
+/* Sidebar Overlay for Mobile */
+.sidebar-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(2px);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Sidebar */
@@ -88,13 +105,16 @@
 .sms-sidebar-list { list-style: none; margin: 0; padding: 0 6px; }
 .sms-sidebar-list li a {
     display: flex; align-items: center; gap: 8px;
-    padding: 7px 10px; border-radius: 8px;
+    padding: 8px 12px; border-radius: 10px;
     font-size: 0.88rem; font-weight: 500; color: var(--text);
-    text-decoration: none; transition: background .15s;
+    text-decoration: none; transition: all 0.2s ease;
     position: relative;
+    margin-bottom: 2px;
 }
 .sms-sidebar-list li a:hover, .sms-sidebar-list li a.active {
-    background: rgba(255,85,50,.1); color: var(--first-color);
+    background: linear-gradient(90deg, rgba(255,85,50,.1) 0%, transparent 100%);
+    color: var(--first-color);
+    transform: translateX(4px);
 }
 .sms-sidebar-list li a .user-avatar-sm {
     width: 26px; height: 26px; border-radius: 50%;
@@ -146,12 +166,18 @@
 /* Inbox table */
 .inbox-msg-row {
     display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 14px; border-radius: 10px; margin-bottom: 4px;
-    cursor: pointer; transition: background .15s;
+    padding: 12px 14px; border-radius: 12px; margin-bottom: 6px;
+    cursor: pointer; transition: all 0.2s ease;
     border: 1px solid transparent;
+    background: var(--surface);
 }
-.inbox-msg-row:hover { background: var(--surface-soft); border-color: var(--border); }
-.inbox-msg-row.unread { background: rgba(255,85,50,.05); border-color: rgba(255,85,50,.15); }
+.inbox-msg-row:hover { 
+    background: var(--surface-soft); 
+    border-color: rgba(0,0,0,0.05); 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+.inbox-msg-row.unread { background: rgba(255,85,50,.03); border-color: rgba(255,85,50,.15); }
 .inbox-avatar {
     width: 40px; height: 40px; border-radius: 10px;
     background: var(--first-color); color: #fff;
@@ -187,12 +213,13 @@
     max-width: 65%;
     width: fit-content;
     min-width: 80px;
-    padding: 9px 14px;
+    padding: 10px 16px;
     border-radius: 18px;
     font-size: 0.9rem;
     line-height: 1.5;
     word-break: break-word;
     white-space: pre-wrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .chat-bubble.theirs {
     background: var(--surface-soft);
@@ -200,9 +227,10 @@
     color: var(--text);
 }
 .chat-bubble.mine-bubble {
-    background: var(--first-color);
+    background: linear-gradient(135deg, var(--first-color), #e04423);
     color: #fff;
     border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(255,85,50,0.25);
 }
 .chat-time { font-size: 0.65rem; color: var(--muted); margin-top: 2px; text-align: right; }
 .chat-bubble-group.mine .chat-time { text-align: left; }
@@ -233,13 +261,14 @@
 }
 .sms-input-bar .chat-input:focus { border-color: var(--first-color); }
 .sms-send-btn {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: var(--first-color); border: none; color: #fff;
+    width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--first-color), #e04423); border: none; color: #fff;
     font-size: 1rem; cursor: pointer; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    transition: background .2s, transform .1s;
+    transition: all .2s;
+    box-shadow: 0 4px 12px rgba(255,85,50,0.25);
 }
-.sms-send-btn:hover { background: #e04423; transform: scale(1.05); }
+.sms-send-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 16px rgba(255,85,50,0.35); }
 .sms-send-btn:active { transform: scale(0.97); }
 
 /* Empty state */
@@ -290,17 +319,28 @@
 .prio-badge { padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
 
 @media (max-width: 768px) {
-    .sms-sidebar { width: 200px; }
+    .sms-sidebar { 
+        position: absolute;
+        z-index: 999;
+        height: 100%;
+        left: -260px;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+        background: var(--surface);
+    }
+    .sms-sidebar.open { left: 0; }
     .sms-detail-panel { display: none; }
 }
 @media (max-width: 600px) {
-    .sms-sidebar { display: none; }
+    .sms-main-header { padding: 12px 14px; }
+    .sms-content { padding: 14px; }
 }
 </style>
 
 <div class="sms-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     {{-- ── SIDEBAR ─────────────────────────────────────── --}}
-    <div class="sms-sidebar">
+    <div class="sms-sidebar" id="smsSidebar">
         <div class="sms-sidebar-header">
             <div class="sms-workspace-name">
                 <span class="ws-icon">NC</span>
@@ -371,7 +411,10 @@
         @if(request('chat_user') && $selectedChatUser)
             {{-- ── CHAT VIEW ── --}}
             <div class="sms-main-header">
-                <div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-light d-md-none p-1 me-1 border-0 bg-transparent text-muted shadow-none" onclick="toggleSidebar()">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
                     <div class="header-title">
                         @if($selectedChatUser->profile_pic)
                             <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="user-avatar-sm" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
@@ -385,7 +428,6 @@
                             {{ $selectedChatUser->role?->role_name ?? 'User' }}
                         </span>
                     </div>
-                    <div class="header-sub">Direct Message</div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="button button-success py-1 px-3" style="font-size:0.8rem;" onclick="startVideoCall()">
@@ -470,9 +512,14 @@
         @elseif(request('view') === 'sent')
             {{-- ── SENT VIEW ── --}}
             <div class="sms-main-header">
-                <div>
-                    <div class="header-title"><i class="fas fa-paper-plane text-muted me-2"></i>Sent Items</div>
-                    <div class="header-sub">{{ $sentMessages->count() }} messages sent</div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-light d-md-none p-1 me-1 border-0 bg-transparent text-muted shadow-none" onclick="toggleSidebar()">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    <div>
+                        <div class="header-title"><i class="fas fa-paper-plane text-muted me-2"></i>Sent Items</div>
+                        <div class="header-sub">{{ $sentMessages->count() }} messages sent</div>
+                    </div>
                 </div>
                 <button class="button button-primary py-1 px-3" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#composeModal">
                     <i class="fas fa-edit me-1"></i> Compose
@@ -515,14 +562,19 @@
         @else
             {{-- ── INBOX VIEW ── --}}
             <div class="sms-main-header">
-                <div>
-                    <div class="header-title">
-                        <i class="fas fa-inbox text-muted me-2"></i>Inbox
-                        @if($unreadCount > 0)
-                            <span class="prio-badge prio-Urgent">{{ $unreadCount }} unread</span>
-                        @endif
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-light d-md-none p-1 me-1 border-0 bg-transparent text-muted shadow-none" onclick="toggleSidebar()">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    <div>
+                        <div class="header-title">
+                            <i class="fas fa-inbox text-muted me-2"></i>Inbox
+                            @if($unreadCount > 0)
+                                <span class="prio-badge prio-Urgent">{{ $unreadCount }} unread</span>
+                            @endif
+                        </div>
+                        <div class="header-sub">{{ $inboxMessages->count() }} messages</div>
                     </div>
-                    <div class="header-sub">{{ $inboxMessages->count() }} messages</div>
                 </div>
                 <button class="button button-primary py-1 px-3" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#composeModal">
                     <i class="fas fa-edit me-1"></i> Compose
@@ -967,6 +1019,11 @@ function showToast(msg, type) {
     t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'} me-2"></i>${msg}`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
+}
+
+function toggleSidebar() {
+    document.getElementById('smsSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
 }
 </script>
 

@@ -68,6 +68,29 @@ class AuthController extends Controller
 
         $roleSlug = $user->role?->slug;
 
+        // Fallback: If role_slug is incorrect but user has a student record
+        if ($request->account_type === 'student' && $roleSlug !== 'student') {
+            if (\App\Models\Student::where('user_id', $user->id)->exists()) {
+                $roleSlug = 'student';
+                // optionally fix the role_id in db
+                $studentRole = \App\Models\Role::where('slug', 'student')->first();
+                if ($studentRole) {
+                    $user->update(['role_id' => $studentRole->id]);
+                }
+            }
+        }
+
+        // Fallback: If role_slug is incorrect but user has a staff record
+        if ($request->account_type === 'staff' && $roleSlug !== 'staff') {
+            if (\App\Models\Employee::where('user_id', $user->id)->exists()) {
+                $roleSlug = 'staff';
+                $staffRole = \App\Models\Role::where('slug', 'staff')->first();
+                if ($staffRole) {
+                    $user->update(['role_id' => $staffRole->id]);
+                }
+            }
+        }
+
         if ($request->account_type === 'staff' && $roleSlug !== 'staff') {
             Session::flash('login_error', 'This account is not registered as Staff.');
             return back()->withErrors(['account_type' => 'This account is not registered as Staff.'])->onlyInput('email');
