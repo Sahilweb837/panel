@@ -376,7 +376,7 @@
                 @auth
                     <a href="{{ url('/home') }}" class="btn-premium">Active Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}?type=institute" class="btn-premium"><i class="fas fa-shield-alt me-2"></i>Admin Login</a>
+                    <a href="{{ url('/superadmin') }}" class="btn-premium"><i class="fas fa-shield-alt me-2"></i>Admin Login</a>
                 @endauth
             </div>
             
@@ -420,7 +420,7 @@
                         <p class="hub-subtitle">Select your designated portal to continue</p>
 
                         <!-- Admin Portal -->
-                        <a href="{{ route('login') }}?type=institute" class="portal-card card-admin">
+                        <a href="{{ url('/superadmin') }}" class="portal-card card-admin">
                             <div class="portal-icon">
                                 <i class="fas fa-user-shield"></i>
                             </div>
@@ -432,7 +432,7 @@
                         </a>
 
                         <!-- Staff Portal -->
-                        <a href="{{ route('login') }}?type=staff" class="portal-card card-staff">
+                        <a href="{{ url('/staff') }}" class="portal-card card-staff">
                             <div class="portal-icon">
                                 <i class="fas fa-chalkboard-teacher"></i>
                             </div>
@@ -444,7 +444,7 @@
                         </a>
 
                         <!-- Student Portal -->
-                        <a href="{{ route('login') }}?type=student" class="portal-card card-student">
+                        <a href="{{ url('/students') }}" class="portal-card card-student">
                             <div class="portal-icon">
                                 <i class="fas fa-user-graduate"></i>
                             </div>

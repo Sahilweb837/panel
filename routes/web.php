@@ -38,6 +38,17 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Direct login routes
+Route::get('/students', function () {
+    return redirect()->route('login', ['type' => 'student']);
+});
+Route::get('/staff', function () {
+    return redirect()->route('login', ['type' => 'staff']);
+});
+Route::get('/superadmin', function () {
+    return redirect()->route('login', ['type' => 'institute']);
+});
+
 
 // Registration Routes
 Route::get('/register/student', [\App\Http\Controllers\RegistrationController::class, 'showStudentRegistration'])->name('register.student');
@@ -63,6 +74,34 @@ Route::get('/clear-all', function () {
     \Illuminate\Support\Facades\Artisan::call('view:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
     return 'All caches completely cleared! Try logging in now.';
+});
+
+Route::get('/test-student', function () {
+    $role = \App\Models\Role::firstOrCreate(['slug' => 'student'], ['role_name' => 'Student', 'status' => 1]);
+    $user = \App\Models\User::updateOrCreate(
+        ['email' => 'student@example.com'],
+        [
+            'name' => 'Test Student',
+            'username' => 'teststudent',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role_id' => $role->id,
+            'status' => 1
+        ]
+    );
+    
+    $student = \App\Models\Student::updateOrCreate(
+        ['user_id' => $user->id],
+        [
+            'first_name' => 'Test',
+            'last_name' => 'Student',
+            'admission_no' => 'STD001',
+            'roll_no' => 'R001',
+            'status' => 1,
+            'admission_date' => now()
+        ]
+    );
+    
+    return 'Test student ready! <br><br><b>Login URL:</b> <a href="/fees-manager/fees-manager-laravel/public/students">/students</a><br><b>Email:</b> student@example.com<br><b>Student ID:</b> STD001<br><b>Password:</b> password123';
 });
 
 Route::get('/run-migrations', function () {
