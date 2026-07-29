@@ -279,7 +279,7 @@
     {{-- ── BOTTOM ROW: Attendance Table + Tasks ── --}}
     <div class="row g-3 mb-4">
         {{-- This Month's Attendance --}}
-        <div class="col-12 col-lg-6">
+        <div class="col-12">
             <div class="card premium-stat-card p-0 overflow-hidden">
                 <div class="premium-card-header bg-transparent border-bottom p-3 px-4">
                     <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
@@ -327,69 +327,12 @@
             </div>
         </div>
 
-        {{-- Assigned Tasks --}}
-        <div class="col-12 col-lg-6">
-            <div class="card premium-stat-card p-0 overflow-hidden">
-                <div class="premium-card-header bg-transparent border-bottom p-3 px-4">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fas fa-tasks text-first"></i> My Assigned Tasks
-                    </h6>
-                </div>
-                <div style="max-height: 340px; overflow-y: auto;">
-                    @forelse($assignedTasks as $task)
-                        <div class="att-row" id="task-row-{{ $task->id }}">
-                            <div class="att-dot" style="background: {{ $task->status === 'Completed' ? '#10b981' : ($task->status === 'In Progress' ? '#3b82f6' : '#94a3b8') }};"></div>
-                            <div style="flex:1;">
-                                <div style="font-weight:600; font-size:0.875rem;">{{ $task->title }}</div>
-                                <div style="font-size:0.75rem; color:var(--muted);">
-                                    Due: {{ $task->due_date ? $task->due_date->format('M d, Y') : 'No deadline' }}
-                                    &nbsp;|&nbsp;
-                                    <span class="badge bg-{{ $task->priority === 'High' ? 'danger' : ($task->priority === 'Medium' ? 'warning' : 'secondary') }}" style="font-size:0.65rem;">{{ $task->priority }}</span>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-1">
-                                <button onclick="updateTaskStatus({{ $task->id }}, 'In Progress')" class="button button-secondary btn-start-task" style="padding:4px 8px; font-size:0.75rem;" {{ in_array($task->status, ['In Progress', 'Completed']) ? 'disabled' : '' }}>▶</button>
-                                <button onclick="updateTaskStatus({{ $task->id }}, 'Completed')" class="button button-primary btn-complete-task" style="padding:4px 8px; font-size:0.75rem;" {{ $task->status === 'Completed' ? 'disabled' : '' }}>✓</button>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-4 text-muted">
-                            <i class="fas fa-check-double fa-2x mb-2 d-block" style="color:#10b981;"></i>No pending tasks!
-                        </div>
-                    @endforelse
-                </div>
-            </div>
         </div>
     </div>
 
-    {{-- ── Daily Log + Tabs ── --}}
+    {{-- ── Tabs ── --}}
     <div class="row g-3">
-        <div class="col-12 col-lg-5">
-            <div class="card premium-stat-card p-0 overflow-hidden">
-                <div class="premium-card-header bg-transparent border-bottom p-3 px-4">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fas fa-pen-nib text-first"></i> Today's Work Log
-                    </h6>
-                </div>
-                <div class="p-4">
-                    <form action="{{ route('daily-updates.store') }}" method="POST">
-                        @csrf
-                        <textarea name="update_text" required minlength="10"
-                            placeholder="Describe work done today..."
-                            class="form-input w-100"
-                            style="min-height:120px; resize:vertical;">{{ old('update_text', $todayUpdate?->update_text) }}</textarea>
-                        @if($todayUpdate)
-                            <p style="font-size:0.8rem; color:var(--muted); margin-top:6px;"><i class="fas fa-info-circle me-1"></i> You already logged today. Submitting again will update your log.</p>
-                        @endif
-                        <button type="submit" class="button button-primary w-100 mt-3">
-                            <i class="fas fa-save me-2"></i>{{ $todayUpdate ? 'Update Log' : 'Submit Log' }}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-lg-7">
+        <div class="col-12">
             <div class="card premium-stat-card p-0 overflow-hidden">
                 <ul class="nav nav-pills p-3 gap-2 border-bottom" id="staffTab" role="tablist" style="flex-wrap:nowrap; overflow-x:auto;">
                     <li class="nav-item" role="presentation">
@@ -485,29 +428,4 @@
     @include('messages.widget')
 
 </div>
-
-<!-- Profile Picture Upload Modal -->
-
-
-<script>
-    function updateTaskStatus(taskId, status) {
-        fetch(`/tasks/${taskId}/status`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ status: status })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                const row = document.getElementById(`task-row-${taskId}`);
-                const dot = row?.querySelector('.att-dot');
-                if (dot) dot.style.background = status === 'Completed' ? '#10b981' : '#3b82f6';
-                const startBtn = row?.querySelector('.btn-start-task');
-                const completeBtn = row?.querySelector('.btn-complete-task');
-                if (startBtn) startBtn.disabled = true;
-                if (completeBtn) completeBtn.disabled = status === 'Completed';
-            }
-        });
-    }
-</script>
 @endsection

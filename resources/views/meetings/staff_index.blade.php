@@ -5,8 +5,9 @@
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-12 d-flex justify-content-between align-items-center">
             <h4 class="m-0"><i class="fas fa-handshake text-primary me-2"></i> My Assigned Meetings</h4>
+            <a href="{{ route('meetings.create') }}" class="button button-primary py-2 px-3 shadow-sm"><i class="fas fa-plus me-1"></i> Create Meeting</a>
         </div>
     </div>
 

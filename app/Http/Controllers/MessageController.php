@@ -98,9 +98,6 @@ class MessageController extends Controller
         $roleSlug = session('user_role_slug');
         $isAdmin  = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']);
 
-        if (!$isAdmin) {
-            $request->merge(['recipient_type' => 'user']);
-        }
 
         $request->validate([
             'recipient_type' => 'required|in:user,role',

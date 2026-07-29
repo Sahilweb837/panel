@@ -647,7 +647,6 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
-                        @if($isAdmin)
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Send To</label>
                             <select name="recipient_type" id="recipientType" class="form-input" required>
@@ -655,9 +654,6 @@
                                 <option value="role">Broadcast to Role</option>
                             </select>
                         </div>
-                        @else
-                        <input type="hidden" name="recipient_type" value="user">
-                        @endif
 
                         <div class="col-md-6" id="userSelectBox">
                             <label class="form-label fw-bold small">Recipient</label>
@@ -669,7 +665,6 @@
                             </select>
                         </div>
 
-                        @if($isAdmin)
                         <div class="col-md-6" id="roleSelectBox" style="display:none;">
                             <label class="form-label fw-bold small">Broadcast Target</label>
                             <select name="receiver_role" class="form-input">
@@ -679,7 +674,6 @@
                                 <option value="admin">🛡️ All Admins</option>
                             </select>
                         </div>
-                        @endif
 
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Priority</label>

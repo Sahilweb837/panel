@@ -205,41 +205,10 @@
         </div>
     </div>
 
-    {{-- ── ROW 2: Attendance Records + Course/Syllabus ── --}}
+    {{-- ── ROW 2: Course/Syllabus ── --}}
     <div class="row g-3 mb-4">
-        <div class="col-12 col-lg-6">
-            <div class="card premium-stat-card p-0 overflow-hidden">
-                <div class="premium-card-header bg-transparent border-bottom p-3 px-4">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fas fa-clipboard-list text-first"></i> Attendance History
-                    </h6>
-                </div>
-                <div style="max-height:320px; overflow-y:auto;">
-                    @forelse($attendances as $att)
-                        <div class="att-row">
-                            <div class="att-dot" style="background: {{ $att->status === 'Present' ? '#10b981' : ($att->status === 'Late' ? '#f59e0b' : '#ef4444') }};"></div>
-                            <div style="flex:1;">
-                                <div style="font-weight:600;">{{ \Carbon\Carbon::parse($att->attendance_date)->format('D, M d Y') }}</div>
-                                @if($att->check_in_time)
-                                    <div style="font-size:0.75rem; color:var(--muted);">Check-in: {{ \Carbon\Carbon::parse($att->check_in_time)->format('h:i A') }}</div>
-                                @endif
-                                @if($att->fine > 0)
-                                    <div style="font-size:0.75rem; color:#ef4444; font-weight:600;"><i class="fas fa-exclamation-triangle"></i> Fine: ₹{{ number_format($att->fine, 0) }}</div>
-                                @endif
-                            </div>
-                            <span class="status-badge status-{{ strtolower($att->status) }}" style="padding:3px 8px; border-radius:6px; font-size:0.75rem;">{{ $att->status }}</span>
-                        </div>
-                    @empty
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-calendar-xmark fa-2x mb-2 d-block"></i>No attendance records yet.
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
         {{-- Course Details --}}
-        <div class="col-12 col-lg-6">
+        <div class="col-12">
             <div class="card premium-stat-card p-0 overflow-hidden h-100">
                 <div class="premium-card-header bg-transparent border-bottom p-3 px-4">
                     <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
@@ -305,9 +274,9 @@
         </div>
     </div>
 
-    {{-- ── ROW 3: Fee Invoices + Milestones ── --}}
+    {{-- ── ROW 3: Fee Invoices ── --}}
     <div class="row g-3">
-        <div class="col-12 col-lg-7">
+        <div class="col-12">
             <div class="card premium-stat-card p-0 overflow-hidden">
                 <div class="premium-card-header bg-transparent border-bottom p-3 px-4">
                     <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
@@ -351,43 +320,6 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-5">
-            <div class="card premium-stat-card p-0 overflow-hidden h-100">
-                <div class="premium-card-header bg-transparent border-bottom p-3 px-4 d-flex align-items-center justify-content-between">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fas fa-flag text-first"></i> Learning Milestones
-                    </h6>
-                    @if($totalMilestones > 0)
-                        <span style="font-size:0.8rem; color:var(--muted);">{{ $completedMilestones }}/{{ $totalMilestones }} done</span>
-                    @endif
-                </div>
-                @if($totalMilestones > 0)
-                    <div style="padding:0.75rem 1.25rem; border-bottom:1px solid var(--border);">
-                        <div class="fee-bar-bg">
-                            <div class="fee-bar-fill" style="width:{{ $milestoneProgress }}%;"></div>
-                        </div>
-                        <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">{{ $milestoneProgress }}% complete</div>
-                    </div>
-                @endif
-                <div style="max-height:280px; overflow-y:auto;">
-                    @forelse($milestones as $ms)
-                        <div class="milestone-item">
-                            <div class="ms-dot" style="background: {{ $ms->status === 'Completed' ? '#10b981' : ($ms->status === 'In Progress' ? '#3b82f6' : ($ms->status === 'Skipped' ? '#94a3b8' : '#e2e8f0')) }};"></div>
-                            <div style="flex:1;">
-                                <div style="font-weight:600; font-size:0.875rem;">{{ $ms->title }}</div>
-                                @if($ms->target_date)
-                                    <div style="font-size:0.75rem; color:var(--muted);">Target: {{ \Carbon\Carbon::parse($ms->target_date)->format('M d, Y') }}</div>
-                                @endif
-                            </div>
-                            <span class="badge bg-{{ $ms->status === 'Completed' ? 'success' : ($ms->status === 'In Progress' ? 'primary' : 'secondary') }}" style="font-size:0.7rem;">{{ $ms->status }}</span>
-                        </div>
-                    @empty
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-flag fa-2x mb-2 d-block"></i>No milestones set yet.
-                        </div>
-                    @endforelse
-                </div>
-            </div>
         </div>
     </div>
 
