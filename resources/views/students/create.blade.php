@@ -140,6 +140,16 @@
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="login_password" class="fw-semibold mb-2">
+                                <i class="fas fa-key text-first me-2"></i>Login Password <small class="text-muted fw-normal">(Optional)</small>
+                            </label>
+                            <input type="password" id="login_password" name="login_password" value="{{ old('login_password') }}" placeholder="Auto (DOB/Admn No)" class="form-input {{ $errors->has('login_password') ? 'is-invalid' : '' }}" />
+                            @error('login_password')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="form-group-grid mb-4">

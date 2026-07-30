@@ -179,10 +179,20 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $roleSlug = session('user_role_slug');
+        
         Session::flush();
         // Invalidate the session and regenerate CSRF token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($roleSlug === 'student') {
+            return redirect()->route('login.student')->with('success', 'You have been logged out successfully.');
+        } elseif ($roleSlug === 'staff') {
+            return redirect()->route('login.staff')->with('success', 'You have been logged out successfully.');
+        } elseif ($roleSlug === 'admin' || $roleSlug === 'superadmin') {
+            return redirect()->route('login.admin')->with('success', 'You have been logged out successfully.');
+        }
 
         return redirect()->route('login')->with('success', 'You have been logged out successfully.');
     }
