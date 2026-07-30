@@ -486,11 +486,11 @@
             <header class="invoice-header">
                 <div class="logo-block">
                     <!-- Netcoder Technology brand logo -->
-                    <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img">
+                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Technology" class="logo-img">
                     <div class="company-meta">
                         <strong>Netcoder Technology Solutions</strong><br>
-                        Industrial Area Phase-7, ERP Division<br>
-                        support@netcoder.tech | +91 98765-43210
+                        Netcoder ERP Payroll Management System<br>
+                        www.netcoder.in | support@netcoder.in
                     </div>
                 </div>
                 <div class="invoice-meta-right">
