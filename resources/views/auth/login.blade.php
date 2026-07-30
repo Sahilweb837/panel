@@ -1,33 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login | Fees Manager</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
     <style>
         :root {
             --brand-primary: #ff5532;
-            --brand-secondary: #10b981;
+            --brand-primary-rgb: 255, 85, 50;
             --bg-light: #f8fafc;
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --input-border: #e2e8f0;
             --input-bg: #ffffff;
-            --card-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
             --font-main: 'Outfit', sans-serif;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --gradient-left: linear-gradient(135deg, #fff5f2 0%, #ffeae5 100%);
         }
 
         html[data-theme="dark"] {
-            --bg-light: #0f172a;
+            --bg-light: #0b0f19;
             --text-dark: #f8fafc;
             --text-muted: #94a3b8;
-            --input-border: #334155;
-            --input-bg: #1e293b;
-            --card-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            --input-border: #1e293b;
+            --input-bg: #0f172a;
+            --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            --glass-bg: rgba(15, 23, 42, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --gradient-left: linear-gradient(135deg, #0f172a 0%, #070a13 100%);
         }
 
         body.login-page {
@@ -42,117 +48,158 @@
             margin: 0;
         }
 
-        /* Layout */
         .login-wrapper {
             display: flex;
-            width: 100%;
+            width: 100vw;
             height: 100vh;
+            position: relative;
+        }
+
+        /* Ambient Background Blobs */
+        .ambient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 1;
+            pointer-events: none;
+            animation: pulseBlobs 10s infinite alternate;
+        }
+        
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(var(--brand-primary-rgb), 0.8) 0%, rgba(255,255,255,0) 70%);
+        }
+        
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, rgba(255,255,255,0) 70%);
+        }
+
+        @keyframes pulseBlobs {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(30px, -20px); }
         }
 
         /* Left Side */
         .login-left {
-            flex: 1;
-            background: var(--bg-light);
+            flex: 1.1;
+            background: var(--gradient-left);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: var(--text-dark);
-            padding: 3rem;
-        }
-
-        .login-vector-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120%;
-            height: 120%;
-            opacity: 1;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
+            padding: 4rem;
+            z-index: 5;
+            border-right: 1px solid var(--input-border);
+            transition: background 0.5s ease;
         }
 
         .left-content-wrapper {
             position: relative;
             z-index: 10;
-            max-width: 500px;
+            max-width: 480px;
             text-align: center;
         }
 
-        .brand-logo-html {
-            font-size: 2.5rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 2rem;
-            letter-spacing: -0.5px;
+        .brand-logo-html img {
+            height: 56px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+            transition: transform 0.3s ease;
         }
 
-        .brand-logo-html i {
-            color: var(--brand-primary);
-            background: rgba(255, 85, 50, 0.15);
-            padding: 12px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(255, 85, 50, 0.2);
+        .brand-logo-html:hover img {
+            transform: scale(1.05);
         }
 
         .left-title {
-            font-size: 3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 1.25rem;
             line-height: 1.2;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--text-dark) 30%, rgba(var(--brand-primary-rgb), 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .left-subtitle {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
-            margin-bottom: 3rem;
+            margin-bottom: 3.5rem;
+            font-weight: 500;
         }
 
         .feature-cards {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
             text-align: left;
+            width: 100%;
         }
 
         .glass-feature {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            padding: 1.5rem;
-            border-radius: 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 1.25rem 1.5rem;
+            border-radius: 20px;
             display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            transition: transform 0.3s ease, background 0.3s ease;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .glass-feature:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(var(--brand-primary-rgb), 0.08);
+            border-color: rgba(var(--brand-primary-rgb), 0.3);
         }
 
-        .glass-feature i {
-            font-size: 1.5rem;
+        .glass-feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: rgba(var(--brand-primary-rgb), 0.1);
             color: var(--brand-primary);
-            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .glass-feature:hover .glass-feature-icon {
+            background: var(--brand-primary);
+            color: #fff;
+            transform: rotate(360deg);
         }
 
         .glass-feature h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+            color: var(--text-dark);
         }
 
         .glass-feature p {
-            font-size: 0.9rem;
-            color: #94a3b8;
+            font-size: 0.88rem;
+            color: var(--text-muted);
             margin: 0;
+            font-weight: 500;
         }
 
         /* Right Side */
@@ -161,57 +208,66 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--bg-light);
-            padding: 2rem;
+            padding: 2.5rem;
             position: relative;
+            z-index: 10;
         }
 
         .login-form-container {
             width: 100%;
-            max-width: 480px;
-            background: var(--input-bg);
-            padding: 3rem;
-            border-radius: 24px;
+            max-width: 460px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 3rem 2.5rem;
+            border-radius: 28px;
             box-shadow: var(--card-shadow);
-            border: 1px solid var(--input-border);
+            border: 1px solid var(--glass-border);
+            transition: border-color 0.5s ease;
         }
 
         .form-header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2.25rem;
         }
 
         .form-header h2 {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.85rem;
+            font-weight: 800;
             color: var(--text-dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.5px;
         }
 
         .form-header p {
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
         }
 
-        /* Role Selector */
+        /* Role Selector Tabs */
         .role-selector {
             display: flex;
-            background: var(--bg-light);
+            background: rgba(0,0,0,0.03);
             padding: 6px;
-            border-radius: 16px;
+            border-radius: 18px;
             margin-bottom: 2rem;
             border: 1px solid var(--input-border);
         }
 
+        html[data-theme="dark"] .role-selector {
+            background: rgba(255,255,255,0.03);
+        }
+
         .role-btn {
             flex: 1;
-            padding: 12px;
+            padding: 11px;
             border: none;
             background: transparent;
             color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.9rem;
-            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 14px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
@@ -222,47 +278,52 @@
         .role-btn.active {
             background: var(--input-bg);
             color: var(--brand-primary);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.04);
         }
 
         html[data-theme="dark"] .role-btn.active {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.25);
         }
 
         /* Form Inputs */
         .form-floating {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             position: relative;
         }
 
         .form-control {
-            height: 60px;
+            height: 58px;
             border-radius: 16px;
             border: 2px solid var(--input-border);
             background-color: var(--input-bg);
             color: var(--text-dark);
             padding: 1rem 1.25rem;
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 0.95rem;
+            font-weight: 600;
             transition: all 0.3s ease;
         }
 
         .form-control:focus {
             border-color: var(--brand-primary);
-            box-shadow: 0 0 0 4px rgba(255, 85, 50, 0.1);
+            box-shadow: 0 0 0 4px rgba(var(--brand-primary-rgb), 0.1);
             background-color: var(--input-bg);
         }
 
         .form-floating label {
             padding: 1rem 1.25rem;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-control:focus ~ label,
         .form-control:not(:placeholder-shown) ~ label {
             color: var(--brand-primary);
-            transform: scale(0.85) translateY(-0.75rem) translateX(0.15rem);
+            transform: scale(0.85) translateY(-0.85rem) translateX(0.15rem);
+            background: transparent;
         }
 
         /* Secure Password Toggle */
@@ -274,6 +335,7 @@
             color: var(--text-muted);
             cursor: pointer;
             z-index: 5;
+            font-size: 1.05rem;
             transition: color 0.3s ease;
         }
 
@@ -281,80 +343,76 @@
             color: var(--brand-primary);
         }
 
-        .password-strength {
-            height: 4px;
-            background: var(--input-border);
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-            display: none; /* Can be enabled via JS if needed */
+        /* Remember Checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
         }
 
-        /* Action Buttons */
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid var(--input-border);
+            accent-color: var(--brand-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Button Custom */
         .btn-primary-custom {
             width: 100%;
-            height: 60px;
+            height: 58px;
             border-radius: 16px;
             background: var(--brand-primary);
             color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.05rem;
+            font-weight: 700;
             border: none;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(255, 85, 50, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px rgba(var(--brand-primary-rgb), 0.25);
         }
 
         .btn-primary-custom:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(255, 85, 50, 0.35);
-            background: #e04423;
+            box-shadow: 0 15px 30px rgba(var(--brand-primary-rgb), 0.4);
+            filter: brightness(1.05);
         }
 
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 2rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .checkbox-container input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            border-radius: 6px;
-            border: 2px solid var(--input-border);
-            accent-color: var(--brand-primary);
-            cursor: pointer;
-        }
-
-        /* Theme Toggle */
+        /* Theme Toggle Button */
         .theme-toggle {
             position: absolute;
             top: 2rem;
             right: 2rem;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             color: var(--text-dark);
-            width: 48px;
-            height: 48px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: var(--card-shadow);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.03);
             z-index: 100;
             transition: all 0.3s ease;
         }
 
         .theme-toggle:hover {
-            transform: rotate(15deg);
+            transform: rotate(20deg) scale(1.05);
+            background: var(--input-bg);
         }
 
         /* Back Link */
@@ -367,50 +425,59 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.9rem;
             transition: color 0.3s ease;
             z-index: 100;
         }
 
         .back-link:hover {
-            color: var(--text-dark);
+            color: var(--brand-primary);
         }
 
-        /* Responsive */
+        /* Responsive Breakpoints */
         @media (max-width: 992px) {
             .login-left {
                 display: none;
+            }
+            .login-wrapper {
+                background: var(--gradient-left);
+            }
+            .ambient-blob {
+                opacity: 0.25;
             }
         }
     </style>
 </head>
 <body class="login-page">
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+
     <button type="button" class="theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
         <i class="fas fa-moon"></i>
     </button>
 
     <div class="login-wrapper">
-        <!-- Left Visual Side -->
+        <!-- Left Side (Visual Highlights) -->
         <div class="login-left">
             <a href="{{ url('/') }}" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Main Site
             </a>
 
-            <!-- Clean image logo -->
             <div class="left-content-wrapper">
-                <div class="brand-logo-html" style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
-                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 64px; width: auto; object-fit: contain; max-width: 100%;">
+                <div class="brand-logo-html mb-5 text-center">
+                    <img src="https://www.netcoder.in/images/logo.png" alt="Logo">
                 </div>
                 <h1 class="left-title" id="leftTitle">Transform Your <br>Institution</h1>
                 <p class="left-subtitle" id="leftSubtitle">The all-in-one premium management ecosystem.</p>
 
                 <div class="feature-cards" id="featureCards">
-                    <!-- Dynamic Features injected via JS -->
+                    <!-- Features injected dynamically by JavaScript -->
                 </div>
             </div>
         </div>
 
-        <!-- Right Form Side -->
+        <!-- Right Side (Form) -->
         <div class="login-right">
             <div class="login-form-container">
                 <div class="form-header">
@@ -433,7 +500,7 @@
                 @endif
 
                 @if ($errors->any())
-                    <div class="alert alert-danger" style="border-radius: 12px; font-size: 0.9rem;">
+                    <div class="alert alert-danger p-3 mb-4" style="border-radius: 16px; font-size: 0.85rem;">
                         <ul class="mb-0 ps-3">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -447,29 +514,23 @@
                     <input type="hidden" name="account_type" id="account_type" value="{{ request('type', old('account_type', 'institute')) }}">
 
                     <div class="form-floating">
-                        <input type="text" class="form-control @error('email') is-invalid @enderror" id="login_id" name="login_id" value="{{ old('login_id', old('email')) }}" placeholder="Email, Username, or Student ID" required>
-                        <label for="login_id"><i class="fas fa-user-circle me-2"></i> Email / Username / Student ID</label>
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control @error('email') is-invalid @enderror" id="login_id" name="login_id" value="{{ old('login_id', old('email')) }}" placeholder="Email, Username, or Student ID" required autocomplete="username">
+                        <label for="login_id"><i class="fas fa-user-circle"></i> Email / Username / Student ID</label>
                     </div>
 
                     <div class="form-floating position-relative">
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" required>
-                        <label for="password"><i class="fas fa-lock me-2"></i> Secure Password</label>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+                        <label for="password"><i class="fas fa-lock"></i> Secure Password</label>
                         <i class="fas fa-eye password-toggle" id="togglePassword"></i>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
 
                     <label class="checkbox-container">
-                        <input type="checkbox" name="remember">
-                        Remember me on this device
+                        <input type="checkbox" name="remember" id="remember">
+                        <span>Remember me on this device</span>
                     </label>
 
                     <button type="submit" class="btn-primary-custom">
-                        Sign In <i class="fas fa-arrow-right ms-2"></i>
+                        <span>Sign In</span> <i class="fas fa-arrow-right ms-1"></i>
                     </button>
                 </form>
             </div>
@@ -479,11 +540,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/js/app.js'])
     <script>
-        // Password Toggle
+        // Password Visibility Toggle
         const togglePassword = document.getElementById('togglePassword');
         const password = document.getElementById('password');
         
-        togglePassword.addEventListener('click', function (e) {
+        togglePassword.addEventListener('click', function () {
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
             this.classList.toggle('fa-eye-slash');
@@ -507,47 +568,49 @@
 
         function updateThemeIcon(theme) {
             const icon = themeBtn.querySelector('i');
-            if(theme === 'dark') {
-                icon.className = 'fas fa-sun';
-            } else {
-                icon.className = 'fas fa-moon';
-            }
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         }
 
-        // Role switching logic
+        // Role configs
         const configs = {
             institute: {
                 title: 'Transform Your<br>Institution',
                 subtitle: 'The all-in-one premium management ecosystem.',
                 features: [
-                    { icon: 'fa-chart-pie', title: 'Smart Analytics', desc: 'Real-time performance insights' },
-                    { icon: 'fa-shield-alt', title: 'Enterprise Security', desc: 'Bank-grade data encryption' }
+                    { icon: 'fa-chart-pie', title: 'Smart Analytics', desc: 'Real-time performance insights across modules.' },
+                    { icon: 'fa-shield-alt', title: 'Enterprise Security', desc: 'Bank-grade encryption and role permissions.' }
                 ],
-                color: '#ff5532'
+                color: '#ff5532',
+                colorRGB: '255, 85, 50'
             },
             staff: {
-                title: 'Empower Your<br>Teaching',
-                subtitle: 'Streamlined tools for modern educators.',
+                title: 'Empower Your<br>Teaching Staff',
+                subtitle: 'Streamlined, digital-first tools for modern educators.',
                 features: [
-                    { icon: 'fa-clipboard-check', title: 'Automated Attendance', desc: 'Seamless biometric integration' },
-                    { icon: 'fa-wallet', title: 'Payroll History', desc: 'Instant access to digital slips' }
+                    { icon: 'fa-clipboard-check', title: 'Automated Attendance', desc: 'Seamless integration with biometrics and schedules.' },
+                    { icon: 'fa-wallet', title: 'Payroll History', desc: 'Instant access to monthly salary slips.' }
                 ],
-                color: '#ff5532'
+                color: '#10b981',
+                colorRGB: '16, 185, 129'
             },
             student: {
-                title: 'Accelerate Your<br>Learning',
-                subtitle: 'Your personal academic portal.',
+                title: 'Accelerate Your<br>Learning Journey',
+                subtitle: 'Your personalized academic student portal.',
                 features: [
-                    { icon: 'fa-book-reader', title: 'Course Hub', desc: 'Access materials anywhere' },
-                    { icon: 'fa-file-invoice-dollar', title: 'Fee Management', desc: 'Transparent due tracking' }
+                    { icon: 'fa-book-reader', title: 'Course Hub', desc: 'Access enrollment detail and download syllabus.' },
+                    { icon: 'fa-file-invoice-dollar', title: 'Fee Management', desc: 'View unpaid receipts and clear dues online.' }
                 ],
-                color: '#ff5532'
+                color: '#6366f1',
+                colorRGB: '99, 102, 241'
             }
         };
 
         function updateRole(role) {
             // Update hidden input
-            document.getElementById('account_type').value = role;
+            const accountTypeInput = document.getElementById('account_type');
+            if (accountTypeInput) {
+                accountTypeInput.value = role;
+            }
 
             // Update UI buttons
             document.querySelectorAll('.role-btn').forEach(btn => {
@@ -564,12 +627,15 @@
             document.getElementById('leftTitle').innerHTML = configs[role].title;
             document.getElementById('leftSubtitle').innerHTML = configs[role].subtitle;
             document.documentElement.style.setProperty('--brand-primary', configs[role].color);
+            document.documentElement.style.setProperty('--brand-primary-rgb', configs[role].colorRGB);
 
             // Update Features
             const fc = document.getElementById('featureCards');
             fc.innerHTML = configs[role].features.map(f => `
                 <div class="glass-feature">
-                    <i class="fas ${f.icon}"></i>
+                    <div class="glass-feature-icon">
+                        <i class="fas ${f.icon}"></i>
+                    </div>
                     <div>
                         <h4>${f.title}</h4>
                         <p>${f.desc}</p>
@@ -578,8 +644,8 @@
             `).join('');
         }
 
-        // Initialize
-        const initialType = document.getElementById('account_type').value;
+        // Initialize Role switching
+        const initialType = document.getElementById('account_type').value || 'institute';
         updateRole(initialType);
 
         // Click listeners
@@ -589,7 +655,7 @@
             });
         });
 
-        // Clean URL
+        // Clean URL params if any
         if (window.location.search) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }

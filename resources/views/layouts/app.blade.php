@@ -239,236 +239,276 @@
                 </div>
 
         <nav class="nav-menu accordion" id="sidebarAccordion">
-            <a href="{{ route('dashboard') }}" class="nav-link{{ request()->routeIs('dashboard') ? ' active' : '' }}">
-                <i class="fas fa-chart-line"></i>
-                <span>Dashboard</span>
-            </a>
-            
-            <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
-                <i class="fas fa-envelope"></i>
-                <span>Messages</span>
-                @php
-                    $unreadMessages = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->unread()->count();
-                @endphp
-                @if($unreadMessages > 0)
-                    <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge">{{ $unreadMessages }}</span>
-                @else
-                    <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge" style="display:none;"></span>
-                @endif
-            </a>
-            
             @php
                 $roleSlug = $currentUser->role?->slug ?? null;
                 $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
                 $access = $currentUser->access ?? [];
+                $unreadMessages = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->unread()->count();
             @endphp
             
-            {{-- MEETING MANAGEMENT --}}
-            <div class="nav-item">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#meetingMenu" role="button" aria-expanded="false" aria-controls="meetingMenu">
-                    <div>
-                        <i class="fas fa-handshake me-2"></i>
-                        <span>Meeting Management</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+            @if($roleSlug === 'student')
+                <a href="{{ route('student.dashboard') }}" class="nav-link{{ request()->routeIs('student.dashboard') ? ' active' : '' }}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
                 </a>
-                <div class="collapse {{ request()->routeIs('meetings.*', 'departments.*') ? 'show' : '' }}" id="meetingMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        @if($isSuperOrRoot)
-                            <li><a href="{{ route('departments.index') }}" class="nav-link py-2 {{ request()->routeIs('departments.*') ? 'active' : '' }}"><span>Departments</span></a></li>
-                        @endif
-                        <li><a href="{{ route('meetings.index') }}" class="nav-link py-2 {{ request()->routeIs('meetings.*') ? 'active' : '' }}"><span>Meetings</span></a></li>
-                    </ul>
-                </div>
-            </div>
+                
+                <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                    @if($unreadMessages > 0)
+                        <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge">{{ $unreadMessages }}</span>
+                    @else
+                        <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge" style="display:none;"></span>
+                    @endif
+                </a>
+            @elseif($roleSlug === 'staff')
+                <a href="{{ route('staff.dashboard') }}" class="nav-link{{ request()->routeIs('staff.dashboard') ? ' active' : '' }}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                    @if($unreadMessages > 0)
+                        <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge">{{ $unreadMessages }}</span>
+                    @else
+                        <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge" style="display:none;"></span>
+                    @endif
+                </a>
 
-            {{-- STUDENT MANAGEMENT --}}
-            @if($isSuperOrRoot || in_array('students', $access) || in_array('attendances', $access))
-            <div class="nav-item">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#studentMenu" role="button" aria-expanded="false" aria-controls="studentMenu">
-                    <div>
-                        <i class="fas fa-user-graduate me-2"></i>
-                        <span>Student Management</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                <a href="{{ route('tasks.index') }}" class="nav-link{{ request()->routeIs('tasks.*') ? ' active' : '' }}">
+                    <i class="fas fa-tasks"></i>
+                    <span>My Tasks</span>
                 </a>
-                <div class="collapse {{ request()->routeIs('students.*', 'attendances.*', 'biometric.*') ? 'show' : '' }}" id="studentMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        @if($isSuperOrRoot || in_array('students', $access))
-                        <li><a href="{{ route('students.index') }}" class="nav-link py-2 {{ request()->routeIs('students.*') ? 'active' : '' }}"><span>Students</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot || in_array('attendances', $access))
-                        <li><a href="{{ route('attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('attendances.index') ? 'active' : '' }}"><span>Student Attendance</span></a></li>
-                        @endif
-                    </ul>
+
+                <a href="{{ route('daily-updates.index') }}" class="nav-link{{ request()->routeIs('daily-updates.*') ? ' active' : '' }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Work Logs</span>
+                </a>
+            @else
+                <a href="{{ route('dashboard') }}" class="nav-link{{ request()->routeIs('dashboard') ? ' active' : '' }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                    @if($unreadMessages > 0)
+                        <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge">{{ $unreadMessages }}</span>
+                    @else
+                        <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge" style="display:none;"></span>
+                    @endif
+                </a>
+                
+                {{-- MEETING MANAGEMENT --}}
+                <div class="nav-item">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#meetingMenu" role="button" aria-expanded="false" aria-controls="meetingMenu">
+                        <div>
+                            <i class="fas fa-handshake me-2"></i>
+                            <span>Meeting Management</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('meetings.*', 'departments.*') ? 'show' : '' }}" id="meetingMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            @if($isSuperOrRoot)
+                                <li><a href="{{ route('departments.index') }}" class="nav-link py-2 {{ request()->routeIs('departments.*') ? 'active' : '' }}"><span>Departments</span></a></li>
+                            @endif
+                            <li><a href="{{ route('meetings.index') }}" class="nav-link py-2 {{ request()->routeIs('meetings.*') ? 'active' : '' }}"><span>Meetings</span></a></li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
+
+                {{-- STUDENT MANAGEMENT --}}
+                @if($isSuperOrRoot || in_array('students', $access) || in_array('attendances', $access))
+                <div class="nav-item">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#studentMenu" role="button" aria-expanded="false" aria-controls="studentMenu">
+                        <div>
+                            <i class="fas fa-user-graduate me-2"></i>
+                            <span>Student Management</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('students.*', 'attendances.*', 'biometric.*') ? 'show' : '' }}" id="studentMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            @if($isSuperOrRoot || in_array('students', $access))
+                            <li><a href="{{ route('students.index') }}" class="nav-link py-2 {{ request()->routeIs('students.*') ? 'active' : '' }}"><span>Students</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot || in_array('attendances', $access))
+                            <li><a href="{{ route('attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('attendances.index') ? 'active' : '' }}"><span>Student Attendance</span></a></li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                {{-- LIVE FEED & BIOMETRIC --}}
+                @if($isSuperOrRoot || in_array('attendances', $access))
+                <div class="nav-item">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#attendanceMenu" role="button" aria-expanded="false" aria-controls="attendanceMenu">
+                        <div>
+                            <i class="fas fa-fingerprint me-2"></i>
+                            <span>Live Feed & Biometric</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('attendances.live', 'biometric.*') ? 'show' : '' }}" id="attendanceMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            <li><a href="{{ route('attendances.live') }}" class="nav-link py-2 {{ request()->routeIs('attendances.live') ? 'active' : '' }}"><span>Live Feed Viewer</span></a></li>
+                            <li><a href="{{ route('biometric.index') }}" class="nav-link py-2 {{ request()->routeIs('biometric.*') ? 'active' : '' }}"><span>ZKTeco Device Sync</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                {{-- ADMIN & STAFF --}}
+                @if($isSuperOrRoot || in_array('employees', $access) || in_array('employee-attendances', $access) || in_array('salary-slips', $access))
+                <div class="nav-item">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#adminStaffMenu" role="button" aria-expanded="false" aria-controls="adminStaffMenu">
+                        <div>
+                            <i class="fas fa-users-cog me-2"></i>
+                            <span>Admin & Staff</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('sub-admins.*', 'employees.*', 'employee-attendances.*', 'salary_slips.*') ? 'show' : '' }}" id="adminStaffMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            @if($isSuperOrRoot)
+                            <li><a href="{{ route('sub-admins.index') }}" class="nav-link py-2 {{ request()->routeIs('sub-admins.*') ? 'active' : '' }}"><span>Sub-Admins</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot || in_array('employees', $access))
+                            <li><a href="{{ route('employees.index') }}" class="nav-link py-2 {{ request()->routeIs('employees.*') ? 'active' : '' }}"><span>Staff Members</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot || in_array('employee-attendances', $access))
+                            <li><a href="{{ route('employee-attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('employee-attendances.*') ? 'active' : '' }}"><span>Staff Attendance</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot || in_array('salary-slips', $access))
+                            <li><a href="{{ route('salary_slips.index') }}" class="nav-link py-2 {{ request()->routeIs('salary_slips.*') ? 'active' : '' }}"><span>Salary Slips</span></a></li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                {{-- COURSES & TRAINING --}}
+                @if($isSuperOrRoot || in_array('courses', $access) || in_array('trainings', $access))
+                <div class="nav-item">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#courseMenu" role="button" aria-expanded="false" aria-controls="courseMenu">
+                        <div>
+                            <i class="fas fa-book-open me-2"></i>
+                            <span>Courses & Training</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('courses.*', 'training_courses.*', 'trainings.*') ? 'show' : '' }}" id="courseMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            @if($isSuperOrRoot || in_array('courses', $access))
+                            <li><a href="{{ route('courses.index') }}" class="nav-link py-2 {{ request()->routeIs('courses.*') ? 'active' : '' }}"><span>Master Courses</span></a></li>
+                            <li><a href="{{ route('training_courses.index') }}" class="nav-link py-2 {{ request()->routeIs('training_courses.*') ? 'active' : '' }}"><span>Training Courses</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot || in_array('trainings', $access))
+                            <li><a href="{{ route('trainings.index') }}" class="nav-link py-2 {{ request()->routeIs('trainings.*') ? 'active' : '' }}"><span>Training & Internship</span></a></li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                {{-- FEES & ACCOUNTS --}}
+                @if($isSuperOrRoot || in_array('fee-invoices', $access) || in_array('expenses', $access))
+                <div class="nav-item">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#feesMenu" role="button" aria-expanded="false" aria-controls="feesMenu">
+                        <div>
+                            <i class="fas fa-wallet me-2"></i>
+                            <span>Fees & Accounts</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('fee_invoices.*', 'expenses.*') ? 'show' : '' }}" id="feesMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            @if($isSuperOrRoot || in_array('fee-invoices', $access))
+                            <li><a href="{{ route('fee_invoices.index') }}" class="nav-link py-2 {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}"><span>Fee Receipts</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot || in_array('expenses', $access))
+                            <li><a href="{{ route('expenses.index') }}" class="nav-link py-2 {{ request()->routeIs('expenses.*') ? 'active' : '' }}"><span>Expenses</span></a></li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                {{-- CLIENTS & TASKS --}}
+                @if($isSuperOrRoot || in_array('clients', $access) || in_array('client-invoices', $access))
+                <div class="nav-item">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#clientMenu" role="button" aria-expanded="false" aria-controls="clientMenu">
+                        <div>
+                            <i class="fas fa-briefcase me-2"></i>
+                            <span>Clients & Tasks</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('clients.*', 'client_invoices.*', 'reports.*', 'tasks.*', 'daily-updates.*') ? 'show' : '' }}" id="clientMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            @if($isSuperOrRoot || in_array('clients', $access))
+                            <li><a href="{{ route('clients.index') }}" class="nav-link py-2 {{ request()->routeIs('clients.*') ? 'active' : '' }}"><span>Clients</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot || in_array('client-invoices', $access))
+                            <li><a href="{{ route('client_invoices.index') }}" class="nav-link py-2 {{ request()->routeIs('client_invoices.*') ? 'active' : '' }}"><span>Client Invoices</span></a></li>
+                            @endif
+                            @if($isSuperOrRoot)
+                            <li><a href="{{ route('reports.index') }}" class="nav-link py-2 {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span>Reports</span></a></li>
+                            <li><a href="{{ route('tasks.index') }}" class="nav-link py-2 {{ request()->routeIs('tasks.*') ? 'active' : '' }}"><span>Tasks Assigned</span></a></li>
+                            <li><a href="{{ route('daily-updates.index') }}" class="nav-link py-2 {{ request()->routeIs('daily-updates.*') ? 'active' : '' }}"><span>Daily Work Logs</span></a></li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                {{-- SETTINGS & TOOLS --}}
+                <div class="nav-item mt-auto pt-4">
+                    <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#settingsMenu" role="button" aria-expanded="false" aria-controls="settingsMenu">
+                        <div>
+                            <i class="fas fa-cog me-2"></i>
+                            <span>Settings & Tools</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('settings.*', 'backups.*', 'credentials.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                            @if($isSuperOrRoot)
+                            <li><a href="{{ route('settings.index') }}" class="nav-link py-2 {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
+                            <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
+                            <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
+                            <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><i class="fas fa-key me-2" style="width:16px;"></i><span>Credentials</span></a></li>
+                            <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><i class="fas fa-database me-2" style="width:16px;"></i><span>System Backups</span></a></li>
+                            <li>
+                                <form action="{{ route('clear-cache') }}" method="POST" class="d-inline w-100" style="display:block;">
+                                    @csrf
+                                    <a href="#" class="nav-link py-2 text-warning" onclick="this.closest('form').submit(); return false;">
+                                        <i class="fas fa-broom me-2" style="width:16px;"></i><span>Clear Cache</span>
+                                    </a>
+                                </form>
+                            </li>
+                            @else
+                            <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
+                            <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
+                            @endif
+                            <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><i class="fas fa-moon me-2" style="width:16px;"></i><span>Toggle Theme</span></a></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" class="d-inline w-100" style="display:block;">
+                                    @csrf
+                                    <a href="#" class="nav-link py-2 text-danger" onclick="this.closest('form').submit(); return false;">
+                                        <i class="fas fa-power-off me-2" style="width:16px;"></i><span>Logout</span>
+                                    </a>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             @endif
-
-            {{-- LIVE FEED & BIOMETRIC --}}
-            @if($isSuperOrRoot || in_array('attendances', $access))
-            <div class="nav-item">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#attendanceMenu" role="button" aria-expanded="false" aria-controls="attendanceMenu">
-                    <div>
-                        <i class="fas fa-fingerprint me-2"></i>
-                        <span>Live Feed & Biometric</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('attendances.live', 'biometric.*') ? 'show' : '' }}" id="attendanceMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        <li><a href="{{ route('attendances.live') }}" class="nav-link py-2 {{ request()->routeIs('attendances.live') ? 'active' : '' }}"><span>Live Feed Viewer</span></a></li>
-                        <li><a href="{{ route('biometric.index') }}" class="nav-link py-2 {{ request()->routeIs('biometric.*') ? 'active' : '' }}"><span>ZKTeco Device Sync</span></a></li>
-                    </ul>
-                </div>
-            </div>
-            @endif
-
-            {{-- ADMIN & STAFF --}}
-            @if($isSuperOrRoot || in_array('employees', $access) || in_array('employee-attendances', $access) || in_array('salary-slips', $access))
-            <div class="nav-item">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#adminStaffMenu" role="button" aria-expanded="false" aria-controls="adminStaffMenu">
-                    <div>
-                        <i class="fas fa-users-cog me-2"></i>
-                        <span>Admin & Staff</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('sub-admins.*', 'employees.*', 'employee-attendances.*', 'salary_slips.*') ? 'show' : '' }}" id="adminStaffMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        @if($isSuperOrRoot)
-                        <li><a href="{{ route('sub-admins.index') }}" class="nav-link py-2 {{ request()->routeIs('sub-admins.*') ? 'active' : '' }}"><span>Sub-Admins</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot || in_array('employees', $access))
-                        <li><a href="{{ route('employees.index') }}" class="nav-link py-2 {{ request()->routeIs('employees.*') ? 'active' : '' }}"><span>Staff Members</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot || in_array('employee-attendances', $access))
-                        <li><a href="{{ route('employee-attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('employee-attendances.*') ? 'active' : '' }}"><span>Staff Attendance</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot || in_array('salary-slips', $access))
-                        <li><a href="{{ route('salary_slips.index') }}" class="nav-link py-2 {{ request()->routeIs('salary_slips.*') ? 'active' : '' }}"><span>Salary Slips</span></a></li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
-            @endif
-
-            {{-- COURSES & TRAINING --}}
-            @if($isSuperOrRoot || in_array('courses', $access) || in_array('trainings', $access))
-            <div class="nav-item">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#courseMenu" role="button" aria-expanded="false" aria-controls="courseMenu">
-                    <div>
-                        <i class="fas fa-book-open me-2"></i>
-                        <span>Courses & Training</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('courses.*', 'training_courses.*', 'trainings.*') ? 'show' : '' }}" id="courseMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        @if($isSuperOrRoot || in_array('courses', $access))
-                        <li><a href="{{ route('courses.index') }}" class="nav-link py-2 {{ request()->routeIs('courses.*') ? 'active' : '' }}"><span>Master Courses</span></a></li>
-                        <li><a href="{{ route('training_courses.index') }}" class="nav-link py-2 {{ request()->routeIs('training_courses.*') ? 'active' : '' }}"><span>Training Courses</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot || in_array('trainings', $access))
-                        <li><a href="{{ route('trainings.index') }}" class="nav-link py-2 {{ request()->routeIs('trainings.*') ? 'active' : '' }}"><span>Training & Internship</span></a></li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
-            @endif
-
-            {{-- FEES & ACCOUNTS --}}
-            @if($isSuperOrRoot || in_array('fee-invoices', $access) || in_array('expenses', $access))
-            <div class="nav-item">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#feesMenu" role="button" aria-expanded="false" aria-controls="feesMenu">
-                    <div>
-                        <i class="fas fa-wallet me-2"></i>
-                        <span>Fees & Accounts</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('fee_invoices.*', 'expenses.*') ? 'show' : '' }}" id="feesMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        @if($isSuperOrRoot || in_array('fee-invoices', $access))
-                        <li><a href="{{ route('fee_invoices.index') }}" class="nav-link py-2 {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}"><span>Fee Receipts</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot || in_array('expenses', $access))
-                        <li><a href="{{ route('expenses.index') }}" class="nav-link py-2 {{ request()->routeIs('expenses.*') ? 'active' : '' }}"><span>Expenses</span></a></li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
-            @endif
-
-            {{-- CLIENTS & TASKS --}}
-            @if($isSuperOrRoot || in_array('clients', $access) || in_array('client-invoices', $access))
-            <div class="nav-item">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#clientMenu" role="button" aria-expanded="false" aria-controls="clientMenu">
-                    <div>
-                        <i class="fas fa-briefcase me-2"></i>
-                        <span>Clients & Tasks</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('clients.*', 'client_invoices.*', 'reports.*', 'tasks.*', 'daily-updates.*') ? 'show' : '' }}" id="clientMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        @if($isSuperOrRoot || in_array('clients', $access))
-                        <li><a href="{{ route('clients.index') }}" class="nav-link py-2 {{ request()->routeIs('clients.*') ? 'active' : '' }}"><span>Clients</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot || in_array('client-invoices', $access))
-                        <li><a href="{{ route('client_invoices.index') }}" class="nav-link py-2 {{ request()->routeIs('client_invoices.*') ? 'active' : '' }}"><span>Client Invoices</span></a></li>
-                        @endif
-                        @if($isSuperOrRoot)
-                        <li><a href="{{ route('reports.index') }}" class="nav-link py-2 {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span>Reports</span></a></li>
-                        <li><a href="{{ route('tasks.index') }}" class="nav-link py-2 {{ request()->routeIs('tasks.*') ? 'active' : '' }}"><span>Tasks Assigned</span></a></li>
-                        <li><a href="{{ route('daily-updates.index') }}" class="nav-link py-2 {{ request()->routeIs('daily-updates.*') ? 'active' : '' }}"><span>Daily Work Logs</span></a></li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
-            @endif
-
-            {{-- SETTINGS & TOOLS --}}
-            <div class="nav-item mt-auto pt-4">
-                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#settingsMenu" role="button" aria-expanded="false" aria-controls="settingsMenu">
-                    <div>
-                        <i class="fas fa-cog me-2"></i>
-                        <span>Settings & Tools</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('settings.*', 'backups.*', 'credentials.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
-                    <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
-                        @if($isSuperOrRoot)
-                        <li><a href="{{ route('settings.index') }}" class="nav-link py-2 {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
-                        <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
-                        <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
-                        <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><i class="fas fa-key me-2" style="width:16px;"></i><span>Credentials</span></a></li>
-                        <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><i class="fas fa-database me-2" style="width:16px;"></i><span>System Backups</span></a></li>
-                        <li>
-                            <form action="{{ route('clear-cache') }}" method="POST" class="d-inline w-100" style="display:block;">
-                                @csrf
-                                <a href="#" class="nav-link py-2 text-warning" onclick="this.closest('form').submit(); return false;">
-                                    <i class="fas fa-broom me-2" style="width:16px;"></i><span>Clear Cache</span>
-                                </a>
-                            </form>
-                        </li>
-                        @else
-                        <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
-                        <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
-                        @endif
-                        <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><i class="fas fa-moon me-2" style="width:16px;"></i><span>Toggle Theme</span></a></li>
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST" class="d-inline w-100" style="display:block;">
-                                @csrf
-                                <a href="#" class="nav-link py-2 text-danger" onclick="this.closest('form').submit(); return false;">
-                                    <i class="fas fa-power-off me-2" style="width:16px;"></i><span>Logout</span>
-                                </a>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
-            </div>
 
         <div class="sidebar-footer" style="padding: 16px; background: rgba(255, 85, 50, 0.04); border-radius: 14px; margin: 15px 12px; border: 1px solid rgba(255, 85, 50, 0.15);">
             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1337,41 +1377,65 @@
                 font-weight: 600;
             }
             .mobile-nav-item i { font-size: 18px; margin-bottom: 3px; }
-            .mobile-nav-item.active { color: #0d6efd; }
+            .mobile-nav-item.active { color: var(--first-color, #0d6efd); }
         }
     </style>
     <div class="mobile-bottom-nav d-block d-md-none">
-        <a href="{{ route('dashboard') }}" class="mobile-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="{{ route('meetings.index') }}" class="mobile-nav-item {{ request()->routeIs('meetings.*') ? 'active' : '' }}">
-            <i class="fas fa-video"></i>
-            <span>Meetings</span>
-        </a>
-        @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']))
-        <a href="{{ route('students.index') }}" class="mobile-nav-item {{ request()->routeIs('students.*') ? 'active' : '' }}">
-            <i class="fas fa-user-graduate"></i>
-            <span>Students</span>
-        </a>
-        <a href="{{ route('fee_invoices.index') }}" class="mobile-nav-item {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}">
-            <i class="fas fa-money-bill"></i>
-            <span>Fees</span>
-        </a>
+        @if(session('user_role_slug') === 'student')
+            <a href="{{ route('student.dashboard') }}" class="mobile-nav-item {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('messages.full') }}" class="mobile-nav-item {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                <i class="fas fa-envelope"></i>
+                <span>Messages</span>
+            </a>
+            <a href="#" class="mobile-nav-item" onclick="event.preventDefault(); document.getElementById('logout-form-bottom').submit();">
+                <i class="fas fa-power-off text-danger"></i>
+                <span class="text-danger">Logout</span>
+            </a>
+            <form id="logout-form-bottom" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        @elseif(session('user_role_slug') === 'staff')
+            <a href="{{ route('staff.dashboard') }}" class="mobile-nav-item {{ request()->routeIs('staff.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('tasks.index') }}" class="mobile-nav-item {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+            <a href="{{ route('daily-updates.index') }}" class="mobile-nav-item {{ request()->routeIs('daily-updates.*') ? 'active' : '' }}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Work Logs</span>
+            </a>
+            <a href="{{ route('messages.full') }}" class="mobile-nav-item {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                <i class="fas fa-envelope"></i>
+                <span>Messages</span>
+            </a>
         @else
-        <a href="{{ route('employee-attendances.index') }}" class="mobile-nav-item {{ request()->routeIs('employee-attendances.*') ? 'active' : '' }}">
-            <i class="fas fa-calendar-check"></i>
-            <span>Attendance</span>
-        </a>
-        <a href="{{ route('salary_slips.index') }}" class="mobile-nav-item {{ request()->routeIs('salary_slips.*') ? 'active' : '' }}">
-            <i class="fas fa-file-invoice-dollar"></i>
-            <span>Salary</span>
-        </a>
+            <a href="{{ route('dashboard') }}" class="mobile-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('meetings.index') }}" class="mobile-nav-item {{ request()->routeIs('meetings.*') ? 'active' : '' }}">
+                <i class="fas fa-video"></i>
+                <span>Meetings</span>
+            </a>
+            <a href="{{ route('students.index') }}" class="mobile-nav-item {{ request()->routeIs('students.*') ? 'active' : '' }}">
+                <i class="fas fa-user-graduate"></i>
+                <span>Students</span>
+            </a>
+            <a href="{{ route('fee_invoices.index') }}" class="mobile-nav-item {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}">
+                <i class="fas fa-money-bill"></i>
+                <span>Fees</span>
+            </a>
+            <a href="{{ route('settings.index') }}" class="mobile-nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
         @endif
-        <a href="{{ route('settings.index') }}" class="mobile-nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
     </div>
 
     <!-- Push Notification Script -->

@@ -40,6 +40,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Direct login routes
 Route::get('/students', [AuthController::class, 'showStudentLogin'])->name('login.student');
+Route::get('/student', function () {
+    return redirect()->route('login.student');
+});
 Route::get('/staff', [AuthController::class, 'showStaffLogin'])->name('login.staff');
 Route::get('/admin', [AuthController::class, 'showAdminLogin'])->name('login.admin');
 Route::get('/superadmin', function () {
