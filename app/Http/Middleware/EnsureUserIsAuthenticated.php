@@ -44,7 +44,7 @@ class EnsureUserIsAuthenticated
         // ----------------------------------------------------------------
         if ($roleSlug === 'student') {
             $route = $request->route() ? $request->route()->getName() : '';
-            if ($request->routeIs('logout') || str_starts_with($route, 'student.') || str_starts_with($route, 'messages.')) {
+            if ($request->routeIs('logout') || str_starts_with($route, 'student.') || str_starts_with($route, 'messages.') || $request->routeIs('fee_invoices.show')) {
                 return $next($request);
             }
             // Block everything else – send back to student portal

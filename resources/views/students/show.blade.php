@@ -240,13 +240,28 @@
                             </div>
                             <h6 class="fw-bold mb-0" style="font-size: 1rem; color: var(--dark-title);">Student Login Credentials</h6>
                         </div>
-                        <span class="badge bg-success"><i class="fas fa-shield-check me-1"></i>Active Portal Access</span>
+                        @if($student->portal_active)
+                            <span class="badge bg-success"><i class="fas fa-shield-check me-1"></i>Active Portal Access</span>
+                        @else
+                            <span class="badge bg-danger"><i class="fas fa-shield-alt me-1"></i>Portal Access Disabled</span>
+                        @endif
                     </div>
+
+                    @if(!$student->portal_active)
+                    <div class="alert alert-warning py-2 px-3 mb-3" style="font-size: 0.85rem;">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Portal login is currently disabled for this student. Enable "Active Portal Access" to allow login.
+                    </div>
+                    @endif
 
                     <div class="row g-3 align-items-center">
                         <div class="col-12 col-md-4">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Login Username / ID</small>
-                            <div class="fw-bold text-dark-title" style="font-size: 0.95rem;">{{ $student->user?->username ?? $student->admission_no }}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold text-dark-title" style="font-size: 0.95rem;">{{ $student->user?->username ?? $student->admission_no }}</span>
+                                <button type="button" class="btn btn-sm btn-light border p-1 px-2" onclick="navigator.clipboard.writeText('{{ $student->user?->username ?? $student->admission_no }}')" title="Copy Username">
+                                    <i class="fas fa-copy text-muted"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-12 col-md-4">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Current Password (Plain Text)</small>

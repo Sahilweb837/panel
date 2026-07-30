@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Attendance;
-use App\Models\Course;
-use App\Models\FeeInvoice;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +36,7 @@ class Student extends Model
         'registration_fee',
         'prospectus_fee',
         'fee_tenure',
+        'portal_active',
     ];
 
     public function attendances()

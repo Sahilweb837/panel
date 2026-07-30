@@ -140,12 +140,36 @@
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
                         </div>
+                    </div>
+
+                    <!-- Section: Portal Access Credentials -->
+                    <h5 class="fw-bold text-muted uppercase-bold mb-3" style="font-size: 0.75rem;"><i class="fas fa-sign-in-alt me-1"></i> Portal Access Credentials</h5>
+                    <div class="form-group-grid mb-4">
+                        <div class="form-group">
+                            <label for="login_username" class="fw-semibold mb-2">
+                                <i class="fas fa-user-shield text-first me-2"></i>Login Username <small class="text-muted fw-normal">(Optional)</small>
+                            </label>
+                            <input type="text" id="login_username" name="login_username" value="{{ old('login_username') }}" placeholder="Auto-generated if left blank" class="form-input {{ $errors->has('login_username') ? 'is-invalid' : '' }}" />
+                            @error('login_username')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="login_email" class="fw-semibold mb-2">
+                                <i class="fas fa-envelope text-first me-2"></i>Login Email <small class="text-muted fw-normal">(Optional)</small>
+                            </label>
+                            <input type="email" id="login_email" name="login_email" value="{{ old('login_email') }}" placeholder="Auto-generated if left blank" class="form-input {{ $errors->has('login_email') ? 'is-invalid' : '' }}" />
+                            @error('login_email')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
 
                         <div class="form-group">
                             <label for="login_password" class="fw-semibold mb-2">
                                 <i class="fas fa-key text-first me-2"></i>Login Password <small class="text-muted fw-normal">(Optional)</small>
                             </label>
-                            <input type="password" id="login_password" name="login_password" value="{{ old('login_password') }}" placeholder="Auto (DOB/Admn No)" class="form-input {{ $errors->has('login_password') ? 'is-invalid' : '' }}" />
+                            <input type="text" id="login_password" name="login_password" value="{{ old('login_password') }}" placeholder="Auto (DOB/Admn No)" class="form-input {{ $errors->has('login_password') ? 'is-invalid' : '' }}" />
                             @error('login_password')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
@@ -345,6 +369,22 @@
 
                     <!-- Fallback/compatible address input -->
                     <input type="hidden" name="address" id="hidden_address" value="{{ old('address') }}" />
+
+                    <div class="form-group checkbox-group mt-4">
+                        <label class="checkbox-label" style="cursor: pointer;">
+                            <input 
+                                type="checkbox" 
+                                name="portal_active" 
+                                value="1" 
+                                {{ old('portal_active', true) ? 'checked' : '' }} 
+                                class="checkbox-input"
+                            />
+                            <span class="fw-semibold">
+                                <i class="fas fa-sign-in-alt text-success me-1"></i>Active Portal Access
+                            </span>
+                        </label>
+                        <small style="color: var(--muted); margin-left: 28px;" class="d-block mt-1">Allow this student to login to the student portal.</small>
+                    </div>
 
                     <div class="form-group checkbox-group mt-4">
                         <label class="checkbox-label" style="cursor: pointer;">

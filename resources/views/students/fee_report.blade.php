@@ -354,7 +354,7 @@
 
             <header class="invoice-header">
                 <div class="logo-block">
-                    <img src="{{ asset('image.png') }}" alt="Netcoder Technology" class="logo-img">
+                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Technology" class="logo-img">
                     <div class="company-meta">
                         <strong>Netcoder Technology Solutions</strong><br>
                         Dari, Dharamshala, HP 176215<br>

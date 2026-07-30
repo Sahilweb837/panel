@@ -472,6 +472,10 @@ class FeeInvoiceController extends Controller
     {
         $feeInvoice->load('student.course', 'creator');
 
+        if (session('user_role_slug') === 'student' && $feeInvoice->student?->user_id !== session('user_id')) {
+            abort(403, 'You can only view your own fee receipts.');
+        }
+
         // Fetch student's payment history
         $studentHistory = FeeInvoice::where('student_id', $feeInvoice->student_id)
             ->where('id', '!=', $feeInvoice->id)

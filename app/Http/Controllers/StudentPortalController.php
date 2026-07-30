@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\FeeInvoice;
 use App\Models\StudentMilestone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 
 class StudentPortalController extends Controller
@@ -23,6 +24,13 @@ class StudentPortalController extends Controller
                 return redirect()->route('dashboard');
             }
             return redirect()->route('login')->withErrors(['email' => 'No student profile associated with this account.']);
+        }
+
+        if (!$student->portal_active) {
+            Session::flush();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+            return redirect()->route('login.student')->withErrors(['email' => 'Portal access is disabled for this account. Please contact the administration.']);
         }
 
         $attendances = Attendance::where('student_id', $student->id)->latest()->limit(30)->get();

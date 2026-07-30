@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
+use App\Models\Role;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -24,6 +26,7 @@ class AuthController extends Controller
         if (session()->has('user_id')) {
             return $this->redirectByRole(session('user_role_slug'));
         }
+
         return view('auth.student-login');
     }
 
@@ -32,6 +35,7 @@ class AuthController extends Controller
         if (session()->has('user_id')) {
             return $this->redirectByRole(session('user_role_slug'));
         }
+
         return view('auth.staff-login');
     }
 
@@ -40,13 +44,14 @@ class AuthController extends Controller
         if (session()->has('user_id')) {
             return $this->redirectByRole(session('user_role_slug'));
         }
+
         return view('auth.admin-login');
     }
 
     public function login(Request $request)
     {
         $loginId = trim($request->input('login_id', $request->input('email')));
-        
+
         $request->validate([
             'account_type' => ['required', 'in:institute,staff,student'],
             'password' => ['required'],
@@ -54,17 +59,18 @@ class AuthController extends Controller
 
         if (empty($loginId)) {
             Session::flash('login_error', 'Please enter your email, username, or student admission ID.');
+
             return back()->withErrors(['email' => 'Please enter your email, username, or student admission ID.']);
         }
 
         $user = User::with('role')->where(function ($query) use ($loginId) {
             $query->where('email', $loginId)
-                  ->orWhere('username', $loginId);
+                ->orWhere('username', $loginId);
         })->first();
 
         // If not found by user table email/username, check student admission_no or roll_no
-        if (!$user) {
-            $studentMatch = \App\Models\Student::where('admission_no', $loginId)
+        if (! $user) {
+            $studentMatch = Student::where('admission_no', $loginId)
                 ->orWhere('roll_no', $loginId)
                 ->first();
             if ($studentMatch && $studentMatch->user_id) {
@@ -72,32 +78,38 @@ class AuthController extends Controller
             }
         }
 
-        if (!$user) {
+        if (! $user) {
             Session::flash('login_error', 'No account found with this email, username, or student ID.');
-            return back()->withErrors(['email' => 'No account found with this email, username, or student ID.'])->onlyInput('email');
+            $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
+
+            return back()->withErrors(['email' => 'No account found with this email, username, or student ID.'])->onlyInput($inputKey);
         }
 
         // Always use Hash::check – password must match
         $passwordMatches = Hash::check($request->password, $user->password);
 
-        if (!$passwordMatches) {
+        if (! $passwordMatches) {
             Session::flash('login_error', 'Incorrect password. Please try again.');
-            return back()->withErrors(['password' => 'Incorrect password. Please try again.'])->onlyInput('email');
+            $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
+
+            return back()->withErrors(['password' => 'Incorrect password. Please try again.'])->onlyInput($inputKey);
         }
 
-        if (!$user->status) {
+        if (! $user->status) {
             Session::flash('login_error', 'Your account is currently inactive.');
-            return back()->withErrors(['email' => 'Your account is currently inactive.'])->onlyInput('email');
+            $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
+
+            return back()->withErrors(['email' => 'Your account is currently inactive.'])->onlyInput($inputKey);
         }
 
         $roleSlug = $user->role?->slug;
 
         // Fallback: If role_slug is incorrect but user has a student record
         if ($request->account_type === 'student' && $roleSlug !== 'student') {
-            if (\App\Models\Student::where('user_id', $user->id)->exists()) {
+            if (Student::where('user_id', $user->id)->exists()) {
                 $roleSlug = 'student';
                 // optionally fix the role_id in db
-                $studentRole = \App\Models\Role::where('slug', 'student')->first();
+                $studentRole = Role::where('slug', 'student')->first();
                 if ($studentRole) {
                     $user->update(['role_id' => $studentRole->id]);
                 }
@@ -106,9 +118,9 @@ class AuthController extends Controller
 
         // Fallback: If role_slug is incorrect but user has a staff record
         if ($request->account_type === 'staff' && $roleSlug !== 'staff') {
-            if (\App\Models\Employee::where('user_id', $user->id)->exists()) {
+            if (Employee::where('user_id', $user->id)->exists()) {
                 $roleSlug = 'staff';
-                $staffRole = \App\Models\Role::where('slug', 'staff')->first();
+                $staffRole = Role::where('slug', 'staff')->first();
                 if ($staffRole) {
                     $user->update(['role_id' => $staffRole->id]);
                 }
@@ -117,17 +129,33 @@ class AuthController extends Controller
 
         if ($request->account_type === 'staff' && $roleSlug !== 'staff') {
             Session::flash('login_error', 'This account is not registered as Staff.');
-            return back()->withErrors(['account_type' => 'This account is not registered as Staff.'])->onlyInput('email');
+            $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
+
+            return back()->withErrors(['account_type' => 'This account is not registered as Staff.'])->onlyInput($inputKey);
         }
 
         if ($request->account_type === 'student' && $roleSlug !== 'student') {
             Session::flash('login_error', 'This account is not registered as Student.');
-            return back()->withErrors(['account_type' => 'This account is not registered as Student.'])->onlyInput('email');
+            $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
+
+            return back()->withErrors(['account_type' => 'This account is not registered as Student.'])->onlyInput($inputKey);
+        }
+
+        if ($request->account_type === 'student' && $roleSlug === 'student') {
+            $studentRecord = Student::where('user_id', $user->id)->first();
+            if ($studentRecord && ! $studentRecord->portal_active) {
+                Session::flash('login_error', 'Portal access is disabled for this student account. Please contact the administration.');
+                $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
+
+                return back()->withErrors(['email' => 'Portal access is disabled for this student account. Please contact the administration.'])->onlyInput($inputKey);
+            }
         }
 
         if ($request->account_type === 'institute' && in_array($roleSlug, ['staff', 'student'])) {
             Session::flash('login_error', 'This account is not an Institute admin. Please use Staff or Student login.');
-            return back()->withErrors(['account_type' => 'This account is not an Institute admin.'])->onlyInput('email');
+            $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
+
+            return back()->withErrors(['account_type' => 'This account is not an Institute admin.'])->onlyInput($inputKey);
         }
 
         // Regenerate session ID to prevent session fixation attacks
@@ -153,9 +181,9 @@ class AuthController extends Controller
         $displayName = $user->name;
 
         if ($roleSlug === 'student') {
-            $student = \App\Models\Student::where('user_id', $user->id)->first();
+            $student = Student::where('user_id', $user->id)->first();
             if ($student) {
-                $displayName = trim($student->first_name . ' ' . ($student->last_name ?? ''));
+                $displayName = trim($student->first_name.' '.($student->last_name ?? ''));
             }
         }
 
@@ -180,7 +208,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $roleSlug = session('user_role_slug');
-        
+
         Session::flush();
         // Invalidate the session and regenerate CSRF token
         $request->session()->invalidate();
@@ -204,18 +232,18 @@ class AuthController extends Controller
         ]);
 
         $user = User::find(session('user_id'));
-        if (!$user) {
+        if (! $user) {
             return back()->with('error', 'User not found.');
         }
 
         if ($request->hasFile('profile_pic')) {
             $file = $request->file('profile_pic');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('uploads/profiles'), $filename);
 
             // Delete old file if it exists and isn't the default
-            if ($user->profile_pic && $user->profile_pic !== 'default.png' && file_exists(public_path('uploads/profiles/' . $user->profile_pic))) {
-                unlink(public_path('uploads/profiles/' . $user->profile_pic));
+            if ($user->profile_pic && $user->profile_pic !== 'default.png' && file_exists(public_path('uploads/profiles/'.$user->profile_pic))) {
+                unlink(public_path('uploads/profiles/'.$user->profile_pic));
             }
 
             $user->profile_pic = $filename;

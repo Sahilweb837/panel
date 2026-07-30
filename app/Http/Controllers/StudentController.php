@@ -2,9 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WelcomeAndVerifyMail;
+use App\Models\Attendance;
 use App\Models\Course;
+use App\Models\FeeInvoice;
+use App\Models\Role;
 use App\Models\Student;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
@@ -48,10 +58,10 @@ class StudentController extends Controller
         $courses = Course::where('status', true)->orderBy('name')->get();
         $durations = $this->courseDurations();
 
-        $totalStudents = \App\Models\Student::count();
-        $activeStudents = \App\Models\Student::where('status', true)->count();
-        $inactiveStudents = \App\Models\Student::where('status', false)->count();
-        $onlineStudents = \App\Models\Student::where('student_type', 'Online')->count();
+        $totalStudents = Student::count();
+        $activeStudents = Student::where('status', true)->count();
+        $inactiveStudents = Student::where('status', false)->count();
+        $onlineStudents = Student::where('student_type', 'Online')->count();
 
         return view('students.index', compact('students', 'courses', 'durations', 'totalStudents', 'activeStudents', 'inactiveStudents', 'onlineStudents'));
     }
@@ -67,9 +77,9 @@ class StudentController extends Controller
 
         if ($lastAdmissionStudent) {
             $lastNum = (int) str_replace('NT-ENR-', '', $lastAdmissionStudent->admission_no);
-            $nextAdmissionNo = 'NT-ENR-' . str_pad($lastNum + 1, 3, '0', STR_PAD_LEFT);
+            $nextAdmissionNo = 'NT-ENR-'.str_pad($lastNum + 1, 3, '0', STR_PAD_LEFT);
         } else {
-            $nextAdmissionNo = 'NT-ENR-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+            $nextAdmissionNo = 'NT-ENR-'.str_pad($nextId, 3, '0', STR_PAD_LEFT);
         }
 
         $lastRollStudent = Student::whereRaw('roll_no REGEXP "^[0-9]+$"')
@@ -93,7 +103,7 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         // Auto-generate if not provided in the request before validation
-        if (!$request->filled('admission_no')) {
+        if (! $request->filled('admission_no')) {
             $lastStudent = Student::orderBy('id', 'desc')->first();
             $nextId = $lastStudent ? $lastStudent->id + 1 : 1;
 
@@ -103,14 +113,14 @@ class StudentController extends Controller
 
             if ($lastAdmissionStudent) {
                 $lastNum = (int) str_replace('NT-ENR-', '', $lastAdmissionStudent->admission_no);
-                $nextAdmissionNo = 'NT-ENR-' . str_pad($lastNum + 1, 3, '0', STR_PAD_LEFT);
+                $nextAdmissionNo = 'NT-ENR-'.str_pad($lastNum + 1, 3, '0', STR_PAD_LEFT);
             } else {
-                $nextAdmissionNo = 'NT-ENR-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+                $nextAdmissionNo = 'NT-ENR-'.str_pad($nextId, 3, '0', STR_PAD_LEFT);
             }
             $request->merge(['admission_no' => $nextAdmissionNo]);
         }
 
-        if (!$request->filled('roll_no')) {
+        if (! $request->filled('roll_no')) {
             $lastStudent = Student::orderBy('id', 'desc')->first();
             $nextId = $lastStudent ? $lastStudent->id + 1 : 1;
 
@@ -125,15 +135,15 @@ class StudentController extends Controller
             }
             $request->merge(['roll_no' => $nextRollNo]);
         }
-        if (!$request->filled('first_name')) {
-            $request->merge(['first_name' => 'Student-' . str_replace('NT-ENR-', '', $request->admission_no ?? rand(100, 999))]);
+        if (! $request->filled('first_name')) {
+            $request->merge(['first_name' => 'Student-'.str_replace('NT-ENR-', '', $request->admission_no ?? rand(100, 999))]);
         }
 
-        if (!$request->filled('gender')) {
+        if (! $request->filled('gender')) {
             $request->merge(['gender' => 'Male']);
         }
 
-        if (!$request->filled('student_type')) {
+        if (! $request->filled('student_type')) {
             $request->merge(['student_type' => 'Regular (On Campus)']);
         }
 
@@ -158,6 +168,7 @@ class StudentController extends Controller
             'section' => ['nullable', 'string', 'max:50'],
             'admission_date' => ['nullable', 'date'],
             'status' => ['nullable', 'boolean'],
+            'portal_active' => ['nullable', 'boolean'],
             'biometric_id' => ['nullable', 'string', 'max:50'],
             'discount' => ['nullable', 'numeric', 'min:0'],
             'registration_fee' => ['nullable', 'numeric', 'min:0'],
@@ -169,19 +180,20 @@ class StudentController extends Controller
         ]);
 
         $data['status'] = $request->boolean('status');
+        $data['portal_active'] = $request->boolean('portal_active');
 
         $student = Student::create($data);
 
         // Auto-create user account
-        $role = \App\Models\Role::where('slug', 'student')->first();
+        $role = Role::where('slug', 'student')->first();
         if ($role) {
-            $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)) . $student->admission_no);
-            $email = $request->login_email ?: ($student->email ?: ($student->admission_no . '@student.com'));
-            $plainPassword = $request->login_password ?: ($student->dob ? \Carbon\Carbon::parse($student->dob)->format('dmY') : $student->admission_no);
-            $password = \Illuminate\Support\Facades\Hash::make($plainPassword);
+            $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$student->admission_no);
+            $email = $request->login_email ?: ($student->email ?: ($student->admission_no.'@student.com'));
+            $plainPassword = $request->login_password ?: ($student->dob ? Carbon::parse($student->dob)->format('dmY') : $student->admission_no);
+            $password = Hash::make($plainPassword);
 
-            $user = \App\Models\User::create([
-                'name' => trim($student->first_name . ' ' . $student->last_name),
+            $user = User::create([
+                'name' => trim($student->first_name.' '.$student->last_name),
                 'email' => $email,
                 'username' => $username,
                 'password' => $password,
@@ -196,7 +208,7 @@ class StudentController extends Controller
         $includeRegistration = $request->boolean('include_registration_invoice');
         $includeProspectus = $request->boolean('include_prospectus_invoice');
 
-        $course = \App\Models\Course::find($student->course_id);
+        $course = Course::find($student->course_id);
         $courseFeeAmount = $course?->fee ?? 0;
         $discount = $student->discount ?? 0;
         $grandTotal = 0;
@@ -214,12 +226,12 @@ class StudentController extends Controller
         }
         // Note: Course Fee is excluded from the first invoice because the student pays it monthly.
         // The first invoice is strictly for Prospectus and/or Registration fees.
-        if (!empty($feeItems)) {
+        if (! empty($feeItems)) {
             $feeCategory = implode(', ', array_column($feeItems, 'category'));
 
-            \App\Models\FeeInvoice::create([
+            FeeInvoice::create([
                 'student_id' => $student->id,
-                'invoice_no' => 'ADM-' . now()->format('ymdHi') . '-' . $student->id,
+                'invoice_no' => 'ADM-'.now()->format('ymdHi').'-'.$student->id,
                 'fee_category' => $feeCategory,
                 'fee_items' => $feeItems,
                 'total_amount' => $grandTotal,
@@ -234,11 +246,11 @@ class StudentController extends Controller
 
         if (isset($user)) {
             // Dispatch welcome and verification email if it's a real email
-            if (!str_ends_with($user->email, '@student.com')) {
+            if (! str_ends_with($user->email, '@student.com')) {
                 try {
-                    \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeAndVerifyMail($user, $plainPassword));
+                    Mail::to($user->email)->send(new WelcomeAndVerifyMail($user, $plainPassword));
                 } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Failed to send student welcome email: ' . $e->getMessage());
+                    Log::error('Failed to send student welcome email: '.$e->getMessage());
                 }
             }
 
@@ -248,8 +260,8 @@ class StudentController extends Controller
                     'email' => $user->email,
                     'username' => $user->username,
                     'password' => $plainPassword,
-                    'type' => 'Student'
-                ]
+                    'type' => 'Student',
+                ],
             ]);
         }
 
@@ -259,85 +271,87 @@ class StudentController extends Controller
     public function show(Student $student)
     {
         $student->load(['course', 'user']);
-        
+
         // Load recent attendance
-        $attendances = \App\Models\Attendance::where('student_id', $student->id)
+        $attendances = Attendance::where('student_id', $student->id)
             ->latest('attendance_date')
             ->limit(10)
             ->get();
-            
+
         // Load fee history
-        $feeInvoices = \App\Models\FeeInvoice::where('student_id', $student->id)
+        $feeInvoices = FeeInvoice::where('student_id', $student->id)
             ->latest('created_at')
             ->get();
-            
+
         $courseInvoices = $feeInvoices->filter(function ($invoice) {
             $cat = strtolower($invoice->fee_category ?? '');
-            return !str_contains($cat, 'registration') && 
-                   !str_contains($cat, 'prospectus') && 
-                   !str_contains($cat, 'seminar') && 
-                   !str_contains($cat, 'fine');
+
+            return ! str_contains($cat, 'registration') &&
+                   ! str_contains($cat, 'prospectus') &&
+                   ! str_contains($cat, 'seminar') &&
+                   ! str_contains($cat, 'fine');
         });
-        
+
         $totalCourseFee = $student->course?->fee ?? 0;
         $discount = $student->discount ?? 0;
         $netCourseFee = max(0, $totalCourseFee - $discount);
-        
+
         $paidFees = $courseInvoices->sum('paid_amount');
         $dueFees = max(0, $netCourseFee - $paidFees);
         $totalFees = $netCourseFee;
-        
+
         $seminarInvoices = $feeInvoices->where('fee_category', 'Seminar');
         $totalSeminarFees = $seminarInvoices->sum('total_amount') - $seminarInvoices->sum('discount');
         $paidSeminarFees = $seminarInvoices->sum('paid_amount');
         $dueSeminarFees = max(0, $totalSeminarFees - $paidSeminarFees);
-        
+
         $fineInvoices = $feeInvoices->where('fee_category', 'Fine');
         $totalFines = $fineInvoices->sum('total_amount') - $fineInvoices->sum('discount');
         $paidFines = $fineInvoices->sum('paid_amount');
         $dueFines = max(0, $totalFines - $paidFines);
-        
-        $totalAttendance = \App\Models\Attendance::where('student_id', $student->id)->count();
-        $presentAttendance = \App\Models\Attendance::where('student_id', $student->id)->where('status', 'Present')->count();
+
+        $totalAttendance = Attendance::where('student_id', $student->id)->count();
+        $presentAttendance = Attendance::where('student_id', $student->id)->where('status', 'Present')->count();
         $attendancePercentage = $totalAttendance > 0 ? round(($presentAttendance / $totalAttendance) * 100) : 0;
-        
+
         return view('students.show', compact('student', 'attendances', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees', 'totalSeminarFees', 'paidSeminarFees', 'dueSeminarFees', 'totalFines', 'paidFines', 'dueFines', 'attendancePercentage'));
     }
 
     public function feeReport(Student $student)
     {
         $student->load(['course']);
-        
-        $feeInvoices = \App\Models\FeeInvoice::where('student_id', $student->id)
+
+        $feeInvoices = FeeInvoice::where('student_id', $student->id)
             ->oldest('created_at')
             ->get();
-            
+
         $courseInvoices = $feeInvoices->filter(function ($invoice) {
             $cat = strtolower($invoice->fee_category ?? '');
-            return !str_contains($cat, 'registration') && 
-                   !str_contains($cat, 'prospectus') && 
-                   !str_contains($cat, 'seminar') && 
-                   !str_contains($cat, 'fine');
+
+            return ! str_contains($cat, 'registration') &&
+                   ! str_contains($cat, 'prospectus') &&
+                   ! str_contains($cat, 'seminar') &&
+                   ! str_contains($cat, 'fine');
         });
-        
+
         $totalCourseFee = $student->course?->fee ?? 0;
         $discount = $student->discount ?? 0;
         $netCourseFee = max(0, $totalCourseFee - $discount);
-        
+
         $paidFees = $courseInvoices->sum('paid_amount');
         $dueFees = max(0, $netCourseFee - $paidFees);
         $totalFees = $netCourseFee;
-        
+
         $seminarInvoices = $feeInvoices->where('fee_category', 'Seminar');
         $totalSeminarFees = $seminarInvoices->sum('total_amount') - $seminarInvoices->sum('discount');
         $paidSeminarFees = $seminarInvoices->sum('paid_amount');
         $dueSeminarFees = max(0, $totalSeminarFees - $paidSeminarFees);
-        
+
         $fineInvoices = $feeInvoices->where('fee_category', 'Fine');
         $totalFines = $fineInvoices->sum('total_amount') - $fineInvoices->sum('discount');
         $paidFines = $fineInvoices->sum('paid_amount');
         $dueFines = max(0, $totalFines - $paidFines);
-        
+
         return view('students.fee_report', compact('student', 'feeInvoices', 'totalFees', 'paidFees', 'dueFees', 'totalSeminarFees', 'paidSeminarFees', 'dueSeminarFees', 'totalFines', 'paidFines', 'dueFines'));
     }
 
@@ -373,6 +387,7 @@ class StudentController extends Controller
             'section' => ['nullable', 'string', 'max:50'],
             'admission_date' => ['nullable', 'date'],
             'status' => ['nullable', 'boolean'],
+            'portal_active' => ['nullable', 'boolean'],
             'biometric_id' => ['nullable', 'string', 'max:50'],
             'discount' => ['nullable', 'numeric', 'min:0'],
             'registration_fee' => ['nullable', 'numeric', 'min:0'],
@@ -382,43 +397,44 @@ class StudentController extends Controller
                 'nullable',
                 'string',
                 'max:100',
-                \Illuminate\Validation\Rule::unique('users', 'username')->ignore($student->user_id),
+                Rule::unique('users', 'username')->ignore($student->user_id),
             ],
             'login_email' => [
                 'nullable',
                 'email',
                 'max:150',
-                \Illuminate\Validation\Rule::unique('users', 'email')->ignore($student->user_id),
+                Rule::unique('users', 'email')->ignore($student->user_id),
             ],
             'login_password' => ['nullable', 'string', 'min:6'],
         ]);
 
         $data['status'] = $request->boolean('status');
+        $data['portal_active'] = $request->boolean('portal_active');
 
         $student->update($data);
 
         if ($student->user) {
             $userData = [
-                'name' => trim($student->first_name . ' ' . $student->last_name),
+                'name' => trim($student->first_name.' '.$student->last_name),
             ];
-            
+
             if ($request->filled('login_username')) {
                 $userData['username'] = $request->login_username;
             } elseif ($request->filled('admission_no')) {
-                $userData['username'] = strtolower(str_replace(' ', '', $student->first_name)) . $student->admission_no;
+                $userData['username'] = strtolower(str_replace(' ', '', $student->first_name)).$student->admission_no;
             }
-            
+
             if ($request->filled('login_email')) {
                 $userData['email'] = $request->login_email;
             } elseif ($request->filled('email')) {
                 $userData['email'] = $student->email;
             }
-            
+
             if ($request->filled('login_password')) {
-                $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->login_password);
+                $userData['password'] = Hash::make($request->login_password);
                 $userData['raw_password'] = $request->login_password;
             }
-            
+
             $student->user->update($userData);
         }
 
@@ -475,10 +491,10 @@ class StudentController extends Controller
             'Content-Disposition' => 'attachment; filename=students_export_'.date('Ymd_His').'.csv',
             'Pragma' => 'no-cache',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0'
+            'Expires' => '0',
         ];
 
-        $callback = function() use ($students) {
+        $callback = function () use ($students) {
             $file = fopen('php://output', 'w');
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
             fputcsv($file, ['Admission No', 'Roll No', 'Full Name', 'Email', 'Phone', 'Course', 'Duration', 'Type', 'Status', 'Admission Date']);
@@ -487,14 +503,14 @@ class StudentController extends Controller
                 fputcsv($file, [
                     $student->admission_no,
                     $student->roll_no ?? '-',
-                    $student->first_name . ' ' . $student->last_name,
+                    $student->first_name.' '.$student->last_name,
                     $student->email ?? '-',
                     $student->phone ?? '-',
                     $student->course?->name ?? '-',
                     $student->course_duration ?? '-',
                     $student->student_type ?? '-',
                     $student->status ? 'Active' : 'Inactive',
-                    $student->admission_date ?? '-'
+                    $student->admission_date ?? '-',
                 ]);
             }
 

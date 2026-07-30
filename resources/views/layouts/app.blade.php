@@ -1317,6 +1317,7 @@
                             <p class="mb-1"><strong>Username:</strong> <span class="user-select-all">${creds.username}</span></p>
                             <p class="mb-0"><strong>Password:</strong> <span class="user-select-all">${creds.password}</span></p>
                         </div>
+                        ${creds.type === 'Student' ? '<p class="mt-3 mb-0 small"><strong>Student login:</strong> <span class="user-select-all">{{ url('/student') }}</span></p>' : ''}
                         <p class="mt-3 text-muted small"><i class="fas fa-info-circle me-1"></i>Please share these credentials securely with the user.</p>
                     </div>
                 `,
@@ -1469,4 +1470,3 @@
     </script>
 </body>
 </html>
-

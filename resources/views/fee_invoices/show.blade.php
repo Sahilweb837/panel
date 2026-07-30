@@ -82,12 +82,11 @@
             letter-spacing: -0.5px;
         }
 
-        .brand-logo-html i {
-            color: var(--primary);
-            background: rgba(255, 85, 50, 0.1);
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 1.5rem;
+        .brand-logo-html img {
+            height: 46px;
+            width: auto;
+            max-width: 230px;
+            object-fit: contain;
         }
 
         .brand-details {
@@ -435,7 +434,7 @@
         <div class="receipt-header">
             <div class="brand-section">
                 <div class="brand-logo-html">
-                    <i class="fas fa-layer-group"></i> Netcoder ERP
+                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder">
                 </div>
                 <div class="brand-details">
                     1st Floor, above Gramin Bank, (Near ITI Bridge)<br>

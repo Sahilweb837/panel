@@ -39,8 +39,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Direct login routes
-Route::get('/students', [AuthController::class, 'showStudentLogin'])->name('login.student');
-Route::get('/student', function () {
+Route::get('/student', [AuthController::class, 'showStudentLogin'])->name('login.student');
+Route::get('/students/login', function () {
     return redirect()->route('login.student');
 });
 Route::get('/staff', [AuthController::class, 'showStaffLogin'])->name('login.staff');

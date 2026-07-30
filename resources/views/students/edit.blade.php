@@ -334,6 +334,22 @@
                         <label class="checkbox-label" style="cursor: pointer;">
                             <input 
                                 type="checkbox" 
+                                name="portal_active" 
+                                value="1" 
+                                {{ old('portal_active', $student->portal_active) ? 'checked' : '' }} 
+                                class="checkbox-input"
+                            />
+                            <span class="fw-semibold">
+                                <i class="fas fa-sign-in-alt text-success me-1"></i>Active Portal Access
+                            </span>
+                        </label>
+                        <small style="color: var(--muted); margin-left: 28px;" class="d-block mt-1">Allow this student to login to the student portal.</small>
+                    </div>
+
+                    <div class="form-group checkbox-group mt-4">
+                        <label class="checkbox-label" style="cursor: pointer;">
+                            <input 
+                                type="checkbox" 
                                 name="status" 
                                 value="1" 
                                 {{ old('status', $student->status) ? 'checked' : '' }} 
