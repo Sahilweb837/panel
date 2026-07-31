@@ -590,7 +590,7 @@
             <header class="invoice-header">
                 <div class="brand-section" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
             <div class="logo-box" style="width: auto; height: auto; border: none; box-shadow: none; padding: 0; background: transparent;">
-                <img src="{{ asset('image.png') }}" alt="Netcoder Technology" style="max-height: 79px; max-width: 267px; object-fit: contain;" />
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="Netcoder Technology" style="max-height: 79px; max-width: 267px; object-fit: contain;" />
             </div>
             <div class="brand-details" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; text-align: left;">
                 1st Floor, above Gramin Bank, (Near ITI Bridge), Dari,<br>

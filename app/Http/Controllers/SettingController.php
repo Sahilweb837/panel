@@ -27,7 +27,7 @@ class SettingController extends Controller
                 'contact_email' => Setting::get('contact_email', 'support@netcoder.in'),
                 'contact_phone' => Setting::get('contact_phone', '+91 98765 43210'),
                 'address' => Setting::get('address', 'Main Campus, IT Park Road, City Center'),
-                'logo_url' => Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png'),
+                'logo_url' => Setting::get('logo_url', 'images/logo.png'),
                 'timezone' => Setting::get('timezone', 'Asia/Kolkata'),
                 'date_format' => Setting::get('date_format', 'd M Y'),
             ],

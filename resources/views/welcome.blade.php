@@ -314,7 +314,7 @@
     <nav class="navbar-custom">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="/" class="navbar-brand m-0 p-0">
-                <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 220px; object-fit: contain;">
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 220px; object-fit: contain;">
             </a>
             <div class="d-none d-md-flex align-items-center">
                 <a href="#features" class="nav-link">Features</a>
@@ -456,7 +456,7 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="col-md-4 mb-4">
-                    <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 100%; object-fit: contain; margin-bottom: 1.5rem;">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 100%; object-fit: contain; margin-bottom: 1.5rem;">
                     <p style="color: var(--text-muted);">Premium institution management software designed for speed, security, and scalability.</p>
                 </div>
                 <div class="col-md-2 mb-4">

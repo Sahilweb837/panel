@@ -236,7 +236,7 @@
                     <i class="fas fa-bars fa-lg"></i>
                 </button>
                 <a href="{{ url('/') }}" class="text-decoration-none">
-                    <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 32px; max-width: 120px; object-fit: contain;">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 32px; max-width: 120px; object-fit: contain;">
                 </a>
             </div>
         <button type="button" class="theme-toggle me-2 px-3 py-1" style="height: auto; border-radius: 20px; font-size: 0.8rem;" data-theme-toggle title="Toggle Dark/Light Mode">
@@ -248,14 +248,14 @@
         <!-- Sidebar Offcanvas -->
         <aside class="offcanvas-lg offcanvas-start bg-white border-end shadow-sm d-flex flex-column flex-shrink-0" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
             <div class="offcanvas-header d-lg-none border-bottom">
-                <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 32px; max-width: 120px; object-fit: contain;">
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 32px; max-width: 120px; object-fit: contain;">
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas"></button>
             </div>
             
             <div class="offcanvas-body d-flex flex-column p-0 overflow-y-auto">
                 <div class="d-none d-lg-flex p-4 mb-2 align-items-center justify-content-center">
                     <a href="{{ url('/') }}" class="text-decoration-none w-100 text-center">
-                        <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 100%; object-fit: contain;">
+                        <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 100%; object-fit: contain;">
                     </a>
                 </div>
 

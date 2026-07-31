@@ -20,6 +20,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Auto-run migrations if portal_active column is missing on the students table
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('students') && !\Illuminate\Support\Facades\Schema::hasColumn('students', 'portal_active')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            }
+        } catch (\Throwable $e) {
+            // Silence
+        }
+
         Paginator::useBootstrapFive();
 
         \Illuminate\Support\Facades\View::composer('messages.widget', function ($view) {

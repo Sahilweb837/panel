@@ -471,7 +471,7 @@
 
             <div class="left-content-wrapper">
                 <div class="brand-logo-html mb-5 text-center">
-                    <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo">
                 </div>
                 <h1 class="left-title">Student <br><span>Portal</span></h1>
                 <p class="left-subtitle">Your personal academic student dashboard.</p>

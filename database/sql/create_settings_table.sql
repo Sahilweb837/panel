@@ -22,7 +22,7 @@ INSERT IGNORE INTO `settings` (`key`, `value`, `group`, `created_at`, `updated_a
 ('contact_email', 'support@netcoder.in', 'general', NOW(), NOW()),
 ('contact_phone', '+91 98765 43210', 'general', NOW(), NOW()),
 ('address', 'Main Campus, IT Park Road, City Center', 'general', NOW(), NOW()),
-('logo_url', 'https://www.netcoder.in/images/logo.png', 'general', NOW(), NOW()),
+('logo_url', 'images/logo.png', 'general', NOW(), NOW()),
 ('timezone', 'Asia/Kolkata', 'general', NOW(), NOW()),
 ('currency_symbol', '₹', 'financial', NOW(), NOW()),
 ('default_registration_fee', '500', 'financial', NOW(), NOW()),

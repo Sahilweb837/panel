@@ -428,7 +428,7 @@
 
             <header class="slip-header">
                 <div class="logo-block">
-                    <img src="{{ \App\Models\Setting::get('logo_url', asset('image.png')) }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Technology" class="logo-img">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Technology" class="logo-img">
                     <div class="company-meta" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: 6px;">
                         1st Floor, above Gramin Bank, (Near ITI Bridge), Dari,<br>
                         Dharamshala, Himachal Pradesh, 176057<br>

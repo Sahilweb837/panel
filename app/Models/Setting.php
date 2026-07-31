@@ -18,6 +18,18 @@ class Setting extends Model
     ];
 
     /**
+     * Get the logo URL, resolving relative paths to assets.
+     */
+    public static function getLogoUrl(): string
+    {
+        $logo = static::get('logo_url', 'images/logo.png');
+        if (str_starts_with($logo, 'http://') || str_starts_with($logo, 'https://')) {
+            return $logo;
+        }
+        return asset($logo);
+    }
+
+    /**
      * Get a setting value by key with optional default.
      */
     public static function get(string $key, mixed $default = null): mixed
