@@ -1,3 +1,38 @@
+@php
+    $primaryColor = \App\Models\Setting::get('primary_color', '#ff5532');
+    $hex = str_replace('#', '', $primaryColor);
+    if (strlen($hex) == 3) {
+        $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
+        $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
+        $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
+    } else {
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+    }
+    $primaryRgb = "$r, $g, $b";
+
+    $adjustBrightness = function($hex, $steps) {
+        $steps = max(-255, min(255, $steps));
+        $hex = str_replace('#', '', $hex);
+        if (strlen($hex) == 3) {
+            $hex = str_repeat(substr($hex, 0, 1), 2) . str_repeat(substr($hex, 1, 1), 2) . str_repeat(substr($hex, 2, 1), 2);
+        }
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        
+        $r = max(0, min(255, $r + $steps));
+        $g = max(0, min(255, $g + $steps));
+        $b = max(0, min(255, $b + $steps));
+        
+        return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) . str_pad(dechex($g), 2, '0', STR_PAD_LEFT) . str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
+    };
+
+    $gradientStart = $adjustBrightness($primaryColor, 150);
+    $gradientEnd = $adjustBrightness($primaryColor, 120);
+    $primaryColorDark = $adjustBrightness($primaryColor, -25);
+@endphp
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -10,8 +45,9 @@
     @vite(['resources/css/app.css'])
     <style>
         :root {
-            --brand-primary: #ff5532;
-            --brand-primary-rgb: 255, 85, 50;
+            --brand-primary: {{ $primaryColor }};
+            --brand-primary-dark: {{ $primaryColorDark }};
+            --brand-primary-rgb: {{ $primaryRgb }};
             --bg-light: #f8fafc;
             --text-dark: #0f172a;
             --text-muted: #64748b;
@@ -21,7 +57,7 @@
             --font-main: 'Outfit', sans-serif;
             --glass-bg: rgba(255, 255, 255, 0.7);
             --glass-border: rgba(255, 255, 255, 0.6);
-            --gradient-left: linear-gradient(135deg, #fff5f2 0%, #ffeae5 100%);
+            --gradient-left: linear-gradient(135deg, {{ $gradientStart }} 0%, {{ $gradientEnd }} 100%);
         }
 
         html[data-theme="dark"] {
@@ -466,7 +502,7 @@
 
             <div class="left-content-wrapper">
                 <div class="brand-logo-html mb-5 text-center">
-                    <img src="https://www.netcoder.in/images/logo.png" alt="Logo">
+                    <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo">
                 </div>
                 <h1 class="left-title" id="leftTitle">Transform Your <br>Institution</h1>
                 <p class="left-subtitle" id="leftSubtitle">The all-in-one premium management ecosystem.</p>

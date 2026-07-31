@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -446,7 +446,7 @@
         <div class="receipt-header">
             <div class="brand-section">
                 <div class="brand-logo-html">
-                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder">
+                    <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }}">
                 </div>
                 <div class="brand-details">
                     <div class="system-name"><i class="fas fa-shield-halved"></i> Netcoder ERP Fee Management System</div>

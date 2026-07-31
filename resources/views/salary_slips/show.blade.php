@@ -486,7 +486,7 @@
             <header class="invoice-header">
                 <div class="logo-block">
                     <!-- Netcoder Technology brand logo -->
-                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Technology" class="logo-img">
+                    <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Technology" class="logo-img">
                     <div class="company-meta">
                         <strong>Netcoder Technology Solutions</strong><br>
                         Netcoder ERP Payroll Management System<br>

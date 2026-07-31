@@ -174,7 +174,7 @@
 
     <div class="header">
         <div class="logo-block">
-            <img src="{{ asset('image.png') }}" alt="Logo" class="logo-img" />
+            <img src="{{ \App\Models\Setting::get('logo_url', asset('image.png')) }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" class="logo-img" />
             <div>
                 <div class="company-name">Netcoder Institute</div>
                 <div class="company-sub">Complete ERP & Fees Management</div>

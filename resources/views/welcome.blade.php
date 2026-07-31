@@ -1,9 +1,45 @@
+@php
+    $primaryColor = \App\Models\Setting::get('primary_color', '#ff5532');
+    
+    // Parse hex to RGB
+    $hex = str_replace('#', '', $primaryColor);
+    if (strlen($hex) == 3) {
+        $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
+        $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
+        $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
+    } else {
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+    }
+    
+    // Calculate dark/light variants
+    $adjustBrightness = function($hex, $steps) {
+        $steps = max(-255, min(255, $steps));
+        $hex = str_replace('#', '', $hex);
+        if (strlen($hex) == 3) {
+            $hex = str_repeat(substr($hex, 0, 1), 2) . str_repeat(substr($hex, 1, 1), 2) . str_repeat(substr($hex, 2, 1), 2);
+        }
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        
+        $r = max(0, min(255, $r + $steps));
+        $g = max(0, min(255, $g + $steps));
+        $b = max(0, min(255, $b + $steps));
+        
+        return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) . str_pad(dechex($g), 2, '0', STR_PAD_LEFT) . str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
+    };
+    
+    $brandDark = $adjustBrightness($primaryColor, -25);
+    $brandLight = 'rgba(' . implode(',', [$r, $g, $b]) . ', 0.06)';
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Netcoder - Premium Institute Management</title>
+    <title>{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} - Premium Institute Management</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -11,9 +47,9 @@
     
     <style>
         :root {
-            --brand-primary: #ff5532;
-            --brand-dark: #cc4428;
-            --brand-light: #fff5f2;
+            --brand-primary: {{ $primaryColor }};
+            --brand-dark: {{ $brandDark }};
+            --brand-light: {{ $brandLight }};
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --bg-light: #f8fafc;
@@ -278,7 +314,7 @@
     <nav class="navbar-custom">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="/" class="navbar-brand m-0 p-0">
-                <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo">
+                <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 220px; object-fit: contain;">
             </a>
             <div class="d-none d-md-flex align-items-center">
                 <a href="#features" class="nav-link">Features</a>
@@ -420,7 +456,7 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="col-md-4 mb-4">
-                    <img src="https://www.netcoder.in/images/logo.png" alt="Netcoder Logo" style="height: 48px; margin-bottom: 1.5rem;">
+                    <img src="{{ \App\Models\Setting::get('logo_url', 'https://www.netcoder.in/images/logo.png') }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 100%; object-fit: contain; margin-bottom: 1.5rem;">
                     <p style="color: var(--text-muted);">Premium institution management software designed for speed, security, and scalability.</p>
                 </div>
                 <div class="col-md-2 mb-4">
