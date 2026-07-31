@@ -436,6 +436,27 @@ class StudentController extends Controller
             }
 
             $student->user->update($userData);
+        } else {
+            $role = Role::where('slug', 'student')->first();
+            if ($role) {
+                $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$student->admission_no);
+                $email = $request->login_email ?: ($student->email ?: ($student->admission_no.'@student.com'));
+                $plainPassword = $request->login_password ?: ($student->dob ? Carbon::parse($student->dob)->format('dmY') : $student->admission_no);
+                $password = Hash::make($plainPassword);
+
+                $user = User::create([
+                    'name' => trim($student->first_name.' '.$student->last_name),
+                    'email' => $email,
+                    'username' => $username,
+                    'password' => $password,
+                    'raw_password' => $plainPassword,
+                    'role_id' => $role->id,
+                    'status' => true,
+                ]);
+
+                $student->user_id = $user->id;
+                $student->save();
+            }
         }
 
         return redirect()->route('students.index')->with('success', 'Student updated successfully.');

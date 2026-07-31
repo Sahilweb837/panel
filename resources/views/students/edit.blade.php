@@ -190,6 +190,16 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="login_email" class="fw-semibold mb-2">
+                                <i class="fas fa-envelope text-first me-2"></i>Login Email
+                            </label>
+                            <input type="email" id="login_email" name="login_email" value="{{ old('login_email', $student->user?->email) }}" placeholder="Auto-generated if left blank" class="form-input {{ $errors->has('login_email') ? 'is-invalid' : '' }}" />
+                            @error('login_email')
+                                <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="login_password" class="fw-semibold mb-2">
                                 <i class="fas fa-lock text-first me-2"></i>Login Password (Optional)
                             </label>

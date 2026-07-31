@@ -11,19 +11,19 @@
     <style>
         :root {
             --primary: #ff5532;
-            --primary-glow: rgba(255, 85, 50, 0.4);
-            --bg-base: #050505;
-            --bg-surface: #111111;
-            --text-main: #ffffff;
-            --text-muted: #a1a1aa;
+            --primary-glow: rgba(255, 85, 50, 0.25);
+            --bg-base: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             
             --admin-color: #ff5532;
-            --staff-color: #10b981;
-            --student-color: #6366f1;
+            --staff-color: #059669;
+            --student-color: #4f46e5;
 
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-highlight: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(226, 232, 240, 0.8);
+            --glass-highlight: rgba(255, 255, 255, 0.5);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -36,12 +36,12 @@
             position: relative;
         }
 
-        /* Abstract Dark Background */
+        /* Abstract Light Background */
         .bg-canvas {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -2;
-            background: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 70%);
+            background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f5f9 70%);
             overflow: hidden;
         }
 
@@ -54,9 +54,9 @@
             animation: floatOrb 20s infinite alternate ease-in-out;
         }
 
-        .orb-1 { width: 600px; height: 600px; background: rgba(255, 85, 50, 0.15); top: -200px; left: -100px; }
-        .orb-2 { width: 500px; height: 500px; background: rgba(99, 102, 241, 0.15); bottom: -100px; right: -100px; animation-delay: -5s; }
-        .orb-3 { width: 400px; height: 400px; background: rgba(16, 185, 129, 0.1); top: 40%; left: 50%; animation-delay: -10s; }
+        .orb-1 { width: 600px; height: 600px; background: rgba(255, 85, 50, 0.07); top: -200px; left: -100px; }
+        .orb-2 { width: 500px; height: 500px; background: rgba(99, 102, 241, 0.07); bottom: -100px; right: -100px; animation-delay: -5s; }
+        .orb-3 { width: 400px; height: 400px; background: rgba(16, 185, 129, 0.05); top: 40%; left: 50%; animation-delay: -10s; }
 
         @keyframes floatOrb {
             0% { transform: translate(0, 0) scale(1); }
@@ -68,8 +68,8 @@
         /* Grid Overlay for Texture */
         .grid-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
             -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
@@ -78,7 +78,7 @@
         /* Glass Navbar */
         header {
             position: fixed; width: 100%; top: 0; z-index: 100;
-            background: rgba(5, 5, 5, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
@@ -99,7 +99,7 @@
         }
         .btn-glow:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(255, 85, 50, 0.6);
+            box-shadow: 0 0 30px rgba(255, 85, 50, 0.4);
             color: #fff;
         }
 
@@ -111,9 +111,9 @@
 
         .badge-premium {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 16px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border); border-radius: 50px;
-            font-size: 0.85rem; font-weight: 600; color: #fff;
+            padding: 8px 16px; background: rgba(255, 85, 50, 0.06);
+            border: 1px solid rgba(255, 85, 50, 0.15); border-radius: 50px;
+            font-size: 0.85rem; font-weight: 600; color: var(--primary);
             margin-bottom: 2rem; backdrop-filter: blur(4px);
             animation: slideDown 0.8s ease backwards;
         }
@@ -126,7 +126,7 @@
         }
         
         .text-gradient {
-            background: linear-gradient(to right, #fff, #a1a1aa);
+            background: linear-gradient(to right, #0f172a, #475569);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .text-accent {
@@ -150,10 +150,11 @@
         .portal-card {
             display: flex; align-items: center; padding: 1.5rem;
             background: var(--glass-bg); border: 1px solid var(--glass-border);
-            border-radius: 20px; text-decoration: none; color: #fff;
+            border-radius: 20px; text-decoration: none; color: var(--text-main);
             margin-bottom: 1.25rem; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             position: relative; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
         .portal-card::before {
@@ -164,8 +165,9 @@
 
         .portal-card:hover {
             transform: translateY(-5px) scale(1.02);
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(226, 232, 240, 1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
         }
         .portal-card:hover::before { transform: translateX(100%); }
 
@@ -173,20 +175,21 @@
             width: 60px; height: 60px; border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.6rem; margin-right: 1.5rem; flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.03);
+            border: 1px solid rgba(15, 23, 42, 0.05);
+            color: #475569;
             transition: all 0.4s ease;
         }
 
         .portal-info flex { flex: 1; }
-        .portal-info h4 { margin: 0 0 6px 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px; }
+        .portal-info h4 { margin: 0 0 6px 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px; color: #0f172a; }
         .portal-info p { margin: 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
 
         .portal-arrow {
-            font-size: 1.2rem; color: #52525b; transition: all 0.3s ease;
+            font-size: 1.2rem; color: #94a3b8; transition: all 0.3s ease;
             opacity: 0; transform: translateX(-10px);
         }
-        .portal-card:hover .portal-arrow { opacity: 1; transform: translateX(0); color: #fff; }
+        .portal-card:hover .portal-arrow { opacity: 1; transform: translateX(0); color: var(--text-main); }
 
         /* Role-specific styling */
         .card-admin:hover { box-shadow: 0 10px 40px rgba(255, 85, 50, 0.15); }
@@ -223,10 +226,10 @@
     <!-- Glass Header -->
     <header id="header">
         <div class="container d-flex align-items-center justify-content-between">
-            <a href="{{ url('/') }}" class="navbar-brand">
+             <a href="{{ url('/') }}" class="navbar-brand">
                 <!-- Fallback text if logo image is missing -->
-                <span class="text-white fw-bold fs-4 d-flex align-items-center gap-2">
-                    <i class="fas fa-layer-group text-primary"></i> ERP<span style="font-weight:400; opacity:0.8;">Hub</span>
+                <span class="text-dark fw-bold fs-4 d-flex align-items-center gap-2">
+                    <i class="fas fa-layer-group text-primary"></i> ERP<span style="font-weight:400; opacity:0.8; color:#475569;">Hub</span>
                 </span>
              </a>
             
@@ -278,7 +281,7 @@
                     <div class="portal-showcase">
                         
                         <div class="text-center text-lg-start mb-4">
-                            <h3 class="text-white fw-bold mb-2">Select Portal</h3>
+                            <h3 class="text-dark fw-bold mb-2">Select Portal</h3>
                             <p class="text-muted small">Choose your designated workspace to continue</p>
                         </div>
 
@@ -307,7 +310,7 @@
                         </a>
 
                         <!-- Student Portal -->
-                        <a href="{{ url('/students') }}" class="portal-card card-student">
+                        <a href="{{ route('student.dashboard') }}" class="portal-card card-student">
                             <div class="portal-icon">
                                 <i class="fas fa-user-graduate"></i>
                             </div>
@@ -330,10 +333,10 @@
         window.addEventListener('scroll', () => {
             const header = document.getElementById('header');
             if (window.scrollY > 20) {
-                header.style.background = 'rgba(5, 5, 5, 0.85)';
-                header.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.5)';
+                header.style.background = 'rgba(255, 255, 255, 0.9)';
+                header.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.05)';
             } else {
-                header.style.background = 'rgba(5, 5, 5, 0.6)';
+                header.style.background = 'rgba(255, 255, 255, 0.7)';
                 header.style.boxShadow = 'none';
             }
         });

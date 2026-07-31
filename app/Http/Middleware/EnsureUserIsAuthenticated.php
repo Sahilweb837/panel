@@ -19,9 +19,9 @@ class EnsureUserIsAuthenticated
         if (! $request->session()->has('user_id')) {
             $request->session()->put('url.intended', $request->fullUrl());
             $path = $request->path();
-            if (str_starts_with($path, 'student') || $request->routeIs('student.*')) {
+            if (str_starts_with($path, 'student/') || $path === 'student' || $request->routeIs('student.*')) {
                 return redirect()->route('login.student');
-            } elseif (str_starts_with($path, 'staff') || $request->routeIs('staff.*')) {
+            } elseif (str_starts_with($path, 'staff/') || $path === 'staff' || $request->routeIs('staff.*')) {
                 return redirect()->route('login.staff');
             }
             return redirect()->route('login.admin');
