@@ -243,9 +243,23 @@
                             <span class="add">₹{{ number_format($monthlySalary, 2) }}</span>
                         </div>
                         <div class="salary-row">
-                            <span>Daily Rate (÷ 26 working days)</span>
+                            <span>Daily Rate (÷ 30 days)</span>
                             <span style="color:var(--muted);">₹{{ number_format($dailySalary, 2) }}/day</span>
                         </div>
+                        @if($leaveDays > 0)
+                        <div class="salary-row">
+                            <span>
+                                <i class="fas fa-plane-departure me-1" style="color:#3b82f6;"></i>
+                                Approved Leaves
+                                <small style="color:var(--muted); font-weight:400;">&nbsp;({{ $leaveDays }} day{{ $leaveDays > 1 ? 's' : '' }} taken, {{ $allowedLeaves }} paid leaves allowed)</small>
+                            </span>
+                            @if($unpaidLeaveDeduction > 0)
+                                <span class="deduct">- ₹{{ number_format($unpaidLeaveDeduction, 2) }}</span>
+                            @else
+                                <span class="add">Paid</span>
+                            @endif
+                        </div>
+                        @endif
                         @if($effectiveLateDays > 0)
                         <div class="salary-row">
                             <span>

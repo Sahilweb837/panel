@@ -61,9 +61,64 @@
     
     .btn-gradient { background: linear-gradient(135deg, var(--first-color), #e04423); color: #fff; border: none; border-radius: 14px; font-weight: 600; padding: 10px 24px; box-shadow: 0 6px 16px rgba(255,85,50,0.25); transition: all 0.2s ease; }
     .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,85,50,0.35); color: #fff; }
+
+    /* Mobile Responsive Optimizations */
+    @media (max-width: 767.98px) {
+        .s-stat-card {
+            padding: 1rem 0.75rem !important;
+            gap: 0.75rem !important;
+            border-radius: 14px !important;
+        }
+        .s-stat-icon {
+            width: 42px !important;
+            height: 42px !important;
+            font-size: 1.1rem !important;
+            border-radius: 10px !important;
+        }
+        .s-stat-value {
+            font-size: 1.35rem !important;
+        }
+        .s-stat-label {
+            font-size: 0.65rem !important;
+            margin-bottom: 2px !important;
+        }
+        .premium-stat-card {
+            padding: 1.25rem !important;
+            border-radius: 16px !important;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .course-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .fee-label {
+            font-size: 0.68rem !important;
+        }
+        .fee-value {
+            font-size: 0.95rem !important;
+        }
+    }
 </style>
 
 <div class="container-fluid px-0">
+
+    {{-- ── Welcome Hero Banner ── --}}
+    <div class="card border-0 mb-4 position-relative overflow-hidden shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
+        <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255, 85, 50, 0.15); filter: blur(20px);"></div>
+        <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-8">
+                    <span class="badge mb-2" style="background: rgba(255, 85, 50, 0.2); color: #ff8f76; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(255, 85, 50, 0.3);">STUDENT PORTAL</span>
+                    <h2 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Hello, {{ $student->first_name }}! 👋</h2>
+                    <p class="mb-0 opacity-75 small">Welcome back to your academic console. Track your course syllabus, fee status, and attendance records below.</p>
+                </div>
+                <div class="col-md-4 d-none d-md-block text-end">
+                    <i class="fas fa-user-graduate fa-4x text-white opacity-25" style="transform: rotate(10deg);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4">
@@ -163,16 +218,16 @@
                         <div class="p-4">
                             <div class="row g-3 mb-3">
                                 <div class="col-4 text-center">
-                                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Fee</div>
-                                    <div style="font-size:1.1rem; font-weight:800; font-family:'Outfit',sans-serif;">₹{{ number_format($netCourseFee ?? $totalFees, 0) }}</div>
+                                    <div class="fee-label" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Fee</div>
+                                    <div class="fee-value" style="font-size:1.1rem; font-weight:800; font-family:'Outfit',sans-serif;">₹{{ number_format($netCourseFee ?? $totalFees, 0) }}</div>
                                 </div>
                                 <div class="col-4 text-center">
-                                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#10b981; margin-bottom:4px;">Paid</div>
-                                    <div style="font-size:1.1rem; font-weight:800; font-family:'Outfit',sans-serif; color:#10b981;">₹{{ number_format($coursePaid, 0) }}</div>
+                                    <div class="fee-label" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#10b981; margin-bottom:4px;">Paid</div>
+                                    <div class="fee-value" style="font-size:1.1rem; font-weight:800; font-family:'Outfit',sans-serif; color:#10b981;">₹{{ number_format($coursePaid, 0) }}</div>
                                 </div>
                                 <div class="col-4 text-center">
-                                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#ef4444; margin-bottom:4px;">Remaining</div>
-                                    <div style="font-size:1.1rem; font-weight:800; font-family:'Outfit',sans-serif; color:#ef4444;">₹{{ number_format($remainingCourseFee, 0) }}</div>
+                                    <div class="fee-label" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#ef4444; margin-bottom:4px;">Remaining</div>
+                                    <div class="fee-value" style="font-size:1.1rem; font-weight:800; font-family:'Outfit',sans-serif; color:#ef4444;">₹{{ number_format($remainingCourseFee, 0) }}</div>
                                 </div>
                             </div>
                             @php
@@ -217,7 +272,7 @@
                 </div>
                 @if($student->course)
                     <div class="p-4">
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
+                        <div class="course-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
                             <div style="background:var(--surface-soft,#f8fafc); border-radius:10px; padding:1rem;">
                                 <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--muted);">Course</div>
                                 <div style="font-weight:700; margin-top:4px;">{{ $student->course->name }}</div>

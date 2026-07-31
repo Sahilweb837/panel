@@ -577,9 +577,20 @@
         <!-- Main Content -->
         <main class="flex-grow-1 d-flex flex-column" style="min-width: 0;">
             <header class="d-flex justify-content-between align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
-                <div>
-                    <h4 class="mb-1 fw-bold">@yield('page-title', 'Management')</h4>
-                    <p class="text-muted small mb-0 d-none d-md-block">Manage courses, students, fees, attendance, salaries and expenses.</p>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Logo in desktop header for quick brand visibility -->
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" class="d-none d-lg-block" style="height: 38px; max-width: 140px; object-fit: contain;">
+                    <div class="vr d-none d-lg-block" style="height: 30px; opacity: 0.15; width: 1px; background-color: var(--border);"></div>
+                    <div>
+                        <h4 class="mb-1 fw-bold">@yield('page-title', 'Management')</h4>
+                        @if(session('user_role_slug') === 'student')
+                            <p class="text-muted small mb-0 d-none d-md-block">Welcome back! Access your courses, track fee status, and view attendance.</p>
+                        @elseif(session('user_role_slug') === 'staff')
+                            <p class="text-muted small mb-0 d-none d-md-block">Welcome back! Manage your classes, view tasks, and log daily updates.</p>
+                        @else
+                            <p class="text-muted small mb-0 d-none d-md-block">Manage courses, students, fees, attendance, salaries and expenses.</p>
+                        @endif
+                    </div>
                 </div>
             
             <div class="d-flex align-items-center gap-3">
@@ -604,7 +615,7 @@
                     <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
                     <input type="text" class="form-control rounded-pill ps-5" placeholder="Search dashboard..." style="width: 260px; background-color: var(--surface-soft, #f8f9fa); border-color: var(--border, #e9ecef); color: var(--text-color, #333);">
                 </div>
-                <button type="button" class="theme-toggle" data-theme-toggle title="Toggle Dark/Light Mode">
+                <button type="button" class="theme-toggle d-none d-md-flex" data-theme-toggle title="Toggle Dark/Light Mode">
                     <span class="theme-icon-wrapper"><i class="fas fa-moon"></i></span>
                 </button>
             </div>

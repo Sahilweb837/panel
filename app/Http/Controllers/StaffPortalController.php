@@ -61,7 +61,8 @@ class StaffPortalController extends Controller
 
         // ── Salary Calculation ──────────────────────────────────────────
         $monthlySalary  = (float) ($employee->salary ?? 0);
-        $workingDaysInMonth = 26; // Standard working days per month
+        $workingDaysInMonth = 30; // Updated to 30 days
+        $allowedLeaves  = 2;      // 2 paid leaves allowed per month
 
         if ($monthlySalary > 0) {
             $dailySalary      = $monthlySalary / $workingDaysInMonth;
@@ -71,9 +72,11 @@ class StaffPortalController extends Controller
             $halfDayDeduction = 250;
         }
 
+        $unpaidLeaveDays  = max(0, $leaveDays - $allowedLeaves);
         $lateDeduction    = $effectiveLateDays * $halfDayDeduction;
         $absentDeduction  = $absentDays * $dailySalary;
-        $totalDeductions  = $lateDeduction + $absentDeduction;
+        $unpaidLeaveDeduction = $unpaidLeaveDays * $dailySalary;
+        $totalDeductions  = $lateDeduction + $absentDeduction + $unpaidLeaveDeduction;
         $netMonthlySalary = max(0, $monthlySalary > 0 ? $monthlySalary - $totalDeductions : 0);
 
         // ── Experience Calculation ─────────────────────────────────────
@@ -112,12 +115,13 @@ class StaffPortalController extends Controller
             'studentCount', 'attendanceCount',
             'attendances',
             'monthAttendances',
-            'presentDays', 'absentDays', 'lateDays', 'leaveDays',
+            'presentDays', 'absentDays', 'leaveDays', 'lateDays',
             'effectiveLateDays',
             'attendancePercentage',
             'dailySalary', 'halfDayDeduction',
-            'lateDeduction', 'absentDeduction', 'totalDeductions',
+            'lateDeduction', 'absentDeduction', 'unpaidLeaveDeduction', 'totalDeductions',
             'monthlySalary', 'netMonthlySalary',
+            'unpaidLeaveDays', 'allowedLeaves',
             'joiningDate', 'experience',
             'assignedTasks', 'todayUpdate',
             'salarySlips', 'offerLetters', 'leaveApplications',

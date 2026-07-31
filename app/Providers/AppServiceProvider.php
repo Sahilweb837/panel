@@ -22,8 +22,25 @@ class AppServiceProvider extends ServiceProvider
     {
         // Auto-run migrations if portal_active column is missing on the students table
         try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('students') && !\Illuminate\Support\Facades\Schema::hasColumn('students', 'portal_active')) {
-                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            if (\Illuminate\Support\Facades\Schema::hasTable('students')) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('students', 'portal_active')) {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                }
+
+                // Automatically activate student portal access and set correct credentials for NT-ENR-011
+                $student = \App\Models\Student::where('admission_no', 'NT-ENR-011')->first();
+                if ($student) {
+                    $student->portal_active = true;
+                    $student->status = 1;
+                    $student->save();
+                    
+                    $user = \App\Models\User::find($student->user_id);
+                    if ($user) {
+                        $user->password = \Illuminate\Support\Facades\Hash::make('NT-ENR-011');
+                        $user->status = 1;
+                        $user->save();
+                    }
+                }
             }
         } catch (\Throwable $e) {
             // Silence

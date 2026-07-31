@@ -227,10 +227,13 @@
     <header id="header">
         <div class="container d-flex align-items-center justify-content-between">
              <a href="{{ url('/') }}" class="navbar-brand">
-                <!-- Fallback text if logo image is missing -->
-                <span class="text-dark fw-bold fs-4 d-flex align-items-center gap-2">
-                    <i class="fas fa-layer-group text-primary"></i> ERP<span style="font-weight:400; opacity:0.8; color:#475569;">Hub</span>
-                </span>
+                @if(file_exists(public_path('images/logo.png')) || \App\Models\Setting::get('logo_url'))
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 40px; max-width: 200px; object-fit: contain;">
+                @else
+                    <span class="text-dark fw-bold fs-4 d-flex align-items-center gap-2">
+                        <i class="fas fa-layer-group text-primary"></i> ERP<span style="font-weight:400; opacity:0.8; color:#475569;">Hub</span>
+                    </span>
+                @endif
              </a>
             
             <div class="d-none d-md-flex align-items-center gap-4">
