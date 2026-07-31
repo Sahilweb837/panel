@@ -8,12 +8,18 @@
     /* Override any lingering dark-mode hardcodes — use the app's CSS vars instead */
     .portal-stat-card {
         background: var(--card-bg, #fff);
-        border: 1px solid var(--border, #e2e8f0);
-        border-radius: 14px;
+        border: none !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.02) !important;
         padding: 1.25rem 1.5rem;
         display: flex;
         align-items: center;
         gap: 1rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .portal-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03) !important;
     }
     .portal-stat-icon {
         width: 48px;
@@ -24,6 +30,10 @@
         justify-content: center;
         font-size: 1.2rem;
         flex-shrink: 0;
+        transition: transform 0.3s;
+    }
+    .portal-stat-card:hover .portal-stat-icon {
+        transform: scale(1.08) rotate(3deg);
     }
     .portal-stat-label {
         font-size: 0.75rem;
@@ -43,8 +53,9 @@
 
     .salary-breakdown-card {
         background: var(--card-bg, #fff);
-        border: 1px solid var(--border, #e2e8f0);
-        border-radius: 14px;
+        border: none !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.02) !important;
         overflow: hidden;
     }
     .salary-breakdown-card .sb-header {
@@ -92,10 +103,16 @@
     }
     .profile-card-portal {
         background: var(--card-bg, #fff);
-        border: 1px solid var(--border, #e2e8f0);
-        border-radius: 14px;
+        border: none !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.02) !important;
         padding: 1.5rem;
         text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .profile-card-portal:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03) !important;
     }
     .profile-avatar-portal {
         width: 80px;
@@ -124,6 +141,23 @@
 </style>
 
 <div class="container-fluid px-0">
+
+    {{-- ── Staff Welcome Hero Banner ── --}}
+    <div class="card border-0 mb-4 position-relative overflow-hidden shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #111827 0%, #1f2937 100%);">
+        <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); filter: blur(20px);"></div>
+        <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-8">
+                    <span class="badge mb-2" style="background: rgba(16, 185, 129, 0.2); color: #a7f3d0; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(16, 185, 129, 0.3);">STAFF PORTAL</span>
+                    <h2 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Hello, {{ $employee->user?->name ?? 'Staff Member' }}! 👋</h2>
+                    <p class="mb-0 opacity-75 small">Manage your tasks, track monthly attendance metrics, and view your estimated net salary slips.</p>
+                </div>
+                <div class="col-md-4 d-none d-md-block text-end">
+                    <i class="fas fa-chalkboard-teacher fa-4x text-white opacity-20" style="transform: rotate(10deg);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">

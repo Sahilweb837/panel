@@ -4,23 +4,118 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
+<style>
+    .premium-admin-card {
+        background: var(--card-bg, #fff);
+        border: none !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.02) !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+        overflow: hidden;
+        position: relative;
+    }
+    .premium-admin-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03) !important;
+    }
+    .admin-stat-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+    .premium-admin-card:hover .admin-stat-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+    .shortcut-btn {
+        background: var(--surface-soft, #f8fafc) !important;
+        border: 1px solid var(--border, #e2e8f0) !important;
+        border-radius: 14px !important;
+        padding: 1.25rem 1rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.75rem !important;
+        color: var(--text) !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s ease !important;
+        text-align: center !important;
+    }
+    .shortcut-btn:hover {
+        background: var(--surface) !important;
+        border-color: var(--first-color, #ff5532) !important;
+        color: var(--first-color, #ff5532) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 18px rgba(255, 85, 50, 0.08) !important;
+    }
+    .card-header-clean {
+        padding: 1.25rem 1.5rem !important;
+        border-bottom: 1px solid var(--border, #e2e8f0) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: transparent !important;
+    }
+    .table-clean th {
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        font-weight: 700 !important;
+        color: var(--muted) !important;
+        border-bottom: 1px solid var(--border, #e2e8f0) !important;
+        padding: 12px 16px !important;
+    }
+    .table-clean td {
+        padding: 14px 16px !important;
+        border-bottom: 1px solid var(--border, #e2e8f0) !important;
+        font-size: 0.875rem !important;
+    }
+    .financial-stat-box {
+        padding: 1.5rem !important;
+        transition: background-color 0.2s;
+    }
+    .financial-stat-box:hover {
+        background-color: var(--surface-soft, #f8fafc);
+        border-radius: 12px;
+    }
+</style>
 
     <div class="position-relative">
         <!-- Main Real Dashboard Content -->
         <div id="dashboard-content" style="opacity: 0; transition: opacity 0.5s ease;">
+
+            {{-- ── Admin Welcome Hero Banner ── --}}
+            <div class="card border-0 mb-4 position-relative overflow-hidden shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                <div style="position: absolute; right: -50px; top: -50px; width: 250px; height: 250px; border-radius: 50%; background: rgba(255, 85, 50, 0.12); filter: blur(30px);"></div>
+                <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-8">
+                            <span class="badge mb-2" style="background: rgba(255, 85, 50, 0.2); color: #ff8f76; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(255, 85, 50, 0.3);">MANAGEMENT CONSOLE</span>
+                            <h2 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Welcome back, Administrator! 💼</h2>
+                            <p class="mb-0 opacity-75 small">System status is fully operational. Manage students, staff tasks, corporate expenses, and review biometric attendance feeds in real time.</p>
+                        </div>
+                        <div class="col-md-4 d-none d-md-block text-end">
+                            <i class="fas fa-shield-alt fa-4x text-white opacity-20" style="transform: rotate(-10deg);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Stat Cards Deck -->
             <div class="row g-4 mb-4">
                 <!-- Students Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #ff5532 !important;">
                         <div class="card-body p-4">
-                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                            <div class="admin-stat-icon" style="background: rgba(255, 85, 50, 0.1); color: #ff5532;">
                                 <i class="fas fa-user-graduate"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Students Enrolled</span>
                             <h3 class="fw-bold mb-3 fs-2">{{ $studentCount }}</h3>
                             <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar bg-primary w-75"></div>
+                                <div class="progress-bar w-75" style="background-color: #ff5532;"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Active accounts</span>
                         </div>
@@ -29,15 +124,15 @@
 
                 <!-- Staff Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #3b82f6 !important;">
                         <div class="card-body p-4">
-                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                            <div class="admin-stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
                                 <i class="fas fa-users-cog"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Active Staff</span>
                             <h3 class="fw-bold mb-3 fs-2">{{ $employeeCount }}</h3>
                             <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar bg-primary w-100"></div>
+                                <div class="progress-bar w-100" style="background-color: #3b82f6;"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Fully Verified</span>
                         </div>
@@ -46,15 +141,15 @@
 
                 <!-- Attendance Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #10b981 !important;">
                         <div class="card-body p-4">
-                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                            <div class="admin-stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
                                 <i class="fas fa-calendar-alt"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Attendance Today</span>
                             <h3 class="fw-bold mb-3 fs-2">{{ $attendanceCount }}</h3>
                             <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar bg-primary w-75"></div>
+                                <div class="progress-bar w-75" style="background-color: #10b981;"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Daily Logged</span>
                         </div>
@@ -63,15 +158,15 @@
 
                 <!-- Pending Receipts Stat -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-primary border-3">
+                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #f59e0b !important;">
                         <div class="card-body p-4">
-                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                            <div class="admin-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
                                 <i class="fas fa-file-invoice-dollar"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Pending Receipts</span>
                             <h3 class="fw-bold mb-3 fs-2">{{ $dueInvoices }}</h3>
                             <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar bg-primary w-25"></div>
+                                <div class="progress-bar w-25" style="background-color: #f59e0b;"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Needs Attention</span>
                         </div>
@@ -80,17 +175,15 @@
 
                 <!-- Working Hours 10 to 5 Stat -->
                 <div class="col-12 col-sm-6 col-xl-3 mt-xl-0">
-                    <div class="card border-0 shadow-sm h-100 rounded-3 border-bottom border-success border-3">
+                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #6366f1 !important;">
                         <div class="card-body p-4">
-                            <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                            <div class="admin-stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
                                 <i class="fas fa-business-time"></i>
                             </div>
                             <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Core Work Hours (10-5)</span>
-                            <h3 class="fw-bold mb-3 text-dark-title">{{ $workingHoursEmployeesCount ?? 0 }}</h3>
-                            <div class="w-100 mb-2">
-                                <div class="progress-bar-clean">
-                                    <div class="progress-fill" style="width: 100%; background: #10b981;"></div>
-                                </div>
+                            <h3 class="fw-bold mb-3 fs-2">{{ $workingHoursEmployeesCount ?? 0 }}</h3>
+                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
+                                <div class="progress-bar w-100" style="background-color: #6366f1;"></div>
                             </div>
                             <span class="text-muted small fw-semibold">Employees Present Today</span>
                         </div>
