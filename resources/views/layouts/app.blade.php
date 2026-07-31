@@ -576,6 +576,16 @@
 
         <!-- Main Content -->
         <main class="flex-grow-1 d-flex flex-column" style="min-width: 0;">
+            @if(session()->has('admin_impersonator_id'))
+                <div class="bg-warning text-dark py-2 px-3 fw-bold d-flex justify-content-between align-items-center shadow-sm" style="font-size: 0.88rem; z-index: 1050; border-bottom: 2px solid #e0a800;">
+                    <div>
+                        <i class="fas fa-user-secret me-2"></i>Impersonation Active: Viewing portal as <strong>{{ session('user_name') }}</strong> ({{ session('user_role') }})
+                    </div>
+                    <a href="{{ route('stop-impersonating') }}" class="btn btn-sm btn-dark text-white fw-bold px-3">
+                        <i class="fas fa-undo me-1"></i>Switch Back to Admin
+                    </a>
+                </div>
+            @endif
             <header class="d-flex justify-content-between align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
                 <div class="d-flex align-items-center gap-3">
                     <!-- Logo in desktop header for quick brand visibility -->

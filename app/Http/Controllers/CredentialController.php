@@ -3,21 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Student;
+use App\Models\Employee;
+use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class CredentialController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('role')->whereHas('role', function ($q) {
+        $query = User::with(['role', 'student', 'employee'])->whereHas('role', function ($q) {
             $q->whereIn('slug', ['student', 'staff']);
         });
 
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                  ->orWhere('email', 'like', '%'.$request->search.'%')
-                  ->orWhere('username', 'like', '%'.$request->search.'%');
+            $search = trim($request->search);
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%'.$search.'%')
+                  ->orWhere('email', 'like', '%'.$search.'%')
+                  ->orWhere('username', 'like', '%'.$search.'%')
+                  ->orWhereHas('student', function($sq) use ($search) {
+                      $sq->where('admission_no', 'like', '%'.$search.'%')
+                        ->orWhere('roll_no', 'like', '%'.$search.'%')
+                        ->orWhere('first_name', 'like', '%'.$search.'%')
+                        ->orWhere('last_name', 'like', '%'.$search.'%');
+                  });
             });
         }
 
@@ -34,9 +45,9 @@ class CredentialController extends Controller
 
     public function create()
     {
-        $roles = \App\Models\Role::whereIn('slug', ['student', 'staff'])->get();
-        $students = \App\Models\Student::with(['user', 'course'])->orderBy('first_name')->get();
-        $employees = \App\Models\Employee::with(['user'])->orderBy('first_name')->get();
+        $roles = Role::whereIn('slug', ['student', 'staff'])->get();
+        $students = Student::with(['user', 'course'])->orderBy('first_name')->get();
+        $employees = Employee::with(['user'])->orderBy('first_name')->get();
 
         return view('credentials.create', compact('roles', 'students', 'employees'));
     }
@@ -48,14 +59,14 @@ class CredentialController extends Controller
         $employee = null;
 
         if ($request->filled('student_id')) {
-            $student = \App\Models\Student::find($request->student_id);
+            $student = Student::find($request->student_id);
             if ($student && $student->user_id) {
-                $targetUser = \App\Models\User::find($student->user_id);
+                $targetUser = User::find($student->user_id);
             }
         } elseif ($request->filled('employee_id')) {
-            $employee = \App\Models\Employee::find($request->employee_id);
+            $employee = Employee::find($request->employee_id);
             if ($employee && $employee->user_id) {
-                $targetUser = \App\Models\User::find($employee->user_id);
+                $targetUser = User::find($employee->user_id);
             }
         }
 
@@ -74,25 +85,27 @@ class CredentialController extends Controller
                 'name' => $request->name,
                 'username' => $request->username,
                 'email' => $request->email,
-                'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+                'password' => Hash::make($request->password),
                 'raw_password' => $request->password,
                 'role_id' => $request->role_id,
+                'status' => true,
             ]);
             $user = $targetUser;
         } else {
-            $user = \App\Models\User::create([
+            $user = User::create([
                 'name' => $request->name,
                 'username' => $request->username,
                 'email' => $request->email,
-                'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+                'password' => Hash::make($request->password),
                 'raw_password' => $request->password,
                 'role_id' => $request->role_id,
                 'status' => true,
             ]);
         }
 
-        if ($student && !$student->user_id) {
+        if ($student) {
             $student->user_id = $user->id;
+            $student->portal_active = true;
             $student->save();
         }
 
@@ -101,12 +114,12 @@ class CredentialController extends Controller
             $employee->save();
         }
 
-        return redirect()->route('credentials.index')->with('success', 'Credential created & account linked successfully.');
+        return redirect()->route('credentials.index')->with('success', 'Credential created & active portal access linked successfully.');
     }
 
     public function edit(User $credential)
     {
-        $roles = \App\Models\Role::whereIn('slug', ['student', 'staff'])->get();
+        $roles = Role::whereIn('slug', ['student', 'staff'])->get();
         return view('credentials.edit', compact('credential', 'roles'));
     }
 
@@ -125,16 +138,62 @@ class CredentialController extends Controller
             'username' => $request->username,
             'email' => $request->email,
             'role_id' => $request->role_id,
+            'status' => true,
         ];
 
         if ($request->filled('password')) {
-            $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+            $data['password'] = Hash::make($request->password);
             $data['raw_password'] = $request->password;
         }
 
         $credential->update($data);
 
-        return redirect()->route('credentials.index')->with('success', 'Credential updated successfully.');
+        // Sync portal_active if student
+        if ($credential->student) {
+            $credential->student->update(['portal_active' => true]);
+        }
+
+        return redirect()->route('credentials.index')->with('success', 'Credential updated and portal access activated.');
+    }
+
+    public function togglePortal(User $credential)
+    {
+        if ($credential->student) {
+            $newStatus = !$credential->student->portal_active;
+            $credential->student->update(['portal_active' => $newStatus]);
+            $credential->update(['status' => $newStatus]);
+            $msg = $newStatus ? 'Student portal access enabled successfully.' : 'Student portal access disabled.';
+            return back()->with('success', $msg);
+        }
+
+        $newStatus = !$credential->status;
+        $credential->update(['status' => $newStatus]);
+        return back()->with('success', 'User access status updated.');
+    }
+
+    public function impersonate(User $credential)
+    {
+        // Activate portal & status
+        $credential->update(['status' => true]);
+        if ($credential->student) {
+            $credential->student->update(['portal_active' => true]);
+        }
+
+        // Keep track of admin ID for returning
+        if (!session()->has('admin_impersonator_id')) {
+            session(['admin_impersonator_id' => session('user_id')]);
+        }
+
+        // Complete login session as student or staff
+        app(AuthController::class)->completeLogin($credential, $credential->role?->slug ?? 'student');
+
+        if ($credential->role?->slug === 'student') {
+            return redirect()->route('student.dashboard')->with('success', 'Directly logged in to Student Dashboard for ' . $credential->name . ' (' . ($credential->student?->admission_no ?? $credential->username) . ').');
+        } elseif ($credential->role?->slug === 'staff') {
+            return redirect()->route('staff.dashboard')->with('success', 'Logged in as staff ' . $credential->name);
+        }
+
+        return redirect()->route('dashboard');
     }
 
     public function destroy(User $credential)
@@ -143,3 +202,4 @@ class CredentialController extends Controller
         return redirect()->route('credentials.index')->with('success', 'Credential deleted successfully.');
     }
 }
+

@@ -152,7 +152,20 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('students/{student}/fee-report', [StudentController::class, 'feeReport'])->name('students.fee-report');
     Route::resource('students', StudentController::class);
     
+    Route::post('credentials/{credential}/toggle-portal', [CredentialController::class, 'togglePortal'])->name('credentials.toggle-portal');
+    Route::get('credentials/{credential}/impersonate', [CredentialController::class, 'impersonate'])->name('credentials.impersonate');
     Route::resource('credentials', CredentialController::class)->except(['show']);
+    Route::get('stop-impersonating', function () {
+        if (session()->has('admin_impersonator_id')) {
+            $adminId = session()->pull('admin_impersonator_id');
+            $admin = \App\Models\User::find($adminId);
+            if ($admin) {
+                app(\App\Http\Controllers\AuthController::class)->completeLogin($admin, $admin->role?->slug ?? 'superadmin');
+                return redirect()->route('credentials.index')->with('success', 'Switched back to Admin successfully.');
+            }
+        }
+        return redirect()->route('dashboard');
+    })->name('stop-impersonating');
     Route::get('attendances/live', [AttendanceController::class, 'live'])->name('attendances.live');
     Route::post('attendances/generate-fines', [AttendanceController::class, 'generateFines'])->name('attendances.generate-fines');
     Route::resource('attendances', AttendanceController::class)->except(['show', 'edit', 'update']);
