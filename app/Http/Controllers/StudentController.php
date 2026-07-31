@@ -416,6 +416,7 @@ class StudentController extends Controller
         if ($student->user) {
             $userData = [
                 'name' => trim($student->first_name.' '.$student->last_name),
+                'status' => $student->status ? 1 : 0,
             ];
 
             if ($request->filled('login_username')) {
@@ -451,7 +452,7 @@ class StudentController extends Controller
                     'password' => $password,
                     'raw_password' => $plainPassword,
                     'role_id' => $role->id,
-                    'status' => true,
+                    'status' => $student->status ? 1 : 0,
                 ]);
 
                 $student->user_id = $user->id;
