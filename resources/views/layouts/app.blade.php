@@ -285,13 +285,10 @@
         .sidebar .nav-menu .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.06) !important;
             color: #ffffff !important;
-            transform: translateX(6px) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
         }
 
         .sidebar .nav-menu .nav-link:hover i:first-child {
             color: var(--first-color, #ff5532) !important;
-            transform: scale(1.18) !important;
         }
 
         .sidebar .nav-menu .nav-link.active {
@@ -329,7 +326,6 @@
         .sidebar .nav-menu .collapse .nav-link:hover {
             color: #ffffff !important;
             background-color: rgba(255, 255, 255, 0.04) !important;
-            transform: translateX(4px) !important;
         }
 
         .sidebar .nav-menu .collapse .nav-link.active {
