@@ -205,17 +205,35 @@
             --brand-primary: {{ $primaryColor }} !important;
         }
         /* Premium Dashboard Sidebar & Logo Enhancements */
+        /* Premium Dark Sidebar styles */
         .sidebar {
-            background: linear-gradient(180deg, var(--sidebar-bg) 0%, rgba(0,0,0,0.01) 100%);
-            border-right: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+            background: #111317 !important;
+            color: #ffffff !important;
+            border-right: 1px solid #1c1e22 !important;
+            box-shadow: 6px 0 30px rgba(0,0,0,0.3) !important;
             font-family: 'Poppins', sans-serif;
+            height: 100vh !important;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
         }
-        
-        html[data-theme="dark"] .sidebar {
-            background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
-            border-right: 1px solid #1e293b;
-            box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+
+        @media (min-width: 992px) {
+            .sidebar {
+                position: sticky !important;
+                top: 0 !important;
+                height: 100vh !important;
+                overflow-y: auto !important;
+            }
+        }
+
+        .sidebar .offcanvas-header {
+            background: #111317 !important;
+            border-bottom: 1px solid #1c1e22 !important;
+        }
+
+        .sidebar .offcanvas-body {
+            background: #111317 !important;
         }
 
         .brand-mark.html-logo, .brand-mark-sm.html-logo {
@@ -231,63 +249,106 @@
             transition: all 0.3s ease;
         }
 
-        .brand-mark.html-logo:hover, .brand-mark-sm.html-logo:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(255, 85, 50, 0.25);
-        }
-        
         .brand h1, .brand-title-sm {
             font-weight: 700 !important;
             letter-spacing: -0.5px;
-            background: linear-gradient(90deg, var(--text), var(--muted));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #ffffff !important;
             font-family: 'Poppins', sans-serif;
         }
         
-        .nav-menu .nav-link {
+        .sidebar .nav-menu .nav-link {
             display: flex;
             align-items: center;
             padding: 10px 16px !important;
             border-radius: 8px !important;
             font-size: 0.85rem !important;
             font-weight: 500 !important;
-            color: #5f5e5c !important;
+            color: #b3b9c4 !important; /* Soft text color */
             transition: all 0.2s ease !important;
             border-left: 4px solid transparent !important;
             margin: 2px 12px !important;
             font-family: 'Inter', sans-serif !important;
             text-decoration: none !important;
-        }
-        
-        .nav-menu .nav-link:hover {
-            background-color: #f4f3f3 !important;
-            color: var(--first-color, #b02e00) !important;
-            transform: none !important;
+            background: transparent !important;
         }
 
-        .nav-menu .nav-link.active {
-            background-color: #f4f3f3 !important;
-            border-left: 4px solid var(--first-color, #b02e00) !important;
-            color: var(--first-color, #b02e00) !important;
-            font-weight: 700 !important;
+        .sidebar .nav-menu .nav-link i {
+            color: #8a94a6 !important;
+            font-size: 1.05rem !important;
+            margin-right: 8px !important;
+            width: 20px;
+            text-align: center;
         }
 
-        html[data-theme="dark"] .nav-menu .nav-link {
-            color: #c8c6c3 !important;
-        }
-        html[data-theme="dark"] .nav-menu .nav-link:hover, 
-        html[data-theme="dark"] .nav-menu .nav-link.active {
-            background-color: #2f3131 !important;
-            color: var(--first-color, #b02e00) !important;
+        .sidebar .nav-menu .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
         }
 
-        .nav-menu .collapse .nav-link {
+        .sidebar .nav-menu .nav-link:hover i {
+            color: var(--first-color, #ff5532) !important;
+        }
+
+        .sidebar .nav-menu .nav-link.active {
+            background-color: rgba(255, 85, 50, 0.12) !important;
+            border-left: 4px solid var(--first-color, #ff5532) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+
+        .sidebar .nav-menu .nav-link.active i {
+            color: var(--first-color, #ff5532) !important;
+        }
+
+        /* Nested menu items */
+        .sidebar .nav-menu .collapse .nav-link {
             padding: 8px 16px !important;
-            margin: 2px 8px 2px 16px !important;
+            margin: 2px 8px 2px 20px !important;
             font-size: 0.8rem !important;
             border-left: none !important;
+            color: #9aa2b1 !important;
         }
+
+        .sidebar .nav-menu .collapse .nav-link:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.03) !important;
+        }
+
+        .sidebar .nav-menu .collapse .nav-link.active {
+            color: var(--first-color, #ff5532) !important;
+            font-weight: 600 !important;
+            background: transparent !important;
+        }
+
+        /* Sidebar footer panel styles */
+        .sidebar .sidebar-footer {
+            background: rgba(255, 85, 50, 0.04) !important;
+            border: 1px solid rgba(255, 85, 50, 0.12) !important;
+            border-radius: 12px;
+            margin: 15px 12px;
+            padding: 16px;
+            color: #ffffff !important;
+        }
+        
+        .sidebar .sidebar-footer strong {
+            color: #ffffff !important;
+        }
+        
+        .sidebar .sidebar-footer .text-muted, 
+        .sidebar .sidebar-footer small {
+            color: #8a94a6 !important;
+        }
+
+        .sidebar .sidebar-footer .button-secondary {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .sidebar .sidebar-footer .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
 
         /* App-like Mobile Bottom Navigation */
         .mobile-bottom-nav {
@@ -380,7 +441,7 @@
         </header>
 
         <!-- Sidebar Offcanvas -->
-        <aside class="offcanvas-lg offcanvas-start bg-white border-end shadow-sm d-flex flex-column flex-shrink-0" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
+        <aside class="sidebar offcanvas-lg offcanvas-start border-end d-flex flex-column flex-shrink-0" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
             <div class="offcanvas-header d-lg-none border-bottom">
                 <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 32px; max-width: 120px; object-fit: contain;">
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas"></button>
