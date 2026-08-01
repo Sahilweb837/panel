@@ -259,44 +259,60 @@
         .sidebar .nav-menu .nav-link {
             display: flex;
             align-items: center;
-            padding: 10px 16px !important;
-            border-radius: 8px !important;
-            font-size: 0.85rem !important;
+            padding: 12px 18px !important;
+            border-radius: 10px !important;
+            font-size: 0.875rem !important;
             font-weight: 500 !important;
             color: #b3b9c4 !important; /* Soft text color */
-            transition: all 0.2s ease !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             border-left: 4px solid transparent !important;
-            margin: 2px 12px !important;
+            margin: 4px 14px !important;
             font-family: 'Inter', sans-serif !important;
             text-decoration: none !important;
             background: transparent !important;
+            position: relative;
         }
 
-        .sidebar .nav-menu .nav-link i {
+        .sidebar .nav-menu .nav-link i:first-child {
             color: #8a94a6 !important;
-            font-size: 1.05rem !important;
-            margin-right: 8px !important;
+            font-size: 1.1rem !important;
+            margin-right: 10px !important;
             width: 20px;
             text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
 
         .sidebar .nav-menu .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.05) !important;
+            background-color: rgba(255, 255, 255, 0.06) !important;
             color: #ffffff !important;
+            transform: translateX(6px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
         }
 
-        .sidebar .nav-menu .nav-link:hover i {
+        .sidebar .nav-menu .nav-link:hover i:first-child {
             color: var(--first-color, #ff5532) !important;
+            transform: scale(1.18) !important;
         }
 
         .sidebar .nav-menu .nav-link.active {
-            background-color: rgba(255, 85, 50, 0.12) !important;
+            background: linear-gradient(90deg, rgba(255, 85, 50, 0.16), rgba(255, 85, 50, 0.02)) !important;
             border-left: 4px solid var(--first-color, #ff5532) !important;
             color: #ffffff !important;
             font-weight: 600 !important;
+            box-shadow: inset 0 0 8px rgba(255, 85, 50, 0.05) !important;
         }
 
-        .sidebar .nav-menu .nav-link.active i {
+        .sidebar .nav-menu .nav-link.active i:first-child {
+            color: var(--first-color, #ff5532) !important;
+        }
+
+        /* Chevron rotation micro-animation */
+        .sidebar .nav-menu .nav-link[data-bs-toggle="collapse"] .fa-chevron-down {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .sidebar .nav-menu .nav-link[data-bs-toggle="collapse"]:not(.collapsed) .fa-chevron-down {
+            transform: rotate(180deg) !important;
             color: var(--first-color, #ff5532) !important;
         }
 
@@ -307,11 +323,13 @@
             font-size: 0.8rem !important;
             border-left: none !important;
             color: #9aa2b1 !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
 
         .sidebar .nav-menu .collapse .nav-link:hover {
             color: #ffffff !important;
-            background-color: rgba(255, 255, 255, 0.03) !important;
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            transform: translateX(4px) !important;
         }
 
         .sidebar .nav-menu .collapse .nav-link.active {
