@@ -132,14 +132,14 @@ class CredentialController extends Controller
             'username' => 'required|string|max:255|unique:users,username,' . $credential->id,
             'email' => 'nullable|email|max:255|unique:users,email,' . $credential->id,
             'password' => 'nullable|string|min:6',
-            'role_id' => 'required|exists:roles,id',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
 
         $data = [
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
-            'role_id' => $request->role_id,
+            'role_id' => $request->role_id ?: $credential->role_id,
             'status' => true,
         ];
 
