@@ -282,6 +282,13 @@
             color: var(--first-color, #b02e00) !important;
         }
 
+        .nav-menu .collapse .nav-link {
+            padding: 8px 16px !important;
+            margin: 2px 8px 2px 16px !important;
+            font-size: 0.8rem !important;
+            border-left: none !important;
+        }
+
         /* App-like Mobile Bottom Navigation */
         .mobile-bottom-nav {
             position: fixed;
@@ -461,7 +468,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('meetings.*', 'departments.*') ? 'show' : '' }}" id="meetingMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             @if($isSuperOrRoot)
                                 <li><a href="{{ route('departments.index') }}" class="nav-link py-2 {{ request()->routeIs('departments.*') ? 'active' : '' }}"><span>Departments</span></a></li>
                             @endif
@@ -481,7 +488,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('students.*', 'attendances.*', 'biometric.*') ? 'show' : '' }}" id="studentMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             @if($isSuperOrRoot || in_array('students', $access))
                             <li><a href="{{ route('students.index') }}" class="nav-link py-2 {{ request()->routeIs('students.*') ? 'active' : '' }}"><span>Students</span></a></li>
                             @endif
@@ -504,7 +511,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('attendances.live', 'biometric.*') ? 'show' : '' }}" id="attendanceMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             <li><a href="{{ route('attendances.live') }}" class="nav-link py-2 {{ request()->routeIs('attendances.live') ? 'active' : '' }}"><span>Live Feed Viewer</span></a></li>
                             <li><a href="{{ route('biometric.index') }}" class="nav-link py-2 {{ request()->routeIs('biometric.*') ? 'active' : '' }}"><span>ZKTeco Device Sync</span></a></li>
                         </ul>
@@ -523,7 +530,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('sub-admins.*', 'employees.*', 'employee-attendances.*', 'salary_slips.*') ? 'show' : '' }}" id="adminStaffMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             @if($isSuperOrRoot)
                             <li><a href="{{ route('sub-admins.index') }}" class="nav-link py-2 {{ request()->routeIs('sub-admins.*') ? 'active' : '' }}"><span>Sub-Admins</span></a></li>
                             @endif
@@ -552,7 +559,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('courses.*', 'training_courses.*', 'trainings.*') ? 'show' : '' }}" id="courseMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             @if($isSuperOrRoot || in_array('courses', $access))
                             <li><a href="{{ route('courses.index') }}" class="nav-link py-2 {{ request()->routeIs('courses.*') ? 'active' : '' }}"><span>Master Courses</span></a></li>
                             <li><a href="{{ route('training_courses.index') }}" class="nav-link py-2 {{ request()->routeIs('training_courses.*') ? 'active' : '' }}"><span>Training Courses</span></a></li>
@@ -576,7 +583,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('fee_invoices.*', 'expenses.*') ? 'show' : '' }}" id="feesMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             @if($isSuperOrRoot || in_array('fee-invoices', $access))
                             <li><a href="{{ route('fee_invoices.index') }}" class="nav-link py-2 {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}"><span>Fee Receipts</span></a></li>
                             @endif
@@ -599,7 +606,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('clients.*', 'client_invoices.*', 'reports.*', 'tasks.*', 'daily-updates.*') ? 'show' : '' }}" id="clientMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             @if($isSuperOrRoot || in_array('clients', $access))
                             <li><a href="{{ route('clients.index') }}" class="nav-link py-2 {{ request()->routeIs('clients.*') ? 'active' : '' }}"><span>Clients</span></a></li>
                             @endif
@@ -626,7 +633,7 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('settings.*', 'backups.*', 'credentials.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border-sutil);">
+                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
                             @if($isSuperOrRoot)
                             <li><a href="{{ route('settings.index') }}" class="nav-link py-2 {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
                             <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>

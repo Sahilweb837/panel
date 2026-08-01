@@ -12,7 +12,7 @@
     }
     .registration-card {
         background: var(--surface-card);
-        border: 1px solid var(--border-sutil);
+        border: 1px solid var(--border, #e7e2df);
         border-radius: 16px;
         padding: 32px;
     }
@@ -21,7 +21,7 @@
         font-weight: 700;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--border-sutil);
+        border-bottom: 1px solid var(--border, #e7e2df);
     }
     .required-field::after {
         content: " *";
