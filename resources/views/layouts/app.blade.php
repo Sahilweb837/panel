@@ -216,6 +216,7 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            z-index: 1035 !important; /* Keep it on top of other content layers */
         }
 
         @media (min-width: 992px) {
@@ -224,6 +225,7 @@
                 top: 0 !important;
                 height: 100vh !important;
                 overflow-y: auto !important;
+                z-index: 1035 !important; /* Ensure it overrides index content z-index */
             }
         }
 
