@@ -161,7 +161,7 @@
             for (let i = 0; i < roleSelect.options.length; i++) {
                 const opt = roleSelect.options[i];
                 if (!opt.value) continue; // Skip placeholder
-                const slug = opt.dataset.slug;
+                const slug = opt.getAttribute('data-slug') || (opt.dataset ? opt.dataset.slug : null);
                 if (type === 'student') {
                     if (slug === 'student') {
                         opt.style.display = '';
@@ -212,7 +212,9 @@
         if (roleSelect) {
             for (let i = 0; i < roleSelect.options.length; i++) {
                 const opt = roleSelect.options[i];
-                if (opt.dataset && opt.dataset.slug === roleSlug) {
+                const slug = opt.getAttribute('data-slug') || (opt.dataset ? opt.dataset.slug : '') || '';
+                const text = opt.textContent || '';
+                if (slug.toLowerCase() === roleSlug.toLowerCase() || text.toLowerCase().includes(roleSlug.toLowerCase())) {
                     roleSelect.selectedIndex = i;
                     break;
                 }

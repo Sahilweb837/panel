@@ -529,6 +529,19 @@
                 bottom: 85px !important; /* Move chatbot above bottom nav */
             }
         }
+
+        /* Fix Tailwind collapse conflict with Bootstrap */
+        .sidebar .collapse:not(.show) {
+            display: none !important;
+        }
+        .sidebar .collapse.show {
+            visibility: visible !important;
+            display: block !important;
+        }
+        .sidebar .collapsing {
+            visibility: visible !important;
+            display: block !important;
+        }
     </style>
 </head>
 <body class="bg-light">
