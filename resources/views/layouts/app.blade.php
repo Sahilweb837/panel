@@ -203,20 +203,35 @@
             --first-color-light: rgba({{ $primaryRgb }}, 0.06) !important;
             --input-focus: rgba({{ $primaryRgb }}, 0.22) !important;
             --brand-primary: {{ $primaryColor }} !important;
+            --first-color-rgb: {{ $primaryRgb }};
         }
         /* Premium Dashboard Sidebar & Logo Enhancements */
-        /* Premium Light Sidebar styles */
         .sidebar {
-            background: #ffffff !important;
-            color: #1e293b !important;
-            border-right: 1px solid #e2e8f0 !important;
-            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.05) !important;
+            background: #0f172a !important; /* Dark Slate background */
+            color: #f1f5f9 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.25) !important;
             font-family: 'Poppins', sans-serif;
             height: 100vh !important;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
             z-index: 1035 !important; /* Keep it on top of other content layers */
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Glowing background effect in sidebar */
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 220px;
+            background: radial-gradient(circle at 50% 0%, rgba({{ $primaryRgb }}, 0.15), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         @media (min-width: 992px) {
@@ -230,19 +245,39 @@
         }
 
         .sidebar .offcanvas-header {
-            background: #ffffff !important;
-            border-bottom: 1px solid #e2e8f0 !important;
+            background: #0b0f19 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            z-index: 1;
         }
 
         .sidebar .offcanvas-body {
-            background: #ffffff !important;
+            background: transparent !important;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Premium scrollbar for the sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .brand-mark.html-logo, .brand-mark-sm.html-logo {
-            background: linear-gradient(135deg, rgba(255, 85, 50, 0.1), rgba(255, 85, 50, 0.2));
+            background: linear-gradient(135deg, rgba({{ $primaryRgb }}, 0.1), rgba({{ $primaryRgb }}, 0.2));
             color: var(--first-color, #ff5532);
-            border: 1px solid rgba(255, 85, 50, 0.3);
-            box-shadow: 0 4px 12px rgba(255, 85, 50, 0.15);
+            border: 1px solid rgba({{ $primaryRgb }}, 0.3);
+            box-shadow: 0 4px 12px rgba({{ $primaryRgb }}, 0.15);
             font-size: 1.25rem;
             display: flex;
             align-items: center;
@@ -254,60 +289,105 @@
         .brand h1, .brand-title-sm {
             font-weight: 700 !important;
             letter-spacing: -0.5px;
-            color: #1e293b !important;
+            color: #ffffff !important;
             font-family: 'Poppins', sans-serif;
+        }
+
+        /* Sidebar Section Header Label */
+        .sidebar-section-header {
+            font-size: 0.68rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #64748b !important;
+            padding: 22px 24px 6px 24px !important;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.85;
+        }
+        .sidebar-section-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .sidebar .nav-menu .nav-link {
             display: flex;
             align-items: center;
-            padding: 12px 18px !important;
-            border-radius: 10px !important;
-            font-size: 0.875rem !important;
+            padding: 11px 16px !important;
+            border-radius: 12px !important;
+            font-size: 0.85rem !important;
             font-weight: 500 !important;
-            color: #475569 !important; /* Soft dark text color */
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border-left: 4px solid transparent !important;
-            margin: 4px 14px !important;
+            color: #94a3b8 !important; /* Sleek slate gray text */
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            margin: 4px 16px !important;
             font-family: 'Inter', sans-serif !important;
             text-decoration: none !important;
             background: transparent !important;
             position: relative;
+            overflow: hidden;
+            border-left: none !important;
+        }
+
+        /* Glowing indicator pill on active */
+        .sidebar .nav-menu .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--first-color, #ff5532);
+            border-radius: 0 4px 4px 0;
+            transform: scaleX(0);
+            transition: transform 0.25s ease;
         }
 
         .sidebar .nav-menu .nav-link i:first-child {
             color: #64748b !important;
-            font-size: 1.1rem !important;
-            margin-right: 10px !important;
-            width: 20px;
+            font-size: 1.05rem !important;
+            margin-right: 12px !important;
+            width: 22px;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition: all 0.25s ease !important;
         }
 
         .sidebar .nav-menu .nav-link:hover {
-            background-color: #f1f5f9 !important;
-            color: var(--first-color, #ff5532) !important;
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            color: #ffffff !important;
+            transform: translateX(4px);
         }
 
         .sidebar .nav-menu .nav-link:hover i:first-child {
             color: var(--first-color, #ff5532) !important;
+            transform: scale(1.1);
         }
 
         .sidebar .nav-menu .nav-link.active {
-            background: rgba(255, 85, 50, 0.08) !important;
-            border-left: 4px solid var(--first-color, #ff5532) !important;
-            color: var(--first-color, #ff5532) !important;
+            background: rgba({{ $primaryRgb }}, 0.12) !important;
+            color: #ffffff !important;
             font-weight: 600 !important;
+            box-shadow: inset 0 0 12px rgba({{ $primaryRgb }}, 0.1);
+            border: 1px solid rgba({{ $primaryRgb }}, 0.2) !important;
+        }
+
+        .sidebar .nav-menu .nav-link.active::before {
+            transform: scaleX(1);
         }
 
         .sidebar .nav-menu .nav-link.active i:first-child {
             color: var(--first-color, #ff5532) !important;
+            filter: drop-shadow(0 0 5px rgba({{ $primaryRgb }}, 0.4));
         }
 
         /* Chevron rotation micro-animation */
         .sidebar .nav-menu .nav-link[data-bs-toggle="collapse"] .fa-chevron-down {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            color: #64748b !important;
+            transition: transform 0.25s ease !important;
+            color: #475569 !important;
+            font-size: 0.75rem;
         }
         
         .sidebar .nav-menu .nav-link[data-bs-toggle="collapse"]:not(.collapsed) .fa-chevron-down {
@@ -315,54 +395,82 @@
             color: var(--first-color, #ff5532) !important;
         }
 
-        /* Nested menu items */
+        /* Nested menu items container and dotted connector lines */
+        .sidebar .nav-menu .collapse ul {
+            position: relative;
+            padding-left: 24px !important;
+            margin: 4px 16px 8px 16px !important;
+            border-left: 1px dashed rgba(255, 255, 255, 0.12) !important;
+        }
+
         .sidebar .nav-menu .collapse .nav-link {
-            padding: 8px 16px !important;
-            margin: 2px 8px 2px 20px !important;
+            padding: 8px 14px !important;
+            margin: 2px 0 !important;
             font-size: 0.8rem !important;
-            border-left: none !important;
-            color: #64748b !important;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            color: #94a3b8 !important;
+            background: transparent !important;
+            border-radius: 8px !important;
+            border: none !important;
+        }
+
+        .sidebar .nav-menu .collapse .nav-link::before {
+            display: none !important;
         }
 
         .sidebar .nav-menu .collapse .nav-link:hover {
-            color: var(--first-color, #ff5532) !important;
-            background-color: #f8fafc !important;
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            transform: translateX(4px);
         }
 
         .sidebar .nav-menu .collapse .nav-link.active {
             color: var(--first-color, #ff5532) !important;
             font-weight: 600 !important;
-            background: transparent !important;
+            background: rgba({{ $primaryRgb }}, 0.08) !important;
         }
 
         /* Sidebar footer panel styles */
         .sidebar .sidebar-footer {
-            background: rgba(255, 85, 50, 0.03) !important;
-            border: 1px solid rgba(255, 85, 50, 0.1) !important;
-            border-radius: 12px;
-            margin: 15px 12px;
-            padding: 16px;
-            color: #1e293b !important;
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            border-radius: 16px;
+            margin: 20px 16px !important;
+            padding: 16px !important;
+            color: #e2e8f0 !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+            backdrop-filter: blur(8px);
         }
         
         .sidebar .sidebar-footer strong {
-            color: #1e293b !important;
+            color: #ffffff !important;
         }
         
         .sidebar .sidebar-footer .text-muted, 
         .sidebar .sidebar-footer small {
-            color: #64748b !important;
+            color: #94a3b8 !important;
+        }
+
+        .sidebar .sidebar-footer .button-primary {
+            background: var(--first-color, #ff5532) !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba({{ $primaryRgb }}, 0.25) !important;
+            transition: all 0.2s ease;
+        }
+        .sidebar .sidebar-footer .button-primary:hover {
+            background: var(--first-color-dark, #e04422) !important;
+            transform: translateY(-1px);
         }
 
         .sidebar .sidebar-footer .button-secondary {
-            background: #f1f5f9 !important;
-            color: #1e293b !important;
-            border: 1px solid #cbd5e1 !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.2s ease;
         }
 
         .sidebar .sidebar-footer .button-secondary:hover {
-            background: #e2e8f0 !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
         }
 
 
@@ -480,11 +588,13 @@
             @endphp
             
             @if($roleSlug === 'student')
+                <div class="sidebar-section-header">Student Hub</div>
                 <a href="{{ route('student.dashboard') }}" class="nav-link{{ request()->routeIs('student.dashboard') ? ' active' : '' }}">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
                 
+                <div class="sidebar-section-header">Communication</div>
                 <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
                     <i class="fas fa-envelope"></i>
                     <span>Messages</span>
@@ -495,11 +605,13 @@
                     @endif
                 </a>
             @elseif($roleSlug === 'staff')
+                <div class="sidebar-section-header">Staff Hub</div>
                 <a href="{{ route('staff.dashboard') }}" class="nav-link{{ request()->routeIs('staff.dashboard') ? ' active' : '' }}">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
                 
+                <div class="sidebar-section-header">Communication</div>
                 <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
                     <i class="fas fa-envelope"></i>
                     <span>Messages</span>
@@ -510,6 +622,7 @@
                     @endif
                 </a>
 
+                <div class="sidebar-section-header">My Desk</div>
                 <a href="{{ route('tasks.index') }}" class="nav-link{{ request()->routeIs('tasks.*') ? ' active' : '' }}">
                     <i class="fas fa-tasks"></i>
                     <span>My Tasks</span>
@@ -520,6 +633,7 @@
                     <span>Work Logs</span>
                 </a>
             @else
+                <div class="sidebar-section-header">Overview</div>
                 <a href="{{ route('dashboard') }}" class="nav-link{{ request()->routeIs('dashboard') ? ' active' : '' }}">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
@@ -535,6 +649,7 @@
                     @endif
                 </a>
                 
+                <div class="sidebar-section-header">Academics & Attendance</div>
                 {{-- MEETING MANAGEMENT --}}
                 <div class="nav-item">
                     <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#meetingMenu" role="button" aria-expanded="false" aria-controls="meetingMenu">
@@ -545,11 +660,11 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('meetings.*', 'departments.*') ? 'show' : '' }}" id="meetingMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
+                        <ul class="nav flex-column">
                             @if($isSuperOrRoot)
-                                <li><a href="{{ route('departments.index') }}" class="nav-link py-2 {{ request()->routeIs('departments.*') ? 'active' : '' }}"><span>Departments</span></a></li>
+                                <li><a href="{{ route('departments.index') }}" class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }}"><span>Departments</span></a></li>
                             @endif
-                            <li><a href="{{ route('meetings.index') }}" class="nav-link py-2 {{ request()->routeIs('meetings.*') ? 'active' : '' }}"><span>Meetings</span></a></li>
+                            <li><a href="{{ route('meetings.index') }}" class="nav-link {{ request()->routeIs('meetings.*') ? 'active' : '' }}"><span>Meetings</span></a></li>
                         </ul>
                     </div>
                 </div>
@@ -565,12 +680,12 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('students.*', 'attendances.*', 'biometric.*') ? 'show' : '' }}" id="studentMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
+                        <ul class="nav flex-column">
                             @if($isSuperOrRoot || in_array('students', $access))
-                            <li><a href="{{ route('students.index') }}" class="nav-link py-2 {{ request()->routeIs('students.*') ? 'active' : '' }}"><span>Students</span></a></li>
+                            <li><a href="{{ route('students.index') }}" class="nav-link {{ request()->routeIs('students.*') ? 'active' : '' }}"><span>Students</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('attendances', $access))
-                            <li><a href="{{ route('attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('attendances.index') ? 'active' : '' }}"><span>Student Attendance</span></a></li>
+                            <li><a href="{{ route('attendances.index') }}" class="nav-link {{ request()->routeIs('attendances.index') ? 'active' : '' }}"><span>Student Attendance</span></a></li>
                             @endif
                         </ul>
                     </div>
@@ -588,14 +703,15 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('attendances.live', 'biometric.*') ? 'show' : '' }}" id="attendanceMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
-                            <li><a href="{{ route('attendances.live') }}" class="nav-link py-2 {{ request()->routeIs('attendances.live') ? 'active' : '' }}"><span>Live Feed Viewer</span></a></li>
-                            <li><a href="{{ route('biometric.index') }}" class="nav-link py-2 {{ request()->routeIs('biometric.*') ? 'active' : '' }}"><span>ZKTeco Device Sync</span></a></li>
+                        <ul class="nav flex-column">
+                            <li><a href="{{ route('attendances.live') }}" class="nav-link {{ request()->routeIs('attendances.live') ? 'active' : '' }}"><span>Live Feed Viewer</span></a></li>
+                            <li><a href="{{ route('biometric.index') }}" class="nav-link {{ request()->routeIs('biometric.*') ? 'active' : '' }}"><span>ZKTeco Device Sync</span></a></li>
                         </ul>
                     </div>
                 </div>
                 @endif
 
+                <div class="sidebar-section-header">Staff & Training</div>
                 {{-- ADMIN & STAFF --}}
                 @if($isSuperOrRoot || in_array('employees', $access) || in_array('employee-attendances', $access) || in_array('salary-slips', $access))
                 <div class="nav-item">
@@ -607,18 +723,18 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('sub-admins.*', 'employees.*', 'employee-attendances.*', 'salary_slips.*') ? 'show' : '' }}" id="adminStaffMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
+                        <ul class="nav flex-column">
                             @if($isSuperOrRoot)
-                            <li><a href="{{ route('sub-admins.index') }}" class="nav-link py-2 {{ request()->routeIs('sub-admins.*') ? 'active' : '' }}"><span>Sub-Admins</span></a></li>
+                            <li><a href="{{ route('sub-admins.index') }}" class="nav-link {{ request()->routeIs('sub-admins.*') ? 'active' : '' }}"><span>Sub-Admins</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('employees', $access))
-                            <li><a href="{{ route('employees.index') }}" class="nav-link py-2 {{ request()->routeIs('employees.*') ? 'active' : '' }}"><span>Staff Members</span></a></li>
+                            <li><a href="{{ route('employees.index') }}" class="nav-link {{ request()->routeIs('employees.*') ? 'active' : '' }}"><span>Staff Members</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('employee-attendances', $access))
-                            <li><a href="{{ route('employee-attendances.index') }}" class="nav-link py-2 {{ request()->routeIs('employee-attendances.*') ? 'active' : '' }}"><span>Staff Attendance</span></a></li>
+                            <li><a href="{{ route('employee-attendances.index') }}" class="nav-link {{ request()->routeIs('employee-attendances.*') ? 'active' : '' }}"><span>Staff Attendance</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('salary-slips', $access))
-                            <li><a href="{{ route('salary_slips.index') }}" class="nav-link py-2 {{ request()->routeIs('salary_slips.*') ? 'active' : '' }}"><span>Salary Slips</span></a></li>
+                            <li><a href="{{ route('salary_slips.index') }}" class="nav-link {{ request()->routeIs('salary_slips.*') ? 'active' : '' }}"><span>Salary Slips</span></a></li>
                             @endif
                         </ul>
                     </div>
@@ -636,19 +752,20 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('courses.*', 'training_courses.*', 'trainings.*') ? 'show' : '' }}" id="courseMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
+                        <ul class="nav flex-column">
                             @if($isSuperOrRoot || in_array('courses', $access))
-                            <li><a href="{{ route('courses.index') }}" class="nav-link py-2 {{ request()->routeIs('courses.*') ? 'active' : '' }}"><span>Master Courses</span></a></li>
-                            <li><a href="{{ route('training_courses.index') }}" class="nav-link py-2 {{ request()->routeIs('training_courses.*') ? 'active' : '' }}"><span>Training Courses</span></a></li>
+                            <li><a href="{{ route('courses.index') }}" class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}"><span>Master Courses</span></a></li>
+                            <li><a href="{{ route('training_courses.index') }}" class="nav-link {{ request()->routeIs('training_courses.*') ? 'active' : '' }}"><span>Training Courses</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('trainings', $access))
-                            <li><a href="{{ route('trainings.index') }}" class="nav-link py-2 {{ request()->routeIs('trainings.*') ? 'active' : '' }}"><span>Training & Internship</span></a></li>
+                            <li><a href="{{ route('trainings.index') }}" class="nav-link {{ request()->routeIs('trainings.*') ? 'active' : '' }}"><span>Training & Internship</span></a></li>
                             @endif
                         </ul>
                     </div>
                 </div>
                 @endif
 
+                <div class="sidebar-section-header">Financials & Tasks</div>
                 {{-- FEES & ACCOUNTS --}}
                 @if($isSuperOrRoot || in_array('fee-invoices', $access) || in_array('expenses', $access))
                 <div class="nav-item">
@@ -660,12 +777,12 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('fee_invoices.*', 'expenses.*') ? 'show' : '' }}" id="feesMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
+                        <ul class="nav flex-column">
                             @if($isSuperOrRoot || in_array('fee-invoices', $access))
-                            <li><a href="{{ route('fee_invoices.index') }}" class="nav-link py-2 {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}"><span>Fee Receipts</span></a></li>
+                            <li><a href="{{ route('fee_invoices.index') }}" class="nav-link {{ request()->routeIs('fee_invoices.*') ? 'active' : '' }}"><span>Fee Receipts</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('expenses', $access))
-                            <li><a href="{{ route('expenses.index') }}" class="nav-link py-2 {{ request()->routeIs('expenses.*') ? 'active' : '' }}"><span>Expenses</span></a></li>
+                            <li><a href="{{ route('expenses.index') }}" class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}"><span>Expenses</span></a></li>
                             @endif
                         </ul>
                     </div>
@@ -683,25 +800,26 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('clients.*', 'client_invoices.*', 'reports.*', 'tasks.*', 'daily-updates.*') ? 'show' : '' }}" id="clientMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
+                        <ul class="nav flex-column">
                             @if($isSuperOrRoot || in_array('clients', $access))
-                            <li><a href="{{ route('clients.index') }}" class="nav-link py-2 {{ request()->routeIs('clients.*') ? 'active' : '' }}"><span>Clients</span></a></li>
+                            <li><a href="{{ route('clients.index') }}" class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}"><span>Clients</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('client-invoices', $access))
-                            <li><a href="{{ route('client_invoices.index') }}" class="nav-link py-2 {{ request()->routeIs('client_invoices.*') ? 'active' : '' }}"><span>Client Invoices</span></a></li>
+                            <li><a href="{{ route('client_invoices.index') }}" class="nav-link {{ request()->routeIs('client_invoices.*') ? 'active' : '' }}"><span>Client Invoices</span></a></li>
                             @endif
                             @if($isSuperOrRoot)
-                            <li><a href="{{ route('reports.index') }}" class="nav-link py-2 {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span>Reports</span></a></li>
-                            <li><a href="{{ route('tasks.index') }}" class="nav-link py-2 {{ request()->routeIs('tasks.*') ? 'active' : '' }}"><span>Tasks Assigned</span></a></li>
-                            <li><a href="{{ route('daily-updates.index') }}" class="nav-link py-2 {{ request()->routeIs('daily-updates.*') ? 'active' : '' }}"><span>Daily Work Logs</span></a></li>
+                            <li><a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"><span>Reports</span></a></li>
+                            <li><a href="{{ route('tasks.index') }}" class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}"><span>Tasks Assigned</span></a></li>
+                            <li><a href="{{ route('daily-updates.index') }}" class="nav-link {{ request()->routeIs('daily-updates.*') ? 'active' : '' }}"><span>Daily Work Logs</span></a></li>
                             @endif
                         </ul>
                     </div>
                 </div>
                 @endif
 
+                <div class="sidebar-section-header">Control Panel</div>
                 {{-- SETTINGS & TOOLS --}}
-                <div class="nav-item mt-auto pt-4">
+                <div class="nav-item mt-auto">
                     <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#settingsMenu" role="button" aria-expanded="false" aria-controls="settingsMenu">
                         <div>
                             <i class="fas fa-cog me-2"></i>
@@ -710,30 +828,30 @@
                         <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
                     </a>
                     <div class="collapse {{ request()->routeIs('settings.*', 'backups.*', 'credentials.*') ? 'show' : '' }}" id="settingsMenu" data-bs-parent="#sidebarAccordion">
-                        <ul class="nav flex-column ms-3 py-1" style="border-left: 2px solid var(--border, #e7e2df);">
+                        <ul class="nav flex-column">
                             @if($isSuperOrRoot)
-                            <li><a href="{{ route('settings.index') }}" class="nav-link py-2 {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
-                            <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
-                            <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
-                            <li><a href="{{ route('credentials.index') }}" class="nav-link py-2 {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><i class="fas fa-key me-2" style="width:16px;"></i><span>Credentials</span></a></li>
-                            <li><a href="{{ route('backups.index') }}" class="nav-link py-2 {{ request()->routeIs('backups.*') ? 'active' : '' }}"><i class="fas fa-database me-2" style="width:16px;"></i><span>System Backups</span></a></li>
+                            <li><a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}"><i class="fas fa-sliders-h me-2" style="width:16px;"></i><span>System Settings</span></a></li>
+                            <li><a href="{{ route('messages.index') }}" class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
+                            <li><a href="{{ route('connections.index') }}" class="nav-link {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
+                            <li><a href="{{ route('credentials.index') }}" class="nav-link {{ request()->routeIs('credentials.*') ? 'active' : '' }}"><i class="fas fa-key me-2" style="width:16px;"></i><span>Credentials</span></a></li>
+                            <li><a href="{{ route('backups.index') }}" class="nav-link {{ request()->routeIs('backups.*') ? 'active' : '' }}"><i class="fas fa-database me-2" style="width:16px;"></i><span>System Backups</span></a></li>
                             <li>
                                 <form action="{{ route('clear-cache') }}" method="POST" class="d-inline w-100" style="display:block;">
                                     @csrf
-                                    <a href="#" class="nav-link py-2 text-warning" onclick="this.closest('form').submit(); return false;">
+                                    <a href="#" class="nav-link text-warning" onclick="this.closest('form').submit(); return false;">
                                         <i class="fas fa-broom me-2" style="width:16px;"></i><span>Clear Cache</span>
                                     </a>
                                 </form>
                             </li>
                             @else
-                            <li><a href="{{ route('messages.index') }}" class="nav-link py-2 {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
-                            <li><a href="{{ route('connections.index') }}" class="nav-link py-2 {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
+                            <li><a href="{{ route('messages.index') }}" class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-paper-plane me-2" style="width:16px;"></i><span>Message Suite</span></a></li>
+                            <li><a href="{{ route('connections.index') }}" class="nav-link {{ request()->routeIs('connections.*') ? 'active' : '' }}"><i class="fas fa-user-friends me-2" style="width:16px;"></i><span>Connections</span></a></li>
                             @endif
-                            <li><a href="#" class="nav-link py-2" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><i class="fas fa-moon me-2" style="width:16px;"></i><span>Toggle Theme</span></a></li>
+                            <li><a href="#" class="nav-link" onclick="document.querySelector('[data-theme-toggle]').click(); return false;"><i class="fas fa-moon me-2" style="width:16px;"></i><span>Toggle Theme</span></a></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100" style="display:block;">
                                     @csrf
-                                    <a href="#" class="nav-link py-2 text-danger" onclick="this.closest('form').submit(); return false;">
+                                    <a href="#" class="nav-link text-danger" onclick="this.closest('form').submit(); return false;">
                                         <i class="fas fa-power-off me-2" style="width:16px;"></i><span>Logout</span>
                                     </a>
                                 </form>

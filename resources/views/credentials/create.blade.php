@@ -150,6 +150,33 @@
         studentIdInput.value = '';
         employeeIdInput.value = '';
 
+        // Dynamically show/hide options in the Role selection box
+        const roleSelect = document.getElementById('role_id');
+        if (roleSelect) {
+            for (let i = 0; i < roleSelect.options.length; i++) {
+                const opt = roleSelect.options[i];
+                if (!opt.value) continue; // Skip placeholder
+                const slug = opt.dataset.slug;
+                if (type === 'student') {
+                    if (slug === 'student') {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    } else {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    }
+                } else {
+                    if (slug === 'student') {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                }
+            }
+        }
+
         if (type === 'student') {
             studentWrapper.classList.remove('d-none');
             employeeWrapper.classList.add('d-none');

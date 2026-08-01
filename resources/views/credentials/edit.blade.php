@@ -37,9 +37,16 @@
             <div class="col-md-6 mb-3">
                 <label for="role_id" class="form-label">Role</label>
                 <select name="role_id" id="role_id" class="form-input @error('role_id') is-invalid @enderror" required>
-                    <option value="">Select Role</option>
                     @foreach($roles as $role)
-                        <option value="{{ $role->id }}" {{ old('role_id', $credential->role_id) == $role->id ? 'selected' : '' }}>{{ ucfirst($role->slug) }}</option>
+                        @if($credential->role?->slug === 'student')
+                            @if($role->slug === 'student')
+                                <option value="{{ $role->id }}" selected>{{ ucfirst($role->slug) }}</option>
+                            @endif
+                        @else
+                            @if($role->slug !== 'student')
+                                <option value="{{ $role->id }}" {{ old('role_id', $credential->role_id) == $role->id ? 'selected' : '' }}>{{ ucfirst($role->slug) }}</option>
+                            @endif
+                        @endif
                     @endforeach
                 </select>
                 @error('role_id')<div class="invalid-feedback">{{ $message }}</div>@enderror

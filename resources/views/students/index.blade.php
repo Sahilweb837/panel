@@ -191,6 +191,9 @@
                                         <i class="fas fa-edit me-1"></i>Edit
                                     </a>
                                     @if(session('user_role_slug') !== 'student' && $student->user_id)
+                                    <a href="{{ route('credentials.impersonate', $student->user_id) }}" class="button small flex-grow-1 py-2 text-white" style="background-color: #10B981; border: none;" title="1-Click Login to Student Dashboard">
+                                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                                    </a>
                                     <button type="button" class="button button-secondary small flex-grow-1 py-2 view-password-btn" data-user-id="{{ $student->user_id }}" data-url="{{ route('sub-admins.password', $student->user_id) }}" title="View Credentials">
                                         <i class="fas fa-key me-1"></i>Key
                                     </button>
