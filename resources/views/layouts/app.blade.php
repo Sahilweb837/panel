@@ -84,10 +84,117 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        corePlugins: {
+          preflight: false,
+        },
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2f3131",
+                    "error": "#ba1a1a",
+                    "surface-container-high": "#e8e8e8",
+                    "on-primary-fixed-variant": "#872100",
+                    "surface-tint": "#b02e00",
+                    "inverse-primary": "#ffb5a0",
+                    "surface-container-highest": "#e2e2e2",
+                    "tertiary-container": "#949292",
+                    "on-secondary-fixed-variant": "#474744",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#e5e2de",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#656461",
+                    "error-container": "#ffdad6",
+                    "success-green": "#10B981",
+                    "on-background": "#1a1c1c",
+                    "border-subtle": "#E2E8F0",
+                    "surface-variant": "#e2e2e2",
+                    "primary": "#b02e00",
+                    "surface-container": "#eeeeee",
+                    "tertiary-fixed": "#e5e2e1",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#e5e2de",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f4f3f3",
+                    "tertiary-fixed-dim": "#c9c6c5",
+                    "on-primary-container": "#571200",
+                    "surface-slate": "#F8FAFC",
+                    "surface-dim": "#dadada",
+                    "primary-fixed": "#ffdbd1",
+                    "surface-bright": "#f9f9f9",
+                    "secondary-fixed-dim": "#c8c6c3",
+                    "inverse-on-surface": "#f1f1f1",
+                    "on-primary-fixed": "#3b0900",
+                    "on-secondary-fixed": "#1c1c1a",
+                    "secondary": "#5f5e5c",
+                    "primary-container": "#ff5c2b",
+                    "background": "#f9f9f9",
+                    "on-surface": "#1a1c1c",
+                    "on-tertiary-fixed-variant": "#474646",
+                    "info-blue": "#3B82F6",
+                    "surface": "#f9f9f9",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#e3beb4",
+                    "primary-fixed-dim": "#ffb5a0",
+                    "tertiary": "#5f5e5e",
+                    "outline": "#8f7068",
+                    "on-tertiary-container": "#2c2b2b",
+                    "on-surface-variant": "#5b4139"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-sm": "12px",
+                    "margin-desktop": "40px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "container-max-width": "1440px",
+                    "stack-lg": "48px",
+                    "stack-md": "24px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "label-sm": ["JetBrains Mono"],
+                    "title-md": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "button": ["Inter"],
+                    "headline-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "button": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
     @vite(['resources/css/app.css'])
     <style>
         :root {
@@ -138,7 +245,7 @@
             font-family: 'Poppins', sans-serif;
         }
         
-        .nav-link {
+        .nav-menu .nav-link {
             border-radius: 10px;
             margin-bottom: 4px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -146,11 +253,11 @@
             font-family: 'Poppins', sans-serif;
         }
         
-        .nav-link:hover {
+        .nav-menu .nav-link:hover {
             transform: translateX(4px);
         }
 
-        .nav-link.active {
+        .nav-menu .nav-link.active {
             background: linear-gradient(90deg, rgba(255, 85, 50, 0.12), transparent);
             border-left: 3px solid var(--first-color);
         }

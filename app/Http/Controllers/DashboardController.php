@@ -38,13 +38,16 @@ class DashboardController extends Controller
     {
         $studentCount = Student::count();
         $employeeCount = Employee::count();
-        $attendanceCount = Attendance::count();
+        $attendanceCount = Attendance::whereDate('attendance_date', today())->count();
+        if ($attendanceCount == 0) {
+            $attendanceCount = Attendance::count();
+        }
         $expenseCount = Expense::count();
         $dueInvoices = FeeInvoice::where('status', '!=', 'Paid')->count();
 
         $recentAttendances = Attendance::with('student')->latest('attendance_date')->limit(5)->get();
         $recentInvoices = FeeInvoice::with('student')->latest()->limit(5)->get();
-        $recentStudents = Student::with('course')->latest()->limit(4)->get();
+        $recentStudents = Student::with(['course', 'user'])->latest()->limit(5)->get();
         $recentStaff = Employee::with('user')->latest()->limit(4)->get();
 
         $totalIncome = FeeInvoice::sum('paid_amount');
@@ -62,11 +65,19 @@ class DashboardController extends Controller
             })
             ->count();
 
+        $coursesCount = \App\Models\Course::count();
+        $coursesPopularity = \App\Models\Course::withCount('students')
+            ->orderByDesc('students_count')
+            ->take(4)
+            ->get();
+            
+        $maxStudentsInCourse = $coursesPopularity->max('students_count') ?: 1;
+
         return view('dashboard', compact(
             'studentCount', 'employeeCount', 'attendanceCount', 'expenseCount',
             'dueInvoices', 'recentAttendances', 'recentInvoices', 'recentStudents',
             'recentStaff', 'totalIncome', 'totalExpense', 'totalPendingFees', 'biometricDevice',
-            'workingHoursEmployeesCount'
+            'workingHoursEmployeesCount', 'coursesCount', 'coursesPopularity', 'maxStudentsInCourse'
         ));
     }
 
@@ -141,14 +152,23 @@ class DashboardController extends Controller
         }
         $fineDetails = implode(', ', $fineDetailsList);
 
-        $invoices = FeeInvoice::where('student_id', $student->id)->latest()->get();
+        $feeInvoices = FeeInvoice::where('student_id', $student->id)->latest()->get();
+        $invoices = $feeInvoices;
+
+        $totalFees = $student->course ? max(0, $student->course->fee - ($student->discount ?? 0)) : 0;
+        $coursePaid = $feeInvoices->sum('paid_amount');
+        $remainingCourseFee = max(0, $totalFees - $coursePaid);
+        $netCourseFee = $totalFees;
 
         $recentMessages = \App\Models\Message::forUser($user->id, $user->role?->slug)->latest()->limit(5)->get();
+        $unreadMessageCount = \App\Models\Message::forUser($user->id, $user->role?->slug)->where('is_read', false)->count();
 
         return view('portal.student.dashboard', compact(
             'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
-            'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices', 'recentMessages'
+            'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices', 'feeInvoices',
+            'recentMessages', 'unreadMessageCount', 'totalFees', 'netCourseFee',
+            'coursePaid', 'remainingCourseFee'
         ));
     }
 

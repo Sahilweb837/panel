@@ -1,28 +1,27 @@
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <style>
     .msg-widget-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
+        background: #ffffff;
+        border: 1px solid #E2E8F0;
         border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-        font-family: 'Poppins', 'Outfit', sans-serif;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        font-family: 'Poppins', 'Outfit', 'Inter', sans-serif;
     }
     .ql-toolbar {
         border-radius: 8px 8px 0 0;
         background: #f8fafc;
-        border-color: var(--border) !important;
+        border-color: #E2E8F0 !important;
     }
     .ql-container {
         border-radius: 0 0 8px 8px;
-        border-color: var(--border) !important;
+        border-color: #E2E8F0 !important;
         font-family: inherit;
     }
     .ql-editor {
         min-height: 120px;
     }
-    /* Rest of the original styles */
     .unread-row {
-        background: rgba(255, 85, 50, 0.04) !important;
+        background: rgba(255, 92, 43, 0.03) !important;
         font-weight: 700;
     }
     .priority-urgent {
@@ -36,6 +35,109 @@
     .priority-normal {
         background: rgba(59, 130, 246, 0.15);
         color: #3b82f6;
+    }
+    
+    /* Custom Modern Buttons */
+    .messages-widget-container .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .messages-widget-container .button-primary {
+        background: linear-gradient(135deg, var(--first-color, #b02e00), #ff5c2b);
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(255, 92, 43, 0.15);
+    }
+    .messages-widget-container .button-primary:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(255, 92, 43, 0.25);
+    }
+    .messages-widget-container .button-secondary {
+        background: #f4f3f3;
+        color: #5f5e5c !important;
+        border: 1px solid #e2e8f0;
+    }
+    .messages-widget-container .button-secondary:hover {
+        background: #eeeeee;
+        color: #1a1c1c !important;
+    }
+    .messages-widget-container .button-danger {
+        background: #ba1a1a;
+        color: #fff !important;
+    }
+    .messages-widget-container .button-danger:hover {
+        background: #93000a;
+    }
+    
+    /* Modern Nav Pills tabs */
+    #msgWidgetTabs .nav-link {
+        color: #5f5e5c !important;
+        border-radius: 0.5rem;
+        background: transparent !important;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        transform: none !important;
+        margin-bottom: 0;
+    }
+    #msgWidgetTabs .nav-link:hover {
+        background-color: #f4f3f3 !important;
+        color: #1a1c1c !important;
+    }
+    #msgWidgetTabs .nav-link.active {
+        background-color: var(--first-color, #b02e00) !important;
+        color: #ffffff !important;
+        border-left: none !important;
+    }
+
+    /* Premium Table layout overrides */
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .premium-table th {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #5f5e5c;
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 10px 14px;
+    }
+    .premium-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.82rem;
+    }
+    .premium-table tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Form Fields styling */
+    .messages-widget-container .form-input {
+        width: 100%;
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+    .messages-widget-container .form-input:focus {
+        border-color: var(--first-color, #b02e00);
+        box-shadow: 0 0 0 3px rgba(176, 46, 0, 0.08);
     }
 
     /* Chat UI Styles */

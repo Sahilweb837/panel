@@ -13,6 +13,14 @@ class EmployeeConnectionController extends Controller
     public function index()
     {
         $userId = session('user_id');
+
+        if (!\Illuminate\Support\Facades\Schema::hasTable('employee_connections')) {
+            return view('connections.index', [
+                'pendingConnections' => collect([]),
+                'connectedUsers' => collect([]),
+            ]);
+        }
+
         $pendingConnections = EmployeeConnection::where('recipient_id', $userId)->where('status', 'pending')->with('requester')->get();
         $connectedUsers = EmployeeConnection::where(function($query) use ($userId) {
                 $query->where('requester_id', $userId)

@@ -190,8 +190,8 @@
                                     <a href="{{ route('students.edit', $student) }}" class="button button-secondary small flex-grow-1 py-2">
                                         <i class="fas fa-edit me-1"></i>Edit
                                     </a>
-                                    @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']) && $student->user_id)
-                                    <button type="button" class="button button-secondary small flex-grow-1 py-2 view-password-btn" data-user-id="{{ $student->user_id }}" data-url="{{ route('sub-admins.password', $student->user_id) }}">
+                                    @if(session('user_role_slug') !== 'student' && $student->user_id)
+                                    <button type="button" class="button button-secondary small flex-grow-1 py-2 view-password-btn" data-user-id="{{ $student->user_id }}" data-url="{{ route('sub-admins.password', $student->user_id) }}" title="View Credentials">
                                         <i class="fas fa-key me-1"></i>Key
                                     </button>
                                     @endif

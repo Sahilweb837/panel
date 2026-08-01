@@ -1,607 +1,434 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
-@section('page-title', 'Dashboard')
+@section('title', 'Executive Dashboard')
+@section('page-title', 'Executive Overview')
 
 @section('content')
 <style>
-    .premium-admin-card {
-        background: var(--card-bg, #fff);
-        border: none !important;
-        border-radius: 16px !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.02), 0 0 0 1px rgba(0,0,0,0.02) !important;
-        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-        overflow: hidden;
-        position: relative;
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto;
+        gap: 24px;
     }
-    .premium-admin-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03) !important;
+    @media (max-width: 1024px) {
+        .bento-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
-    .admin-stat-icon {
-        width: 48px; height: 48px; border-radius: 12px;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 1.2rem; margin-bottom: 1rem;
-        transition: all 0.3s;
+    @media (max-width: 640px) {
+        .bento-grid {
+            grid-template-columns: 1fr;
+        }
     }
-    .premium-admin-card:hover .admin-stat-icon {
-        transform: scale(1.1) rotate(5deg);
+    .chart-bar {
+        transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .shortcut-btn {
-        background: var(--surface-soft, #f8fafc) !important;
-        border: 1px solid var(--border, #e2e8f0) !important;
-        border-radius: 14px !important;
-        padding: 1.25rem 1rem !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 0.75rem !important;
-        color: var(--text) !important;
-        font-weight: 600 !important;
-        font-size: 0.85rem !important;
-        transition: all 0.2s ease !important;
-        text-align: center !important;
+    .color-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: transform 0.2s, border-color 0.2s;
     }
-    .shortcut-btn:hover {
-        background: var(--surface) !important;
-        border-color: var(--first-color, #ff5532) !important;
-        color: var(--first-color, #ff5532) !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 18px rgba(255, 85, 50, 0.08) !important;
+    .color-dot:hover {
+        transform: scale(1.15);
     }
-    .card-header-clean {
-        padding: 1.25rem 1.5rem !important;
-        border-bottom: 1px solid var(--border, #e2e8f0) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        background: transparent !important;
-    }
-    .table-clean th {
-        font-size: 0.75rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.05em !important;
-        font-weight: 700 !important;
-        color: var(--muted) !important;
-        border-bottom: 1px solid var(--border, #e2e8f0) !important;
-        padding: 12px 16px !important;
-    }
-    .table-clean td {
-        padding: 14px 16px !important;
-        border-bottom: 1px solid var(--border, #e2e8f0) !important;
-        font-size: 0.875rem !important;
-    }
-    .financial-stat-box {
-        padding: 1.5rem !important;
-        transition: background-color 0.2s;
-    }
-    .financial-stat-box:hover {
-        background-color: var(--surface-soft, #f8fafc);
-        border-radius: 12px;
+    .color-dot.active-accent {
+        border-color: #000;
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
     }
 </style>
 
-    <div class="position-relative">
-        <!-- Main Real Dashboard Content -->
-        <div id="dashboard-content" style="opacity: 0; transition: opacity 0.5s ease;">
+<div class="p-4 md:p-8 max-w-[1440px] mx-auto">
+    <!-- Welcome Executive Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full bg-primary-container/10 text-primary-container font-label-sm text-[11px] font-bold uppercase tracking-wider">
+                    Executive Portal
+                </span>
+                <span class="text-xs text-secondary font-label-sm">System Live & Logged</span>
+            </div>
+            <h3 class="font-headline-lg text-2xl md:text-3xl font-black text-on-surface mb-1">Executive Overview</h3>
+            <p class="font-body-md text-secondary text-sm md:text-base max-w-2xl">
+                Manage your institute's operational pulse. Track financial health, enrollment velocity, and instructional capacity in real-time.
+            </p>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+            <a href="{{ route('reports.index') }}" class="px-4 py-2 bg-white border border-border-subtle rounded-lg font-button text-sm text-on-surface flex items-center gap-2 hover:bg-surface-slate transition-all shadow-sm text-decoration-none">
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                Export Report
+            </a>
+            <a href="{{ route('students.create') }}" class="px-4 py-2 bg-primary-container text-white rounded-lg font-button text-sm flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary/20 text-decoration-none">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+                New Enrollment
+            </a>
+        </div>
+    </div>
 
-            {{-- ── Admin Welcome Hero Banner ── --}}
-            <div class="card border-0 mb-4 position-relative overflow-hidden shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
-                <div style="position: absolute; right: -50px; top: -50px; width: 250px; height: 250px; border-radius: 50%; background: rgba(255, 85, 50, 0.12); filter: blur(30px);"></div>
-                <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
-                    <div class="row align-items-center">
-                        <div class="col-12 col-md-8">
-                            <span class="badge mb-2" style="background: rgba(255, 85, 50, 0.2); color: #ff8f76; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(255, 85, 50, 0.3);">MANAGEMENT CONSOLE</span>
-                            <h2 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Welcome back, Administrator! 💼</h2>
-                            <p class="mb-0 opacity-75 small">System status is fully operational. Manage students, staff tasks, corporate expenses, and review biometric attendance feeds in real time.</p>
+    <!-- Metrics Bento Grid -->
+    <div class="bento-grid mb-6">
+        <!-- Revenue Metric -->
+        <div class="p-6 bg-white border border-border-subtle rounded-xl hover:shadow-md transition-shadow group relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-primary-container/10 rounded-lg">
+                    <span class="material-symbols-outlined text-primary-container">payments</span>
+                </div>
+                <span class="px-2 py-1 bg-success-green/10 text-success-green font-label-sm text-[10px] rounded flex items-center gap-1 font-bold">
+                    <span class="material-symbols-outlined text-[12px]">trending_up</span>
+                    Received Receipts
+                </span>
+            </div>
+            <p class="font-label-sm text-secondary uppercase tracking-wider text-xs mb-1">Total Revenue</p>
+            <h4 class="font-headline-lg text-2xl md:text-3xl text-on-surface font-black">₹{{ number_format($totalIncome, 2) }}</h4>
+            <div class="mt-4 h-10 flex items-end gap-1">
+                <div class="flex-1 bg-primary-container/20 rounded-t-sm h-1/2 group-hover:h-3/4 transition-all"></div>
+                <div class="flex-1 bg-primary-container/30 rounded-t-sm h-2/3 group-hover:h-full transition-all delay-75"></div>
+                <div class="flex-1 bg-primary-container/40 rounded-t-sm h-1/3 group-hover:h-1/2 transition-all delay-100"></div>
+                <div class="flex-1 bg-primary-container/60 rounded-t-sm h-3/4 group-hover:h-5/6 transition-all delay-150"></div>
+                <div class="flex-1 bg-primary-container/80 rounded-t-sm h-1/2 group-hover:h-2/3 transition-all delay-200"></div>
+                <div class="flex-1 bg-primary-container rounded-t-sm h-full group-hover:h-full transition-all delay-300"></div>
+            </div>
+        </div>
+
+        <!-- Enrollments Metric -->
+        <div class="p-6 bg-white border border-border-subtle rounded-xl hover:shadow-md transition-shadow group relative">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-info-blue/10 rounded-lg">
+                    <span class="material-symbols-outlined text-info-blue">person_add</span>
+                </div>
+                <span class="px-2 py-1 bg-success-green/10 text-success-green font-label-sm text-[10px] rounded flex items-center gap-1 font-bold">
+                    <span class="material-symbols-outlined text-[12px]">trending_up</span>
+                    Active
+                </span>
+            </div>
+            <p class="font-label-sm text-secondary uppercase tracking-wider text-xs mb-1">Total Students</p>
+            <h4 class="font-headline-lg text-2xl md:text-3xl text-on-surface font-black">{{ number_format($studentCount) }}</h4>
+            <p class="text-[12px] text-secondary mt-2">Enrolled across active batches</p>
+        </div>
+
+        <!-- Active Courses Metric -->
+        <div class="p-6 bg-white border border-border-subtle rounded-xl hover:shadow-md transition-shadow group relative">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-on-tertiary-container/10 rounded-lg">
+                    <span class="material-symbols-outlined text-on-tertiary-container">library_books</span>
+                </div>
+                <a href="{{ route('courses.index') }}" class="text-xs text-primary-container hover:underline font-button">View All</a>
+            </div>
+            <p class="font-label-sm text-secondary uppercase tracking-wider text-xs mb-1">Active Master Courses</p>
+            <h4 class="font-headline-lg text-2xl md:text-3xl text-on-surface font-black">{{ $coursesCount }}</h4>
+            <div class="mt-4 w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+                <div class="bg-primary-container h-full w-[85%] transition-all duration-1000"></div>
+            </div>
+            <p class="text-[12px] text-secondary mt-2">Active syllabus curriculum</p>
+        </div>
+
+        <!-- Staff Metric -->
+        <div class="p-6 bg-white border border-border-subtle rounded-xl hover:shadow-md transition-shadow group relative">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-secondary-container rounded-lg">
+                    <span class="material-symbols-outlined text-on-surface">engineering</span>
+                </div>
+                <a href="{{ route('employees.index') }}" class="text-xs text-secondary hover:underline font-button">Manage Staff</a>
+            </div>
+            <p class="font-label-sm text-secondary uppercase tracking-wider text-xs mb-1">Active Staff</p>
+            <h4 class="font-headline-lg text-2xl md:text-3xl text-on-surface font-black">{{ number_format($employeeCount) }}</h4>
+            <p class="text-[12px] text-secondary mt-2">Allocated across departments</p>
+        </div>
+    </div>
+
+    <!-- Visualization & Data Row -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
+        <!-- Course Popularity Chart (Left 5) -->
+        <div class="col-span-12 lg:col-span-5 p-6 bg-white border border-border-subtle rounded-xl flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-6">
+                    <h5 class="font-title-md text-lg font-bold text-on-surface">Course Popularity</h5>
+                    <span class="text-xs text-secondary bg-surface-slate px-2.5 py-1 rounded font-label-sm">Enrolled Stats</span>
+                </div>
+                <div class="space-y-5">
+                    @forelse($coursesPopularity as $index => $course)
+                        @php
+                            $pct = $maxStudentsInCourse > 0 ? round(($course->students_count / $maxStudentsInCourse) * 100) : 0;
+                            $barColors = ['bg-primary-container', 'bg-primary', 'bg-info-blue', 'bg-tertiary'];
+                            $barColor = $barColors[$index % count($barColors)];
+                        @endphp
+                        <div>
+                            <div class="flex justify-between mb-1 text-sm">
+                                <span class="font-body-md text-on-surface font-semibold">{{ $course->name }}</span>
+                                <span class="font-label-sm text-secondary text-xs">{{ $course->students_count }} Students</span>
+                            </div>
+                            <div class="w-full bg-surface-container-low h-7 rounded-lg overflow-hidden flex items-center px-1">
+                                <div class="{{ $barColor }} h-5 rounded transition-all duration-1000 flex items-center px-2" style="width: {{ max(12, $pct) }}%;">
+                                    <span class="text-[10px] text-white font-bold">{{ $pct }}%</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4 d-none d-md-block text-end">
-                            <i class="fas fa-shield-alt fa-4x text-white opacity-20" style="transform: rotate(-10deg);"></i>
-                        </div>
-                    </div>
+                    @empty
+                        <div class="text-center py-6 text-secondary text-sm">No course popularity data available.</div>
+                    @endforelse
                 </div>
             </div>
-
-            <!-- Stat Cards Deck -->
-            <div class="row g-4 mb-4">
-                <!-- Students Stat -->
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #ff5532 !important;">
-                        <div class="card-body p-4">
-                            <div class="admin-stat-icon" style="background: rgba(255, 85, 50, 0.1); color: #ff5532;">
-                                <i class="fas fa-user-graduate"></i>
-                            </div>
-                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Students Enrolled</span>
-                            <h3 class="fw-bold mb-3 fs-2">{{ $studentCount }}</h3>
-                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar w-75" style="background-color: #ff5532;"></div>
-                            </div>
-                            <span class="text-muted small fw-semibold">Active accounts</span>
-                        </div>
-                    </div>
+            
+            <div class="mt-6 p-4 bg-surface-slate rounded-lg flex items-center gap-4 border border-border-subtle">
+                <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary-container text-xl">tips_and_updates</span>
                 </div>
-
-                <!-- Staff Stat -->
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #3b82f6 !important;">
-                        <div class="card-body p-4">
-                            <div class="admin-stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                                <i class="fas fa-users-cog"></i>
-                            </div>
-                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Active Staff</span>
-                            <h3 class="fw-bold mb-3 fs-2">{{ $employeeCount }}</h3>
-                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar w-100" style="background-color: #3b82f6;"></div>
-                            </div>
-                            <span class="text-muted small fw-semibold">Fully Verified</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Attendance Stat -->
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #10b981 !important;">
-                        <div class="card-body p-4">
-                            <div class="admin-stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Attendance Today</span>
-                            <h3 class="fw-bold mb-3 fs-2">{{ $attendanceCount }}</h3>
-                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar w-75" style="background-color: #10b981;"></div>
-                            </div>
-                            <span class="text-muted small fw-semibold">Daily Logged</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pending Receipts Stat -->
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #f59e0b !important;">
-                        <div class="card-body p-4">
-                            <div class="admin-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                            </div>
-                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Pending Receipts</span>
-                            <h3 class="fw-bold mb-3 fs-2">{{ $dueInvoices }}</h3>
-                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar w-25" style="background-color: #f59e0b;"></div>
-                            </div>
-                            <span class="text-muted small fw-semibold">Needs Attention</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Working Hours 10 to 5 Stat -->
-                <div class="col-12 col-sm-6 col-xl-3 mt-xl-0">
-                    <div class="card premium-admin-card h-100" style="border-bottom: 3px solid #6366f1 !important;">
-                        <div class="card-body p-4">
-                            <div class="admin-stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
-                                <i class="fas fa-business-time"></i>
-                            </div>
-                            <span class="text-muted small fw-bold d-block mb-1 text-uppercase">Core Work Hours (10-5)</span>
-                            <h3 class="fw-bold mb-3 fs-2">{{ $workingHoursEmployeesCount ?? 0 }}</h3>
-                            <div class="progress mb-2 rounded-pill" style="height: 6px;">
-                                <div class="progress-bar w-100" style="background-color: #6366f1;"></div>
-                            </div>
-                            <span class="text-muted small fw-semibold">Employees Present Today</span>
-                        </div>
-                    </div>
+                <div>
+                    <p class="font-body-md text-on-surface font-bold text-xs uppercase tracking-wide mb-0.5">Enrollment Insight</p>
+                    <p class="text-xs text-secondary mb-0">
+                        @if($coursesPopularity->isNotEmpty())
+                            <strong>{{ $coursesPopularity->first()->name }}</strong> is leading with {{ $coursesPopularity->first()->students_count }} enrolled students.
+                        @else
+                            Regularly review course enrollment metrics to optimize faculty allocation.
+                        @endif
+                    </p>
                 </div>
             </div>
+        </div>
 
-            <!-- Biometric Connection Status End -->
-
-            <!-- Financial Summary Cashflow Deck -->
-            <div class="row g-4 mb-4">
-                <div class="col-12 col-lg-8">
-                    <div class="card stat-card h-100" style="border-radius: 16px;">
-                        <div class="card-header-clean">
-                            <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-chart-pie text-first me-2"></i>Financial Overview</h5>
-                            <span class="badge bg-light border text-dark">System Calculated</span>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row g-4">
-                                <div class="col-12 col-md-4 border-end financial-stat-box">
-                                    <span class="text-muted d-block small fw-bold mb-1 text-uppercase">Total Income Received</span>
-                                    <h3 class="fw-bold text-success mb-2">₹{{ number_format($totalIncome, 2) }}</h3>
-                                    <small class="text-muted">Paid student fee receipts</small>
-                                </div>
-                                <div class="col-12 col-md-4 border-end financial-stat-box">
-                                    <span class="text-muted d-block small fw-bold mb-1 text-uppercase">Total Expenditure</span>
-                                    <h3 class="fw-bold text-danger mb-2">₹{{ number_format($totalExpense, 2) }}</h3>
-                                    <small class="text-muted">Recorded corporate expenses</small>
-                                </div>
-                                <div class="col-12 col-md-4 financial-stat-box">
-                                    <span class="text-muted d-block small fw-bold mb-1 text-uppercase">Outstanding Fees</span>
-                                    <h3 class="fw-bold text-warning mb-2">₹{{ number_format($totalPendingFees, 2) }}</h3>
-                                    <small class="text-muted">Outstanding student receipts</small>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Recent Enrollments Table (Right 7) -->
+        <div class="col-span-12 lg:col-span-7 p-6 bg-white border border-border-subtle rounded-xl flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h5 class="font-title-md text-lg font-bold text-on-surface">Recent Enrollments</h5>
+                        <p class="text-xs text-secondary">Latest students joined in system</p>
                     </div>
+                    <a href="{{ route('students.index') }}" class="text-primary-container font-button text-sm hover:underline font-bold text-decoration-none">View All</a>
                 </div>
-
-                <!-- Core Shortcuts Panel & Theme settings -->
-                <div class="col-12 col-lg-4">
-                    <div class="d-flex flex-column gap-4 h-100">
-                        <!-- Quick Actions -->
-                        <div class="card stat-card" style="border-radius: 16px; flex: 1;">
-                            <div class="card-header-clean">
-                                <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-bolt text-first me-2"></i>Quick Actions</h5>
-                            </div>
-                            <div class="card-body p-4">
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <a href="{{ route('students.create') }}" class="shortcut-btn w-100 h-100">
-                                            <i class="fas fa-user-plus"></i>
-                                            <span>Add Student</span>
-                                        </a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="{{ route('attendances.create') }}" class="shortcut-btn w-100 h-100">
-                                            <i class="fas fa-calendar-check"></i>
-                                            <span>Attendance</span>
-                                        </a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="{{ route('expenses.create') }}" class="shortcut-btn w-100 h-100">
-                                            <i class="fas fa-receipt"></i>
-                                            <span>Expense</span>
-                                        </a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="{{ route('courses.create') }}" class="shortcut-btn w-100 h-100">
-                                            <i class="fas fa-book"></i>
-                                            <span>Add Course</span>
-                                        </a>
-                                    </div>
-                                    <div class="col-12 mt-2">
-                                        <form action="{{ route('clear-cache') }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="shortcut-btn w-100 flex-row p-2" style="background: rgba(255, 85, 50, 0.05);">
-                                                <i class="fas fa-broom text-first"></i>
-                                                <span class="text-first">Clear Application Cache</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Theme Settings -->
-                        <div class="card stat-card" style="border-radius: 16px;">
-                            <div class="card-header-clean">
-                                <h5 class="fw-bold mb-0 text-dark-title"><i class="fas fa-palette text-first me-2"></i>Theme Settings</h5>
-                            </div>
-                            <div class="card-body p-4">
-                                <p class="text-muted small mb-3">Personalize your system workspace color accent and light/dark appearance.</p>
-                                
-                                <div class="mb-4">
-                                    <label class="fw-bold small text-muted text-uppercase d-block mb-2">Accent Color</label>
-                                    <div class="d-flex flex-wrap gap-2" id="accent-picker">
-                                        <!-- Orange -->
-                                        <button type="button" class="color-dot" style="background: #ff5532;" 
-                                                onclick="selectAccentColor(this, '#ff5532', '#d63a1f', 'rgba(255, 85, 50, 0.12)', 'rgba(255, 85, 50, 0.22)')" title="Sunset Orange"></button>
-                                        <!-- Blue -->
-                                        <button type="button" class="color-dot" style="background: #3b82f6;" 
-                                                onclick="selectAccentColor(this, '#3b82f6', '#1d4ed8', 'rgba(59, 130, 246, 0.12)', 'rgba(59, 130, 246, 0.22)')" title="Ocean Blue"></button>
-                                        <!-- Green -->
-                                        <button type="button" class="color-dot" style="background: #10b981;" 
-                                                onclick="selectAccentColor(this, '#10b981', '#059669', 'rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.22)')" title="Emerald Green"></button>
-                                        <!-- Purple -->
-                                        <button type="button" class="color-dot" style="background: #8b5cf6;" 
-                                                onclick="selectAccentColor(this, '#8b5cf6', '#6d28d9', 'rgba(139, 92, 246, 0.12)', 'rgba(139, 92, 246, 0.22)')" title="Royal Purple"></button>
-                                        <!-- Pink -->
-                                        <button type="button" class="color-dot" style="background: #ec4899;" 
-                                                onclick="selectAccentColor(this, '#ec4899', '#be185d', 'rgba(236, 72, 153, 0.12)', 'rgba(236, 72, 153, 0.22)')" title="Deep Pink"></button>
-                                        <!-- Crimson -->
-                                        <button type="button" class="color-dot" style="background: #e11d48;" 
-                                                onclick="selectAccentColor(this, '#e11d48', '#9f1239', 'rgba(225, 29, 72, 0.12)', 'rgba(225, 29, 72, 0.22)')" title="Classic Crimson"></button>
-                                    </div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="fw-bold small text-muted text-uppercase d-block mb-2">Display Theme</label>
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <button type="button" class="btn btn-outline-secondary w-100 btn-sm py-2 px-3 d-flex align-items-center justify-content-center gap-2" onclick="setThemeMode('light')">
-                                                <i class="fas fa-sun"></i> Light Mode
-                                            </button>
-                                        </div>
-                                        <div class="col-6">
-                                            <button type="button" class="btn btn-outline-secondary w-100 btn-sm py-2 px-3 d-flex align-items-center justify-content-center gap-2" onclick="setThemeMode('dark')">
-                                                <i class="fas fa-moon"></i> Dark Mode
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                    <button type="button" class="btn btn-link text-danger text-decoration-none p-0 small fw-bold" onclick="window.resetTheme()">
-                                        <i class="fas fa-undo me-1"></i> Reset Settings
-                                    </button>
-                                    <span class="text-muted small" style="font-size: 0.75rem;"><i class="fas fa-cloud-upload-alt me-1"></i> Autosaved</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Data Tables Grid -->
-            <div class="row g-4">
-                <!-- Recent Attendance -->
-                <div class="col-12 col-lg-6">
-                    <div class="card stat-card h-100" style="border-radius: 16px; padding: 0;">
-                        <div class="card-header-clean">
-                            <h5 class="mb-0 fw-bold text-dark-title"><i class="fas fa-clock text-first me-2"></i>Recent Attendance Logs</h5>
-                            <a href="{{ route('attendances.index') }}" class="btn btn-xs btn-outline-secondary rounded-pill px-3">View All</a>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-clean table-hover align-middle mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="ps-4">Student</th>
-                                            <th>Date</th>
-                                            <th class="text-center">Status</th>
-                                            <th class="text-end pe-4">Fine</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($recentAttendances as $attendance)
-                                            <tr>
-                                                <td class="fw-medium ps-4 text-dark-title">{{ $attendance->student?->first_name ?? 'Unknown' }} {{ $attendance->student?->last_name }}</td>
-                                                <td class="text-muted small">{{ $attendance->attendance_date }}</td>
-                                                <td class="text-center">
-                                                    <span class="badge bg-{{ strtolower($attendance->status) === 'present' ? 'success' : (strtolower($attendance->status) === 'absent' ? 'danger' : 'warning') }} rounded-pill">
-                                                        {{ $attendance->status }}
-                                                    </span>
-                                                </td>
-                                                <td class="text-end fw-bold pe-4 text-dark-title">
-                                                    @if($attendance->fine > 0)
-                                                        ₹{{ number_format($attendance->fine, 2) }}
-                                                    @else
-                                                        <span class="text-muted">-</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted py-4">No recent attendance records.</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Latest Fee Receipts -->
-                <div class="col-12 col-lg-6">
-                    <div class="card stat-card h-100" style="border-radius: 16px; padding: 0;">
-                        <div class="card-header-clean">
-                            <h5 class="mb-0 fw-bold text-dark-title"><i class="fas fa-receipt text-first me-2"></i>Latest Fee Receipts</h5>
-                            <a href="{{ route('fee_invoices.index') }}" class="btn btn-xs btn-outline-secondary rounded-pill px-3">View All</a>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-clean table-hover align-middle mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="ps-4">Receipt</th>
-                                            <th>Student</th>
-                                            <th class="text-center">Status</th>
-                                            <th class="text-end pe-4">Total Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($recentInvoices as $invoice)
-                                            <tr>
-                                                <td class="fw-bold text-first ps-4">{{ $invoice->invoice_no }}</td>
-                                                <td class="fw-medium text-dark-title">{{ $invoice->student?->first_name ?? 'Unknown' }} {{ $invoice->student?->last_name }}</td>
-                                                <td class="text-center">
-                                                    <span class="badge bg-{{ strtolower($invoice->status) === 'paid' ? 'success' : (strtolower($invoice->status) === 'unpaid' ? 'danger' : 'warning') }} rounded-pill">
-                                                        {{ $invoice->status }}
-                                                    </span>
-                                                </td>
-                                                <td class="text-end fw-bold pe-4 text-dark-title">
-                                                    ₹{{ number_format($invoice->due_amount, 2) }}
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted py-4">No recent fee receipts.</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Student Portal Cards Row -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="d-flex justify-content-between align-items-end mb-3">
-                        <h4 class="fw-bold mb-0 text-dark-title"><i class="fas fa-user-graduate text-first me-2"></i>Student Portal</h4>
-                        <a href="{{ route('students.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Manage Students</a>
-                    </div>
-                    <div class="row g-3">
-                        @forelse($recentStudents as $student)
-                            <div class="col-12 col-md-6 col-xl-3">
-                                <a href="{{ route('students.show', $student) }}" class="text-decoration-none">
-                                    <div class="card stat-card h-100 p-3 shortcut-btn" style="border-radius: 12px;">
-                                        <div class="d-flex align-items-center gap-3 w-100 mb-2">
-                                            <div class="flex-shrink-0" style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary-glow); color: var(--first-color); display: grid; place-items: center; font-weight: bold;">
-                                                {{ strtoupper(substr($student->first_name, 0, 1)) }}
-                                            </div>
-                                            <div class="text-start overflow-hidden">
-                                                <h6 class="mb-0 fw-bold text-dark-title text-truncate">{{ $student->first_name }} {{ $student->last_name }}</h6>
-                                                <small class="text-muted text-truncate d-block">{{ $student->admission_no }}</small>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-slate border-b border-border-subtle">
+                                <th class="px-4 py-3 font-label-sm text-xs text-secondary uppercase tracking-wider">Student</th>
+                                <th class="px-4 py-3 font-label-sm text-xs text-secondary uppercase tracking-wider">Course</th>
+                                <th class="px-4 py-3 font-label-sm text-xs text-secondary uppercase tracking-wider">Admission No</th>
+                                <th class="px-4 py-3 font-label-sm text-xs text-secondary uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 font-label-sm text-xs text-secondary uppercase tracking-wider text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border-subtle text-sm">
+                            @forelse($recentStudents as $student)
+                                <tr class="hover:bg-surface-slate transition-colors group">
+                                    <td class="px-4 py-3.5">
+                                        <div class="flex items-center gap-3">
+                                            @if($student->user && $student->user->profile_pic)
+                                                <img class="w-8 h-8 rounded-full object-cover border border-border-subtle" src="{{ asset('uploads/profiles/' . $student->user->profile_pic) }}" alt="{{ $student->first_name }}">
+                                            @else
+                                                <div class="w-8 h-8 rounded-full bg-primary-container/10 flex items-center justify-center font-bold text-primary-container text-xs">
+                                                    {{ strtoupper(substr($student->first_name, 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <p class="font-body-md font-semibold text-on-surface mb-0">{{ $student->first_name }} {{ $student->last_name }}</p>
+                                                <p class="text-[11px] text-secondary mb-0">{{ $student->email ?? ($student->user?->email ?? 'No email') }}</p>
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-between w-100 text-muted small mt-auto pt-2 border-top">
-                                            <span class="text-truncate" style="max-width: 65%;"><i class="fas fa-book me-1"></i>{{ $student->course?->name ?? 'N/A' }}</span>
-                                            <span class="badge bg-{{ $student->status ? 'success' : 'danger' }}">{{ $student->status ? 'Active' : 'Inactive' }}</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        @empty
-                            <div class="col-12 text-center text-muted py-3">No students found.</div>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
-            <!-- Staff Portal Cards Row -->
-            <div class="row mt-4 mb-4">
-                <div class="col-12">
-                    <div class="d-flex justify-content-between align-items-end mb-3">
-                        <h4 class="fw-bold mb-0 text-dark-title"><i class="fas fa-users-cog text-success me-2"></i>Staff Portal</h4>
-                        <a href="{{ route('employees.index') }}" class="btn btn-sm btn-outline-success rounded-pill px-3">Manage Staff</a>
-                    </div>
-                    <div class="row g-3">
-                        @forelse($recentStaff as $staff)
-                            <div class="col-12 col-md-6 col-xl-3">
-                                <a href="{{ route('employees.show', $staff) }}" class="text-decoration-none">
-                                    <div class="card stat-card h-100 p-3 shortcut-btn" style="border-radius: 12px; border-color: rgba(16, 185, 129, 0.2);">
-                                        <div class="d-flex align-items-center gap-3 w-100 mb-2">
-                                            <div class="flex-shrink-0" style="width: 42px; height: 42px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); color: #10b981; display: grid; place-items: center; font-weight: bold;">
-                                                {{ strtoupper(substr($staff->user?->name ?? 'S', 0, 1)) }}
-                                            </div>
-                                            <div class="text-start overflow-hidden">
-                                                <h6 class="mb-0 fw-bold text-dark-title text-truncate">{{ $staff->user?->name ?? 'Unknown' }}</h6>
-                                                <small class="text-muted text-truncate d-block">{{ $staff->employee_code }}</small>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex justify-content-between w-100 text-muted small mt-auto pt-2 border-top">
-                                            <span class="text-truncate" style="max-width: 65%;"><i class="fas fa-briefcase me-1"></i>{{ $staff->designation ?? 'Staff' }}</span>
-                                            @php
-                                                $isActiveNow = $staff->user && $staff->user->last_activity_at && now()->diffInMinutes($staff->user->last_activity_at) <= 2;
-                                            @endphp
-                                            <span class="badge bg-{{ $isActiveNow ? 'success' : 'secondary' }}">{{ $isActiveNow ? 'Active Now' : 'Offline' }}</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        @empty
-                            <div class="col-12 text-center text-muted py-3">No staff found.</div>
-                        @endforelse
-                    </div>
+                                    </td>
+                                    <td class="px-4 py-3.5">
+                                        <span class="font-body-md text-on-surface">{{ $student->course?->name ?? 'Unassigned' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3.5 font-label-sm text-secondary text-xs">
+                                        {{ $student->admission_no ?? ('STD-'.$student->id) }}
+                                    </td>
+                                    <td class="px-4 py-3.5">
+                                        <span class="px-2.5 py-1 bg-success-green/10 text-success-green text-[11px] font-bold rounded-full inline-block">
+                                            Active
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3.5 text-right">
+                                        <a href="{{ route('students.show', $student) }}" class="p-1.5 hover:bg-surface-container-high rounded transition-all text-secondary hover:text-primary-container inline-block">
+                                            <span class="material-symbols-outlined text-lg align-middle">visibility</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-6 text-secondary">No recent student registrations found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ── Embedded Messages Widget ── --}}
-    <div class="container-fluid px-0 mt-4">
-        @include('messages.widget')
+    <!-- Operational Activity Bento Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="p-6 bg-white border border-border-subtle rounded-xl flex items-center justify-between shadow-sm">
+            <div>
+                <p class="font-label-sm text-secondary text-xs mb-1 uppercase tracking-wider">Attendance Logs Today</p>
+                <h4 class="font-title-md text-xl font-bold text-on-surface">{{ number_format($attendanceCount) }} Logs</h4>
+                <a href="{{ route('attendances.index') }}" class="text-xs text-primary-container hover:underline font-button mt-1 inline-block">View Records &rarr;</a>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-success-green/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-success-green text-2xl">event_available</span>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white border border-border-subtle rounded-xl flex items-center justify-between shadow-sm">
+            <div>
+                <p class="font-label-sm text-secondary text-xs mb-1 uppercase tracking-wider">Staff Work Hours (10-5)</p>
+                <h4 class="font-title-md text-xl font-bold text-on-surface">{{ number_format($workingHoursEmployeesCount) }} Active Today</h4>
+                <a href="{{ route('employee-attendances.index') }}" class="text-xs text-info-blue hover:underline font-button mt-1 inline-block">Staff Attendance &rarr;</a>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-info-blue/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-info-blue text-2xl">badge</span>
+            </div>
+        </div>
+
+        <div class="p-6 bg-primary text-white rounded-xl shadow-lg relative overflow-hidden flex flex-col justify-between" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+            <div class="relative z-10">
+                <p class="font-label-sm opacity-80 text-xs mb-1 uppercase tracking-wider text-slate-300">Outstanding Fee Receipts</p>
+                <h4 class="font-title-md text-xl font-bold text-white mb-1">₹{{ number_format($totalPendingFees, 2) }}</h4>
+                <p class="text-xs text-slate-300 mb-4">{{ $dueInvoices }} Unpaid Invoices</p>
+                <a href="{{ route('fee_invoices.index') }}" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white font-button text-xs transition-all inline-block text-decoration-none">
+                    Fee Management
+                </a>
+            </div>
+            <span class="material-symbols-outlined absolute -bottom-4 -right-4 text-[100px] opacity-10 rotate-12 text-white">domain</span>
+        </div>
     </div>
 
-    <!-- Script to simulate dynamic lazy loading and skeleton fading, and theme management -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const skeleton = document.getElementById('dashboard-skeleton');
-            const content = document.getElementById('dashboard-content');
-            
-            // Instantly render skeleton, trigger fading out in 600ms
-            setTimeout(() => {
-                if (skeleton) skeleton.classList.add('fade-out');
-                if (content) content.style.opacity = '1';
-            }, 600);
-        });
+    <!-- Quick Actions & Customization Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+        <!-- Quick Actions Panel (8 cols) -->
+        <div class="lg:col-span-8 p-6 bg-white border border-border-subtle rounded-xl shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h5 class="font-title-md text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary-container">bolt</span>
+                    Quick Management Shortcuts
+                </h5>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <a href="{{ route('students.create') }}" class="shortcut-btn p-4 bg-surface-slate border border-border-subtle rounded-xl flex flex-col items-center justify-center text-center gap-2 text-on-surface hover:text-primary-container hover:border-primary-container text-decoration-none">
+                    <span class="material-symbols-outlined text-2xl text-primary-container">person_add</span>
+                    <span class="font-button text-xs font-semibold">Add Student</span>
+                </a>
+                <a href="{{ route('attendances.index') }}" class="shortcut-btn p-4 bg-surface-slate border border-border-subtle rounded-xl flex flex-col items-center justify-center text-center gap-2 text-on-surface hover:text-info-blue hover:border-info-blue text-decoration-none">
+                    <span class="material-symbols-outlined text-2xl text-info-blue">fact_check</span>
+                    <span class="font-button text-xs font-semibold">Attendance Log</span>
+                </a>
+                <a href="{{ route('expenses.create') }}" class="shortcut-btn p-4 bg-surface-slate border border-border-subtle rounded-xl flex flex-col items-center justify-center text-center gap-2 text-on-surface hover:text-error hover:border-error text-decoration-none">
+                    <span class="material-symbols-outlined text-2xl text-error">receipt_long</span>
+                    <span class="font-button text-xs font-semibold">Record Expense</span>
+                </a>
+                <a href="{{ route('courses.create') }}" class="shortcut-btn p-4 bg-surface-slate border border-border-subtle rounded-xl flex flex-col items-center justify-center text-center gap-2 text-on-surface hover:text-success-green hover:border-success-green text-decoration-none">
+                    <span class="material-symbols-outlined text-2xl text-success-green">post_add</span>
+                    <span class="font-button text-xs font-semibold">Create Course</span>
+                </a>
+            </div>
+            <div class="mt-4 pt-3 border-t border-border-subtle flex justify-between items-center">
+                <form action="{{ route('clear-cache') }}" method="POST" class="w-full">
+                    @csrf
+                    <button type="submit" class="w-full py-2.5 px-4 bg-primary-container/10 text-primary-container rounded-lg font-button text-xs font-bold hover:bg-primary-container/20 transition-all flex items-center justify-center gap-2 border-0">
+                        <span class="material-symbols-outlined text-base">cleaning_services</span>
+                        Clear Application System Cache
+                    </button>
+                </form>
+            </div>
+        </div>
 
-        // Theme settings color picker and synchronization logic
-        function selectAccentColor(btn, primary, dark, light, focus) {
-            document.querySelectorAll('#accent-picker .color-dot').forEach(el => {
-                el.classList.remove('active-accent');
-            });
-            btn.classList.add('active-accent');
+        <!-- Theme Accent Settings (4 cols) -->
+        <div class="lg:col-span-4 p-6 bg-white border border-border-subtle rounded-xl shadow-sm flex flex-col justify-between">
+            <div>
+                <h5 class="font-title-md text-lg font-bold text-on-surface flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-primary-container">palette</span>
+                    Workspace Customizer
+                </h5>
+                <p class="text-xs text-secondary mb-4">Personalize theme appearance & color accent.</p>
+                
+                <div class="mb-4">
+                    <label class="font-label-sm text-xs text-secondary uppercase font-bold tracking-wider block mb-2">Accent Color</label>
+                    <div class="flex flex-wrap gap-2.5" id="accent-picker">
+                        <button type="button" class="color-dot" style="background: #ff5532;" onclick="selectAccentColor(this, '#ff5532', '#d63a1f', 'rgba(255, 85, 50, 0.12)', 'rgba(255, 85, 50, 0.22)')" title="Sunset Orange"></button>
+                        <button type="button" class="color-dot" style="background: #3b82f6;" onclick="selectAccentColor(this, '#3b82f6', '#1d4ed8', 'rgba(59, 130, 246, 0.12)', 'rgba(59, 130, 246, 0.22)')" title="Ocean Blue"></button>
+                        <button type="button" class="color-dot" style="background: #10b981;" onclick="selectAccentColor(this, '#10b981', '#059669', 'rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.22)')" title="Emerald Green"></button>
+                        <button type="button" class="color-dot" style="background: #8b5cf6;" onclick="selectAccentColor(this, '#8b5cf6', '#6d28d9', 'rgba(139, 92, 246, 0.12)', 'rgba(139, 92, 246, 0.22)')" title="Royal Purple"></button>
+                        <button type="button" class="color-dot" style="background: #ec4899;" onclick="selectAccentColor(this, '#ec4899', '#be185d', 'rgba(236, 72, 153, 0.12)', 'rgba(236, 72, 153, 0.22)')" title="Deep Pink"></button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-label-sm text-xs text-secondary uppercase font-bold tracking-wider block mb-2">Display Theme</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" class="px-3 py-1.5 border border-border-subtle rounded-lg text-xs font-button flex items-center justify-center gap-1.5 hover:bg-surface-slate" onclick="setThemeMode('light')">
+                            <span class="material-symbols-outlined text-base">light_mode</span> Light
+                        </button>
+                        <button type="button" class="px-3 py-1.5 border border-border-subtle rounded-lg text-xs font-button flex items-center justify-center gap-1.5 hover:bg-surface-slate" onclick="setThemeMode('dark')">
+                            <span class="material-symbols-outlined text-base">dark_mode</span> Dark
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-border-subtle flex justify-between items-center text-xs">
+                <button type="button" class="text-error font-bold hover:underline bg-transparent border-0 p-0" onclick="window.resetTheme()">
+                    Reset Theme
+                </button>
+                <span class="text-secondary text-[11px]">Autosaved</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Embedded Messages Suite Widget -->
+    <div class="w-full mt-6">
+        @include('messages.widget')
+    </div>
+</div>
+
+<script>
+    function selectAccentColor(btn, primary, dark, light, focus) {
+        document.querySelectorAll('#accent-picker .color-dot').forEach(el => {
+            el.classList.remove('active-accent');
+        });
+        btn.classList.add('active-accent');
+        if (window.applyPrimaryColor) {
             window.applyPrimaryColor(primary, dark, light, focus);
         }
-        
-        function setThemeMode(mode) {
-            document.documentElement.dataset.theme = mode;
-            localStorage.setItem('fees-theme', mode);
-            
-            // Sync side navbar icons / top buttons
-            document.querySelectorAll('[data-theme-toggle]').forEach(t => {
-                const n = t.querySelector('i');
-                if(n) n.className = mode === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            });
+    }
+    
+    function setThemeMode(mode) {
+        document.documentElement.dataset.theme = mode;
+        if (mode === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
-        
-        // Synchronize UI elements on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedColor = localStorage.getItem('fees-primary-color');
-            const buttons = document.querySelectorAll('#accent-picker .color-dot');
-            if (savedColor) {
-                try {
-                    const colors = JSON.parse(savedColor);
-                    buttons.forEach(btn => {
-                        const styleBg = btn.style.backgroundColor;
-                        const hex = rgb2hex(styleBg);
-                        if (hex === colors.primary.toLowerCase()) {
-                            btn.classList.add('active-accent');
-                        } else {
-                            btn.classList.remove('active-accent');
-                        }
-                    });
-                } catch(e) {
-                    console.error(e);
-                }
-            } else {
-                // Default orange is active
-                const orangeBtn = document.querySelector('#accent-picker .color-dot[title="Sunset Orange"]');
-                if(orangeBtn) orangeBtn.classList.add('active-accent');
-            }
-        });
-        
-        // Listen to reset / external theme changes
-        window.addEventListener('theme-color-changed', () => {
-            const savedColor = localStorage.getItem('fees-primary-color');
-            const buttons = document.querySelectorAll('#accent-picker .color-dot');
-            if (!savedColor) {
+        localStorage.setItem('fees-theme', mode);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedColor = localStorage.getItem('fees-primary-color');
+        const buttons = document.querySelectorAll('#accent-picker .color-dot');
+        if (savedColor) {
+            try {
+                const colors = JSON.parse(savedColor);
                 buttons.forEach(btn => {
-                    if (btn.getAttribute('title') === 'Sunset Orange') {
+                    const styleBg = btn.style.backgroundColor;
+                    if (rgb2hex(styleBg) === colors.primary.toLowerCase()) {
                         btn.classList.add('active-accent');
-                    } else {
-                        btn.classList.remove('active-accent');
                     }
                 });
-            } else {
-                try {
-                    const colors = JSON.parse(savedColor);
-                    buttons.forEach(btn => {
-                        const styleBg = btn.style.backgroundColor;
-                        const hex = rgb2hex(styleBg);
-                        if (hex === colors.primary.toLowerCase()) {
-                            btn.classList.add('active-accent');
-                        } else {
-                            btn.classList.remove('active-accent');
-                        }
-                    });
-                } catch(e) {
-                    console.error(e);
-                }
-            }
-        });
-
-        function rgb2hex(rgb) {
-            if (!rgb) return '';
-            if (rgb.search("rgb") == -1) return rgb.toLowerCase();
-            rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
-            function hex(x) {
-                return ("0" + parseInt(x).toString(16)).slice(-2);
-            }
-            return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+            } catch(e) { console.error(e); }
+        } else {
+            const orangeBtn = document.querySelector('#accent-picker .color-dot[title="Sunset Orange"]');
+            if (orangeBtn) orangeBtn.classList.add('active-accent');
         }
-    </script>
+    });
+
+    function rgb2hex(rgb) {
+        if (!rgb) return '';
+        if (rgb.search("rgb") == -1) return rgb.toLowerCase();
+        rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+        function hex(x) {
+            return ("0" + parseInt(x).toString(16)).slice(-2);
+        }
+        return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+    }
+</script>
 @endsection

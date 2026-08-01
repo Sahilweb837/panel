@@ -274,7 +274,7 @@
                                 </button>
                             </div>
                         </div>
-                        @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']) && $student->user_id)
+                        @if(session('user_role_slug') !== 'student' && $student->user_id)
                         <div class="col-12 col-md-4">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Update Password</small>
                             <div class="input-group input-group-sm">
@@ -287,7 +287,59 @@
                         </div>
                         @endif
                     </div>
+
+                    <!-- Credential Sharing & WhatsApp Bar -->
+                    @php
+                        $loginUrl = route('login.student');
+                        $rawPw = $student->user?->raw_password ?? ($student->admission_no ?? 'N/A');
+                        $uName = $student->user?->username ?? $student->admission_no;
+                        $shareText = "🎓 *Student Portal Credentials*\n\n"
+                            . "Hello *" . $student->first_name . " " . ($student->last_name ?? '') . "*,\n\n"
+                            . "Your student portal account has been activated:\n"
+                            . "🌐 *Portal URL:* " . $loginUrl . "\n"
+                            . "🆔 *Username / ID:* " . $uName . "\n"
+                            . "🔑 *Password:* " . $rawPw . "\n\n"
+                            . "📚 *Course:* " . ($student->course?->name ?? 'N/A') . "\n"
+                            . "💰 *Total Fee:* ₹" . number_format($netCourseFee ?? ($totalFees ?? 0), 0) . "\n"
+                            . "✅ *Paid:* ₹" . number_format($paidFees, 0) . "\n"
+                            . "⚠️ *Due:* ₹" . number_format($dueFees, 0) . "\n\n"
+                            . "Log in to track your attendance, fees, and assignments.";
+                        $waPhone = preg_replace('/[^0-9]/', '', $student->phone ?? '');
+                        if (strlen($waPhone) == 10) { $waPhone = '91' . $waPhone; }
+                    @endphp
+
+                    <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small"><i class="fas fa-share-nodes me-1"></i>Share Student Credentials:</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-dark" onclick="copyFullCredentials(event)" data-text="{{ e($shareText) }}">
+                                <i class="fas fa-copy me-1"></i>Copy Full Details
+                            </button>
+                            @if(!empty($waPhone))
+                            <a href="https://wa.me/{{ $waPhone }}?text={{ urlencode($shareText) }}" target="_blank" class="btn btn-sm btn-success">
+                                <i class="fab fa-whatsapp me-1"></i>Share via WhatsApp
+                            </a>
+                            @else
+                            <a href="https://wa.me/?text={{ urlencode($shareText) }}" target="_blank" class="btn btn-sm btn-success">
+                                <i class="fab fa-whatsapp me-1"></i>Share via WhatsApp
+                            </a>
+                            @endif
+                        </div>
+                    </div>
                 </div>
+
+                <script>
+                    function copyFullCredentials(e) {
+                        const text = e.currentTarget.getAttribute('data-text');
+                        navigator.clipboard.writeText(text).then(() => {
+                            const btn = e.currentTarget;
+                            const original = btn.innerHTML;
+                            btn.innerHTML = '<i class="fas fa-check text-success me-1"></i>Copied!';
+                            setTimeout(() => { btn.innerHTML = original; }, 2000);
+                        });
+                    }
+                </script>
                 <script>
                     function updateStudentPasswordDirect(userId) {
                         const newPw = document.getElementById('show-new-password').value.trim();
