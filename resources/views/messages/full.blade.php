@@ -1,451 +1,185 @@
 @extends('layouts.app')
+
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <style>
     .ql-toolbar {
         border-radius: 8px 8px 0 0;
         background: #f8fafc;
-        border-color: var(--border) !important;
+        border-color: var(--border, #E2E8F0) !important;
     }
     .ql-container {
         border-radius: 0 0 8px 8px;
-        border-color: var(--border) !important;
+        border-color: var(--border, #E2E8F0) !important;
         font-family: inherit;
     }
     .ql-editor {
         min-height: 120px;
     }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .message-bubble-in { border-radius: 4px 16px 16px 16px; }
+    .message-bubble-out { border-radius: 16px 16px 4px 16px; }
+    .active-chat-item { background-color: #f1f5f9; border-left: 4px solid var(--first-color, #b02e00); }
 </style>
 
-@section('title', 'Netcoder SMS — Messages')
-@section('page-title', 'Messages')
+@section('title', 'Collaboration Hub — Messages')
+@section('page-title', 'Collaboration Hub')
 
 @section('content')
-<style>
-/* ── Slack-like full messages layout ── */
-.sms-layout {
-    display: flex;
-    height: calc(100vh - 130px);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
-    border: none;
-    background: var(--surface);
-    font-family: 'Outfit', 'Inter', sans-serif;
-    position: relative;
-}
+@php
+    $studentRecipients = $recipients->filter(fn($u) => $u->role?->slug === 'student');
+    $staffRecipients = $recipients->filter(fn($u) => in_array($u->role?->slug, ['staff', 'super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']));
+@endphp
 
-/* Sidebar Overlay for Mobile */
-.sidebar-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(2px);
-    z-index: 998;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.sidebar-overlay.open {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Sidebar */
-.sms-sidebar {
-    width: 260px;
-    min-width: 220px;
-    background: var(--bg);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.sms-sidebar-header {
-    padding: 16px 14px 10px;
-    border-bottom: 1px solid var(--border);
-}
-
-.sms-workspace-name {
-    font-weight: 800;
-    font-size: 1rem;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.sms-workspace-name .ws-icon {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    background: var(--first-color);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 0.75rem; font-weight: 700;
-}
-
-.sms-sidebar-section {
-    padding: 8px 10px 4px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.sms-sidebar-section button {
-    background: none; border: none; color: var(--muted);
-    cursor: pointer; padding: 2px 4px; border-radius: 4px;
-    font-size: 0.85rem; transition: color .2s, background .2s;
-}
-.sms-sidebar-section button:hover { color: var(--first-color); background: rgba(255,85,50,.08); }
-
-.sms-sidebar-list { list-style: none; margin: 0; padding: 0 6px; }
-.sms-sidebar-list li a {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 12px; border-radius: 10px;
-    font-size: 0.88rem; font-weight: 500; color: var(--text);
-    text-decoration: none; transition: all 0.2s ease;
-    position: relative;
-    margin-bottom: 2px;
-}
-.sms-sidebar-list li a:hover {
-    background: rgba(0, 0, 0, 0.04);
-    color: var(--first-color);
-}
-.sms-sidebar-list li a.active {
-    background-color: #f4f3f3 !important;
-    border-left: 3px solid var(--first-color, #b02e00);
-    border-radius: 0 8px 8px 0;
-    color: var(--first-color);
-    font-weight: 700;
-}
-.sms-sidebar-list li a .user-avatar-sm {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: var(--first-color); color: #fff;
-    font-size: 0.7rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-}
-.sms-sidebar-list li a .unread-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--first-color); margin-left: auto; flex-shrink: 0;
-}
-.sms-sidebar-list li a .unread-badge {
-    margin-left: auto; background: var(--first-color); color: #fff;
-    font-size: 0.65rem; font-weight: 700;
-    padding: 1px 6px; border-radius: 10px;
-}
-
-.sms-sidebar-scroll { overflow-y: auto; flex: 1; }
-
-/* Main content area */
-.sms-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* Channel/chat header */
-.sms-main-header {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--surface);
-}
-.sms-main-header .header-title {
-    font-weight: 700; font-size: 1rem; color: var(--text);
-    display: flex; align-items: center; gap: 8px;
-}
-.sms-main-header .header-sub { font-size: 0.78rem; color: var(--muted); }
-
-/* Content area (inbox / chat) */
-.sms-content {
-    flex: 1; overflow-y: auto; padding: 16px 20px;
-}
-
-/* Inbox table */
-.inbox-msg-row {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 14px; border-radius: 12px; margin-bottom: 6px;
-    cursor: pointer; transition: all 0.2s ease;
-    border: 1px solid transparent;
-    background: var(--surface);
-}
-.inbox-msg-row:hover { 
-    background: var(--surface-soft); 
-    border-color: rgba(0,0,0,0.05); 
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-}
-.inbox-msg-row.unread { background: rgba(255,85,50,.03); border-color: rgba(255,85,50,.15); }
-.inbox-avatar {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: var(--first-color); color: #fff;
-    font-size: 1rem; font-weight: 700; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-}
-.inbox-body { flex: 1; min-width: 0; }
-.inbox-sender { font-weight: 700; font-size: 0.9rem; color: var(--text); }
-.inbox-subject { font-size: 0.85rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.inbox-time { font-size: 0.75rem; color: var(--muted); }
-.inbox-unread-tag { font-size: 0.65rem; background: var(--first-color); color: #fff; padding: 1px 6px; border-radius: 6px; font-weight: 700; }
-
-/* Chat messages */
-.chat-messages { display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px; }
-.chat-day-divider {
-    text-align: center; margin: 12px 0 8px;
-    font-size: 0.72rem; color: var(--muted); font-weight: 600;
-    display: flex; align-items: center; gap: 10px;
-}
-.chat-day-divider::before, .chat-day-divider::after {
-    content: ''; flex: 1; height: 1px; background: var(--border);
-}
-.chat-bubble-group { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 2px; }
-.chat-bubble-group.mine { flex-direction: row-reverse; }
-.chat-bubble-group .avatar-sm {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--first-color); color: #fff;
-    font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    align-self: flex-end; margin-bottom: 2px;
-}
-.chat-bubble {
-    max-width: 65%;
-    width: fit-content;
-    min-width: 80px;
-    padding: 10px 16px;
-    border-radius: 18px;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    word-break: break-word;
-    white-space: pre-wrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.chat-bubble.theirs {
-    background: var(--surface-soft);
-    border-radius: 4px 16px 16px 16px;
-    color: var(--text);
-}
-.chat-bubble.mine-bubble {
-    background: linear-gradient(135deg, var(--first-color), #e04423);
-    color: #fff;
-    border-radius: 16px 16px 4px 16px;
-    box-shadow: 0 4px 12px rgba(255,85,50,0.25);
-}
-.chat-time { font-size: 0.65rem; color: var(--muted); margin-top: 2px; text-align: right; }
-.chat-bubble-group.mine .chat-time { text-align: left; }
-
-/* Input bar */
-.sms-input-bar {
-    padding: 12px 16px;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-}
-.sms-input-bar form {
-    display: flex; gap: 8px; align-items: flex-end;
-}
-.sms-input-bar .chat-input {
-    flex: 1;
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    background: var(--surface-soft);
-    color: var(--text);
-    resize: none;
-    outline: none;
-    transition: border-color .2s;
-    min-height: 44px; max-height: 120px;
-    line-height: 1.5;
-    font-family: inherit;
-}
-.sms-input-bar .chat-input:focus { border-color: var(--first-color); }
-.sms-send-btn {
-    width: 46px; height: 46px; border-radius: 14px;
-    background: linear-gradient(135deg, var(--first-color), #e04423); border: none; color: #fff;
-    font-size: 1rem; cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all .2s;
-    box-shadow: 0 4px 12px rgba(255,85,50,0.25);
-}
-.sms-send-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 16px rgba(255,85,50,0.35); }
-.sms-send-btn:active { transform: scale(0.97); }
-
-/* Empty state */
-.sms-empty {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    color: var(--muted); gap: 12px; padding: 2rem;
-}
-.sms-empty i { font-size: 3rem; opacity: 0.3; }
-.sms-empty h5 { font-weight: 700; color: var(--text); margin: 0; }
-.sms-empty p { margin: 0; font-size: 0.9rem; text-align: center; }
-
-/* Right panel – message detail */
-.sms-detail-panel {
-    width: 320px; min-width: 260px;
-    border-left: 1px solid var(--border);
-    background: var(--bg);
-    display: flex; flex-direction: column;
-    overflow: hidden;
-}
-.sms-detail-panel .detail-header {
-    padding: 14px 16px; border-bottom: 1px solid var(--border);
-    font-weight: 700; font-size: 0.9rem; color: var(--text);
-}
-.sms-detail-panel .detail-body { flex: 1; overflow-y: auto; padding: 16px; }
-
-/* Mode tabs */
-.sms-mode-tabs {
-    display: flex; gap: 0;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-}
-.sms-mode-tab {
-    flex: 1; padding: 12px 0;
-    text-align: center; font-size: 0.82rem; font-weight: 600;
-    color: var(--muted); cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color .2s, border-color .2s;
-    background: none; border-top: none; border-left: none; border-right: none;
-}
-.sms-mode-tab:hover { color: var(--text); }
-.sms-mode-tab.active { color: var(--first-color); border-bottom-color: var(--first-color); }
-
-/* Priority badges */
-.prio-Normal   { background: rgba(16,185,129,.12); color: #059669; }
-.prio-Important{ background: rgba(245,158,11,.12); color: #d97706; }
-.prio-Urgent   { background: rgba(239,68,68,.12);  color: #dc2626; }
-.prio-badge { padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
-
-@media (max-width: 768px) {
-    .sms-sidebar { 
-        position: absolute;
-        z-index: 999;
-        height: 100%;
-        left: -260px;
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 4px 0 24px rgba(0,0,0,0.15);
-        background: var(--surface);
-    }
-    .sms-sidebar.open { left: 0; }
-    .sms-detail-panel { display: none; }
-}
-@media (max-width: 600px) {
-    .sms-main-header { padding: 12px 14px; }
-    .sms-content { padding: 14px; }
-}
-</style>
-
-<div class="sms-layout">
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    {{-- ── SIDEBAR ─────────────────────────────────────── --}}
-    <div class="sms-sidebar" id="smsSidebar">
-        <div class="sms-sidebar-header">
-            <div class="sms-workspace-name">
-                <span class="ws-icon">NC</span>
-                Netcoder SMS
+<!-- Toast Notification for Copying -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    <div id="copyToast" class="toast align-items-center text-white bg-dark border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body py-2 px-3">
+                <i class="fas fa-check-circle text-success me-2"></i><span id="toastMessage">Copied to clipboard!</span>
             </div>
-            <div class="mt-1" style="font-size:0.75rem; color:var(--muted);">
-                {{ session('user_name') }} &bull; {{ session('user_role') }}
-            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
+    </div>
+</div>
 
-        <div class="sms-sidebar-scroll">
-            {{-- Views --}}
-            <div class="sms-sidebar-section">
-                <span>Navigation</span>
+<!-- Main Messenger Interface container -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex overflow-hidden w-full" style="height: calc(100vh - 160px);">
+    
+    <!-- LEFT PANEL: Chat List / Contacts -->
+    <div class="w-80 border-r border-slate-100 flex flex-col bg-white shrink-0">
+        <div class="p-4 flex items-center justify-between border-b border-slate-100">
+            <h2 class="text-lg font-bold text-slate-800">Conversations</h2>
+            <button class="p-1.5 rounded-full hover:bg-slate-50 transition-colors text-primary" data-bs-toggle="modal" data-bs-target="#composeModal" title="New Message">
+                <i class="fas fa-edit text-lg"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow overflow-y-auto custom-scrollbar">
+            <!-- Navigation links -->
+            <div class="px-4 py-2 mt-2">
+                <a href="{{ route('messages.full') }}" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold {{ !request('view') && !request('chat_user') ? 'bg-primary/5 text-primary' : 'text-slate-600 hover:bg-slate-50' }}">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-inbox"></i> Inbox
+                    </span>
+                    @if($unreadCount > 0)
+                        <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('messages.full', ['view' => 'sent']) }}" class="flex items-center gap-2 px-3 py-2 mt-1 rounded-lg text-sm font-semibold {{ request('view') === 'sent' ? 'bg-primary/5 text-primary' : 'text-slate-600 hover:bg-slate-50' }}">
+                    <i class="fas fa-paper-plane"></i> Sent Items
+                </a>
             </div>
-            <ul class="sms-sidebar-list">
-                <li>
-                    <a href="{{ route('messages.full') }}" class="{{ !request('view') && !request('chat_user') ? 'active' : '' }}">
-                        <i class="fas fa-inbox" style="width:18px;"></i>
-                        Inbox
-                        @if($unreadCount > 0)
-                            <span class="unread-badge">{{ $unreadCount }}</span>
-                        @endif
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('messages.full', ['view' => 'sent']) }}" class="{{ request('view') === 'sent' ? 'active' : '' }}">
-                        <i class="fas fa-paper-plane" style="width:18px;"></i>
-                        Sent
-                    </a>
-                </li>
-            </ul>
 
-            {{-- Direct Messages --}}
-            <div class="sms-sidebar-section">
-                <span>Direct Messages</span>
-                <button data-bs-toggle="modal" data-bs-target="#composeModal" title="New Message">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </div>
-            <ul class="sms-sidebar-list" id="dmList">
-                @forelse($recipients as $user)
-                    @php
-                        $unreadFromUser = $inboxMessages->where('sender_id', $user->id)->where('is_read', false)->count();
-                    @endphp
-                    <li>
-                        <a href="{{ route('messages.full', ['chat_user' => $user->id]) }}"
-                           class="{{ request('chat_user') == $user->id ? 'active' : '' }}">
-                            <div class="user-avatar-sm" style="background: {{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($user->name) % 5] }}">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
+            <!-- Direct Messages: Staff & Admins -->
+            @if($staffRecipients->count() > 0)
+                <div class="px-4 py-3 bg-slate-50 text-[10px] font-bold tracking-widest text-slate-400 uppercase mt-2">Faculty & Staff</div>
+                <div class="space-y-0.5">
+                    @foreach($staffRecipients as $user)
+                        @php
+                            $unreadFromUser = $inboxMessages->where('sender_id', $user->id)->where('is_read', false)->count();
+                            $isCurrentChat = request('chat_user') == $user->id;
+                        @endphp
+                        <a href="{{ route('messages.full', ['chat_user' => $user->id]) }}" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors {{ $isCurrentChat ? 'active-chat-item' : '' }}">
+                            <div class="relative shrink-0">
+                                @if($user->profile_pic)
+                                    <img src="{{ asset('uploads/profiles/'.$user->profile_pic) }}" class="w-9 h-9 rounded-full object-cover">
+                                @else
+                                    <div class="w-9 h-9 text-white rounded-full flex items-center justify-center font-bold text-sm" style="background: {{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($user->name) % 5] }}">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                @endif
+                                <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
                             </div>
-                            <span class="text-truncate">{{ $user->name }}</span>
+                            <div class="flex-grow overflow-hidden">
+                                <div class="flex justify-between items-baseline">
+                                    <h4 class="text-xs font-bold text-slate-700 truncate">{{ $user->name }}</h4>
+                                    <span class="text-[9px] text-slate-400">{{ $user->role?->role_name ?? 'Staff' }}</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 truncate">Click to open chat session</p>
+                            </div>
                             @if($unreadFromUser > 0)
-                                <span class="unread-badge">{{ $unreadFromUser }}</span>
+                                <span class="bg-primary text-white text-[9px] w-5 h-5 flex items-center justify-center rounded-full font-bold">{{ $unreadFromUser }}</span>
                             @endif
                         </a>
-                    </li>
-                @empty
-                    <li><span style="padding:8px 12px; font-size:0.8rem; color:var(--muted); display:block;">No contacts</span></li>
-                @endforelse
-            </ul>
+                    @endforeach
+                </div>
+            @endif
+
+            <!-- Direct Messages: Students -->
+            @if($studentRecipients->count() > 0)
+                <div class="px-4 py-3 bg-slate-50 text-[10px] font-bold tracking-widest text-slate-400 uppercase mt-2">Registered Students</div>
+                <div class="space-y-0.5">
+                    @foreach($studentRecipients as $user)
+                        @php
+                            $unreadFromUser = $inboxMessages->where('sender_id', $user->id)->where('is_read', false)->count();
+                            $isCurrentChat = request('chat_user') == $user->id;
+                        @endphp
+                        <a href="{{ route('messages.full', ['chat_user' => $user->id]) }}" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors {{ $isCurrentChat ? 'active-chat-item' : '' }}">
+                            <div class="relative shrink-0">
+                                @if($user->profile_pic)
+                                    <img src="{{ asset('uploads/profiles/'.$user->profile_pic) }}" class="w-9 h-9 rounded-full object-cover">
+                                @else
+                                    <div class="w-9 h-9 text-white rounded-full flex items-center justify-center font-bold text-sm" style="background: {{ ['#8b5cf6','#ff5532','#3b82f6','#10b981','#f59e0b'][crc32($user->name) % 5] }}">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                @endif
+                                <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
+                            </div>
+                            <div class="flex-grow overflow-hidden">
+                                <div class="flex justify-between items-baseline">
+                                    <h4 class="text-xs font-bold text-slate-700 truncate">{{ $user->name }}</h4>
+                                    <span class="text-[9px] text-slate-400">Student</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 truncate">Adm No: {{ $user->student?->admission_no ?? $user->username }}</p>
+                            </div>
+                            @if($unreadFromUser > 0)
+                                <span class="bg-primary text-white text-[9px] w-5 h-5 flex items-center justify-center rounded-full font-bold">{{ $unreadFromUser }}</span>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 
-    {{-- ── MAIN AREA ─────────────────────────────────────── --}}
-    <div class="sms-main">
-
+    <!-- CENTER PANEL: Chat Canvas / Messages Area -->
+    <div class="flex-grow flex flex-col bg-slate-50 relative">
         @if(request('chat_user') && $selectedChatUser)
-            {{-- ── CHAT VIEW ── --}}
-            <div class="sms-main-header">
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-light d-md-none p-1 me-1 border-0 bg-transparent text-muted shadow-none" onclick="toggleSidebar()">
-                        <i class="fas fa-bars fa-lg"></i>
-                    </button>
-                    <div class="header-title">
-                        @if($selectedChatUser->profile_pic)
-                            <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="user-avatar-sm" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-                        @else
-                            <div class="user-avatar-sm" style="width:32px;height:32px;font-size:0.9rem;border-radius:50%;background:var(--first-color);color:#fff;display:flex;align-items:center;justify-content:center;">
-                                {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
-                            </div>
-                        @endif
-                        {{ $selectedChatUser->name }}
-                        <span style="background:rgba(16,185,129,.12);color:#059669;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;">
-                            {{ $selectedChatUser->role?->role_name ?? 'User' }}
-                        </span>
+            <!-- Chat Header -->
+            <div class="h-16 border-b border-slate-100 bg-white flex items-center justify-between px-6 shrink-0 z-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    @if($selectedChatUser->profile_pic)
+                        <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-10 h-10 rounded-full object-cover">
+                    @else
+                        <div class="w-10 h-10 text-white rounded-full flex items-center justify-center font-bold" style="background: var(--first-color);">
+                            {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800">{{ $selectedChatUser->name }}</h2>
+                        <p class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> 
+                            {{ $selectedChatUser->role?->role_name ?? 'Portal Member' }}
+                        </p>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="button button-success py-1 px-3" style="font-size:0.8rem;" onclick="startVideoCall()">
-                        <i class="fas fa-video me-1"></i> Video Call
+                
+                <div class="flex items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 px-3 py-1.5 rounded-lg font-semibold" style="font-size:0.8rem;" onclick="startVideoCall()">
+                        <i class="fas fa-video"></i> Start Video Call
                     </button>
-                    <a href="{{ route('messages.full') }}" class="button button-secondary py-1 px-3" style="font-size:0.8rem;">
-                        <i class="fas fa-arrow-left me-1"></i> Back
+                    <a href="{{ route('messages.full') }}" class="btn btn-sm btn-outline-secondary px-3 py-1.5 rounded-lg font-semibold" style="font-size:0.8rem;">
+                        <i class="fas fa-arrow-left"></i> Exit Chat
                     </a>
                 </div>
             </div>
 
-            <div class="sms-content" id="chatScrollArea">
+            <!-- Messages History Grid -->
+            <div class="flex-grow overflow-y-auto p-6 space-y-6 custom-scrollbar" id="chatScrollArea">
                 <div class="chat-messages" id="chatMessages">
                     @php $lastDate = null; @endphp
                     @forelse($chatMessages as $msg)
@@ -454,191 +188,252 @@
                             $isMine = $msg->sender_id == session('user_id');
                         @endphp
                         @if($msgDate !== $lastDate)
-                            <div class="chat-day-divider">
+                            <div class="chat-day-divider text-center my-4 font-semibold text-slate-400 text-xs flex items-center gap-2">
+                                <span class="flex-grow h-px bg-slate-200"></span>
                                 {{ \Carbon\Carbon::parse($msgDate)->isToday() ? 'Today' : \Carbon\Carbon::parse($msgDate)->format('M d, Y') }}
+                                <span class="flex-grow h-px bg-slate-200"></span>
                             </div>
                             @php $lastDate = $msgDate; @endphp
                         @endif
-                        <div class="chat-bubble-group {{ $isMine ? 'mine' : '' }}" data-msg-id="{{ $msg->id }}">
+
+                        <div class="flex gap-3 max-w-xl {{ $isMine ? 'ml-auto flex-row-reverse' : '' }}" data-msg-id="{{ $msg->id }}">
                             @if(!$isMine)
                                 @if($selectedChatUser->profile_pic)
-                                    <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="avatar-sm" style="object-fit:cover;">
+                                    <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-8 h-8 rounded-full object-cover shrink-0">
                                 @else
-                                    <div class="avatar-sm" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($selectedChatUser->name) % 5] }}">
+                                    <div class="w-8 h-8 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($selectedChatUser->name) % 5] }}">
                                         {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
                                     </div>
                                 @endif
                             @endif
-                            <div>
-                                <div class="chat-bubble {{ $isMine ? 'mine-bubble' : 'theirs' }}">
+                            
+                            <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }}">
+                                <div class="flex items-baseline gap-2 mb-1 {{ $isMine ? 'flex-row-reverse' : '' }}">
+                                    <span class="text-[10px] font-bold text-slate-600">{{ $isMine ? 'You' : $selectedChatUser->name }}</span>
+                                    <span class="text-[9px] text-slate-400">{{ $msg->created_at->format('h:i A') }}</span>
+                                </div>
+                                <div class="p-3 shadow-sm border {{ $isMine ? 'bg-primary text-white border-transparent message-bubble-out' : 'bg-white text-slate-700 border-slate-100 message-bubble-in' }}">
                                     @if($msg->body === '[VIDEO_CALL_INVITE]')
-                                        <div class="text-center">
+                                        <div class="text-center p-1">
                                             <i class="fas fa-video fa-2x mb-2 {{ $isMine ? 'text-white' : 'text-success' }}"></i><br>
-                                            <button class="button {{ $isMine ? 'button-light' : 'button-success' }} btn-sm" data-bs-toggle="modal" data-bs-target="#jitsiModal">
+                                            <button class="btn btn-xs {{ $isMine ? 'btn-light' : 'btn-success' }} fw-bold" style="font-size:0.75rem;" data-bs-toggle="modal" data-bs-target="#jitsiModal">
                                                 Join Video Call
                                             </button>
                                         </div>
                                     @else
-                                        {{ $msg->body }}
+                                        <p class="text-sm m-0" style="white-space: pre-wrap; word-break: break-word;">{{ $msg->body }}</p>
                                     @endif
+
                                     @if($msg->attachment)
-                                        <div class="mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.2);">
-                                            <a href="{{ asset('uploads/messages/'.$msg->attachment) }}" target="_blank" class="text-decoration-none" style="font-size:0.8rem; color:inherit;">
-                                                <i class="fas fa-paperclip me-1"></i> View Attachment
+                                        <div class="mt-2 pt-2 border-t {{ $isMine ? 'border-white/20' : 'border-slate-100' }}">
+                                            <a href="{{ asset('uploads/messages/'.$msg->attachment) }}" target="_blank" class="text-xs font-semibold hover:underline inline-flex items-center gap-1 {{ $isMine ? 'text-white' : 'text-primary' }}">
+                                                <i class="fas fa-paperclip"></i> View Attached Resource
                                             </a>
                                         </div>
                                     @endif
                                 </div>
-                                <div class="chat-time">{{ $msg->created_at->format('h:i A') }}</div>
                             </div>
                         </div>
                     @empty
-                        <div class="sms-empty" style="height:300px;">
-                            <i class="fas fa-comments"></i>
-                            <h5>Start the conversation</h5>
-                            <p>Send a message to {{ $selectedChatUser->name }}</p>
+                        <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                            <i class="fas fa-comments fa-3x mb-3 opacity-40"></i>
+                            <h5 class="font-bold text-slate-600 text-sm">Start the conversation</h5>
+                            <p class="text-xs">Send a direct message to begin collaboration.</p>
                         </div>
                     @endforelse
                 </div>
             </div>
 
-            <div class="sms-input-bar">
+            <!-- Messages Input Box -->
+            <div class="p-4 bg-white border-t border-slate-100 shrink-0">
                 <form id="chatForm" action="{{ route('messages.chat.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="receiver_id" value="{{ $selectedChatUser->id }}">
-                    <label class="btn btn-light mb-0 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border-radius: 12px; cursor: pointer; border: 1.5px solid var(--border);">
-                        <i class="fas fa-paperclip text-muted"></i>
-                        <input type="file" name="attachment" style="display: none;" onchange="document.getElementById('chatInput').placeholder = this.files[0] ? this.files[0].name + ' selected...' : 'Message {{ $selectedChatUser->name }}...'">
-                    </label>
-                    <textarea name="body" id="chatInput" rows="1" class="chat-input" placeholder="Message {{ $selectedChatUser->name }}..." required></textarea>
-                    <button type="submit" class="sms-send-btn"><i class="fas fa-paper-plane"></i></button>
+                    
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
+                        <textarea name="body" id="chatInput" rows="2" class="w-full bg-transparent border-0 focus:ring-0 text-sm resize-none py-2 px-3 custom-scrollbar" placeholder="Message {{ $selectedChatUser->name }}..." required></textarea>
+                        
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200/50">
+                            <div class="flex items-center gap-1">
+                                <label class="p-2 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-lg cursor-pointer transition-all" title="Attach file">
+                                    <i class="fas fa-paperclip"></i>
+                                    <input type="file" name="attachment" style="display: none;" onchange="document.getElementById('chatInput').placeholder = this.files[0] ? this.files[0].name + ' selected...' : 'Message {{ $selectedChatUser->name }}...'">
+                                </label>
+                            </div>
+                            <button type="submit" class="bg-primary text-white p-2 rounded-lg flex items-center justify-center hover:brightness-110 active:scale-95 transition-all">
+                                <i class="fas fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
 
         @elseif(request('view') === 'sent')
-            {{-- ── SENT VIEW ── --}}
-            <div class="sms-main-header">
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-light d-md-none p-1 me-1 border-0 bg-transparent text-muted shadow-none" onclick="toggleSidebar()">
-                        <i class="fas fa-bars fa-lg"></i>
-                    </button>
-                    <div>
-                        <div class="header-title"><i class="fas fa-paper-plane text-muted me-2"></i>Sent Items</div>
-                        <div class="header-sub">{{ $sentMessages->count() }} messages sent</div>
-                    </div>
+            <!-- SENT MESSAGES VIEW -->
+            <div class="h-16 border-b border-slate-100 bg-white flex items-center justify-between px-6 shrink-0 z-10 shadow-sm">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800"><i class="fas fa-paper-plane text-slate-400 me-2"></i>Sent Items</h2>
+                    <p class="text-[10px] text-slate-400 font-semibold">{{ $sentMessages->count() }} messages sent</p>
                 </div>
-                <button class="button button-primary py-1 px-3" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#composeModal">
-                    <i class="fas fa-edit me-1"></i> Compose
+                <button class="btn btn-sm btn-primary px-3 py-1.5 rounded-lg font-semibold" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#composeModal">
+                    <i class="fas fa-plus"></i> Compose Broadcast
                 </button>
             </div>
-            <div class="sms-content">
+            
+            <div class="flex-grow overflow-y-auto p-4 space-y-2 custom-scrollbar">
                 @forelse($sentMessages as $msg)
-                    <div class="inbox-msg-row">
-                        <div class="inbox-avatar" style="background:{{ ['#10b981','#3b82f6','#8b5cf6','#f59e0b','#ff5532'][crc32($msg->receiver?->name ?? 'All') % 5] }}">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-slate-200 shadow-sm transition-all flex items-start gap-4">
+                        <div class="w-10 h-10 text-white rounded-lg flex items-center justify-center font-bold shrink-0" style="background:{{ ['#10b981','#3b82f6','#8b5cf6','#f59e0b','#ff5532'][crc32($msg->receiver?->name ?? 'All') % 5] }}">
                             {{ strtoupper(substr($msg->receiver?->name ?? $msg->receiver_role ?? 'A', 0, 1)) }}
                         </div>
-                        <div class="inbox-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="inbox-sender">
-                                    To: {{ $msg->receiver?->name ?? '📢 '.ucfirst($msg->receiver_role ?? 'All') }}
+                        <div class="flex-grow min-w-0">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="font-bold text-sm text-slate-800">To: {{ $msg->receiver?->name ?? '📢 '.ucfirst($msg->receiver_role ?? 'All Recipients') }}</span>
+                                <span class="text-[10px] text-slate-400">{{ $msg->created_at->diffForHumans() }}</span>
+                            </div>
+                            <h4 class="font-semibold text-xs text-slate-600 truncate mb-1">{{ $msg->subject }}</h4>
+                            <p class="text-xs text-slate-500 line-clamp-2">{!! strip_tags($msg->body) !!}</p>
+                            @if($msg->attachment)
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded">
+                                        <i class="fas fa-paperclip"></i> Attachment Included
+                                    </span>
                                 </div>
-                                <span class="inbox-time">{{ $msg->created_at->diffForHumans() }}</span>
-                            </div>
-                            <div class="inbox-subject">{{ $msg->subject }}</div>
-                            <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">
-                                <span class="prio-badge prio-{{ $msg->priority }}">{{ $msg->priority }}</span>
-                            </div>
+                            @endif
                         </div>
-                        <form action="{{ route('messages.destroy', $msg->id) }}" method="POST" class="ms-2">
+                        <form action="{{ route('messages.destroy', $msg->id) }}" method="POST" class="ms-2 shrink-0">
                             @csrf @method('DELETE')
-                            <button type="submit" class="button button-danger py-1 px-2" style="font-size:0.75rem;" onclick="return confirm('Delete?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger p-2" onclick="return confirm('Delete message from system logs?')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
                     </div>
                 @empty
-                    <div class="sms-empty">
-                        <i class="fas fa-paper-plane"></i>
-                        <h5>No sent messages</h5>
-                        <p>Compose your first message</p>
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                        <i class="fas fa-paper-plane fa-3x mb-3 opacity-40"></i>
+                        <h5 class="font-bold text-slate-600 text-sm">No sent messages</h5>
+                        <p class="text-xs">Broadcast messages sent by you will appear here.</p>
                     </div>
                 @endforelse
             </div>
 
         @else
-            {{-- ── INBOX VIEW ── --}}
-            <div class="sms-main-header">
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-light d-md-none p-1 me-1 border-0 bg-transparent text-muted shadow-none" onclick="toggleSidebar()">
-                        <i class="fas fa-bars fa-lg"></i>
-                    </button>
-                    <div>
-                        <div class="header-title">
-                            <i class="fas fa-inbox text-muted me-2"></i>Inbox
-                            @if($unreadCount > 0)
-                                <span class="prio-badge prio-Urgent">{{ $unreadCount }} unread</span>
-                            @endif
-                        </div>
-                        <div class="header-sub">{{ $inboxMessages->count() }} messages</div>
-                    </div>
+            <!-- INBOX VIEW -->
+            <div class="h-16 border-b border-slate-100 bg-white flex items-center justify-between px-6 shrink-0 z-10 shadow-sm">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800"><i class="fas fa-inbox text-slate-400 me-2"></i>Inbox Folder</h2>
+                    <p class="text-[10px] text-slate-400 font-semibold">{{ $inboxMessages->count() }} messages total</p>
                 </div>
-                <button class="button button-primary py-1 px-3" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#composeModal">
-                    <i class="fas fa-edit me-1"></i> Compose
+                <button class="btn btn-sm btn-primary px-3 py-1.5 rounded-lg font-semibold" style="font-size:0.8rem;" data-bs-toggle="modal" data-bs-target="#composeModal">
+                    <i class="fas fa-plus"></i> Compose Message
                 </button>
             </div>
 
-            <div class="sms-content">
+            <div class="flex-grow overflow-y-auto p-4 space-y-2 custom-scrollbar">
                 @forelse($inboxMessages as $msg)
-                    <div class="inbox-msg-row {{ !$msg->is_read ? 'unread' : '' }}"
-                         onclick="openInboxMsg({{ $msg->id }}, '{{ addslashes($msg->subject) }}', '{{ addslashes($msg->sender?->name ?? 'System') }}', '{{ $msg->priority }}', '{{ $msg->created_at->format('M d, Y h:i A') }}', document.getElementById('msg-body-{{ $msg->id }}').innerHTML, '{{ $msg->attachment ? asset('uploads/messages/'.$msg->attachment) : '' }}')"
-                         style="cursor:pointer;">
-                        <div class="inbox-avatar" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($msg->sender?->name ?? 'S') % 5] }}">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-md transition-all flex items-start gap-4 cursor-pointer {{ !$msg->is_read ? 'border-l-4 border-l-primary bg-primary/[0.01]' : '' }}"
+                         onclick="openInboxMsg({{ $msg->id }}, '{{ addslashes($msg->subject) }}', '{{ addslashes($msg->sender?->name ?? 'System') }}', '{{ $msg->priority }}', '{{ $msg->created_at->format('M d, Y h:i A') }}', document.getElementById('msg-body-{{ $msg->id }}').innerHTML, '{{ $msg->attachment ? asset('uploads/messages/'.$msg->attachment) : '' }}')">
+                        
+                        <div class="w-10 h-10 text-white rounded-lg flex items-center justify-center font-bold shrink-0" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($msg->sender?->name ?? 'System') % 5] }}">
                             {{ strtoupper(substr($msg->sender?->name ?? 'S', 0, 1)) }}
                         </div>
-                        <div class="inbox-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="inbox-sender d-flex gap-2 align-items-center">
-                                    {{ $msg->sender?->name ?? 'System' }}
+                        <div class="flex-grow min-w-0">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="font-bold text-sm text-slate-800">
+                                    {{ $msg->sender?->name ?? 'System Admin' }}
                                     @if(!$msg->is_read)
-                                        <span class="inbox-unread-tag">NEW</span>
+                                        <span class="ms-2 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded">NEW</span>
                                     @endif
-                                </div>
-                                <span class="inbox-time">{{ $msg->created_at->diffForHumans() }}</span>
+                                </span>
+                                <span class="text-[10px] text-slate-400">{{ $msg->created_at->diffForHumans() }}</span>
                             </div>
-                            <div class="inbox-subject fw-semibold">{{ $msg->subject }}
-                                @if($msg->attachment) <i class="fas fa-paperclip ms-1 text-primary"></i> @endif
-                            </div>
-                            <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                {!! Str::limit(strip_tags($msg->body), 80) !!}
+                            <h4 class="font-semibold text-xs text-slate-600 truncate mb-1">{{ $msg->subject }}</h4>
+                            <p class="text-xs text-slate-500 line-clamp-2">{!! strip_tags($msg->body) !!}</p>
+                            
+                            <div class="mt-2 flex gap-2">
+                                <span class="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded {{ $msg->priority === 'Urgent' ? 'bg-rose-50 text-rose-600' : ($msg->priority === 'Important' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-600') }}">
+                                    {{ $msg->priority }}
+                                </span>
+                                @if($msg->attachment)
+                                    <span class="inline-flex items-center gap-1 text-[9px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded">
+                                        <i class="fas fa-paperclip"></i> Attached File
+                                    </span>
+                                @endif
                             </div>
                         </div>
-                        {{-- hidden body for JS --}}
+                        
                         <div id="msg-body-{{ $msg->id }}" style="display:none;">{{ $msg->body }}</div>
                     </div>
                 @empty
-                    <div class="sms-empty">
-                        <i class="fas fa-inbox"></i>
-                        <h5>Inbox is empty</h5>
-                        <p>Messages sent to you will appear here</p>
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                        <i class="fas fa-inbox fa-3x mb-3 opacity-40"></i>
+                        <h5 class="font-bold text-slate-600 text-sm">Inbox is empty</h5>
+                        <p class="text-xs">Broadcast notices and messages sent to you will appear here.</p>
                     </div>
                 @endforelse
             </div>
         @endif
     </div>
 
-    {{-- ── RIGHT DETAIL PANEL ── --}}
-    <div class="sms-detail-panel" id="detailPanel">
-        <div class="detail-header d-flex justify-content-between align-items-center">
-            <span id="detailPanelTitle"><i class="fas fa-info-circle text-muted me-2"></i>Details</span>
-            <button onclick="closeDetail()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="detail-body" id="detailBody">
-            <div class="sms-empty">
-                <i class="fas fa-mouse-pointer"></i>
-                <p>Click a message to read it</p>
+    <!-- RIGHT PANEL: Contextual Details Bar (Visible only when in active chat view) -->
+    @if(request('chat_user') && $selectedChatUser)
+        <div class="w-72 border-l border-slate-100 bg-white hidden xl:flex flex-col shrink-0">
+            <div class="p-6 text-center border-b border-slate-100">
+                @if($selectedChatUser->profile_pic)
+                    <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-20 h-20 rounded-2xl object-cover mx-auto mb-3 shadow-sm border border-slate-100">
+                @else
+                    <div class="w-20 h-20 text-white rounded-2xl flex items-center justify-center font-bold text-3xl mx-auto mb-3 shadow-sm" style="background: var(--first-color);">
+                        {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
+                    </div>
+                @endif
+                <h3 class="font-bold text-slate-800 text-sm">{{ $selectedChatUser->name }}</h3>
+                <p class="text-xs text-slate-400 mt-1">{{ $selectedChatUser->role?->role_name ?? 'Portal Member' }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">{{ $selectedChatUser->email }}</p>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                <div>
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Workspace Details</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-xs text-slate-600">
+                            <i class="fas fa-user-circle w-4 text-slate-400"></i>
+                            <span>Username: <strong>{{ $selectedChatUser->username ?: '-' }}</strong></span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-600">
+                            <i class="fas fa-calendar-alt w-4 text-slate-400"></i>
+                            <span>Joined: {{ $selectedChatUser->created_at->format('M Y') }}</span>
+                        </div>
+                        @if($selectedChatUser->student)
+                            <div class="flex items-center gap-2 text-xs text-slate-600">
+                                <i class="fas fa-graduation-cap w-4 text-slate-400"></i>
+                                <span>Course: {{ $selectedChatUser->student->course?->name ?? 'Enrolled' }}</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Notice Guidelines</h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Please follow communication rules. All messages, resources, and live chats are subject to administrative guidelines.</p>
+                </div>
             </div>
         </div>
-    </div>
+    @elseif(!request('chat_user'))
+        <!-- RIGHT PANEL: Message Reader for Inbox Views -->
+        <div class="w-80 border-l border-slate-100 bg-white hidden lg:flex flex-col shrink-0" id="detailPanel">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <span class="text-xs font-bold text-slate-600" id="detailPanelTitle">
+                    <i class="fas fa-info-circle text-slate-400 me-2"></i>Message Inspector
+                </span>
+            </div>
+            <div class="flex-grow overflow-y-auto p-6 custom-scrollbar" id="detailBody">
+                <div class="flex flex-col items-center justify-center h-full text-slate-400 text-center">
+                    <i class="fas fa-mouse-pointer fa-2x mb-2 opacity-40"></i>
+                    <p class="text-xs m-0">Click any message in the list to preview details & content here.</p>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 
 {{-- ── COMPOSE MODAL ── --}}
@@ -697,7 +492,7 @@
                         <div class="col-12">
                             <label class="form-label fw-bold small">Message</label>
                             <input type="hidden" name="body" id="full_message_body">
-                            <div id="full_quill_editor" style="height: 150px; background: #fff; border-radius: 0 0 8px 8px; border: 1px solid var(--border);"></div>
+                            <div id="full_quill_editor" style="height: 150px; background: #fff; border-radius: 0 0 8px 8px; border: 1px solid var(--border, #E2E8F0);"></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Attachment (Optional)</label>
@@ -802,6 +597,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     composeForm.reset();
                     if(fullQuill) fullQuill.setContents([]);
                     showToast('Message sent!', 'success');
+                    setTimeout(() => location.reload(), 1000);
                 }
             }).catch(() => { btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Message'; btn.disabled = false; });
         });
@@ -814,11 +610,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const scrollArea = document.getElementById('chatScrollArea');
 
     if (chatInput) {
-        // Auto-resize textarea
-        chatInput.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
         // Send on Enter (Shift+Enter = newline)
         chatInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -861,17 +652,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }, 3000);
     }
-
-    /* ─── Unread badge polling (global) ─── */
-    @if(!request('chat_user'))
-    setInterval(() => {
-        fetch('/api/messages/unread-count', { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
-            .then(r => r.json()).then(d => {
-                const badge = document.getElementById('globalUnreadBadge');
-                if (badge) badge.textContent = d.count > 0 ? d.count : '';
-            });
-    }, 8000);
-    @endif
 });
 
 function getLastMsgId() {
@@ -884,45 +664,54 @@ function getLastMsgId() {
 function appendBubble(msg, isMine) {
     const wrap = document.getElementById('chatMessages');
     const div = document.createElement('div');
-    div.className = 'chat-bubble-group' + (isMine ? ' mine' : '');
+    div.className = 'flex gap-3 max-w-xl ' + (isMine ? 'ml-auto flex-row-reverse' : '');
     div.dataset.msgId = msg.id;
     let attachmentHtml = '';
     if (msg.attachment) {
         attachmentHtml = `
-        <div class="mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.2);">
-            <a href="${msg.attachment}" target="_blank" class="${isMine ? 'text-white' : ''} text-decoration-none" style="font-size:0.8rem;">
-                <i class="fas fa-paperclip me-1"></i> View Attachment
+        <div class="mt-2 pt-2 border-t ${isMine ? 'border-white/20' : 'border-slate-100'}">
+            <a href="${msg.attachment}" target="_blank" class="text-xs font-semibold hover:underline inline-flex items-center gap-1 ${isMine ? 'text-white' : 'text-primary'}">
+                <i class="fas fa-paperclip"></i> View Attached Resource
             </a>
         </div>`;
     }
 
-    
     let bodyHtml = '';
     if (msg.body === '[VIDEO_CALL_INVITE]') {
         bodyHtml = `
-            <div class="text-center">
+            <div class="text-center p-1">
                 <i class="fas fa-video fa-2x mb-2 ${isMine ? 'text-white' : 'text-success'}"></i><br>
-                <button class="button ${isMine ? 'button-light' : 'button-success'} btn-sm" data-bs-toggle="modal" data-bs-target="#jitsiModal">
+                <button class="btn btn-xs ${isMine ? 'btn-light' : 'btn-success'} fw-bold" style="font-size:0.75rem;" data-bs-toggle="modal" data-bs-target="#jitsiModal">
                     Join Video Call
                 </button>
             </div>
         `;
     } else {
-        bodyHtml = escHtml(msg.body);
+        bodyHtml = `<p class="text-sm m-0" style="white-space: pre-wrap; word-break: break-word;">${escHtml(msg.body)}</p>`;
     }
 
     if (!isMine) {
         div.innerHTML = `
-            <div class="avatar-sm" style="background:var(--first-color);">${msg.sender ? msg.sender[0].toUpperCase() : '?'}</div>
-            <div>
-                <div class="chat-bubble theirs">${bodyHtml}${attachmentHtml}</div>
-                <div class="chat-time">${msg.time}</div>
+            <div class="w-8 h-8 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0 bg-primary">${msg.sender ? msg.sender[0].toUpperCase() : '?'}</div>
+            <div class="flex flex-col items-start">
+                <div class="flex items-baseline gap-2 mb-1">
+                    <span class="text-[10px] font-bold text-slate-600">${msg.sender || 'Sender'}</span>
+                    <span class="text-[9px] text-slate-400">${msg.time}</span>
+                </div>
+                <div class="p-3 shadow-sm border bg-white text-slate-700 border-slate-100 message-bubble-in">
+                    ${bodyHtml}${attachmentHtml}
+                </div>
             </div>`;
     } else {
         div.innerHTML = `
-            <div>
-                <div class="chat-bubble mine-bubble">${bodyHtml}${attachmentHtml}</div>
-                <div class="chat-time">${msg.time}</div>
+            <div class="flex flex-col items-end">
+                <div class="flex items-baseline gap-2 mb-1 flex-row-reverse">
+                    <span class="text-[10px] font-bold text-slate-600">You</span>
+                    <span class="text-[9px] text-slate-400">${msg.time}</span>
+                </div>
+                <div class="p-3 shadow-sm border bg-primary text-white border-transparent message-bubble-out">
+                    ${bodyHtml}${attachmentHtml}
+                </div>
             </div>`;
     }
     wrap.appendChild(div);
@@ -948,46 +737,49 @@ function openInboxMsg(id, subject, sender, priority, date, body, attachment) {
         headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' }
     }).then(r => r.json()).then(d => {
         if (d.success) {
-            const row = document.querySelector(`[onclick*="openInboxMsg(${id},"]`);
-            if (row) row.classList.remove('unread');
+            const badge = document.getElementById('topbarUnreadBadge');
+            if (badge) {
+                let count = parseInt(badge.textContent) - 1;
+                badge.textContent = count > 0 ? count : '';
+                if (count <= 0) badge.style.display = 'none';
+            }
         }
     });
 
-    // On desktop – right panel
     const panel = document.getElementById('detailPanel');
     const panelBody = document.getElementById('detailBody');
     const panelTitle = document.getElementById('detailPanelTitle');
 
-    if (panelBody && window.innerWidth > 768) {
-        panelTitle.innerHTML = `<i class="fas fa-envelope-open text-first me-2"></i>Message`;
+    if (panelBody && window.innerWidth > 991) {
+        panelTitle.innerHTML = `<i class="fas fa-envelope-open text-primary me-2"></i>Message Reader`;
         let attHtml = '';
         if(attachment && attachment !== '') {
             attHtml = `
-            <div class="mt-4 pt-3 border-top border-light">
-                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Attachment</div>
-                <a href="${attachment}" target="_blank" class="button button-secondary py-1 px-3" style="font-size:0.8rem;"><i class="fas fa-paperclip me-2"></i>View Attachment</a>
+            <div class="mt-4 pt-3 border-t border-slate-100">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Attachment</div>
+                <a href="${attachment}" target="_blank" class="btn btn-sm btn-outline-primary py-1.5 px-3" style="font-size:0.8rem;"><i class="fas fa-paperclip me-2"></i>View Attachment</a>
             </div>`;
         }
         panelBody.innerHTML = `
-            <div class="mb-3">
-                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Subject</div>
-                <div style="font-weight:700;font-size:1.05rem;">${subject}</div>
+            <div class="mb-4">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Subject</div>
+                <h3 class="font-bold text-sm text-slate-800">${subject}</h3>
             </div>
-            <div class="mb-4 d-flex justify-content-between align-items-end border-bottom border-light pb-3">
+            <div class="mb-4 flex justify-between items-end border-b border-slate-100 pb-3">
                 <div>
-                    <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">From</div>
-                    <div class="fw-semibold">${sender}</div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">From</div>
+                    <div class="font-semibold text-xs text-slate-700">${sender}</div>
                 </div>
-                <div class="text-end">
-                    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">${date}</div>
-                    <span class="prio-badge prio-${priority}">${priority}</span>
+                <div class="text-end shrink-0">
+                    <div class="text-[9px] text-slate-400 mb-1">${date}</div>
+                    <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded ${priority === 'Urgent' ? 'bg-rose-50 text-rose-600' : (priority === 'Important' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-600')}">${priority}</span>
                 </div>
             </div>
-            <div style="font-size:0.95rem;line-height:1.6;white-space:pre-wrap;">${body}</div>
+            <div class="text-xs text-slate-600 leading-relaxed">${body}</div>
             ${attHtml}
         `;
     } else {
-        // Mobile – modal
+        // Mobile – modal fallback
         document.getElementById('modalSubject').innerText = subject;
         document.getElementById('modalSender').innerText = sender;
         document.getElementById('modalDate').innerText = date;
@@ -996,9 +788,9 @@ function openInboxMsg(id, subject, sender, priority, date, body, attachment) {
         let attHtml = '';
         if(attachment && attachment !== '') {
             attHtml = `
-            <div class="mt-4 pt-3 border-top border-light">
-                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Attachment</div>
-                <a href="${attachment}" target="_blank" class="button button-secondary py-1 px-3" style="font-size:0.8rem;"><i class="fas fa-paperclip me-2"></i>View Attachment</a>
+            <div class="mt-4 pt-3 border-t border-slate-100">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Attachment</div>
+                <a href="${attachment}" target="_blank" class="btn btn-sm btn-outline-primary py-1.5 px-3" style="font-size:0.8rem;"><i class="fas fa-paperclip me-2"></i>View Attachment</a>
             </div>`;
         }
         document.getElementById('modalBody').innerHTML = body + attHtml;
@@ -1006,24 +798,14 @@ function openInboxMsg(id, subject, sender, priority, date, body, attachment) {
     }
 }
 
-function closeDetail() {
-    const body = document.getElementById('detailBody');
-    if (body) body.innerHTML = `<div class="sms-empty"><i class="fas fa-mouse-pointer"></i><p>Click a message to read it</p></div>`;
-}
-
 /* ─── Toast notification ─── */
 function showToast(msg, type) {
     const t = document.createElement('div');
-    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:12px;color:#fff;font-weight:600;font-size:0.9rem;box-shadow:0 8px 24px rgba(0,0,0,.15);animation:fadeIn .3s ease;';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:12px;color:#fff;font-weight:600;font-size:0.9rem;box-shadow:0 8px 24px rgba(0,0,0,.15);';
     t.style.background = type === 'success' ? '#10b981' : '#ef4444';
     t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'} me-2"></i>${msg}`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
-}
-
-function toggleSidebar() {
-    document.getElementById('smsSidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('open');
 }
 </script>
 
@@ -1084,10 +866,9 @@ function startVideoCall() {
     const chatForm = document.getElementById('chatForm');
     if (!chatForm) return;
 
-    // Send the invite message
     const formData = new FormData(chatForm);
     formData.set('body', '[VIDEO_CALL_INVITE]');
-    formData.delete('attachment'); // don't send attachments with the call invite
+    formData.delete('attachment');
 
     fetch(chatForm.action, {
         method: 'POST', body: formData,
@@ -1095,7 +876,6 @@ function startVideoCall() {
     }).then(r => r.json()).then(d => {
         if (d.success) {
             appendBubble(d.data, true);
-            // Open the modal for the caller
             const jitsiModal = new bootstrap.Modal(document.getElementById('jitsiModal'));
             jitsiModal.show();
         }
