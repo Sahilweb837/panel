@@ -17,15 +17,17 @@ class MeetingController extends Controller
     {
         $userId = session('user_id');
         $user = User::find($userId);
+        $departments = Department::all();
+        $staff = User::whereNotIn('role_id', [1, 2])->get();
 
         if ($user->role_id == 1 || $user->role_id == 2) { // Admin/SuperAdmin
             $meetings = Meeting::with('department', 'creator')->orderBy('meeting_date', 'desc')->orderBy('start_time', 'desc')->get();
-            return view('meetings.index', compact('meetings'));
+            return view('meetings.index', compact('meetings', 'departments', 'staff'));
         } else {
             // Staff
             $participations = MeetingParticipant::where('user_id', $userId)->pluck('meeting_id');
             $meetings = Meeting::whereIn('id', $participations)->with('department', 'creator')->orderBy('meeting_date', 'desc')->orderBy('start_time', 'desc')->get();
-            return view('meetings.staff_index', compact('meetings'));
+            return view('meetings.staff_index', compact('meetings', 'departments', 'staff'));
         }
     }
 

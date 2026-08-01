@@ -111,10 +111,16 @@
     position: relative;
     margin-bottom: 2px;
 }
-.sms-sidebar-list li a:hover, .sms-sidebar-list li a.active {
-    background: linear-gradient(90deg, rgba(255,85,50,.1) 0%, transparent 100%);
+.sms-sidebar-list li a:hover {
+    background: rgba(0, 0, 0, 0.04);
     color: var(--first-color);
-    transform: translateX(4px);
+}
+.sms-sidebar-list li a.active {
+    background-color: #f4f3f3 !important;
+    border-left: 3px solid var(--first-color, #b02e00);
+    border-radius: 0 8px 8px 0;
+    color: var(--first-color);
+    font-weight: 700;
 }
 .sms-sidebar-list li a .user-avatar-sm {
     width: 26px; height: 26px; border-radius: 50%;
@@ -223,13 +229,13 @@
 }
 .chat-bubble.theirs {
     background: var(--surface-soft);
-    border-bottom-left-radius: 4px;
+    border-radius: 4px 16px 16px 16px;
     color: var(--text);
 }
 .chat-bubble.mine-bubble {
     background: linear-gradient(135deg, var(--first-color), #e04423);
     color: #fff;
-    border-bottom-right-radius: 4px;
+    border-radius: 16px 16px 4px 16px;
     box-shadow: 0 4px 12px rgba(255,85,50,0.25);
 }
 .chat-time { font-size: 0.65rem; color: var(--muted); margin-top: 2px; text-align: right; }
