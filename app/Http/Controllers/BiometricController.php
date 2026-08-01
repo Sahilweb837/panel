@@ -111,11 +111,12 @@ class BiometricController extends Controller
                                 ->first();
                     
                     if (!$attendance) {
+                        $punchStatus = (strtotime($punchTime) > strtotime('10:00:00')) ? 'Late' : 'Present';
                         Attendance::create([
                             'student_id' => $student->id,
                             'attendance_date' => $punchDate,
                             'check_in_time' => $punchTime,
-                            'status' => 'Present', // Basic check-in. Could add Late logic here based on time.
+                            'status' => $punchStatus,
                             'device_name' => 'Biometric Device (' . $device->ip_address . ')',
                             'created_at' => $log['timestamp']
                         ]);
@@ -141,11 +142,12 @@ class BiometricController extends Controller
                                 ->first();
                     
                     if (!$attendance) {
+                        $punchStatus = (strtotime($punchTime) > strtotime('10:00:00')) ? 'Late' : 'Present';
                         EmployeeAttendance::create([
                             'employee_id' => $employee->id,
                             'attendance_date' => $punchDate,
                             'check_in_time' => $punchTime,
-                            'status' => 'Present',
+                            'status' => $punchStatus,
                             'device_name' => 'Biometric Device (' . $device->ip_address . ')',
                             'created_at' => $log['timestamp']
                         ]);

@@ -246,20 +246,40 @@
         }
         
         .nav-menu .nav-link {
-            border-radius: 10px;
-            margin-bottom: 4px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            padding: 10px 16px !important;
+            border-radius: 8px !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            color: #5f5e5c !important;
+            transition: all 0.2s ease !important;
+            border-left: 4px solid transparent !important;
+            margin: 2px 12px !important;
+            font-family: 'Inter', sans-serif !important;
+            text-decoration: none !important;
         }
         
         .nav-menu .nav-link:hover {
-            transform: translateX(4px);
+            background-color: #f4f3f3 !important;
+            color: var(--first-color, #b02e00) !important;
+            transform: none !important;
         }
 
         .nav-menu .nav-link.active {
-            background: linear-gradient(90deg, rgba(255, 85, 50, 0.12), transparent);
-            border-left: 3px solid var(--first-color);
+            background-color: #f4f3f3 !important;
+            border-left: 4px solid var(--first-color, #b02e00) !important;
+            color: var(--first-color, #b02e00) !important;
+            font-weight: 700 !important;
+        }
+
+        html[data-theme="dark"] .nav-menu .nav-link {
+            color: #c8c6c3 !important;
+        }
+        html[data-theme="dark"] .nav-menu .nav-link:hover, 
+        html[data-theme="dark"] .nav-menu .nav-link.active {
+            background-color: #2f3131 !important;
+            color: var(--first-color, #b02e00) !important;
         }
 
         /* App-like Mobile Bottom Navigation */

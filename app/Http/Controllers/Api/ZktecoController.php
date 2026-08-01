@@ -75,11 +75,12 @@ class ZktecoController extends Controller
             }
         } else {
             // First punch of the day
+            $status = (strtotime($time) > strtotime('10:00:00')) ? 'Late' : 'Present';
             EmployeeAttendance::create([
                 'employee_id' => $employeeId,
                 'attendance_date' => $date,
                 'check_in_time' => $time,
-                'status' => 'present',
+                'status' => $status,
             ]);
         }
     }
@@ -99,11 +100,12 @@ class ZktecoController extends Controller
             }
         } else {
             // First punch of the day
+            $status = (strtotime($time) > strtotime('10:00:00')) ? 'Late' : 'Present';
             Attendance::create([
                 'student_id' => $studentId,
                 'attendance_date' => $date,
                 'check_in_time' => $time,
-                'status' => 'present',
+                'status' => $status,
             ]);
         }
     }

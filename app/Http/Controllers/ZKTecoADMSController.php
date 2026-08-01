@@ -67,8 +67,8 @@ class ZKTecoADMSController extends Controller
                     $punchDate = date('Y-m-d', strtotime($time));
                     $punchTime = date('H:i:s', strtotime($time));
 
-                    // Check for Late (e.g. after 09:15:00 AM)
-                    $punchStatus = (strtotime($punchTime) > strtotime('09:15:00')) ? 'Late' : 'Present';
+                    // Check for Late (e.g. after 10:00:00 AM)
+                    $punchStatus = (strtotime($punchTime) > strtotime('10:00:00')) ? 'Late' : 'Present';
 
                     // 1. Try to find if it's a student
                     $student = Student::where('biometric_id', $pin)->first();
