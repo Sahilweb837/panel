@@ -10,13 +10,16 @@
         Select the account type tab below, pick a registered person to auto-populate, and generate their login account.
     </div>
 
-    <!-- Segment / Tab Buttons to Separate Student and Staff -->
-    <div class="d-flex gap-2 mb-4 p-1 rounded bg-light" style="width: fit-content; border: 1px solid #e2e8f0;">
-        <button type="button" id="tab_student" class="btn btn-sm px-4 py-2 fw-bold text-dark border-0 rounded" style="background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.06); transition: all 0.2s;" onclick="switchCredentialType('student')">
-            🎓 Student Credential
+    <!-- Beautiful Premium Sliding Toggle Switch -->
+    <div class="position-relative d-flex bg-light p-1 rounded-pill mb-4" style="width: 320px; border: 1px solid #e2e8f0; height: 46px; user-select: none;">
+        <!-- Slider Background Indicator -->
+        <div id="toggle-slider" class="position-absolute bg-white rounded-pill shadow-sm" style="top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1;"></div>
+        
+        <button type="button" id="tab_student" class="btn btn-sm w-50 fw-bold border-0 rounded-pill position-relative" style="z-index: 2; color: var(--first-color); transition: color 0.3s;" onclick="switchCredentialType('student')">
+            🎓 Student
         </button>
-        <button type="button" id="tab_employee" class="btn btn-sm px-4 py-2 fw-bold text-secondary border-0 rounded" style="background: transparent; transition: all 0.2s;" onclick="switchCredentialType('employee')">
-            👔 Staff Credential
+        <button type="button" id="tab_employee" class="btn btn-sm w-50 fw-bold border-0 rounded-pill position-relative" style="z-index: 2; color: #64748b; transition: color 0.3s;" onclick="switchCredentialType('employee')">
+            👔 Staff
         </button>
     </div>
 
@@ -107,7 +110,7 @@
                 @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
-            <div class="col-md-6 mb-3">
+            <div class="col-md-6 mb-3" id="role_select_wrapper">
                 <label for="role_id" class="form-label fw-bold">Account Role</label>
                 <select name="role_id" id="role_id" class="form-input @error('role_id') is-invalid @enderror" required>
                     <option value="">Select Role</option>
@@ -141,8 +144,10 @@
         const employeeWrapper = document.getElementById('employee_select_wrapper');
         const tabStudent = document.getElementById('tab_student');
         const tabEmployee = document.getElementById('tab_employee');
+        const toggleSlider = document.getElementById('toggle-slider');
         const studentIdInput = document.getElementById('student_id');
         const employeeIdInput = document.getElementById('employee_id');
+        const roleWrapper = document.getElementById('role_select_wrapper');
         
         // Reset selectors and inputs
         document.getElementById('student_select').value = "";
@@ -180,32 +185,22 @@
         if (type === 'student') {
             studentWrapper.classList.remove('d-none');
             employeeWrapper.classList.add('d-none');
+            if (roleWrapper) roleWrapper.classList.add('d-none'); // Hide Role select for student
             
-            tabStudent.style.background = '#ffffff';
-            tabStudent.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-            tabStudent.classList.remove('text-secondary');
-            tabStudent.classList.add('text-dark');
-            
-            tabEmployee.style.background = 'transparent';
-            tabEmployee.style.boxShadow = 'none';
-            tabEmployee.classList.remove('text-dark');
-            tabEmployee.classList.add('text-secondary');
+            if (toggleSlider) toggleSlider.style.left = '3px';
+            tabStudent.style.color = 'var(--first-color)';
+            tabEmployee.style.color = '#64748b';
             
             // Set Role select to 'student' by default
             selectRoleBySlug('student');
         } else {
             employeeWrapper.classList.remove('d-none');
             studentWrapper.classList.add('d-none');
+            if (roleWrapper) roleWrapper.classList.remove('d-none'); // Show Role select for staff
             
-            tabEmployee.style.background = '#ffffff';
-            tabEmployee.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-            tabEmployee.classList.remove('text-secondary');
-            tabEmployee.classList.add('text-dark');
-            
-            tabStudent.style.background = 'transparent';
-            tabStudent.style.boxShadow = 'none';
-            tabStudent.classList.remove('text-dark');
-            tabStudent.classList.add('text-secondary');
+            if (toggleSlider) toggleSlider.style.left = 'calc(50% + 0px)';
+            tabEmployee.style.color = 'var(--first-color)';
+            tabStudent.style.color = '#64748b';
             
             // Set Role select to 'staff' by default
             selectRoleBySlug('staff');
