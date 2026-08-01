@@ -47,7 +47,9 @@ class CredentialController extends Controller
     {
         $roles = Role::whereIn('slug', ['student', 'staff'])->get();
         $students = Student::with(['user', 'course'])->orderBy('first_name')->get();
-        $employees = Employee::with(['user'])->orderBy('first_name')->get();
+        $employees = Employee::with(['user'])->get()->sortBy(function($emp) {
+            return strtolower($emp->user->name ?? '');
+        });
 
         return view('credentials.create', compact('roles', 'students', 'employees'));
     }
