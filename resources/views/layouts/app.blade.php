@@ -368,6 +368,7 @@
 
         <nav class="nav-menu accordion" id="sidebarAccordion">
             @php
+                $currentUser = session('user_id') ? \App\Models\User::find(session('user_id')) : null;
                 $roleSlug = $currentUser->role?->slug ?? null;
                 $isSuperOrRoot = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin']);
                 $access = $currentUser->access ?? [];
