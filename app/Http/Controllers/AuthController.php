@@ -68,13 +68,24 @@ class AuthController extends Controller
                 ->orWhere('username', $loginId);
         })->first();
 
-        // If not found by user table email/username, check student admission_no or roll_no
+        // If not found by user table email/username, check student admission_no, roll_no, or employee_code (with or without prefixes)
         if (! $user) {
+            $cleanLoginId = str_ireplace(['NT-ENR-', 'NT-STAFF-', 'NT-'], '', $loginId);
+            
             $studentMatch = Student::where('admission_no', $loginId)
                 ->orWhere('roll_no', $loginId)
+                ->orWhereRaw("REPLACE(REPLACE(admission_no, 'NT-ENR-', ''), 'NT-', '') = ?", [$cleanLoginId])
                 ->first();
+                
             if ($studentMatch && $studentMatch->user_id) {
                 $user = User::with('role')->find($studentMatch->user_id);
+            } else {
+                $employeeMatch = Employee::where('employee_code', $loginId)
+                    ->orWhereRaw("REPLACE(REPLACE(employee_code, 'NT-STAFF-', ''), 'NT-', '') = ?", [$cleanLoginId])
+                    ->first();
+                if ($employeeMatch && $employeeMatch->user_id) {
+                    $user = User::with('role')->find($employeeMatch->user_id);
+                }
             }
         }
 

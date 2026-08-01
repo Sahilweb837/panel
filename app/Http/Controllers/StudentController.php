@@ -187,9 +187,10 @@ class StudentController extends Controller
         // Auto-create user account
         $role = Role::where('slug', 'student')->first();
         if ($role) {
-            $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$student->admission_no);
-            $email = $request->login_email ?: ($student->email ?: ($student->admission_no.'@student.com'));
-            $plainPassword = $request->login_password ?: ($student->dob ? Carbon::parse($student->dob)->format('dmY') : $student->admission_no);
+            $cleanAdmissionNo = str_ireplace(['NT-ENR-', 'NT-'], '', $student->admission_no);
+            $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$cleanAdmissionNo);
+            $email = $request->login_email ?: ($student->email ?: (strtolower(str_replace(' ', '', $student->first_name)).$cleanAdmissionNo.'@student.com'));
+            $plainPassword = $request->login_password ?: ($student->dob ? Carbon::parse($student->dob)->format('dmY') : (strtolower(str_replace(' ', '', $student->first_name)).'123'));
             $password = Hash::make($plainPassword);
 
             $user = User::create([
@@ -421,14 +422,10 @@ class StudentController extends Controller
 
             if ($request->filled('login_username')) {
                 $userData['username'] = $request->login_username;
-            } elseif ($request->filled('admission_no')) {
-                $userData['username'] = strtolower(str_replace(' ', '', $student->first_name)).$student->admission_no;
             }
 
             if ($request->filled('login_email')) {
                 $userData['email'] = $request->login_email;
-            } elseif ($request->filled('email')) {
-                $userData['email'] = $student->email;
             }
 
             if ($request->filled('login_password')) {
@@ -440,9 +437,10 @@ class StudentController extends Controller
         } else {
             $role = Role::where('slug', 'student')->first();
             if ($role) {
-                $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$student->admission_no);
-                $email = $request->login_email ?: ($student->email ?: ($student->admission_no.'@student.com'));
-                $plainPassword = $request->login_password ?: ($student->dob ? Carbon::parse($student->dob)->format('dmY') : $student->admission_no);
+                $cleanAdmissionNo = str_ireplace(['NT-ENR-', 'NT-'], '', $student->admission_no);
+                $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$cleanAdmissionNo);
+                $email = $request->login_email ?: ($student->email ?: (strtolower(str_replace(' ', '', $student->first_name)).$cleanAdmissionNo.'@student.com'));
+                $plainPassword = $request->login_password ?: ($student->dob ? Carbon::parse($student->dob)->format('dmY') : (strtolower(str_replace(' ', '', $student->first_name)).'123'));
                 $password = Hash::make($plainPassword);
 
                 $user = User::create([
