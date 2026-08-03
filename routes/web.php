@@ -205,9 +205,10 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('meetings/{meeting}/chat', [\App\Http\Controllers\MeetingController::class, 'storeMessage'])->name('meetings.chat.store');
     Route::get('meetings/{meeting}/chat', [\App\Http\Controllers\MeetingController::class, 'getMessages'])->name('meetings.chat.index');
     Route::post('meetings/{meeting}/files', [\App\Http\Controllers\MeetingController::class, 'storeFile'])->name('meetings.files.store');
-    Route::get('meetings/join/{id}', function($id) {
-        return view('meetings.join', compact('id'));
-    })->name('meetings.join');
+    Route::get('meetings/join/{id}', [\App\Http\Controllers\MeetingController::class, 'joinMeeting'])->name('meetings.join');
+    Route::post('meetings/join/{id}/heartbeat', [\App\Http\Controllers\MeetingController::class, 'heartbeat'])->name('meetings.join.heartbeat');
+    Route::post('meetings/join/{id}/leave', [\App\Http\Controllers\MeetingController::class, 'leaveMeeting'])->name('meetings.join.leave');
+
 
     // Client Management
     Route::post('clients/{id}/restore', [ClientController::class, 'restore'])->name('clients.restore');

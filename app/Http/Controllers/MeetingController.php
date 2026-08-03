@@ -235,4 +235,45 @@ class MeetingController extends Controller
 
         return redirect()->route('meetings.index')->with('success', 'Meeting deleted successfully.');
     }
+
+    public function joinMeeting($id)
+    {
+        $meeting = Meeting::where('meeting_link', 'like', '%' . $id)->first();
+        return view('meetings.join', compact('id', 'meeting'));
+    }
+
+    public function heartbeat(Request $request, $id)
+    {
+        $userId = session('user_id');
+        $userName = session('user_name', 'Participant');
+        $peerId = $request->input('peer_id');
+
+        if ($userId && $peerId) {
+            \App\Models\MeetingActivePeer::updateOrCreate(
+                [
+                    'room_id' => $id,
+                    'user_id' => $userId,
+                ],
+                [
+                    'peer_id' => $peerId,
+                    'user_name' => $userName,
+                    'last_seen_at' => now(),
+                ]
+            );
+        }
+
+        // Clean up stale peers who haven't updated in 12 seconds
+        \App\Models\MeetingActivePeer::where('last_seen_at', '<', now()->subSeconds(12))->delete();
+
+        // Get all active peers for this room
+        $activePeers = \App\Models\MeetingActivePeer::where('room_id', $id)
+            ->where('user_id', '!=', $userId) // exclude self
+            ->get(['peer_id', 'user_name', 'user_id']);
+
+        return response()->json([
+            'success' => true,
+            'peers' => $activePeers
+        ]);
+    }
 }
+

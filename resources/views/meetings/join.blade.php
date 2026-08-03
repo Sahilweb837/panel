@@ -230,20 +230,11 @@
                 </div>
 
                 <!-- Participant Grid / Thumbnail Bar -->
-                <div class="px-6 pb-6 flex gap-4 overflow-x-auto custom-scrollbar shrink-0">
+                <div id="participantGrid" class="px-6 pb-6 flex gap-4 overflow-x-auto custom-scrollbar shrink-0">
                     <!-- Local Camera Feed -->
                     <div class="flex-shrink-0 w-44 aspect-video rounded-xl bg-slate-900 border border-white/10 overflow-hidden relative shadow-md">
                         <video id="localVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
                         <div class="absolute bottom-2 left-2 text-[10px] text-white bg-black/50 px-1.5 py-0.5 rounded">You (Local Camera)</div>
-                    </div>
-                    <!-- Sample Mock Participants for Hub Feel -->
-                    <div class="flex-shrink-0 w-44 aspect-video rounded-xl bg-slate-900 border border-white/10 overflow-hidden relative opacity-60">
-                        <div class="w-full h-full flex items-center justify-center bg-slate-800 text-slate-500 font-bold text-lg">MJ</div>
-                        <div class="absolute bottom-2 left-2 text-[10px] text-slate-300 bg-black/50 px-1.5 py-0.5 rounded">Marcus J.</div>
-                    </div>
-                    <div class="flex-shrink-0 w-44 aspect-video rounded-xl bg-slate-900 border border-white/10 overflow-hidden relative opacity-60">
-                        <div class="w-full h-full flex items-center justify-center bg-slate-800 text-slate-500 font-bold text-lg">EV</div>
-                        <div class="absolute bottom-2 left-2 text-[10px] text-slate-300 bg-black/50 px-1.5 py-0.5 rounded">Elena V.</div>
                     </div>
                 </div>
 
@@ -315,6 +306,9 @@
     </div>
 </div>
 
+<!-- Toast Notification Container -->
+<div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
 <!-- PeerJS & Conference Logic -->
 <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 <script>
@@ -322,11 +316,10 @@
     const PEER_ID_PREFIX = "feesmanager-peer-";
     
     const myPeerId = PEER_ID_PREFIX + Math.random().toString(36).substr(2, 9);
-    const hostId = PEER_ID_PREFIX + ROOM_ID;
 
     let peer = null;
     let localStream = null;
-    let currentCall = null;
+    const activeCalls = {};
 
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
@@ -364,6 +357,9 @@
         }
     });
 
+    const MEETING_ID = "{{ $meeting ? $meeting->id : '' }}";
+    const MY_USER_ID = "{{ session('user_id') }}";
+
     // Chat sending functions
     function handleChatKeyPress(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -374,26 +370,102 @@
 
     function sendMeetingChatMessage() {
         const textarea = document.getElementById('meeting-chat-input');
-        const chatBody = document.getElementById('meeting-chat-body');
         const text = textarea.value.trim();
-        if (text === '') return;
+        if (text === '' || !MEETING_ID) return;
 
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const messageHtml = `
-            <div class="space-y-1">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-primary">You</span>
-                    <span class="text-[10px] text-secondary">${time}</span>
-                </div>
-                <div class="bg-primary/5 p-3 rounded-lg rounded-tl-none border border-primary/20">
-                    <p class="text-xs text-on-surface m-0">${text}</p>
-                </div>
-            </div>
-        `;
-        chatBody.insertAdjacentHTML('beforeend', messageHtml);
-        textarea.value = '';
-        chatBody.scrollTop = chatBody.scrollHeight;
+        fetch(`/meetings/${MEETING_ID}/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ message: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                textarea.value = '';
+                fetchChatMessages();
+            }
+        })
+        .catch(err => console.error("Error sending chat message:", err));
     }
+
+    let isFirstLoad = true;
+    const displayedMessageIds = new Set();
+
+    function fetchChatMessages() {
+        if (!MEETING_ID) return;
+
+        fetch(`/meetings/${MEETING_ID}/chat`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.messages) {
+                const chatBody = document.getElementById('meeting-chat-body');
+                let newMessagesAppended = false;
+
+                data.messages.forEach(msg => {
+                    if (!displayedMessageIds.has(msg.id)) {
+                        displayedMessageIds.add(msg.id);
+
+                        const isMe = String(msg.sender_id) === String(MY_USER_ID);
+                        const senderName = isMe ? 'You' : msg.sender;
+                        const messageHtml = `
+                            <div class="space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold ${isMe ? 'text-primary' : 'text-on-surface'}">${senderName}</span>
+                                    <span class="text-[10px] text-secondary">${msg.time}</span>
+                                </div>
+                                <div class="${isMe ? 'bg-primary/5 border-primary/20' : 'bg-white border-border-subtle'} p-3 rounded-lg rounded-tl-none border">
+                                    <p class="text-xs text-on-surface m-0">${msg.message}</p>
+                                </div>
+                            </div>
+                        `;
+                        chatBody.insertAdjacentHTML('beforeend', messageHtml);
+                        newMessagesAppended = true;
+
+                        if (!isFirstLoad && !isMe) {
+                            showToast(msg.sender, msg.message);
+                        }
+                    }
+                });
+
+                if (newMessagesAppended) {
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }
+                isFirstLoad = false;
+            }
+        })
+        .catch(err => console.error("Error fetching messages:", err));
+    }
+
+    function showToast(senderName, messageText) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = "bg-slate-900 border border-slate-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-x-full pointer-events-auto max-w-sm";
+        toast.innerHTML = `
+            <span class="material-symbols-outlined text-primary-container">chat_bubble</span>
+            <div class="flex-grow min-w-0">
+                <p class="text-xs font-bold text-slate-200 truncate">${senderName}</p>
+                <p class="text-xs text-slate-400 truncate m-0">${messageText}</p>
+            </div>
+            <button class="bg-transparent border-0 text-slate-400 hover:text-white cursor-pointer" onclick="this.parentElement.remove()">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        `;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-x-full');
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.add('translate-x-full');
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
 
     // Helper to create a dummy stream (silent audio and black video) if permissions/devices are missing
     function createDummyStream() {
@@ -488,57 +560,193 @@
     }
 
     function initPeer() {
-        peer = new Peer(hostId);
+        peer = new Peer(myPeerId);
 
         peer.on('open', (id) => {
-            statusBadge.textContent = "Host Active";
-            statusBadge.className = "badge bg-primary px-3 py-1";
+            statusBadge.textContent = "Connected";
+            statusBadge.className = "badge bg-success px-3 py-1";
+            
+            // Start heartbeat polling
+            handleHeartbeat();
+            setInterval(handleHeartbeat, 3000);
+
+            // Start chat polling
+            fetchChatMessages();
+            setInterval(fetchChatMessages, 3000);
         });
 
         peer.on('error', (err) => {
-            if (err.type === 'unavailable-id') {
-                joinAsParticipant();
-            } else {
-                console.error("PeerJS Error:", err);
-            }
+            console.error("PeerJS Error:", err);
         });
 
         peer.on('call', (call) => {
+            console.log("Incoming call from:", call.peer);
             call.answer(localStream);
-            setupCallEvents(call);
+            activeCalls[call.peer] = call;
+            setupCallEvents(call, call.peer, "Participant");
         });
     }
 
-    function joinAsParticipant() {
-        peer = new Peer(myPeerId);
-        
-        peer.on('open', (id) => {
-            statusBadge.textContent = "Connecting to host...";
-            statusBadge.className = "badge bg-warning text-dark px-3 py-1";
-            
-            const call = peer.call(hostId, localStream);
-            setupCallEvents(call);
-        });
+    function handleHeartbeat() {
+        if (!peer || peer.destroyed || !localStream) return;
+
+        fetch("{{ route('meetings.join.heartbeat', $id) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ peer_id: peer.id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.peers) {
+                const activePeerIds = data.peers.map(p => p.peer_id);
+                
+                // 1. Clean up calls/thumbnails for peers who left
+                for (const peerId in activeCalls) {
+                    if (!activePeerIds.includes(peerId)) {
+                        console.log("Peer left, closing call:", peerId);
+                        activeCalls[peerId].close();
+                        delete activeCalls[peerId];
+                        removeParticipantElement(peerId);
+                    }
+                }
+
+                // 2. Connect to new peers and update display names
+                data.peers.forEach(p => {
+                    const peerId = p.peer_id;
+                    
+                    // Update label if the element exists
+                    const label = document.getElementById('label-' + peerId);
+                    if (label && p.user_name) {
+                        label.textContent = p.user_name;
+                    }
+
+                    if (peerId !== peer.id && !activeCalls[peerId]) {
+                        // Lexicographical check: only call if my peer.id is greater
+                        // This prevents duplicate calling
+                        if (peer.id > peerId) {
+                            console.log("Initiating call to:", peerId);
+                            const call = peer.call(peerId, localStream);
+                            activeCalls[peerId] = call;
+                            setupCallEvents(call, peerId, p.user_name);
+                        } else {
+                            console.log("Waiting for incoming call from:", peerId);
+                        }
+                    }
+                });
+            }
+        })
+        .catch(err => console.error("Heartbeat error:", err));
     }
 
-    function setupCallEvents(call) {
-        currentCall = call;
-        
+    function setupCallEvents(call, peerId, displayName) {
         call.on('stream', (remoteStream) => {
-            remoteVideo.srcObject = remoteStream;
-            waitingMsg.style.display = 'none';
-            remoteLabel.style.display = 'flex';
-            statusBadge.textContent = "Connected";
-            statusBadge.className = "badge bg-success px-3 py-1";
+            console.log("Received stream from:", peerId);
+            addOrUpdateParticipant(peerId, displayName, remoteStream);
         });
 
         call.on('close', () => {
-            remoteVideo.srcObject = null;
-            waitingMsg.style.display = 'block';
-            remoteLabel.style.display = 'none';
-            statusBadge.textContent = "Peer Left";
-            statusBadge.className = "badge bg-danger px-3 py-1";
+            console.log("Call closed:", peerId);
+            removeParticipantElement(peerId);
+            if (activeCalls[peerId]) {
+                delete activeCalls[peerId];
+            }
         });
+
+        call.on('error', (err) => {
+            console.error("Call error for peer:", peerId, err);
+            removeParticipantElement(peerId);
+            if (activeCalls[peerId]) {
+                delete activeCalls[peerId];
+            }
+        });
+    }
+
+    function addOrUpdateParticipant(peerId, displayName, stream) {
+        let container = document.getElementById('participant-' + peerId);
+        let video = null;
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'participant-' + peerId;
+            container.className = "flex-shrink-0 w-44 aspect-video rounded-xl bg-slate-900 border border-white/10 overflow-hidden relative shadow-md cursor-pointer";
+            
+            container.onclick = () => {
+                setMainSpeaker(stream, displayName);
+            };
+
+            video = document.createElement('video');
+            video.autoplay = true;
+            video.playsInline = true;
+            video.className = "w-full h-full object-cover";
+            
+            const label = document.createElement('div');
+            label.className = "absolute bottom-2 left-2 text-[10px] text-white bg-black/50 px-1.5 py-0.5 rounded";
+            label.id = 'label-' + peerId;
+            label.textContent = displayName;
+
+            container.appendChild(video);
+            container.appendChild(label);
+            document.getElementById('participantGrid').appendChild(container);
+        } else {
+            video = container.querySelector('video');
+            const label = document.getElementById('label-' + peerId);
+            if (label && displayName !== "Participant") {
+                label.textContent = displayName;
+            }
+        }
+
+        if (video && video.srcObject !== stream) {
+            video.srcObject = stream;
+        }
+
+        // Set as main speaker if no main speaker stream is set
+        const remoteVideo = document.getElementById('remoteVideo');
+        if (!remoteVideo.srcObject) {
+            setMainSpeaker(stream, displayName);
+        }
+    }
+
+    function setMainSpeaker(stream, displayName) {
+        const remoteVideo = document.getElementById('remoteVideo');
+        const waitingMsg = document.getElementById('waitingMsg');
+        const remoteLabel = document.getElementById('remoteLabel');
+
+        remoteVideo.srcObject = stream;
+        waitingMsg.style.display = 'none';
+        
+        const labelText = remoteLabel.querySelector('span.text-white');
+        if (labelText) {
+            labelText.textContent = displayName;
+        }
+        remoteLabel.style.display = 'flex';
+    }
+
+    function removeParticipantElement(peerId) {
+        const container = document.getElementById('participant-' + peerId);
+        if (container) {
+            container.remove();
+        }
+
+        // If the main speaker was this participant, clear it or switch to another active stream
+        const remoteVideo = document.getElementById('remoteVideo');
+        const activePeerIds = Object.keys(activeCalls);
+        if (activePeerIds.length === 0) {
+            remoteVideo.srcObject = null;
+            document.getElementById('waitingMsg').style.display = 'block';
+            document.getElementById('remoteLabel').style.display = 'none';
+        } else {
+            const nextPeerId = activePeerIds[0];
+            const nextContainer = document.getElementById('participant-' + nextPeerId);
+            if (nextContainer) {
+                const nextVideo = nextContainer.querySelector('video');
+                const nextLabel = document.getElementById('label-' + nextPeerId);
+                if (nextVideo && nextVideo.srcObject) {
+                    setMainSpeaker(nextVideo.srcObject, nextLabel ? nextLabel.textContent : "Participant");
+                }
+            }
+        }
     }
 
     function toggleAudio() {
@@ -593,8 +801,8 @@
                 
                 localVideo.srcObject = screenStream;
 
-                if (currentCall) {
-                    const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                for (const peerId in activeCalls) {
+                    const sender = activeCalls[peerId].peerConnection.getSenders().find(s => s.track.kind === 'video');
                     if (sender) sender.replaceTrack(screenTrack);
                 }
 
@@ -623,9 +831,11 @@
         localVideo.srcObject = localStream;
 
         const videoTrack = localStream.getVideoTracks()[0];
-        if (currentCall && videoTrack) {
-            const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
-            if (sender) sender.replaceTrack(videoTrack);
+        if (videoTrack) {
+            for (const peerId in activeCalls) {
+                const sender = activeCalls[peerId].peerConnection.getSenders().find(s => s.track.kind === 'video');
+                if (sender) sender.replaceTrack(videoTrack);
+            }
         }
         
         isScreenSharing = false;
@@ -633,7 +843,11 @@
     }
 
     function endCall() {
-        if(currentCall) currentCall.close();
+        for (const peerId in activeCalls) {
+            if (activeCalls[peerId]) {
+                activeCalls[peerId].close();
+            }
+        }
         if(peer) peer.destroy();
         if(localStream) {
             localStream.getTracks().forEach(track => track.stop());
