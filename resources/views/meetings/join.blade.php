@@ -843,6 +843,15 @@
     }
 
     function endCall() {
+        if (peer && peer.id) {
+            const leaveUrl = "{{ route('meetings.join.leave', $id) }}";
+            const data = JSON.stringify({ peer_id: peer.id, _token: "{{ csrf_token() }}" });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(leaveUrl, new Blob([data], {type: 'application/json'}));
+            } else {
+                fetch(leaveUrl, { method: 'POST', body: data, headers: { 'Content-Type': 'application/json' }, keepalive: true });
+            }
+        }
         for (const peerId in activeCalls) {
             if (activeCalls[peerId]) {
                 activeCalls[peerId].close();
@@ -854,6 +863,16 @@
         }
         window.location.href = "{{ $dashRoute }}";
     }
+
+    window.addEventListener('beforeunload', () => {
+        if (peer && peer.id) {
+            const leaveUrl = "{{ route('meetings.join.leave', $id) }}";
+            const data = JSON.stringify({ peer_id: peer.id, _token: "{{ csrf_token() }}" });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(leaveUrl, new Blob([data], {type: 'application/json'}));
+            }
+        }
+    });
 </script>
 
 </body>

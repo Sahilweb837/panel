@@ -239,7 +239,34 @@ class MeetingController extends Controller
     public function joinMeeting($id)
     {
         $meeting = Meeting::where('meeting_link', 'like', '%' . $id)->first();
+        
+        if (!$meeting) {
+            $creatorId = session('user_id') ?: (\App\Models\User::first()->id ?? 1);
+            $meeting = Meeting::create([
+                'title' => 'Ad-hoc Video Call (' . $id . ')',
+                'description' => 'Automatically created meeting room',
+                'meeting_date' => now()->toDateString(),
+                'start_time' => now()->toTimeString(),
+                'end_time' => now()->addHours(2)->toTimeString(),
+                'meeting_mode' => 'Online',
+                'meeting_link' => route('meetings.join', ['id' => $id]),
+                'created_by' => $creatorId,
+                'status' => 'In Progress',
+            ]);
+        }
+        
         return view('meetings.join', compact('id', 'meeting'));
+    }
+
+    public function leaveMeeting(Request $request, $id)
+    {
+        $peerId = $request->input('peer_id');
+        if ($peerId) {
+            \App\Models\MeetingActivePeer::where('room_id', $id)
+                ->where('peer_id', $peerId)
+                ->delete();
+        }
+        return response()->json(['success' => true]);
     }
 
     public function heartbeat(Request $request, $id)
