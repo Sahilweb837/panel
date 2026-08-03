@@ -128,9 +128,12 @@
 <div class="flex h-screen overflow-hidden">
     <!-- Side Navigation Shell -->
     <aside class="fixed left-0 top-0 h-screen w-64 bg-surface border-r border-border-subtle flex flex-col py-base z-50">
-        <div class="px-6 mb-stack-lg py-4">
-            <h1 class="font-display-lg text-[22px] font-bold text-primary">Nexus Institute</h1>
-            <p class="text-secondary text-sm font-medium">Collaboration Suite</p>
+        <div class="px-6 mb-stack-lg py-4 flex flex-col gap-2">
+            <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Nexus Institute') }} Logo" class="h-10 w-auto object-contain self-start">
+            <div>
+                <h1 class="font-display-lg text-[18px] font-bold text-primary leading-tight">{{ \App\Models\Setting::get('institute_name', 'Nexus Institute') }}</h1>
+                <p class="text-secondary text-xs font-medium m-0">Collaboration Suite</p>
+            </div>
         </div>
         <nav class="flex-1 px-3 space-y-1">
             @php
@@ -174,8 +177,8 @@
         <!-- Join Room Overlay -->
         <div class="absolute inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-6 ml-64" id="joinPanel">
             <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center shadow-2xl">
-                <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary">
-                    <span class="material-symbols-outlined text-4xl">video_call</span>
+                <div class="mb-6 flex justify-center">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Nexus Institute') }} Logo" class="h-16 w-auto object-contain bg-slate-850 p-2 rounded-2xl">
                 </div>
                 <h2 class="text-2xl font-bold text-white mb-2">Join Meeting Room</h2>
                 <p class="text-primary-container font-mono text-sm mb-4">ID: {{ $id }}</p>
@@ -189,7 +192,8 @@
         <!-- Top App Bar -->
         <header class="h-16 bg-surface-bright border-b border-border-subtle flex justify-between items-center px-margin-desktop shrink-0">
             <div class="flex items-center gap-6">
-                <span class="text-title-md font-black text-primary font-title-md">Collaboration Hub</span>
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="Logo" class="h-8 w-auto object-contain">
+                <span class="text-title-md font-black text-primary font-title-md">{{ \App\Models\Setting::get('institute_name', 'Nexus Institute') }} Collaboration Hub</span>
                 <div class="h-6 w-px bg-border-subtle"></div>
                 <div class="flex items-center gap-2">
                     <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-mono font-bold">Room: {{ $id }}</span>
@@ -391,19 +395,96 @@
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
+    // Helper to create a dummy stream (silent audio and black video) if permissions/devices are missing
+    function createDummyStream() {
+        let audioTrack = null;
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const dest = ctx.createMediaStreamDestination();
+            audioTrack = dest.stream.getAudioTracks()[0];
+        } catch (e) {
+            console.error("Web Audio API not supported or failed to initialize", e);
+        }
+        
+        let videoTrack = null;
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const context = canvas.getContext('2d');
+            context.fillStyle = '#0f172a';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            context.fillStyle = '#94a3b8';
+            context.font = '20px Inter, sans-serif';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText('No Camera Connected', canvas.width / 2, canvas.height / 2);
+            
+            const videoStream = canvas.captureStream(10);
+            videoTrack = videoStream.getVideoTracks()[0];
+        } catch (e) {
+            console.error("Failed to create dummy video track", e);
+        }
+        
+        const tracks = [];
+        if (videoTrack) tracks.push(videoTrack);
+        if (audioTrack) tracks.push(audioTrack);
+        
+        return new MediaStream(tracks);
+    }
+
     // Meeting connection start
     async function startMeeting() {
         document.getElementById('joinPanel').style.display = 'none';
 
         try {
+            // Attempt to get both camera and audio
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localVideo.srcObject = localStream;
-            initPeer();
         } catch (err) {
-            alert("Failed to access camera and microphone. Please grant required permissions.");
-            console.error(err);
-            document.getElementById('joinPanel').style.display = 'flex';
+            console.warn("Could not get both video and audio, trying audio only...", err);
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                isVideoMuted = true;
+                const btnVideo = document.getElementById('btnVideo');
+                if (btnVideo) {
+                    btnVideo.classList.add('bg-red-500/20', 'border-red-500', 'text-red-500');
+                    btnVideo.querySelector('.material-symbols-outlined').textContent = 'videocam_off';
+                }
+            } catch (err2) {
+                console.warn("Could not get audio, trying video only...", err2);
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    isAudioMuted = true;
+                    const btnAudio = document.getElementById('btnAudio');
+                    if (btnAudio) {
+                        btnAudio.classList.add('bg-red-500/20', 'border-red-500', 'text-red-500');
+                        btnAudio.querySelector('.material-symbols-outlined').textContent = 'mic_off';
+                    }
+                } catch (err3) {
+                    console.warn("No camera/microphone available or permission denied. Joining with dummy stream...", err3);
+                    localStream = createDummyStream();
+                    isAudioMuted = true;
+                    isVideoMuted = true;
+                    
+                    const btnAudio = document.getElementById('btnAudio');
+                    if (btnAudio) {
+                        btnAudio.classList.add('bg-red-500/20', 'border-red-500', 'text-red-500');
+                        btnAudio.querySelector('.material-symbols-outlined').textContent = 'mic_off';
+                    }
+                    const btnVideo = document.getElementById('btnVideo');
+                    if (btnVideo) {
+                        btnVideo.classList.add('bg-red-500/20', 'border-red-500', 'text-red-500');
+                        btnVideo.querySelector('.material-symbols-outlined').textContent = 'videocam_off';
+                    }
+                }
+            }
         }
+
+        if (localStream) {
+            localVideo.srcObject = localStream;
+        }
+        initPeer();
     }
 
     function initPeer() {
@@ -463,7 +544,10 @@
     function toggleAudio() {
         if(!localStream) return;
         isAudioMuted = !isAudioMuted;
-        localStream.getAudioTracks()[0].enabled = !isAudioMuted;
+        const tracks = localStream.getAudioTracks();
+        if (tracks.length > 0) {
+            tracks[0].enabled = !isAudioMuted;
+        }
         
         const btn = document.getElementById('btnAudio');
         const icon = btn.querySelector('.material-symbols-outlined');
@@ -479,7 +563,10 @@
     function toggleVideo() {
         if(!localStream) return;
         isVideoMuted = !isVideoMuted;
-        localStream.getVideoTracks()[0].enabled = !isVideoMuted;
+        const tracks = localStream.getVideoTracks();
+        if (tracks.length > 0) {
+            tracks[0].enabled = !isVideoMuted;
+        }
         
         const btn = document.getElementById('btnVideo');
         const icon = btn.querySelector('.material-symbols-outlined');
