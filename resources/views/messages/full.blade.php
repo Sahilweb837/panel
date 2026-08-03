@@ -83,7 +83,7 @@
                             $unreadFromUser = $inboxMessages->where('sender_id', $user->id)->where('is_read', false)->count();
                             $isCurrentChat = request('chat_user') == $user->id;
                         @endphp
-                        <a href="{{ route('messages.full', ['chat_user' => $user->id]) }}" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors {{ $isCurrentChat ? 'active-chat-item' : '' }}">
+                        <a href="{{ route('messages.full', ['chat_user' => $user->id]) }}" class="chat-contact-link flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors {{ $isCurrentChat ? 'active-chat-item' : '' }}" data-user-id="{{ $user->id }}" data-href="{{ route('messages.full', ['chat_user' => $user->id]) }}">
                             <div class="relative shrink-0">
                                 @if($user->profile_pic)
                                     <img src="{{ asset('uploads/profiles/'.$user->profile_pic) }}" class="w-9 h-9 rounded-full object-cover">
@@ -118,7 +118,7 @@
                             $unreadFromUser = $inboxMessages->where('sender_id', $user->id)->where('is_read', false)->count();
                             $isCurrentChat = request('chat_user') == $user->id;
                         @endphp
-                        <a href="{{ route('messages.full', ['chat_user' => $user->id]) }}" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors {{ $isCurrentChat ? 'active-chat-item' : '' }}">
+                        <a href="{{ route('messages.full', ['chat_user' => $user->id]) }}" class="chat-contact-link flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors {{ $isCurrentChat ? 'active-chat-item' : '' }}" data-user-id="{{ $user->id }}" data-href="{{ route('messages.full', ['chat_user' => $user->id]) }}">
                             <div class="relative shrink-0">
                                 @if($user->profile_pic)
                                     <img src="{{ asset('uploads/profiles/'.$user->profile_pic) }}" class="w-9 h-9 rounded-full object-cover">
@@ -181,66 +181,7 @@
             <!-- Messages History Grid -->
             <div class="flex-grow overflow-y-auto p-6 space-y-6 custom-scrollbar" id="chatScrollArea">
                 <div class="chat-messages" id="chatMessages">
-                    @php $lastDate = null; @endphp
-                    @forelse($chatMessages as $msg)
-                        @php
-                            $msgDate = $msg->created_at->toDateString();
-                            $isMine = $msg->sender_id == session('user_id');
-                        @endphp
-                        @if($msgDate !== $lastDate)
-                            <div class="chat-day-divider text-center my-4 font-semibold text-slate-400 text-xs flex items-center gap-2">
-                                <span class="flex-grow h-px bg-slate-200"></span>
-                                {{ \Carbon\Carbon::parse($msgDate)->isToday() ? 'Today' : \Carbon\Carbon::parse($msgDate)->format('M d, Y') }}
-                                <span class="flex-grow h-px bg-slate-200"></span>
-                            </div>
-                            @php $lastDate = $msgDate; @endphp
-                        @endif
-
-                        <div class="flex gap-3 max-w-xl {{ $isMine ? 'ml-auto flex-row-reverse' : '' }}" data-msg-id="{{ $msg->id }}">
-                            @if(!$isMine)
-                                @if($selectedChatUser->profile_pic)
-                                    <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-8 h-8 rounded-full object-cover shrink-0">
-                                @else
-                                    <div class="w-8 h-8 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:{{ ['#ff5532','#10b981','#3b82f6','#8b5cf6','#f59e0b'][crc32($selectedChatUser->name) % 5] }}">
-                                        {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
-                                    </div>
-                                @endif
-                            @endif
-                            
-                            <div class="flex flex-col {{ $isMine ? 'items-end' : 'items-start' }}">
-                                <div class="flex items-baseline gap-2 mb-1 {{ $isMine ? 'flex-row-reverse' : '' }}">
-                                    <span class="text-[10px] font-bold text-slate-600">{{ $isMine ? 'You' : $selectedChatUser->name }}</span>
-                                    <span class="text-[9px] text-slate-400">{{ $msg->created_at->format('h:i A') }}</span>
-                                </div>
-                                <div class="p-3 shadow-sm border {{ $isMine ? 'bg-primary text-white border-transparent message-bubble-out' : 'bg-white text-slate-700 border-slate-100 message-bubble-in' }}">
-                                    @if($msg->body === '[VIDEO_CALL_INVITE]')
-                                        <div class="text-center p-1">
-                                            <i class="fas fa-video fa-2x mb-2 {{ $isMine ? 'text-white' : 'text-success' }}"></i><br>
-                                            <button class="btn btn-xs {{ $isMine ? 'btn-light' : 'btn-success' }} fw-bold" style="font-size:0.75rem;" data-bs-toggle="modal" data-bs-target="#jitsiModal">
-                                                Join Video Call
-                                            </button>
-                                        </div>
-                                    @else
-                                        <p class="text-sm m-0" style="white-space: pre-wrap; word-break: break-word;">{{ $msg->body }}</p>
-                                    @endif
-
-                                    @if($msg->attachment)
-                                        <div class="mt-2 pt-2 border-t {{ $isMine ? 'border-white/20' : 'border-slate-100' }}">
-                                            <a href="{{ asset('uploads/messages/'.$msg->attachment) }}" target="_blank" class="text-xs font-semibold hover:underline inline-flex items-center gap-1 {{ $isMine ? 'text-white' : 'text-primary' }}">
-                                                <i class="fas fa-paperclip"></i> View Attached Resource
-                                            </a>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="flex flex-col items-center justify-center py-20 text-slate-400">
-                            <i class="fas fa-comments fa-3x mb-3 opacity-40"></i>
-                            <h5 class="font-bold text-slate-600 text-sm">Start the conversation</h5>
-                            <p class="text-xs">Send a direct message to begin collaboration.</p>
-                        </div>
-                    @endforelse
+                    @include('messages.chat_history')
                 </div>
             </div>
 
@@ -536,9 +477,7 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
 const CSRF = '{{ csrf_token() }}';
-@if(request('chat_user') && $selectedChatUser)
-const CHAT_USER_ID = {{ $selectedChatUser->id }};
-@endif
+let currentChatUserId = {{ $selectedChatUser ? $selectedChatUser->id : 'null' }};
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -640,7 +579,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Poll for new messages every 3 seconds
         let lastMsgId = getLastMsgId();
         setInterval(() => {
-            fetch(`/api/messages/poll/${CHAT_USER_ID}?last_id=${lastMsgId}`, {
+            if (!currentChatUserId) return;
+            fetch(`/api/messages/poll/${currentChatUserId}?last_id=${lastMsgId}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             }).then(r => r.json()).then(d => {
                 if (d.messages && d.messages.length) {
@@ -651,6 +591,99 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         }, 3000);
+
+        // Fast AJAX contact switching without loading
+        document.querySelectorAll('.chat-contact-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const userId = this.dataset.userId;
+                const href = this.dataset.href;
+                
+                // Highlight active contact
+                document.querySelectorAll('.chat-contact-link').forEach(l => l.classList.remove('active-chat-item'));
+                this.classList.add('active-chat-item');
+                
+                // Show temporary loading indicator in chat window
+                const chatArea = document.getElementById('chatMessages');
+                if (chatArea) {
+                    chatArea.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                            <i class="fas fa-spinner fa-spin fa-2x mb-3 text-primary"></i>
+                            <p class="text-xs">Loading conversation...</p>
+                        </div>`;
+                }
+                
+                fetch(href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        currentChatUserId = d.chatUserId;
+                        
+                        // Push URL history state
+                        history.pushState(null, '', href);
+                        
+                        // Update chat header details
+                        const headerTitle = document.querySelector('.chat-widget-main h2') || document.querySelector('#chatMessages').closest('.flex-grow').querySelector('h2');
+                        if (headerTitle) headerTitle.textContent = d.userName;
+                        
+                        const headerRole = document.querySelector('.chat-widget-main p') || document.querySelector('#chatMessages').closest('.flex-grow').querySelector('p');
+                        if (headerRole) {
+                            headerRole.innerHTML = `<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> ${d.userRole}`;
+                        }
+                        
+                        const headerImgContainer = document.querySelector('.chat-widget-main img')?.parentNode || document.querySelector('#chatMessages').closest('.flex-grow').querySelector('.flex.items-center.gap-3');
+                        if (headerImgContainer) {
+                            const oldImg = headerImgContainer.querySelector('img') || headerImgContainer.querySelector('div.w-10');
+                            if (oldImg) {
+                                if (d.profilePic) {
+                                    const img = document.createElement('img');
+                                    img.src = d.profilePic;
+                                    img.className = 'w-10 h-10 rounded-full object-cover';
+                                    oldImg.replaceWith(img);
+                                } else {
+                                    const initialsDiv = document.createElement('div');
+                                    initialsDiv.className = 'w-10 h-10 text-white rounded-full flex items-center justify-center font-bold';
+                                    initialsDiv.style.background = 'var(--first-color)';
+                                    initialsDiv.textContent = d.initials;
+                                    oldImg.replaceWith(initialsDiv);
+                                }
+                            }
+                        }
+                        
+                        // Render messages HTML
+                        if (chatArea) {
+                            chatArea.innerHTML = d.html;
+                            scrollToBottom();
+                        }
+                        
+                        // Update active action on chat form
+                        const form = document.getElementById('chatForm');
+                        if (form) {
+                            form.action = `{{ route('messages.chat.store') }}`;
+                            const receiverInput = form.querySelector('input[name="receiver_id"]') || document.createElement('input');
+                            receiverInput.type = 'hidden';
+                            receiverInput.name = 'receiver_id';
+                            receiverInput.value = d.chatUserId;
+                            if (!form.querySelector('input[name="receiver_id"]')) {
+                                form.appendChild(receiverInput);
+                            }
+                        }
+                        
+                        // Reset last message ID
+                        lastMsgId = getLastMsgId();
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to load chat:', err);
+                    window.location.href = href; // Fallback to full load on error
+                });
+            });
+        });
     }
 });
 

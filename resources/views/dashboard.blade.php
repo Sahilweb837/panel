@@ -216,7 +216,7 @@
                                     <td class="px-4 py-3.5">
                                         <div class="flex items-center gap-3">
                                             @if($student->user && $student->user->profile_pic)
-                                                <img class="w-8 h-8 rounded-full object-cover border border-border-subtle" src="{{ asset('uploads/profiles/' . $student->user->profile_pic) }}" alt="{{ $student->first_name }}">
+                                                <img class="w-8 h-8 rounded-full object-cover border border-border-subtle" src="{{ asset('uploads/profiles/' . $student->user->profile_pic) }}" alt="{{ $student->first_name }}" loading="lazy">
                                             @else
                                                 <div class="w-8 h-8 rounded-full bg-primary-container/10 flex items-center justify-center font-bold text-primary-container text-xs">
                                                     {{ strtoupper(substr($student->first_name, 0, 1)) }}

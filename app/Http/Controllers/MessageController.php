@@ -83,6 +83,19 @@ class MessageController extends Controller
             }
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('messages.chat_history', compact('chatMessages', 'selectedChatUser', 'chatUserId'))->render(),
+                'unreadCount' => $unreadCount,
+                'chatUserId' => $chatUserId,
+                'userName' => $selectedChatUser ? $selectedChatUser->name : '',
+                'userRole' => $selectedChatUser ? ($selectedChatUser->role?->role_name ?? 'Portal Member') : '',
+                'profilePic' => $selectedChatUser && $selectedChatUser->profile_pic ? asset('uploads/profiles/'.$selectedChatUser->profile_pic) : null,
+                'initials' => $selectedChatUser ? strtoupper(substr($selectedChatUser->name, 0, 1)) : ''
+            ]);
+        }
+
         return view('messages.full', compact(
             'inboxMessages', 'sentMessages', 'unreadCount', 'recipients',
             'isAdmin', 'chatMessages', 'selectedChatUser', 'chatUserId'
