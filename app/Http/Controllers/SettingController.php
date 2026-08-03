@@ -70,7 +70,14 @@ class SettingController extends Controller
             return redirect()->route('dashboard')->with('error', 'Access restricted to Super Admin only.');
         }
 
-        $inputSettings = $request->except(['_token']);
+        if ($request->hasFile('logo_file')) {
+            $logoFile = $request->file('logo_file');
+            $logoName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
+            $logoFile->move(public_path('uploads/logo'), $logoName);
+            Setting::set('logo_url', 'uploads/logo/' . $logoName, 'general');
+        }
+
+        $inputSettings = $request->except(['_token', 'logo_file']);
 
         foreach ($inputSettings as $key => $value) {
             $group = 'general';

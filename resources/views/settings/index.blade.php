@@ -106,7 +106,7 @@
 
         <!-- Settings Content Tabs -->
         <div class="col-12 col-lg-9">
-            <form action="{{ route('settings.update') }}" method="POST">
+            <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="settings-card p-4 p-md-5">
                     <div class="tab-content" id="v-pills-tabContent">
@@ -142,8 +142,15 @@
                                     <textarea name="address" rows="2" class="form-control-custom">{{ $defaults['general']['address'] }}</textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label-custom">Logo URL</label>
-                                    <input type="text" name="logo_url" value="{{ $defaults['general']['logo_url'] }}" class="form-control-custom" />
+                                    <label class="form-label-custom">Company Logo (Upload or URL)</label>
+                                    <input type="text" name="logo_url" value="{{ $defaults['general']['logo_url'] }}" class="form-control-custom mb-2" placeholder="Logo image URL (optional)" />
+                                    <input type="file" name="logo_file" class="form-control-custom" accept="image/*" />
+                                    @if($defaults['general']['logo_url'])
+                                        <div class="mt-2 d-flex align-items-center gap-2">
+                                            <span class="small text-muted">Current Logo:</span>
+                                            <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="Logo Preview" style="max-height: 40px; max-width: 150px; object-fit: contain;" class="border p-1 rounded bg-light">
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Timezone</label>
