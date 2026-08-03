@@ -83,7 +83,11 @@ class MessageController extends Controller
                 'userName' => $selectedChatUser ? $selectedChatUser->name : '',
                 'userRole' => $selectedChatUser ? ($selectedChatUser->role?->role_name ?? 'Portal Member') : '',
                 'profilePic' => $selectedChatUser && $selectedChatUser->profile_pic ? asset('uploads/profiles/'.$selectedChatUser->profile_pic) : null,
-                'initials' => $selectedChatUser ? strtoupper(substr($selectedChatUser->name, 0, 1)) : ''
+                'initials' => $selectedChatUser ? strtoupper(substr($selectedChatUser->name, 0, 1)) : '',
+                'email' => $selectedChatUser ? $selectedChatUser->email : '',
+                'username' => $selectedChatUser ? ($selectedChatUser->username ?: '-') : '',
+                'joined' => $selectedChatUser ? $selectedChatUser->created_at->format('M Y') : '',
+                'course' => $selectedChatUser && $selectedChatUser->student && $selectedChatUser->student->course ? $selectedChatUser->student->course->name : ($selectedChatUser && $selectedChatUser->student ? 'Enrolled' : null)
             ]);
         }
 

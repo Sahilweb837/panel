@@ -53,9 +53,14 @@
     <div class="w-80 border-r border-slate-100 flex flex-col bg-white shrink-0">
         <div class="p-4 flex items-center justify-between border-b border-slate-100">
             <h2 class="text-lg font-bold text-slate-800">Conversations</h2>
-            <button class="p-1.5 rounded-full hover:bg-slate-50 transition-colors text-primary" data-bs-toggle="modal" data-bs-target="#composeModal" title="New Message">
-                <i class="fas fa-edit text-lg"></i>
-            </button>
+            <div class="flex items-center gap-1">
+                <button id="enableBrowserNotificationsBtn" class="p-1.5 rounded-full hover:bg-slate-50 transition-colors text-slate-500 hover:text-primary" title="Enable System Notifications">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <button class="p-1.5 rounded-full hover:bg-slate-50 transition-colors text-primary" data-bs-toggle="modal" data-bs-target="#composeModal" title="New Message">
+                    <i class="fas fa-edit text-lg"></i>
+                </button>
+            </div>
         </div>
         
         <div class="flex-grow overflow-y-auto custom-scrollbar">
@@ -152,16 +157,18 @@
             <!-- Chat Header -->
             <div class="h-16 border-b border-slate-100 bg-white flex items-center justify-between px-6 shrink-0 z-10 shadow-sm">
                 <div class="flex items-center gap-3">
-                    @if($selectedChatUser->profile_pic)
-                        <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-10 h-10 rounded-full object-cover">
-                    @else
-                        <div class="w-10 h-10 text-white rounded-full flex items-center justify-center font-bold" style="background: var(--first-color);">
-                            {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
-                        </div>
-                    @endif
+                    <div id="chatHeaderImage" class="shrink-0">
+                        @if($selectedChatUser->profile_pic)
+                            <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-10 h-10 rounded-full object-cover">
+                        @else
+                            <div class="w-10 h-10 text-white rounded-full flex items-center justify-center font-bold" style="background: var(--first-color);">
+                                {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
+                            </div>
+                        @endif
+                    </div>
                     <div>
-                        <h2 class="text-sm font-bold text-slate-800">{{ $selectedChatUser->name }}</h2>
-                        <p class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+                        <h2 id="chatHeaderName" class="text-sm font-bold text-slate-800 mb-0">{{ $selectedChatUser->name }}</h2>
+                        <p id="chatHeaderRole" class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1 mb-0">
                             <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> 
                             {{ $selectedChatUser->role?->role_name ?? 'Portal Member' }}
                         </p>
@@ -336,16 +343,18 @@
     @if(request('chat_user') && $selectedChatUser)
         <div class="w-72 border-l border-slate-100 bg-white hidden xl:flex flex-col shrink-0">
             <div class="p-6 text-center border-b border-slate-100">
-                @if($selectedChatUser->profile_pic)
-                    <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-20 h-20 rounded-2xl object-cover mx-auto mb-3 shadow-sm border border-slate-100">
-                @else
-                    <div class="w-20 h-20 text-white rounded-2xl flex items-center justify-center font-bold text-3xl mx-auto mb-3 shadow-sm" style="background: var(--first-color);">
-                        {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
-                    </div>
-                @endif
-                <h3 class="font-bold text-slate-800 text-sm">{{ $selectedChatUser->name }}</h3>
-                <p class="text-xs text-slate-400 mt-1">{{ $selectedChatUser->role?->role_name ?? 'Portal Member' }}</p>
-                <p class="text-[10px] text-slate-400 mt-0.5">{{ $selectedChatUser->email }}</p>
+                <div id="rightPanelImage">
+                    @if($selectedChatUser->profile_pic)
+                        <img src="{{ asset('uploads/profiles/'.$selectedChatUser->profile_pic) }}" class="w-20 h-20 rounded-2xl object-cover mx-auto mb-3 shadow-sm border border-slate-100">
+                    @else
+                        <div class="w-20 h-20 text-white rounded-2xl flex items-center justify-center font-bold text-3xl mx-auto mb-3 shadow-sm" style="background: var(--first-color);">
+                            {{ strtoupper(substr($selectedChatUser->name, 0, 1)) }}
+                        </div>
+                    @endif
+                </div>
+                <h3 id="rightPanelName" class="font-bold text-slate-800 text-sm mb-1">{{ $selectedChatUser->name }}</h3>
+                <p id="rightPanelRole" class="text-xs text-slate-400 mt-1 mb-0">{{ $selectedChatUser->role?->role_name ?? 'Portal Member' }}</p>
+                <p id="rightPanelEmail" class="text-[10px] text-slate-400 mt-0.5 mb-0">{{ $selectedChatUser->email }}</p>
             </div>
             
             <div class="flex-grow overflow-y-auto p-6 space-y-6 custom-scrollbar">
@@ -354,18 +363,16 @@
                     <div class="space-y-3">
                         <div class="flex items-center gap-2 text-xs text-slate-600">
                             <i class="fas fa-user-circle w-4 text-slate-400"></i>
-                            <span>Username: <strong>{{ $selectedChatUser->username ?: '-' }}</strong></span>
+                            <span>Username: <strong id="rightPanelUsername">{{ $selectedChatUser->username ?: '-' }}</strong></span>
                         </div>
                         <div class="flex items-center gap-2 text-xs text-slate-600">
                             <i class="fas fa-calendar-alt w-4 text-slate-400"></i>
-                            <span>Joined: {{ $selectedChatUser->created_at->format('M Y') }}</span>
+                            <span>Joined: <strong id="rightPanelJoined">{{ $selectedChatUser->created_at->format('M Y') }}</strong></span>
                         </div>
-                        @if($selectedChatUser->student)
-                            <div class="flex items-center gap-2 text-xs text-slate-600">
-                                <i class="fas fa-graduation-cap w-4 text-slate-400"></i>
-                                <span>Course: {{ $selectedChatUser->student->course?->name ?? 'Enrolled' }}</span>
-                            </div>
-                        @endif
+                        <div id="rightPanelCourseContainer" class="flex items-center gap-2 text-xs text-slate-600 {{ !$selectedChatUser->student ? 'hidden' : '' }}">
+                            <i class="fas fa-graduation-cap w-4 text-slate-400"></i>
+                            <span>Course: <strong id="rightPanelCourse">{{ $selectedChatUser->student?->course?->name ?? 'Enrolled' }}</strong></span>
+                        </div>
                     </div>
                 </div>
                 
@@ -496,6 +503,69 @@ const CSRF = '{{ csrf_token() }}';
 let currentChatUserId = {{ $selectedChatUser ? $selectedChatUser->id : 'null' }};
 
 document.addEventListener('DOMContentLoaded', function () {
+    
+    // Enable browser notifications toggle button handler
+    const notifBtn = document.getElementById('enableBrowserNotificationsBtn');
+    if (notifBtn) {
+        if (window.Notification) {
+            if (Notification.permission === "granted") {
+                notifBtn.classList.remove('text-slate-500');
+                notifBtn.classList.add('text-emerald-500');
+                notifBtn.title = "Notifications Enabled";
+            } else if (Notification.permission === "denied") {
+                notifBtn.classList.remove('text-slate-500');
+                notifBtn.classList.add('text-rose-500');
+                notifBtn.title = "Notifications Blocked";
+            }
+        } else {
+            notifBtn.style.display = 'none';
+        }
+
+        notifBtn.addEventListener('click', function() {
+            if (!window.Notification) {
+                Swal.fire({
+                    title: 'Not Supported',
+                    text: 'System notifications are not supported in this browser.',
+                    icon: 'warning',
+                    confirmButtonColor: 'var(--first-color, #ff5532)'
+                });
+                return;
+            }
+            
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    notifBtn.classList.remove('text-slate-500', 'text-rose-500');
+                    notifBtn.classList.add('text-emerald-500');
+                    notifBtn.title = "Notifications Enabled";
+                    
+                    new Notification("Notifications Enabled", {
+                        body: "You will now receive desktop and mobile notifications for new messages!",
+                        icon: 'https://cdn-icons-png.flaticon.com/512/179/179386.png'
+                    });
+                    
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'System notifications enabled successfully.',
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                } else if (permission === "denied") {
+                    notifBtn.classList.remove('text-slate-500', 'text-emerald-500');
+                    notifBtn.classList.add('text-rose-500');
+                    notifBtn.title = "Notifications Blocked";
+                    Swal.fire({
+                        title: 'Blocked',
+                        text: 'Notifications are blocked. Please enable them in your browser settings.',
+                        icon: 'error',
+                        confirmButtonColor: 'var(--first-color, #ff5532)'
+                    });
+                }
+            });
+        });
+    }
 
     /* ─── Initialize Quill Editor for Compose Modal ─── */
     var fullQuill = null;
@@ -644,30 +714,63 @@ document.addEventListener('DOMContentLoaded', function () {
                         history.pushState(null, '', href);
                         
                         // Update chat header details
-                        const headerTitle = document.querySelector('.chat-widget-main h2') || document.querySelector('#chatMessages').closest('.flex-grow').querySelector('h2');
-                        if (headerTitle) headerTitle.textContent = d.userName;
-                        
-                        const headerRole = document.querySelector('.chat-widget-main p') || document.querySelector('#chatMessages').closest('.flex-grow').querySelector('p');
+                        const headerName = document.getElementById('chatHeaderName');
+                        if (headerName) headerName.textContent = d.userName;
+
+                        const headerRole = document.getElementById('chatHeaderRole');
                         if (headerRole) {
                             headerRole.innerHTML = `<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> ${d.userRole}`;
                         }
-                        
-                        const headerImgContainer = document.querySelector('.chat-widget-main img')?.parentNode || document.querySelector('#chatMessages').closest('.flex-grow').querySelector('.flex.items-center.gap-3');
-                        if (headerImgContainer) {
-                            const oldImg = headerImgContainer.querySelector('img') || headerImgContainer.querySelector('div.w-10');
-                            if (oldImg) {
-                                if (d.profilePic) {
-                                    const img = document.createElement('img');
-                                    img.src = d.profilePic;
-                                    img.className = 'w-10 h-10 rounded-full object-cover';
-                                    oldImg.replaceWith(img);
-                                } else {
-                                    const initialsDiv = document.createElement('div');
-                                    initialsDiv.className = 'w-10 h-10 text-white rounded-full flex items-center justify-center font-bold';
-                                    initialsDiv.style.background = 'var(--first-color)';
-                                    initialsDiv.textContent = d.initials;
-                                    oldImg.replaceWith(initialsDiv);
-                                }
+
+                        const headerImage = document.getElementById('chatHeaderImage');
+                        if (headerImage) {
+                            if (d.profilePic) {
+                                headerImage.innerHTML = `<img src="${d.profilePic}" class="w-10 h-10 rounded-full object-cover">`;
+                            } else {
+                                headerImage.innerHTML = `<div class="w-10 h-10 text-white rounded-full flex items-center justify-center font-bold" style="background: var(--first-color);">${d.initials}</div>`;
+                            }
+                        }
+
+                        // Update Chat Input Placeholder and value
+                        const chatInput = document.getElementById('chatInput');
+                        if (chatInput) {
+                            chatInput.placeholder = `Message ${d.userName}...`;
+                            chatInput.value = '';
+                        }
+
+                        // Update Right Panel Details
+                        const rpName = document.getElementById('rightPanelName');
+                        if (rpName) rpName.textContent = d.userName;
+
+                        const rpRole = document.getElementById('rightPanelRole');
+                        if (rpRole) rpRole.textContent = d.userRole;
+
+                        const rpEmail = document.getElementById('rightPanelEmail');
+                        if (rpEmail) rpEmail.textContent = d.email;
+
+                        const rpUsername = document.getElementById('rightPanelUsername');
+                        if (rpUsername) rpUsername.textContent = d.username;
+
+                        const rpJoined = document.getElementById('rightPanelJoined');
+                        if (rpJoined) rpJoined.textContent = d.joined;
+
+                        const rpImage = document.getElementById('rightPanelImage');
+                        if (rpImage) {
+                            if (d.profilePic) {
+                                rpImage.innerHTML = `<img src="${d.profilePic}" class="w-20 h-20 rounded-2xl object-cover mx-auto mb-3 shadow-sm border border-slate-100">`;
+                            } else {
+                                rpImage.innerHTML = `<div class="w-20 h-20 text-white rounded-2xl flex items-center justify-center font-bold text-3xl mx-auto mb-3 shadow-sm" style="background: var(--first-color);">${d.initials}</div>`;
+                            }
+                        }
+
+                        const rpCourseContainer = document.getElementById('rightPanelCourseContainer');
+                        const rpCourse = document.getElementById('rightPanelCourse');
+                        if (rpCourseContainer && rpCourse) {
+                            if (d.course) {
+                                rpCourse.textContent = d.course;
+                                rpCourseContainer.classList.remove('hidden');
+                            } else {
+                                rpCourseContainer.classList.add('hidden');
                             }
                         }
                         
