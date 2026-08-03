@@ -44,7 +44,6 @@ class StaffPortalController extends Controller
         $attendancePercentage = $totalMarked > 0 ? round(($presentDays / $totalMarked) * 100) : 0;
 
         // ── Late-check-in detection (after 10:00 AM) ────────────────────
-        // For attendance records that have check_in_time but aren't already marked "Late"
         $lateCheckInDays = $monthAttendances->filter(function ($att) {
             if (!$att->check_in_time) return false;
             try {
@@ -56,19 +55,18 @@ class StaffPortalController extends Controller
             }
         })->count();
 
-        // Use max of marked Late days vs detected late-check-in days
         $effectiveLateDays = max($lateDays, $lateCheckInDays);
 
         // ── Salary Calculation ──────────────────────────────────────────
         $monthlySalary  = (float) ($employee->salary ?? 0);
-        $workingDaysInMonth = 30; // Updated to 30 days
-        $allowedLeaves  = 2;      // 2 paid leaves allowed per month
+        $workingDaysInMonth = 30;
+        $allowedLeaves  = 2;
 
         if ($monthlySalary > 0) {
             $dailySalary      = $monthlySalary / $workingDaysInMonth;
             $halfDayDeduction = $dailySalary / 2;
         } else {
-            $dailySalary      = 500;   // Default if no salary set
+            $dailySalary      = 500;
             $halfDayDeduction = 250;
         }
 
@@ -110,6 +108,28 @@ class StaffPortalController extends Controller
         $recentMessages = \App\Models\Message::forUser($userId, session('user_role_slug'))->latest()->limit(5)->get();
         $unreadMessageCount = \App\Models\Message::forUser($userId, session('user_role_slug'))->unread()->count();
 
+        // ── Today's Academic Schedule ──────────────────────────────────
+        $departmentId = null;
+        if ($employee->department) {
+            $dept = \App\Models\Department::where('department_name', 'like', '%' . $employee->department . '%')->first();
+            if ($dept) {
+                $departmentId = $dept->id;
+            }
+        }
+
+        $todayMeetings = \App\Models\Meeting::where(function($q) use ($departmentId, $userId) {
+            if ($departmentId) {
+                $q->where('department_id', $departmentId);
+            }
+            $q->orWhere('created_by', $userId)
+              ->orWhereHas('participants', function($p) use ($userId) {
+                  $p->where('user_id', $userId);
+              });
+        })
+        ->whereDate('meeting_date', Carbon::today()->toDateString())
+        ->orderBy('start_time', 'asc')
+        ->get();
+
         return view('portal.staff.dashboard', compact(
             'employee',
             'studentCount', 'attendanceCount',
@@ -125,7 +145,8 @@ class StaffPortalController extends Controller
             'joiningDate', 'experience',
             'assignedTasks', 'todayUpdate',
             'salarySlips', 'offerLetters', 'leaveApplications',
-            'incomeRecords', 'totalIncome', 'unreadMessageCount', 'recentMessages'
+            'incomeRecords', 'totalIncome', 'unreadMessageCount', 'recentMessages',
+            'todayMeetings'
         ));
     }
 

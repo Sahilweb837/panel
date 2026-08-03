@@ -48,9 +48,76 @@
         color: #ffffff !important;
         border-left: none !important;
     }
+    
+    /* High-performance lazy-loading skeleton overlay */
+    .skeleton-loader-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #F8FAFC;
+        z-index: 1000;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 12px;
+    }
+    
+    html[data-theme="dark"] .skeleton-loader-overlay {
+        background: #0F172A;
+    }
+
+    .skeleton-loader-overlay.fade-out {
+        opacity: 0;
+        display: none !important;
+    }
+
+    .sk-card {
+        background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+        background-size: 200% 100%;
+        animation: loadingSkeleton 1.5s infinite linear;
+        border-radius: 0.75rem;
+        border: 1px solid #E2E8F0;
+    }
+    
+    html[data-theme="dark"] .sk-card {
+        background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+        background-size: 200% 100%;
+        border-color: #334155;
+    }
+
+    @keyframes loadingSkeleton {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
 </style>
 
-<div class="max-w-[1440px] mx-auto p-4 md:p-6 w-full">
+<div class="max-w-[1440px] mx-auto p-4 md:p-6 w-full relative">
+
+    <!-- Lazy Loading Skeleton Overlay -->
+    <div class="skeleton-loader-overlay" id="dashboard-skeleton">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="sk-card" style="height: 140px;"></div>
+            <div class="sk-card" style="height: 140px;"></div>
+            <div class="sk-card" style="height: 140px;"></div>
+        </div>
+        <div class="grid grid-cols-12 gap-6 mb-8">
+            <div class="col-span-12 lg:col-span-8 space-y-6">
+                <div class="sk-card" style="height: 320px;"></div>
+                <div class="sk-card" style="height: 380px;"></div>
+                <div class="sk-card" style="height: 400px;"></div>
+            </div>
+            <div class="col-span-12 lg:col-span-4 space-y-6">
+                <div class="sk-card" style="height: 380px;"></div>
+                <div class="sk-card" style="height: 250px;"></div>
+                <div class="sk-card" style="height: 280px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Real Content Wrapper -->
+    <div id="dashboard-content" style="opacity: 0; transition: opacity 0.5s ease;">
 
     {{-- Unread Messages Alert Banner --}}
     @if(isset($unreadMessageCount) && $unreadMessageCount > 0)
@@ -165,66 +232,59 @@
                     </span>
                 </div>
                 <div class="space-y-4">
-                    <!-- Schedule Item 1 -->
-                    <div class="flex items-center gap-4 md:gap-6 p-4 border border-border-subtle rounded-xl hover:border-primary-container/30 transition-colors group">
-                        <div class="w-16 text-center flex-shrink-0">
-                            <p class="font-bold text-on-surface text-base mb-0">09:00</p>
-                            <p class="text-[11px] font-label-sm text-secondary mb-0">AM</p>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="px-2 py-0.5 bg-primary-container/10 text-primary-container text-[10px] font-bold rounded uppercase">Lecture</span>
-                                <span class="text-xs text-secondary font-label-sm">Room 402</span>
+                    @forelse($todayMeetings as $meeting)
+                        @php
+                            $startTime = \Carbon\Carbon::parse($meeting->start_time);
+                            $endTime = \Carbon\Carbon::parse($meeting->end_time);
+                            $nowTime = \Carbon\Carbon::now();
+                            $isOngoing = \Carbon\Carbon::today()->toDateString() === $meeting->meeting_date && $nowTime->between($startTime, $endTime);
+                        @endphp
+                        <div class="flex items-center gap-4 md:gap-6 p-4 border {{ $isOngoing ? 'border-l-4 border-l-primary-container bg-primary-container/5 rounded-r-xl' : 'border-border-subtle rounded-xl hover:border-primary-container/30 transition-colors group' }}">
+                            <div class="w-16 text-center flex-shrink-0">
+                                <p class="font-bold {{ $isOngoing ? 'text-primary-container' : 'text-on-surface' }} text-base mb-0">
+                                    {{ $startTime->format('H:i') }}
+                                </p>
+                                <p class="text-[11px] font-label-sm text-secondary mb-0">
+                                    {{ $startTime->format('A') }}
+                                </p>
                             </div>
-                            <h4 class="font-button text-sm font-bold group-hover:text-primary-container transition-colors mb-0">Advanced Python Architectures</h4>
-                            <p class="text-xs text-secondary mb-0">CS204 - Master Class Batch</p>
-                        </div>
-                        <a href="{{ route('staff.attendance.capture') }}" class="px-3.5 py-1.5 border border-border-subtle rounded-lg font-button text-xs hover:bg-surface-container-low text-on-surface text-decoration-none">
-                            Take Attendance
-                        </a>
-                    </div>
-
-                    <!-- Schedule Item 2 (Happening Now) -->
-                    <div class="flex items-center gap-4 md:gap-6 p-4 border-l-4 border-l-primary-container bg-primary-container/5 rounded-r-xl">
-                        <div class="w-16 text-center flex-shrink-0">
-                            <p class="font-bold text-primary-container text-base mb-0">11:30</p>
-                            <p class="text-[11px] font-label-sm text-secondary mb-0">AM</p>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="px-2 py-0.5 bg-success-green/10 text-success-green text-[10px] font-bold rounded uppercase">Lab Session</span>
-                                <span class="text-xs text-secondary font-label-sm">Lab C</span>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="px-2 py-0.5 bg-{{ $meeting->meeting_mode === 'Online' ? 'info-blue/10 text-info-blue' : 'success-green/10 text-success-green' }} text-[10px] font-bold rounded uppercase">
+                                        {{ $meeting->meeting_mode }}
+                                    </span>
+                                    <span class="text-xs text-secondary font-label-sm">
+                                        {{ $meeting->location ?? 'Room N/A' }}
+                                    </span>
+                                </div>
+                                <h4 class="font-button text-sm font-bold {{ $isOngoing ? 'text-on-surface' : 'group-hover:text-primary-container' }} transition-colors mb-0">
+                                    {{ $meeting->title }}
+                                </h4>
+                                <p class="text-xs text-secondary mb-0">
+                                    {{ Str::limit($meeting->description ?? 'No details provided', 80) }}
+                                </p>
                             </div>
-                            <h4 class="font-button text-sm font-bold text-on-surface mb-0">Full-stack React Deployment</h4>
-                            <p class="text-xs text-secondary mb-0">WEB102 - Practical Hands-on</p>
+                            
+                            @if($isOngoing)
+                                <div class="flex items-center gap-2 text-primary-container font-bold text-xs">
+                                    <span class="relative flex h-3 w-3">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-3 w-3 bg-primary-container"></span>
+                                    </span>
+                                    <span class="font-label-sm">Happening Now</span>
+                                </div>
+                            @elseif($meeting->meeting_link)
+                                <a href="{{ $meeting->meeting_link }}" target="_blank" class="px-3.5 py-1.5 bg-primary-container text-white rounded-lg font-button text-xs hover:brightness-110 text-decoration-none shadow">
+                                    Join
+                                </a>
+                            @endif
                         </div>
-                        <div class="flex items-center gap-2 text-primary-container font-bold text-xs">
-                            <span class="relative flex h-3 w-3">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-primary-container"></span>
-                            </span>
-                            <span class="font-label-sm">Happening Now</span>
+                    @empty
+                        <div class="text-center py-8 text-secondary border border-dashed border-border-subtle rounded-xl">
+                            <span class="material-symbols-outlined text-4xl text-muted mb-2" style="font-size: 40px;">calendar_today</span>
+                            <p class="text-xs font-semibold mb-0">No classes or meetings scheduled for today.</p>
                         </div>
-                    </div>
-
-                    <!-- Schedule Item 3 -->
-                    <div class="flex items-center gap-4 md:gap-6 p-4 border border-border-subtle rounded-xl hover:border-primary-container/30 transition-colors group">
-                        <div class="w-16 text-center flex-shrink-0">
-                            <p class="font-bold text-on-surface text-base mb-0">02:30</p>
-                            <p class="text-[11px] font-label-sm text-secondary mb-0">PM</p>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="px-2 py-0.5 bg-info-blue/10 text-info-blue text-[10px] font-bold rounded uppercase">Workshop</span>
-                                <span class="text-xs text-secondary font-label-sm">Online Seminar</span>
-                            </div>
-                            <h4 class="font-button text-sm font-bold group-hover:text-primary-container transition-colors mb-0">AWS Solutions Architect Deep Dive</h4>
-                            <p class="text-xs text-secondary mb-0">CLOUD301 - Interactive Session</p>
-                        </div>
-                        <a href="{{ route('meetings.index') }}" class="px-3.5 py-1.5 border border-border-subtle rounded-lg font-button text-xs hover:bg-surface-container-low text-on-surface text-decoration-none">
-                            Join Session
-                        </a>
-                    </div>
+                    @endforelse
                 </div>
             </section>
 
@@ -601,27 +661,9 @@
                             </div>
                         </div>
                     @empty
-                        <div class="flex gap-3 p-3 bg-error-container/10 border border-error-container/20 rounded-lg">
-                            <span class="material-symbols-outlined text-error mt-0.5">priority_high</span>
-                            <div>
-                                <p class="font-button text-xs font-bold text-error leading-tight mb-1">Grade Midterms: Cloud Arch</p>
-                                <p class="text-[11px] text-secondary mb-1">12 submissions overdue by 1 day</p>
-                                <a href="#" class="text-error font-bold text-[11px] underline">Start Grading Now</a>
-                            </div>
-                        </div>
-                        <div class="flex gap-3 p-3 bg-surface-slate border border-border-subtle rounded-lg">
-                            <span class="material-symbols-outlined text-info-blue mt-0.5">description</span>
-                            <div>
-                                <p class="font-button text-xs font-bold text-on-surface leading-tight mb-1">Update Syllabus: Q4 WEB102</p>
-                                <p class="text-[11px] text-secondary mb-0">Content review required by Friday</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3 p-3 bg-surface-slate border border-border-subtle rounded-lg">
-                            <span class="material-symbols-outlined text-success-green mt-0.5">check_circle</span>
-                            <div>
-                                <p class="font-button text-xs font-bold text-on-surface leading-tight mb-1">Exam Prep Finalized</p>
-                                <p class="text-[11px] text-secondary mb-0">CS204 materials uploaded to LMS</p>
-                            </div>
+                        <div class="text-center py-6 text-secondary border border-dashed border-border-subtle rounded-lg">
+                            <span class="material-symbols-outlined text-3xl text-muted mb-1" style="font-size: 30px;">check_circle</span>
+                            <p class="text-xs font-semibold mb-0">No pending tasks assigned to you.</p>
                         </div>
                     @endforelse
                 </div>
@@ -631,26 +673,22 @@
             <section class="bento-card overflow-hidden shadow-sm">
                 <div class="p-4 border-b border-border-subtle flex justify-between items-center bg-surface-slate">
                     <h3 class="font-title-md text-base font-bold text-on-surface mb-0">Faculty Updates</h3>
-                    <span class="px-2 py-0.5 bg-primary-container text-white text-[10px] font-bold rounded">3 NEW</span>
+                    <span class="px-2 py-0.5 bg-primary-container text-white text-[10px] font-bold rounded">{{ $unreadMessageCount }} NEW</span>
                 </div>
                 <div class="p-5 space-y-4 text-xs">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 rounded-full bg-primary-container"></span>
-                            <span class="font-label-sm text-secondary text-[11px]">2 Hours Ago</span>
+                    @forelse($recentMessages as $msg)
+                        <div class="{{ !$loop->last ? 'border-b border-border-subtle pb-3' : '' }}">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2 h-2 rounded-full bg-{{ $msg->priority === 'High' ? 'error' : 'primary-container' }}"></span>
+                                <span class="font-label-sm text-secondary text-[11px]">{{ $msg->created_at->diffForHumans() }}</span>
+                            </div>
+                            <h4 class="font-button font-bold text-on-surface text-xs mb-1">{{ $msg->subject }}</h4>
+                            <p class="text-secondary text-xs line-clamp-2 mb-1">{{ Str::limit($msg->body ?? '', 120) }}</p>
+                            <a class="text-primary-container font-bold text-[11px] hover:underline block" href="{{ route('messages.index') }}">Read Full Update</a>
                         </div>
-                        <h4 class="font-button font-bold text-on-surface text-xs mb-1">New Policy: Generative AI in Code Submission</h4>
-                        <p class="text-secondary text-xs line-clamp-2 mb-1">The department has finalized guidelines for students using LLMs during programming assignments...</p>
-                        <a class="text-primary-container font-bold text-[11px] hover:underline block" href="{{ route('messages.index') }}">Read Full Update</a>
-                    </div>
-                    <div class="border-t border-border-subtle pt-3">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="font-label-sm text-secondary text-[11px]">Yesterday</span>
-                        </div>
-                        <h4 class="font-button font-bold text-on-surface text-xs mb-1">Faculty Meeting: Quarterly Review</h4>
-                        <p class="text-secondary text-xs line-clamp-2 mb-1">All staff members are required to attend the Q4 review meeting in Conference Room A or via Zoom...</p>
-                        <a class="text-primary-container font-bold text-[11px] hover:underline block" href="{{ route('meetings.index') }}">Add to Calendar</a>
-                    </div>
+                    @empty
+                        <div class="text-center py-4 text-secondary text-xs">No faculty updates or announcements.</div>
+                    @endforelse
                 </div>
                 <a href="{{ route('messages.index') }}" class="block w-full py-3 text-center bg-surface-slate text-secondary font-button text-xs font-bold hover:bg-surface-container-high transition-colors text-decoration-none border-t border-border-subtle">
                     View All Announcements
@@ -661,9 +699,9 @@
             <div class="rounded-xl overflow-hidden relative h-44 group cursor-pointer shadow-md bg-slate-900" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
                 <div class="absolute inset-0 bg-cover bg-center opacity-30 group-hover:scale-105 transition-transform duration-500" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDCgCfj22r5mMY-LZ8hyeM-RSVADZpGC3hj5Atr4_cMuBaDf_qROB7jYEpKHnel3CJQol-nL5tF5iI8tUWp02JbajoiG9UvUaNLMEyAH98IjAaH-twz6XQ-k0acbh4cAF1wWbj5kZ88SqXPXBl8DX0uEVzyNo9bwa9WxUmPBWiU_fEFRhk7uOjD0B0FTGrXLyiB2xkmai6ZFgUEW7xfqhmu9B1COizNeh5vVY0MOCEJ5w2vwPQGsLDljA')"></div>
                 <div class="absolute inset-0 flex flex-col justify-end p-5 z-10">
-                    <span class="px-2.5 py-0.5 bg-primary-container text-white text-[10px] font-bold rounded-full w-fit mb-2">CS & IT Dept</span>
-                    <h4 class="text-white font-bold text-base mb-1">Computer Science Department</h4>
-                    <p class="text-slate-300 text-xs mb-0">Annual Research Grant & Course Syllabus Review applications are open.</p>
+                    <span class="px-2.5 py-0.5 bg-primary-container text-white text-[10px] font-bold rounded-full w-fit mb-2">{{ $employee->department ?? 'General' }} Dept</span>
+                    <h4 class="text-white font-bold text-base mb-1">{{ $employee->department ?? 'General Department' }}</h4>
+                    <p class="text-slate-300 text-xs mb-0">Syllabus updates, student schedules, and general tasks review are available.</p>
                 </div>
             </div>
         </div>
@@ -673,10 +711,21 @@
     <div class="w-full mt-6">
         @include('messages.widget')
     </div>
+    </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const skeleton = document.getElementById('dashboard-skeleton');
+        const content = document.getElementById('dashboard-content');
+        
+        if (skeleton && content) {
+            setTimeout(() => {
+                skeleton.classList.add('fade-out');
+                content.style.opacity = '1';
+            }, 600);
+        }
+
         const greetingPrefix = document.getElementById('dashboard-greeting-prefix');
         if (greetingPrefix) {
             const hour = new Date().getHours();
