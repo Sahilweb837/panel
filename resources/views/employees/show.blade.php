@@ -202,12 +202,26 @@
                         <span class="badge bg-success"><i class="fas fa-shield-check me-1"></i>Active Portal Access</span>
                     </div>
 
+                    @php
+                        $whatsappPhone = preg_replace('/[^0-9]/', '', $employee->phone ?? '');
+                        if (strlen($whatsappPhone) === 10) {
+                            $whatsappPhone = '91' . $whatsappPhone;
+                        }
+                        $shareMsg = "Hello " . ($employee->user?->name ?? 'Staff') . ",\n\n"
+                                  . "Your Staff Portal Login Credentials are:\n"
+                                  . "• Login Link: " . route('login.staff') . "\n"
+                                  . "• Username: " . ($employee->user?->username ?? $employee->employee_code) . "\n"
+                                  . "• Password: " . ($employee->user?->raw_password ?? 'staff123') . "\n\n"
+                                  . "Please do not share these credentials with anyone.";
+                        $whatsappUrl = "https://wa.me/" . $whatsappPhone . "?text=" . urlencode($shareMsg);
+                    @endphp
+
                     <div class="row g-3 align-items-center">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Login Username / ID</small>
                             <div class="fw-bold text-dark-title" style="font-size: 0.95rem;">{{ $employee->user?->username ?? $employee->employee_code }}</div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Current Password (Plain Text)</small>
                             <div class="d-flex align-items-center gap-2">
                                 <span id="show-raw-pw" class="fw-bold font-monospace" style="color: #10b981; font-size: 1rem;">
@@ -219,7 +233,7 @@
                             </div>
                         </div>
                         @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']) && $employee->user_id)
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Update Password</small>
                             <div class="input-group input-group-sm">
                                 <input type="text" id="show-new-password" class="form-control" placeholder="New Password..." minlength="6">
@@ -228,6 +242,14 @@
                                 </button>
                             </div>
                             <div id="show-pw-msg" class="small mt-1" style="display:none;"></div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Share Credentials</small>
+                            <div>
+                                <a href="{{ $whatsappUrl }}" target="_blank" class="btn btn-sm text-white w-100" style="background-color: #25D366; border: none; padding: 6px 12px; font-weight: bold; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
+                            </div>
                         </div>
                         @endif
                     </div>

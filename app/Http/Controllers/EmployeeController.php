@@ -31,7 +31,11 @@ class EmployeeController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return view('employees.index', compact('employees'));
+        $totalSalary = Employee::sum('salary');
+        $totalStaff = Employee::count();
+        $activeStaff = Employee::where('status', 1)->count();
+
+        return view('employees.index', compact('employees', 'totalSalary', 'totalStaff', 'activeStaff'));
     }
 
     public function create()

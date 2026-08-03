@@ -23,6 +23,45 @@
 
         <!-- Real Content -->
         <div id="page-content" style="opacity: 0; transition: opacity 0.5s ease;">
+            @if(in_array(session('user_role_slug'), ['super-admin', 'superadmin', 'root-admin', 'admin', 'sub-admin', 'subadmin']))
+            <!-- Analytics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="card premium-stat-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                <i class="fas fa-wallet fa-lg"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-muted small fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">TOTAL MONTHLY PAYROLL</h4>
+                        <h2 class="fw-bold mb-0 text-dark-title" style="font-size: 1.75rem;">₹{{ number_format($totalSalary, 2) }}</h2>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card premium-stat-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 85, 50, 0.1); color: var(--first-color);">
+                                <i class="fas fa-users fa-lg"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-muted small fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">TOTAL STAFF MEMBERS</h4>
+                        <h2 class="fw-bold mb-0 text-dark-title" style="font-size: 1.75rem;">{{ number_format($totalStaff) }}</h2>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card premium-stat-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="icon-wrapper d-grid place-items-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(40, 167, 69, 0.1); color: #28a745;">
+                                <i class="fas fa-user-check fa-lg"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-muted small fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">ACTIVE STAFF</h4>
+                        <h2 class="fw-bold mb-0 text-dark-title" style="font-size: 1.75rem;">{{ number_format($activeStaff) }}</h2>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <div class="toolbar mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <form method="GET" action="{{ route('employees.index') }}" class="filter-form d-flex align-items-center gap-2 flex-grow-1">
                     <div style="position: relative; flex: 1;">
@@ -128,6 +167,22 @@
                                             <button type="button" class="button button-secondary small py-1.5 px-3 view-password-btn" data-url="{{ route('sub-admins.password', $employee->user_id) }}">
                                                 <i class="fas fa-key me-1"></i>Key
                                             </button>
+                                            @php
+                                                $whatsappPhone = preg_replace('/[^0-9]/', '', $employee->phone ?? '');
+                                                if (strlen($whatsappPhone) === 10) {
+                                                    $whatsappPhone = '91' . $whatsappPhone;
+                                                }
+                                                $shareMsg = "Hello " . ($employee->user?->name ?? 'Staff') . ",\n\n"
+                                                          . "Your Staff Portal Login Credentials are:\n"
+                                                          . "• Login Link: " . route('login.staff') . "\n"
+                                                          . "• Username: " . ($employee->user?->username ?? $employee->employee_code) . "\n"
+                                                          . "• Password: " . ($employee->user?->raw_password ?? 'staff123') . "\n\n"
+                                                          . "Please do not share these credentials with anyone.";
+                                                $whatsappUrl = "https://wa.me/" . $whatsappPhone . "?text=" . urlencode($shareMsg);
+                                            @endphp
+                                            <a href="{{ $whatsappUrl }}" target="_blank" class="button small py-1.5 px-3 text-white" style="background-color: #25D366; border: none; text-decoration: none;" title="Share login details via WhatsApp">
+                                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                                            </a>
                                             @endif
                                             
                                             @if(Auth::check() && Auth::id() !== $employee->user_id && $employee->user_id)
