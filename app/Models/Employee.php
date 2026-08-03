@@ -21,6 +21,7 @@ class Employee extends Model
         'salary',
         'joining_date',
         'address',
+        'bio',
         'status',
         'biometric_id',
         // Bank details for payroll

@@ -373,6 +373,11 @@
                             Leave Requests
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link font-button text-xs font-bold px-4 py-2" data-bs-toggle="tab" data-bs-target="#profile-panel" type="button">
+                            My Profile
+                        </button>
+                    </li>
                 </ul>
 
                 <div class="tab-content">
@@ -481,6 +486,54 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="profile-panel">
+                        <form id="staffProfileUpdateForm" action="{{ route('staff.profile.update') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 p-4">
+                                <!-- Profile Photo column -->
+                                <div class="col-span-12 md:col-span-4 flex flex-col items-center justify-center border-r border-border-subtle pr-0 md:pr-6">
+                                    <div class="relative group cursor-pointer mb-3" onclick="document.getElementById('profile_pic_input').click()">
+                                        @if($employee->user && $employee->user->profile_pic)
+                                            <img id="profile-preview-img" src="{{ asset('uploads/profiles/' . $employee->user->profile_pic) }}" alt="Profile Photo" class="w-32 h-32 rounded-full object-cover border-4 border-primary-container/20 shadow-md">
+                                        @else
+                                            <div id="profile-preview-placeholder" class="w-32 h-32 rounded-full d-flex align-items-center justify-content-center fw-bold text-white shadow-md border-4 border-primary-container/20" style="background:linear-gradient(135deg,var(--first-color),var(--first-color-alt));font-size:3rem;">
+                                                {{ strtoupper(substr(session('user_name', 'A'), 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            <span class="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                                        </div>
+                                    </div>
+                                    <input type="file" name="profile_pic" id="profile_pic_input" accept="image/*" class="hidden" onchange="previewProfilePic(this)">
+                                    <button type="button" onclick="document.getElementById('profile_pic_input').click()" class="px-3 py-1.5 bg-surface-slate border border-border-subtle rounded-lg text-xs font-bold text-secondary hover:bg-surface-container-high transition-all">
+                                        Change Photo
+                                    </button>
+                                    <p class="text-[10px] text-secondary mt-2 text-center">JPG, PNG or GIF. Max 2MB. Square size is recommended.</p>
+                                </div>
+
+                                <!-- Text fields column -->
+                                <div class="col-span-12 md:col-span-8 space-y-4">
+                                    <div>
+                                        <label for="profile_address" class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Residential Address</label>
+                                        <textarea name="address" id="profile_address" placeholder="Enter your full home address..." class="w-full p-2.5 text-xs rounded-lg border border-border-subtle bg-surface focus:outline-none focus:border-primary-container transition-all min-h-[80px] resize-y">{{ old('address', $employee->address) }}</textarea>
+                                    </div>
+
+                                    <div>
+                                        <label for="profile_bio" class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Professional Bio</label>
+                                        <textarea name="bio" id="profile_bio" placeholder="Write a short summary about your background, expertise or courses you teach..." class="w-full p-2.5 text-xs rounded-lg border border-border-subtle bg-surface focus:outline-none focus:border-primary-container transition-all min-h-[100px] resize-y">{{ old('bio', $employee->bio) }}</textarea>
+                                    </div>
+
+                                    <div class="flex justify-end pt-2">
+                                        <button type="submit" id="updateProfileBtn" class="px-5 py-2.5 bg-primary-container text-white rounded-lg hover:brightness-110 transition-all font-button text-xs font-bold shadow-md shadow-primary/20 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm">save</span>
+                                            <span>Save Changes</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -715,6 +768,30 @@
 </div>
 
 <script>
+    // Profile picture preview helper
+    window.previewProfilePic = function(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImg = document.getElementById('profile-preview-img');
+                if (previewImg) {
+                    previewImg.src = e.target.result;
+                } else {
+                    const placeholder = document.getElementById('profile-preview-placeholder');
+                    if (placeholder) {
+                        const img = document.createElement('img');
+                        img.id = 'profile-preview-img';
+                        img.src = e.target.result;
+                        img.alt = 'Profile Photo';
+                        img.className = 'w-32 h-32 rounded-full object-cover border-4 border-primary-container/20 shadow-md';
+                        placeholder.parentNode.replaceChild(img, placeholder);
+                    }
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         const skeleton = document.getElementById('dashboard-skeleton');
         const content = document.getElementById('dashboard-content');
@@ -738,6 +815,76 @@
             } else {
                 greetingPrefix.textContent = "Welcome";
             }
+        }
+
+        // Profile Form AJAX submission
+        const profileForm = document.getElementById('staffProfileUpdateForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const btn = document.getElementById('updateProfileBtn');
+                const btnText = btn.querySelector('span:last-child');
+                const btnIcon = btn.querySelector('.material-symbols-outlined');
+                
+                btn.disabled = true;
+                const originalText = btnText.textContent;
+                const originalIcon = btnIcon.textContent;
+                btnText.textContent = "Saving...";
+                btnIcon.textContent = "autorenew";
+                btnIcon.classList.add('animate-spin');
+                
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            background: document.documentElement.dataset.theme === 'dark' ? '#1e1714' : '#ffffff',
+                            color: document.documentElement.dataset.theme === 'dark' ? '#f5eae4' : '#1c1816'
+                        });
+                        
+                        // Update sidebar and other header profile pics if they exist
+                        if (data.photo_url) {
+                            const headerPics = document.querySelectorAll('img[src*="uploads/profiles/"], img[alt="Profile"]');
+                            headerPics.forEach(img => {
+                                img.src = data.photo_url;
+                            });
+                        }
+                    } else {
+                        throw new Error(data.message || 'Update failed.');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'An error occurred while updating your profile.',
+                        icon: 'error',
+                        confirmButtonColor: 'var(--first-color, #ff5532)'
+                    });
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btnIcon.textContent = originalIcon;
+                    btnIcon.classList.remove('animate-spin');
+                    btnText.textContent = originalText;
+                });
+            });
         }
     });
 </script>

@@ -244,6 +244,7 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/offer-letters', [\App\Http\Controllers\StaffPortalController::class, 'offerLetters'])->name('staff.offer-letters');
         Route::get('/leave', [\App\Http\Controllers\StaffPortalController::class, 'leaveApplications'])->name('staff.leave');
         Route::get('/income', [\App\Http\Controllers\StaffPortalController::class, 'incomeRecords'])->name('staff.income');
+        Route::post('/profile/update', [\App\Http\Controllers\StaffPortalController::class, 'updateProfile'])->name('staff.profile.update');
     });
 
     // Face Attendance API Route (Inside Auth for CSRF protection and session validation)

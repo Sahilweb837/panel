@@ -174,4 +174,47 @@ class StaffPortalController extends Controller
         $totalIncome   = $incomeRecords->where('status', 'Received')->sum('amount');
         return view('portal.staff.income', compact('employee', 'incomeRecords', 'totalIncome'));
     }
+
+    public function updateProfile(Request $request)
+    {
+        $userId = session('user_id');
+        $employee = Employee::where('user_id', $userId)->firstOrFail();
+        $user = $employee->user;
+
+        $request->validate([
+            'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'address' => 'nullable|string|max:500',
+            'bio' => 'nullable|string|max:1000',
+        ]);
+
+        if ($request->hasFile('profile_pic')) {
+            $file = $request->file('profile_pic');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/profiles'), $filename);
+
+            // Delete old photo if it exists
+            if ($user->profile_pic && $user->profile_pic !== 'default.png' && file_exists(public_path('uploads/profiles/' . $user->profile_pic))) {
+                @unlink(public_path('uploads/profiles/' . $user->profile_pic));
+            }
+
+            $user->profile_pic = $filename;
+            $user->save();
+        }
+
+        $employee->address = $request->input('address');
+        $employee->bio = $request->input('bio');
+        $employee->save();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully.',
+                'photo_url' => $user->profile_pic ? asset('uploads/profiles/' . $user->profile_pic) : null,
+                'address' => $employee->address,
+                'bio' => $employee->bio,
+            ]);
+        }
+
+        return back()->with('success', 'Profile updated successfully.');
+    }
 }
