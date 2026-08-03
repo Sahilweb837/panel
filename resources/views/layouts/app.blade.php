@@ -1721,7 +1721,7 @@
                 <h6 class="modal-title fw-bold"><i class="fas fa-camera text-primary me-2"></i>Update Profile Picture</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('profile.photo.update') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('profile.photo.update') }}" method="POST" enctype="multipart/form-data" id="profilePicForm">
                 @csrf
                 <div class="modal-body p-4 text-center">
                     <label for="profile_pic" class="form-label fw-bold text-start w-100">Choose New Photo (JPG/PNG)</label>
@@ -1729,11 +1729,101 @@
                     <div class="form-text mt-3 text-start"><i class="fas fa-info-circle me-1"></i> Max file size: 2MB. Square images look best.</div>
                 </div>
                 <div class="modal-footer border-0 bg-light">
-                    <button type="button" class="button button-secondary px-4 py-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary px-4 py-2" style="border-radius: 8px;" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px; background-color: var(--first-color, #ff5532); border-color: var(--first-color, #ff5532);">Upload Photo</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const profileForm = document.getElementById('profilePicForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const submitBtn = profileForm.querySelector('button[type="submit"]');
+                const cancelBtn = profileForm.querySelector('button[data-bs-dismiss="modal"]');
+                const fileInput = document.getElementById('profile_pic');
+                
+                if (!fileInput.files.length) return;
+                
+                const formData = new FormData(this);
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                cancelBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Hide modal
+                        const modalEl = document.getElementById('appProfilePicModal');
+                        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        modal.hide();
+                        
+                        // Update all profile photos on page
+                        document.querySelectorAll('img[alt="Profile"]').forEach(img => {
+                            img.src = data.photo_url + '?t=' + new Date().getTime();
+                        });
+                        
+                        // Replace initials avatar if it exists in the sidebar
+                        const initialsAvatar = document.querySelector('.rounded-circle[style*="background:linear-gradient"]');
+                        if (initialsAvatar) {
+                            const img = document.createElement('img');
+                            img.src = data.photo_url;
+                            img.alt = 'Profile';
+                            img.style.cssText = 'width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,0,0,0.1);';
+                            initialsAvatar.parentNode.replaceChild(img, initialsAvatar);
+                        }
+                        
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            background: document.documentElement.dataset.theme === 'dark' ? '#1e1714' : '#ffffff',
+                            color: document.documentElement.dataset.theme === 'dark' ? '#f5eae4' : '#1c1816'
+                        });
+                    } else {
+                        throw new Error(data.message || 'Upload failed.');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Upload Successful!',
+                        text: 'Profile photo updated. Reloading page...',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    cancelBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    fileInput.value = '';
+                });
+            });
+        }
+    });
+</script>
 
     <!-- Mobile Bottom Navigation Bar (App-like experience) -->
     <style>

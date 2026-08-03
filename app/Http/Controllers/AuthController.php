@@ -244,6 +244,9 @@ class AuthController extends Controller
 
         $user = User::find(session('user_id'));
         if (! $user) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+            }
             return back()->with('error', 'User not found.');
         }
 
@@ -261,6 +264,15 @@ class AuthController extends Controller
             $user->save();
         }
 
-        return back()->with('success', 'Profile photo updated successfully.');
+        $msg = 'Profile photo updated successfully.';
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'photo_url' => asset('uploads/profiles/' . $user->profile_pic)
+            ]);
+        }
+
+        return back()->with('success', $msg);
     }
 }

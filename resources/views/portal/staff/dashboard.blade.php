@@ -428,6 +428,163 @@
 
         <!-- Side Column: Tasks, Announcements & Department Banner (Spans 4) -->
         <div class="col-span-12 lg:col-span-4 space-y-6">
+            <!-- Daily Work Update Submission -->
+            <section class="bento-card p-6 shadow-sm">
+                <h3 class="font-title-md text-lg font-bold text-on-surface mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary-container">edit_document</span>
+                    Submit Daily Work Log
+                </h3>
+                <p class="text-xs text-secondary mb-4">Report your tasks and progress to the administration daily.</p>
+                
+                <form id="dailyWorkLogForm" action="{{ route('daily-updates.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    
+                    <div class="mb-3">
+                        <label for="work_title" class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Work Title / Task Name</label>
+                        <input type="text" name="work_title" id="work_title" 
+                               value="{{ old('work_title', $todayUpdate?->work_title) }}" 
+                               placeholder="e.g. Completed Lecture CS101, Fixed Lab PCs" 
+                               class="w-full p-2.5 text-xs rounded-lg border border-border-subtle bg-surface focus:outline-none focus:border-primary-container transition-all">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="update_text" class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Detailed Work Description <span class="text-error">*</span></label>
+                        <textarea name="update_text" id="update_text" required minlength="10" 
+                                  placeholder="Describe the tasks done, issues resolved, or status of your work today..." 
+                                  class="w-full p-2.5 text-xs rounded-lg border border-border-subtle bg-surface focus:outline-none focus:border-primary-container transition-all min-h-[100px] resize-y">{{ old('update_text', $todayUpdate?->update_text) }}</textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="attachment" class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Attach Document (Optional)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="file" name="attachment" id="attachment" 
+                                   class="hidden" onchange="updateFileName(this)">
+                            <button type="button" onclick="document.getElementById('attachment').click()" 
+                                    class="flex items-center gap-2 px-3 py-2 border border-dashed border-border-subtle rounded-lg text-xs hover:bg-surface-slate transition-all text-secondary">
+                                <span class="material-symbols-outlined text-sm">attach_file</span>
+                                <span id="file-label-text">Choose file</span>
+                            </button>
+                            @if($todayUpdate && $todayUpdate->file_path)
+                                <a href="{{ asset($todayUpdate->file_path) }}" target="_blank" class="text-xs text-primary-container hover:underline flex items-center gap-0.5">
+                                    <span class="material-symbols-outlined text-sm">visibility</span> View Uploaded
+                                </a>
+                            @endif
+                        </div>
+                        <div id="file-chosen-preview" class="text-[10px] text-secondary mt-1 hidden"></div>
+                    </div>
+                    
+                    <div id="log-status-alert" class="alert alert-info py-2 px-3 mb-3 text-xs {{ $todayUpdate ? '' : 'hidden' }}" style="background-color: rgba(255, 92, 43, 0.05); border: 1px solid rgba(255, 92, 43, 0.2); border-radius: 8px;">
+                        <span class="text-primary-container font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">info</span>
+                            You already logged a work update today. Submitting again will update it.
+                        </span>
+                    </div>
+                    
+                    <button type="submit" id="submitWorkLogBtn" 
+                            class="w-full py-2.5 bg-primary-container text-white rounded-lg hover:brightness-110 transition-all font-button text-xs font-bold shadow-md shadow-primary/20 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm">save</span>
+                        <span>{{ $todayUpdate ? 'Update Daily Log' : 'Submit Daily Log' }}</span>
+                    </button>
+                </form>
+            </section>
+
+            <script>
+                function updateFileName(input) {
+                    const preview = document.getElementById('file-chosen-preview');
+                    const label = document.getElementById('file-label-text');
+                    if (input.files && input.files.length > 0) {
+                        const fileName = input.files[0].name;
+                        label.textContent = "Change file";
+                        preview.textContent = "Selected: " + fileName;
+                        preview.classList.remove('hidden');
+                    } else {
+                        label.textContent = "Choose file";
+                        preview.textContent = "";
+                        preview.classList.add('hidden');
+                    }
+                }
+                
+                document.addEventListener('DOMContentLoaded', () => {
+                    const form = document.getElementById('dailyWorkLogForm');
+                    if (form) {
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            
+                            const btn = document.getElementById('submitWorkLogBtn');
+                            const btnText = btn.querySelector('span:last-child');
+                            const btnIcon = btn.querySelector('.material-symbols-outlined');
+                            
+                            btn.disabled = true;
+                            const originalText = btnText.textContent;
+                            const originalIcon = btnIcon.textContent;
+                            btnText.textContent = "Submitting...";
+                            btnIcon.textContent = "autorenew";
+                            btnIcon.classList.add('animate-spin');
+                            
+                            const formData = new FormData(this);
+                            
+                            fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: 'Submitted!',
+                                        text: data.message,
+                                        icon: 'success',
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        background: document.documentElement.dataset.theme === 'dark' ? '#1e1714' : '#ffffff',
+                                        color: document.documentElement.dataset.theme === 'dark' ? '#f5eae4' : '#1c1816'
+                                    });
+                                    
+                                    btnText.textContent = "Update Daily Log";
+                                    btnIcon.textContent = "save";
+                                    document.getElementById('log-status-alert').classList.remove('hidden');
+                                    
+                                    if (data.data && data.data.file_path) {
+                                        let viewLink = form.querySelector('a[href*="uploads/daily_updates"]');
+                                        if (!viewLink) {
+                                            const container = form.querySelector('.flex.items-center.gap-2');
+                                            viewLink = document.createElement('a');
+                                            viewLink.target = "_blank";
+                                            viewLink.className = "text-xs text-primary-container hover:underline flex items-center gap-0.5 ml-2";
+                                            viewLink.innerHTML = '<span class="material-symbols-outlined text-sm">visibility</span> View Uploaded';
+                                            container.appendChild(viewLink);
+                                        }
+                                        viewLink.href = '/' + data.data.file_path;
+                                    }
+                                } else {
+                                    throw new Error(data.message || 'Submission failed.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error(error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: error.message || 'An error occurred while submitting your daily work log.',
+                                    icon: 'error',
+                                    confirmButtonColor: 'var(--first-color, #ff5532)'
+                                });
+                                btnText.textContent = originalText;
+                                btnIcon.textContent = originalIcon;
+                            })
+                            .finally(() => {
+                                btn.disabled = false;
+                                btnIcon.classList.remove('animate-spin');
+                            });
+                        });
+                    }
+                });
+            </script>
+
             <!-- Pending Tasks -->
             <section class="bento-card p-6 shadow-sm">
                 <h3 class="font-title-md text-lg font-bold text-on-surface mb-4">Pending Tasks</h3>

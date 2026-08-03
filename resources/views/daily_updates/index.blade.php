@@ -51,7 +51,21 @@
                                         <span class="text-muted small">{{ $update->employee?->employee_code }} - {{ $update->employee?->designation }}</span>
                                     </div>
                                 </td>
-                                <td class="text-dark-title" style="white-space: pre-line; word-break: break-word; line-height: 1.5; font-size: 0.92rem;">{{ $update->update_text }}</td>
+                                <td class="text-dark-title" style="word-break: break-word; line-height: 1.5; font-size: 0.92rem;">
+                                    @if($update->work_title)
+                                        <div class="fw-bold mb-1" style="font-size: 0.95rem; color: var(--first-color, #ff5532);">
+                                            <i class="fas fa-tasks me-1"></i>{{ $update->work_title }}
+                                        </div>
+                                    @endif
+                                    <div style="white-space: pre-line;">{{ $update->update_text }}</div>
+                                    @if($update->file_path)
+                                        <div class="mt-2">
+                                            <a href="{{ asset($update->file_path) }}" target="_blank" class="btn btn-sm btn-outline-secondary px-3 py-1" style="border-radius: 6px; font-size: 0.75rem;">
+                                                <i class="fas fa-paperclip me-1"></i>View Attachment
+                                            </a>
+                                        </div>
+                                    @endif
+                                </td>
                                 <td class="pe-4 text-end text-muted small">
                                     {{ $update->created_at->format('h:i A') }}
                                 </td>

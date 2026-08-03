@@ -84,8 +84,12 @@
         <!-- Main Profile Card -->
         <div class="profile-card">
             <div class="profile-header">
-                <div class="profile-avatar">
-                    {{ strtoupper(substr($employee->user?->name ?? 'S', 0, 1)) }}
+                <div class="profile-avatar overflow-hidden p-0" style="width: 100px; height: 100px; border-radius: 50%;">
+                    @if($employee->user && $employee->user->profile_pic && $employee->user->profile_pic !== 'default.png')
+                        <img src="{{ asset('uploads/profiles/' . $employee->user->profile_pic) }}" alt="Profile" class="w-full h-full object-cover rounded-circle">
+                    @else
+                        {{ strtoupper(substr($employee->user?->name ?? 'S', 0, 1)) }}
+                    @endif
                 </div>
                 <div class="profile-info flex-grow-1">
                     <h3>{{ $employee->user?->name ?? 'Unknown' }}</h3>

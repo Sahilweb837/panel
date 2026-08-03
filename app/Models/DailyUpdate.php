@@ -12,7 +12,9 @@ class DailyUpdate extends Model
 
     protected $fillable = [
         'employee_id',
+        'work_title',
         'update_text',
+        'file_path',
         'date',
     ];
 

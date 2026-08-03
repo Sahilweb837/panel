@@ -83,9 +83,13 @@
                                     </td>
                                     <td>
                                         <div class="user-info">
-                                            <div class="avatar" style="font-weight: 700; background: rgba(255, 85, 50, 0.1); color: var(--first-color);">
-                                                {{ strtoupper(substr($employee->user?->name ?? 'S', 0, 1)) }}
-                                            </div>
+                                            @if($employee->user && $employee->user->profile_pic && $employee->user->profile_pic !== 'default.png')
+                                                <img src="{{ asset('uploads/profiles/' . $employee->user->profile_pic) }}" alt="Profile" class="rounded-circle object-cover border" style="width: 38px; height: 38px; min-width: 38px;">
+                                            @else
+                                                <div class="avatar" style="font-weight: 700; background: rgba(255, 85, 50, 0.1); color: var(--first-color); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                    {{ strtoupper(substr($employee->user?->name ?? 'S', 0, 1)) }}
+                                                </div>
+                                            @endif
                                             <div>
                                                 <strong class="text-dark-title" style="{{ request('trashed') ? 'text-decoration: line-through; color: #dc3545;' : '' }}">{{ $employee->user?->name ?? 'No Login Account' }}</strong>
                                                 <p class="text-muted small">{{ $employee->user?->username ?? 'unlinked' }}</p>

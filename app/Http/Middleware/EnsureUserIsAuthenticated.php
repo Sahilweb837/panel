@@ -117,6 +117,13 @@ class EnsureUserIsAuthenticated
         }
 
         if (!$allowed) {
+            if ($roleSlug === 'staff') {
+                return redirect()->route('staff.dashboard')
+                    ->with('error', 'You do not have permission to access this module.');
+            } elseif ($roleSlug === 'student') {
+                return redirect()->route('student.dashboard')
+                    ->with('error', 'You do not have permission to access this module.');
+            }
             return redirect()->route('dashboard')
                 ->with('error', 'You do not have permission to access this module.');
         }
