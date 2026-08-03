@@ -208,4 +208,31 @@ class MeetingController extends Controller
 
         return back()->with('success', 'Invitation ' . $request->status);
     }
+
+    public function destroy(Meeting $meeting)
+    {
+        // Delete chat message attachments
+        foreach ($meeting->messages as $message) {
+            if ($message->attachment) {
+                $filePath = public_path('uploads/meetings/' . $message->attachment);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+        }
+
+        // Delete meeting files
+        foreach ($meeting->files as $file) {
+            if ($file->file_path) {
+                $filePath = public_path('uploads/meetings/files/' . $file->file_path);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+        }
+
+        $meeting->delete();
+
+        return redirect()->route('meetings.index')->with('success', 'Meeting deleted successfully.');
+    }
 }
