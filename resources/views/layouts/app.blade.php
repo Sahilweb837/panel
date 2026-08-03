@@ -1053,29 +1053,85 @@
             return false;
         };
 
-        // Global Unread Message Poller
-        setInterval(() => {
-            if (document.hidden) return; // don't poll if tab is hidden
-            fetch('/api/messages/unread-count', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        // Real-time Message and System Notification Poller
+        let lastMessageId = localStorage.getItem('last_message_id');
+        let isFirstPoll = (lastMessageId === null);
+        if (isFirstPoll) {
+            lastMessageId = 0;
+        } else {
+            lastMessageId = parseInt(lastMessageId);
+        }
+
+        function pollNewMessages() {
+            if (document.hidden) return;
+            fetch(`/api/messages/inbox-poll?last_id=${lastMessageId}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(r => {
                     if (r.ok) return r.json();
                     throw new Error('Network response was not ok');
                 })
                 .then(d => {
-                    const sbBadge = document.getElementById('globalUnreadBadge');
-                    const tbBadge = document.getElementById('topbarUnreadBadge');
-                    
-                    if (d.count > 0) {
-                        if (sbBadge) { sbBadge.textContent = d.count; sbBadge.style.display = 'inline-block'; }
-                        if (tbBadge) { tbBadge.textContent = d.count; tbBadge.style.display = 'inline-block'; }
-                        // Also show a toast notification if it increases? We could track previous count
-                    } else {
-                        if (sbBadge) sbBadge.style.display = 'none';
-                        if (tbBadge) tbBadge.style.display = 'none';
+                    if (d.messages && d.messages.length > 0) {
+                        // Sort messages by ID ascending to process oldest first
+                        d.messages.sort((a, b) => a.id - b.id);
+                        
+                        if (isFirstPoll) {
+                            const maxId = Math.max(...d.messages.map(m => m.id));
+                            lastMessageId = maxId;
+                            localStorage.setItem('last_message_id', lastMessageId);
+                            isFirstPoll = false;
+                        } else {
+                            d.messages.forEach(msg => {
+                                if (msg.id > lastMessageId) {
+                                    lastMessageId = msg.id;
+                                    localStorage.setItem('last_message_id', lastMessageId);
+                                    
+                                    // Show Toast Notification
+                                    Swal.fire({
+                                        title: msg.sender === 'System' ? '📢 System Notification' : `✉️ Message from ${msg.sender}`,
+                                        text: msg.subject || msg.body || 'New message received',
+                                        icon: msg.sender === 'System' ? 'info' : 'success',
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 7000,
+                                        timerProgressBar: true,
+                                        showCloseButton: true,
+                                        background: document.documentElement.dataset.theme === 'dark' ? '#1e1714' : '#ffffff',
+                                        color: document.documentElement.dataset.theme === 'dark' ? '#f5eae4' : '#1c1816',
+                                        didOpen: (toast) => {
+                                            toast.style.cursor = 'pointer';
+                                            toast.addEventListener('click', () => {
+                                                window.location.href = "{{ route('messages.index') }}";
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     }
+
+                    // Also fetch unread count to update badges
+                    fetch('/api/messages/unread-count', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.json())
+                        .then(cntData => {
+                            const sbBadge = document.getElementById('globalUnreadBadge');
+                            const tbBadge = document.getElementById('topbarUnreadBadge');
+                            const count = cntData.count || 0;
+                            if (count > 0) {
+                                if (sbBadge) { sbBadge.textContent = count; sbBadge.style.display = 'inline-block'; }
+                                if (tbBadge) { tbBadge.textContent = count; tbBadge.style.display = 'inline-block'; }
+                            } else {
+                                if (sbBadge) sbBadge.style.display = 'none';
+                                if (tbBadge) tbBadge.style.display = 'none';
+                            }
+                        });
                 })
-                .catch(err => console.log('Error polling unread count:', err));
-        }, 15000); // Poll every 15 seconds
+                .catch(err => console.log('Error polling messages:', err));
+        }
+
+        // Poll on load and then every 10 seconds
+        pollNewMessages();
+        setInterval(pollNewMessages, 10000);
     </script>
 
     @php
