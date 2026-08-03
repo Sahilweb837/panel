@@ -84,7 +84,7 @@
                                     <td>
                                         <div class="user-info">
                                             @if($employee->user && $employee->user->profile_pic && $employee->user->profile_pic !== 'default.png')
-                                                <img src="{{ asset('uploads/profiles/' . $employee->user->profile_pic) }}" alt="Profile" class="rounded-circle object-cover border" style="width: 38px; height: 38px; min-width: 38px;">
+                                                <img src="{{ asset('uploads/profiles/' . $employee->user->profile_pic) }}" alt="Profile" class="rounded-circle object-cover border" style="width: 38px; height: 38px; min-width: 38px;" loading="lazy">
                                             @else
                                                 <div class="avatar" style="font-weight: 700; background: rgba(255, 85, 50, 0.1); color: var(--first-color); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                                     {{ strtoupper(substr($employee->user?->name ?? 'S', 0, 1)) }}

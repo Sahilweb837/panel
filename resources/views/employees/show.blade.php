@@ -86,7 +86,7 @@
             <div class="profile-header">
                 <div class="profile-avatar overflow-hidden p-0" style="width: 100px; height: 100px; border-radius: 50%;">
                     @if($employee->user && $employee->user->profile_pic && $employee->user->profile_pic !== 'default.png')
-                        <img src="{{ asset('uploads/profiles/' . $employee->user->profile_pic) }}" alt="Profile" class="w-full h-full object-cover rounded-circle">
+                        <img src="{{ asset('uploads/profiles/' . $employee->user->profile_pic) }}" alt="Profile" class="w-full h-full object-cover rounded-circle" loading="lazy">
                     @else
                         {{ strtoupper(substr($employee->user?->name ?? 'S', 0, 1)) }}
                     @endif

@@ -889,7 +889,7 @@
             @endphp
             <div class="d-flex align-items-center gap-2 mb-2 mt-2">
                 @if($currentUser && $currentUser->profile_pic)
-                    <img src="{{ asset('uploads/profiles/' . $currentUser->profile_pic) }}" alt="Profile" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,0,0,0.1);">
+                    <img src="{{ asset('uploads/profiles/' . $currentUser->profile_pic) }}" alt="Profile" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,0,0,0.1);" loading="lazy">
                 @else
                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width:36px;height:36px;background:linear-gradient(135deg,var(--first-color),var(--first-color-alt));font-size:1rem;">
                         {{ strtoupper(substr(session('user_name', 'A'), 0, 1)) }}
