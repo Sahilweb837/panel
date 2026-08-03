@@ -139,8 +139,8 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
-                                @if($meeting->meeting_mode === 'Online')
-                                    <a href="{{ route('meetings.join', ['id' => str_replace('meet-', '', $meeting->room_id ?? uniqid('meet-'))]) }}" class="px-3.5 py-1.5 bg-primary-container text-white rounded-lg hover:brightness-110 transition-all font-button text-xs font-bold text-decoration-none shadow">
+                                @if(in_array($meeting->meeting_mode, ['Online', 'Hybrid']))
+                                    <a href="{{ $meeting->meeting_link ?? route('meetings.join', ['id' => uniqid('meet-')]) }}" class="px-3.5 py-1.5 bg-primary-container text-white rounded-lg hover:brightness-110 transition-all font-button text-xs font-bold text-decoration-none shadow">
                                         Join Video Room
                                     </a>
                                 @endif

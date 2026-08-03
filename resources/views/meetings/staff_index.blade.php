@@ -101,7 +101,7 @@
                                         <i class="fas fa-info-circle"></i> Details
                                     </a>
                                     @if(in_array($meeting->meeting_mode, ['Online', 'Hybrid']))
-                                        <a href="{{ route('meetings.join', ['id' => str_replace('meet-', '', $meeting->room_id ?? uniqid('meet-'))]) }}" class="btn btn-success btn-sm flex-fill rounded-lg fw-bold text-white text-decoration-none text-center">
+                                        <a href="{{ $meeting->meeting_link ?? route('meetings.join', ['id' => uniqid('meet-')]) }}" class="btn btn-success btn-sm flex-fill rounded-lg fw-bold text-white text-decoration-none text-center">
                                             <i class="fas fa-video"></i> Join Room
                                         </a>
                                     @endif
