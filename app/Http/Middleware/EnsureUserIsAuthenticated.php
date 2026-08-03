@@ -44,7 +44,7 @@ class EnsureUserIsAuthenticated
         // ----------------------------------------------------------------
         if ($roleSlug === 'student') {
             $route = $request->route() ? $request->route()->getName() : '';
-            if ($request->routeIs('logout') || str_starts_with($route, 'student.') || str_starts_with($route, 'messages.') || $request->routeIs('fee_invoices.show') || str_starts_with($route, 'meetings.')) {
+            if ($request->routeIs('logout', 'profile.photo.update') || str_starts_with($route, 'student.') || str_starts_with($route, 'messages.') || $request->routeIs('fee_invoices.show') || str_starts_with($route, 'meetings.')) {
                 return $next($request);
             }
             // Block everything else – send back to student portal
@@ -57,7 +57,7 @@ class EnsureUserIsAuthenticated
         // ----------------------------------------------------------------
         if ($roleSlug === 'staff') {
             $route = $request->route() ? $request->route()->getName() : '';
-            if ($request->routeIs('logout') || str_starts_with($route, 'staff.') || str_starts_with($route, 'messages.') || str_starts_with($route, 'tasks.') || str_starts_with($route, 'daily-updates.') || str_starts_with($route, 'meetings.')) {
+            if ($request->routeIs('logout', 'profile.photo.update') || str_starts_with($route, 'staff.') || str_starts_with($route, 'messages.') || str_starts_with($route, 'tasks.') || str_starts_with($route, 'daily-updates.') || str_starts_with($route, 'meetings.')) {
                 return $next($request);
             }
             // Block everything else – send back to staff portal

@@ -212,13 +212,43 @@
             border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
             box-shadow: 4px 0 25px rgba(0, 0, 0, 0.05) !important;
             font-family: 'Poppins', sans-serif;
-            height: 100vh !important;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            z-index: 1035 !important; /* Keep it on top of other content layers */
             transition: all 0.3s ease;
-            position: relative;
+        }
+
+        /* Dark Mode Sidebar Adjustments */
+        html[data-theme="dark"] .sidebar {
+            background: #111827 !important;
+            color: #f3f4f6 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.4) !important;
+        }
+        html[data-theme="dark"] .sidebar .offcanvas-header {
+            background: #111827 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        html[data-theme="dark"] .sidebar .offcanvas-body {
+            background: transparent !important;
+        }
+        html[data-theme="dark"] .brand h1, 
+        html[data-theme="dark"] .brand-title-sm {
+            color: #f3f4f6 !important;
+        }
+        html[data-theme="dark"] .sidebar .nav-menu .nav-link {
+            color: #9ca3af !important;
+        }
+        html[data-theme="dark"] .sidebar .nav-menu .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+        }
+        html[data-theme="dark"] .sidebar .nav-menu .nav-link.active {
+            background: rgba({{ $primaryRgb }}, 0.15) !important;
+            color: var(--first-color, #ff5532) !important;
+        }
+        html[data-theme="dark"] .sidebar-section-header {
+            color: #6b7280 !important;
         }
 
         /* Glowing background effect in sidebar */
