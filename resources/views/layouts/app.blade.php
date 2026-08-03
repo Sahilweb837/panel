@@ -983,7 +983,7 @@
                         $navUnreadCount = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->where('is_read', false)->count();
                     }
                 @endphp
-                <a href="{{ route('messages.index') }}" class="btn position-relative" title="Message & Notice Center" style="background: var(--surface-soft, #f8f9fa); border: 1px solid var(--border, #e9ecef); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-color, #333);">
+                <a href="{{ route('messages.full') }}" class="btn position-relative" title="Message & Notice Center" style="background: var(--surface-soft, #f8f9fa); border: 1px solid var(--border, #e9ecef); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-color, #333);">
                     <i class="fas fa-envelope"></i>
                     @if($navUnreadCount > 0)
                         <span id="topbarUnreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
@@ -1053,6 +1053,11 @@
             return false;
         };
 
+        // Request browser Notification permissions
+        if (window.Notification && Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+
         // Real-time Message and System Notification Poller
         let lastMessageId = localStorage.getItem('last_message_id');
         let isFirstPoll = (lastMessageId === null);
@@ -1085,7 +1090,24 @@
                                     lastMessageId = msg.id;
                                     localStorage.setItem('last_message_id', lastMessageId);
                                     
-                                    // Show Toast Notification
+                                    // Show Native System Notification (shows outside browser/tab)
+                                    if (window.Notification && Notification.permission === "granted") {
+                                        const systemIcon = msg.sender === 'System' 
+                                            ? 'https://cdn-icons-png.flaticon.com/512/179/179386.png'
+                                            : 'https://cdn-icons-png.flaticon.com/512/1077/1077012.png';
+                                        
+                                        const nativeNotif = new Notification(msg.sender === 'System' ? '📢 System Notification' : `✉️ Message from ${msg.sender}`, {
+                                            body: msg.subject || msg.body || 'New message received',
+                                            icon: systemIcon
+                                        });
+                                        
+                                        nativeNotif.onclick = function() {
+                                            window.focus();
+                                            window.location.href = "{{ route('messages.full') }}";
+                                        };
+                                    }
+
+                                    // Show Toast Notification inside website
                                     Swal.fire({
                                         title: msg.sender === 'System' ? '📢 System Notification' : `✉️ Message from ${msg.sender}`,
                                         text: msg.subject || msg.body || 'New message received',
@@ -1101,7 +1123,7 @@
                                         didOpen: (toast) => {
                                             toast.style.cursor = 'pointer';
                                             toast.addEventListener('click', () => {
-                                                window.location.href = "{{ route('messages.index') }}";
+                                                window.location.href = "{{ route('messages.full') }}";
                                             });
                                         }
                                     });

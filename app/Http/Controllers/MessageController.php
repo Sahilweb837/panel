@@ -33,16 +33,7 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
-        $userId      = session('user_id');
-        $roleSlug    = session('user_role_slug');
-        $isAdmin     = in_array($roleSlug, ['super-admin', 'superadmin', 'root-admin', 'admin', 'subadmin', 'sub-admin']);
-
-        $inboxMessages = Message::with('sender')->forUser($userId, $roleSlug)->latest()->get();
-        $sentMessages  = Message::with('receiver')->where('sender_id', $userId)->latest()->get();
-        $unreadCount   = $inboxMessages->where('is_read', false)->count();
-        $recipients    = $this->getRecipients($userId, $roleSlug);
-
-        return view('messages.index', compact('inboxMessages', 'sentMessages', 'unreadCount', 'recipients', 'isAdmin'));
+        return redirect()->route('messages.full');
     }
 
     /**
@@ -336,5 +327,34 @@ class MessageController extends Controller
             ]);
 
         return response()->json(['messages' => $messages]);
+    }
+
+    /**
+     * AJAX – update / edit message body
+     */
+    public function updateMessage(Request $request, $id)
+    {
+        $request->validate([
+            'body' => 'required|string',
+        ]);
+
+        $userId = session('user_id');
+        $message = Message::findOrFail($id);
+
+        if ($message->sender_id !== $userId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $message->body = $request->body;
+        $message->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Message updated successfully.',
+            'data' => [
+                'id'   => $message->id,
+                'body' => $message->body,
+            ]
+        ]);
     }
 }

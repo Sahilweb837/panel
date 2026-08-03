@@ -179,9 +179,25 @@
             </div>
 
             <!-- Messages History Grid -->
-            <div class="flex-grow overflow-y-auto p-6 space-y-6 custom-scrollbar" id="chatScrollArea">
+            <div class="flex-grow overflow-y-auto p-6 space-y-6 custom-scrollbar relative" id="chatScrollArea">
                 <div class="chat-messages" id="chatMessages">
                     @include('messages.chat_history')
+                </div>
+                
+                <!-- Floating Context Menu -->
+                <div id="chatContextMenu" class="absolute bg-white border border-slate-100 rounded-xl shadow-lg py-1 w-44 z-50 hidden text-xs font-semibold text-slate-700">
+                    <button type="button" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2" onclick="contextCopyText()">
+                        <i class="fas fa-copy text-slate-400"></i> Copy Text
+                    </button>
+                    <a id="contextDownloadLink" href="#" target="_blank" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 hidden text-decoration-none text-slate-700">
+                        <i class="fas fa-download text-slate-400"></i> Download File
+                    </a>
+                    <button id="contextEditBtn" type="button" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 hidden" onclick="contextEditMsg()">
+                        <i class="fas fa-edit text-slate-400"></i> Edit Message
+                    </button>
+                    <button id="contextDeleteBtn" type="button" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-rose-600 hover:bg-rose-50 hidden" onclick="contextDeleteMsg()">
+                        <i class="fas fa-trash text-rose-500"></i> Delete Message
+                    </button>
                 </div>
             </div>
 
@@ -840,6 +856,171 @@ function showToast(msg, type) {
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
 }
+
+// Context Menu Event Handlers & Variables
+let contextActiveMsgId = null;
+let contextActiveMsgText = '';
+let contextActiveAttachmentUrl = '';
+let contextActiveIsMine = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const chatScrollArea = document.getElementById('chatScrollArea');
+    const contextMenu = document.getElementById('chatContextMenu');
+
+    if (chatScrollArea && contextMenu) {
+        // Prevent default context menu on message bubbles and open custom context menu
+        chatScrollArea.addEventListener('contextmenu', function (e) {
+            const bubble = e.target.closest('[data-msg-id]');
+            if (bubble) {
+                e.preventDefault();
+                contextActiveMsgId = bubble.dataset.msgId;
+                contextActiveIsMine = bubble.classList.contains('ml-auto') || bubble.querySelector('.message-bubble-out') !== null;
+                
+                // Get the message text
+                const textElem = bubble.querySelector('p.text-sm');
+                contextActiveMsgText = textElem ? textElem.textContent.trim() : '';
+                
+                // Get attachment URL
+                const attachLink = bubble.querySelector('a[href*="uploads/messages"]');
+                contextActiveAttachmentUrl = attachLink ? attachLink.href : '';
+                
+                // Position menu at cursor coordinates relative to scroll area
+                const rect = chatScrollArea.getBoundingClientRect();
+                const x = e.clientX - rect.left + chatScrollArea.scrollLeft;
+                const y = e.clientY - rect.top + chatScrollArea.scrollTop;
+                
+                contextMenu.style.left = `${x}px`;
+                contextMenu.style.top = `${y}px`;
+                contextMenu.classList.remove('hidden');
+                
+                // Toggle edit/delete visibility based on whether it's mine
+                const deleteBtn = document.getElementById('contextDeleteBtn');
+                const editBtn = document.getElementById('contextEditBtn');
+                const downloadLink = document.getElementById('contextDownloadLink');
+                
+                if (contextActiveIsMine) {
+                    if (deleteBtn) deleteBtn.classList.remove('hidden');
+                    if (editBtn) editBtn.classList.remove('hidden');
+                } else {
+                    if (deleteBtn) deleteBtn.classList.add('hidden');
+                    if (editBtn) editBtn.classList.add('hidden');
+                }
+                
+                if (contextActiveAttachmentUrl) {
+                    if (downloadLink) {
+                        downloadLink.href = contextActiveAttachmentUrl;
+                        downloadLink.classList.remove('hidden');
+                    }
+                } else {
+                    if (downloadLink) downloadLink.classList.add('hidden');
+                }
+            } else {
+                contextMenu.classList.add('hidden');
+            }
+        });
+
+        // Hide menu on click elsewhere
+        document.addEventListener('click', function (e) {
+            if (!contextMenu.contains(e.target)) {
+                contextMenu.classList.add('hidden');
+            }
+        });
+        
+        chatScrollArea.addEventListener('scroll', function() {
+            contextMenu.classList.add('hidden');
+        });
+    }
+});
+
+window.contextCopyText = function() {
+    if (contextActiveMsgText) {
+        navigator.clipboard.writeText(contextActiveMsgText);
+        showToast('Copied to clipboard!', 'success');
+    }
+    const contextMenu = document.getElementById('chatContextMenu');
+    if (contextMenu) contextMenu.classList.add('hidden');
+};
+
+window.contextDeleteMsg = function() {
+    if (!contextActiveMsgId) return;
+    const contextMenu = document.getElementById('chatContextMenu');
+    if (contextMenu) contextMenu.classList.add('hidden');
+    
+    Swal.fire({
+        title: 'Delete Message?',
+        text: 'Are you sure you want to delete this message?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/messages/${contextActiveMsgId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': CSRF,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    const bubble = document.querySelector(`[data-msg-id="${contextActiveMsgId}"]`);
+                    if (bubble) bubble.remove();
+                    showToast('Message deleted.', 'success');
+                } else {
+                    showToast(d.message || 'Failed to delete message.', 'error');
+                }
+            });
+        }
+    });
+};
+
+window.contextEditMsg = function() {
+    if (!contextActiveMsgId) return;
+    const contextMenu = document.getElementById('chatContextMenu');
+    if (contextMenu) contextMenu.classList.add('hidden');
+
+    Swal.fire({
+        title: 'Edit Message',
+        input: 'textarea',
+        inputValue: contextActiveMsgText,
+        inputAttributes: {
+            'aria-label': 'Edit message body'
+        },
+        showCancelButton: true,
+        confirmButtonColor: 'var(--first-color, #ff5532)',
+        confirmButtonText: 'Save Changes'
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            fetch(`/messages/${contextActiveMsgId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ body: result.value }),
+                headers: {
+                    'X-CSRF-TOKEN': CSRF,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    const bubble = document.querySelector(`[data-msg-id="${contextActiveMsgId}"]`);
+                    if (bubble) {
+                        const textElem = bubble.querySelector('p.text-sm');
+                        if (textElem) textElem.textContent = d.data.body;
+                    }
+                    showToast('Message updated.', 'success');
+                } else {
+                    showToast(d.message || 'Failed to update message.', 'error');
+                }
+            });
+        }
+    });
+};
 </script>
 
 <!-- Jitsi Video Call Modal -->
