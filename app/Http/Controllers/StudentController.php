@@ -262,6 +262,10 @@ class StudentController extends Controller
                     'username' => $user->username,
                     'password' => $plainPassword,
                     'type' => 'Student',
+                    'first_name' => $student->first_name,
+                    'last_name' => $student->last_name,
+                    'phone' => $student->phone,
+                    'course' => $student->course?->name ?? 'N/A',
                 ],
             ]);
         }

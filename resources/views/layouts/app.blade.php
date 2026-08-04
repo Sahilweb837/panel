@@ -1800,24 +1800,80 @@
         document.addEventListener('DOMContentLoaded', function() {
             const creds = @json(session('new_user_credentials'));
             
+            let shareText = "";
+            let whatsappPhone = "";
+            
+            if (creds.type === 'Student') {
+                const name = (creds.first_name || '') + ' ' + (creds.last_name || '');
+                const course = creds.course || 'N/A';
+                const loginUrl = "{{ route('login.student') }}";
+                shareText = `🎓 *Student Portal Credentials*\n\n`
+                    + `Hello *${name.trim()}*,\n\n`
+                    + `Your student portal account has been activated:\n`
+                    + `🌐 *Portal URL:* ${loginUrl}\n`
+                    + `🆔 *Username / ID:* ${creds.username}\n`
+                    + `🔑 *Password:* ${creds.password}\n\n`
+                    + `📚 *Course:* ${course}\n\n`
+                    + `Log in to track your attendance, fees, and assignments.`;
+                if (creds.phone) {
+                    whatsappPhone = creds.phone.replace(/[^0-9]/g, '');
+                    if (whatsappPhone.length === 10) {
+                        whatsappPhone = '91' + whatsappPhone;
+                    }
+                }
+            } else {
+                const loginUrl = "{{ route('login') }}";
+                shareText = `💻 *Portal Login Credentials*\n\n`
+                    + `Hello,\n\n`
+                    + `Your portal account has been generated:\n`
+                    + `🌐 *Login URL:* ${loginUrl}\n`
+                    + `🆔 *Username:* ${creds.username}\n`
+                    + `🔑 *Password:* ${creds.password}\n\n`
+                    + `Please keep these credentials secure.`;
+            }
+            
+            const whatsappUrl = whatsappPhone ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(shareText)}` : `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+
             Swal.fire({
                 title: 'User Created Successfully!',
                 html: `
                     <div class="text-start mt-3">
                         <p class="mb-2">A new <strong>${creds.type}</strong> account has been automatically generated.</p>
-                        <div class="bg-light p-3 rounded border">
+                        <div class="bg-light p-3 rounded border mb-3">
                             <p class="mb-1"><strong>Email:</strong> <span class="user-select-all">${creds.email}</span></p>
                             <p class="mb-1"><strong>Username:</strong> <span class="user-select-all">${creds.username}</span></p>
                             <p class="mb-0"><strong>Password:</strong> <span class="user-select-all">${creds.password}</span></p>
                         </div>
-                        ${creds.type === 'Student' ? '<p class="mt-3 mb-0 small"><strong>Student login:</strong> <span class="user-select-all">{{ url('/student') }}</span></p>' : ''}
-                        <p class="mt-3 text-muted small"><i class="fas fa-info-circle me-1"></i>Please share these credentials securely with the user.</p>
+                        ${creds.type === 'Student' ? '<p class="mb-3 small"><strong>Student login:</strong> <span class="user-select-all">{{ url('/student') }}</span></p>' : ''}
+                        
+                        <div class="d-flex gap-2 mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-dark" id="modal-copy-btn">
+                                <i class="fas fa-copy me-1"></i>Copy Details
+                            </button>
+                            <a href="${whatsappUrl}" target="_blank" class="btn btn-sm btn-success text-white">
+                                <i class="fab fa-whatsapp me-1"></i>Share via WhatsApp
+                            </a>
+                        </div>
+                        
+                        <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Please share these credentials securely with the user.</p>
                     </div>
                 `,
                 icon: 'success',
                 confirmButtonText: 'Got it!',
                 confirmButtonColor: '#32D74B',
-                allowOutsideClick: false
+                allowOutsideClick: false,
+                didOpen: () => {
+                    const copyBtn = document.getElementById('modal-copy-btn');
+                    if (copyBtn) {
+                        copyBtn.addEventListener('click', function() {
+                            navigator.clipboard.writeText(shareText).then(() => {
+                                const original = copyBtn.innerHTML;
+                                copyBtn.innerHTML = '<i class="fas fa-check text-success me-1"></i>Copied!';
+                                setTimeout(() => { copyBtn.innerHTML = original; }, 2000);
+                            });
+                        });
+                    }
+                }
             });
         });
     </script>
