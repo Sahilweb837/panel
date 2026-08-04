@@ -87,32 +87,32 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="name" class="form-label fw-bold">Full Name</label>
+                <label for="name" class="form-label fw-bold"><i class="fas fa-user text-primary me-2"></i>Full Name</label>
                 <input type="text" name="name" id="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name') }}" required placeholder="e.g. Sahil Sharma">
                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             
             <div class="col-md-6 mb-3">
-                <label for="username" class="form-label fw-bold">Register ID / Username</label>
+                <label for="username" class="form-label fw-bold"><i class="fas fa-id-card text-primary me-2"></i>Register ID / Username</label>
                 <input type="text" name="username" id="username" class="form-input @error('username') is-invalid @enderror" value="{{ old('username') }}" required placeholder="e.g. NT-ENR-001">
                 @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
             <div class="col-md-6 mb-3">
-                <label for="email" class="form-label fw-bold">Email Address (Optional)</label>
+                <label for="email" class="form-label fw-bold"><i class="fas fa-envelope text-primary me-2"></i>Email Address (Optional)</label>
                 <input type="email" name="email" id="email" class="form-input @error('email') is-invalid @enderror" value="{{ old('email') }}" placeholder="student@netcoder.in">
                 @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             
             <div class="col-md-6 mb-3">
-                <label for="password" class="form-label fw-bold">Plain-Text Password</label>
+                <label for="password" class="form-label fw-bold"><i class="fas fa-key text-primary me-2"></i>Plain-Text Password</label>
                 <input type="text" name="password" id="password" class="form-input @error('password') is-invalid @enderror" required minlength="6" placeholder="e.g. NT-ENR-001">
                 @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
             <div class="col-md-6 mb-3" id="role_select_wrapper">
-                <label for="role_id" class="form-label fw-bold">Account Role</label>
-                <select name="role_id" id="role_id" class="form-input @error('role_id') is-invalid @enderror" required>
+                <label for="role_id" class="form-label fw-bold"><i class="fas fa-user-tag text-primary me-2"></i>Account Role</label>
+                <select name="role_id" id="role_id" class="form-input @error('role_id') is-invalid @enderror">
                     <option value="">Select Role</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}" data-slug="{{ $role->slug }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
@@ -186,6 +186,7 @@
             studentWrapper.classList.remove('d-none');
             employeeWrapper.classList.add('d-none');
             if (roleWrapper) roleWrapper.classList.add('d-none'); // Hide Role select for student
+            if (roleSelect) roleSelect.removeAttribute('required');
             
             if (toggleSlider) toggleSlider.style.left = '3px';
             tabStudent.style.color = 'var(--first-color)';
@@ -197,6 +198,7 @@
             employeeWrapper.classList.remove('d-none');
             studentWrapper.classList.add('d-none');
             if (roleWrapper) roleWrapper.classList.remove('d-none'); // Show Role select for staff
+            if (roleSelect) roleSelect.setAttribute('required', 'required');
             
             if (toggleSlider) toggleSlider.style.left = 'calc(50% + 0px)';
             tabEmployee.style.color = 'var(--first-color)';

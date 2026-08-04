@@ -65,6 +65,12 @@ class CredentialController extends Controller
             if ($student && $student->user_id) {
                 $targetUser = User::find($student->user_id);
             }
+            
+            // Auto-assign student role_id if missing or present
+            $studentRole = Role::where('slug', 'student')->first();
+            if ($studentRole) {
+                $request->merge(['role_id' => $studentRole->id]);
+            }
         } elseif ($request->filled('employee_id')) {
             $employee = Employee::find($request->employee_id);
             if ($employee && $employee->user_id) {
@@ -116,7 +122,38 @@ class CredentialController extends Controller
             $employee->save();
         }
 
-        return redirect()->route('credentials.index')->with('success', 'Credential created & active portal access linked successfully.');
+        // Build credentials payload for sweetalert popup
+        $type = 'Staff';
+        $firstName = $user->name;
+        $lastName = '';
+        $phone = '';
+        $course = 'N/A';
+
+        if ($student) {
+            $type = 'Student';
+            $firstName = $student->first_name;
+            $lastName = $student->last_name;
+            $phone = $student->phone;
+            $course = $student->course?->name ?? 'N/A';
+        } elseif ($employee) {
+            $type = 'Staff';
+            $firstName = $employee->user?->name ?? $user->name;
+            $phone = $employee->phone ?? '';
+        }
+
+        return redirect()->route('credentials.index')->with([
+            'success' => 'Credential created & active portal access linked successfully.',
+            'new_user_credentials' => [
+                'email' => $user->email,
+                'username' => $user->username,
+                'password' => $request->password,
+                'type' => $type,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'phone' => $phone,
+                'course' => $course,
+            ]
+        ]);
     }
 
     public function edit(User $credential)

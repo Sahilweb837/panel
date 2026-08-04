@@ -148,10 +148,51 @@
                                             <a href="{{ route('credentials.impersonate', $user->id) }}" class="btn btn-sm button-primary px-3 py-1 text-white fw-bold d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.82rem;" title="1-Click Login to Student/User Dashboard">
                                                 <i class="fas fa-sign-in-alt"></i> Portal Login
                                             </a>
+                                            
+                                            @php
+                                                $waText = "";
+                                                $waPhone = "";
+                                                if ($isStudent && $student) {
+                                                    $name = trim($student->first_name . ' ' . ($student->last_name ?? ''));
+                                                    $courseName = $student->course?->name ?? 'N/A';
+                                                    $waText = "🎓 *Student Portal Credentials*\n\n"
+                                                            . "Hello *" . $name . "*,\n\n"
+                                                            . "Your student portal account has been activated:\n"
+                                                            . "🌐 *Portal URL:* " . route('login.student') . "\n"
+                                                            . "🆔 *Username / ID:* " . $loginIdentifier . "\n"
+                                                            . "🔑 *Password:* " . ($user->raw_password ?? '') . "\n\n"
+                                                            . "📚 *Course:* " . $courseName . "\n\n"
+                                                            . "Log in to track your attendance, fees, and assignments.";
+                                                    $waPhone = $student->phone;
+                                                } else {
+                                                    $waText = "💻 *Portal Login Credentials*\n\n"
+                                                            . "Hello " . $user->name . ",\n\n"
+                                                            . "Your portal account has been generated:\n"
+                                                            . "🌐 *Login URL:* " . route('login') . "\n"
+                                                            . "🆔 *Username:* " . $loginIdentifier . "\n"
+                                                            . "🔑 *Password:* " . ($user->raw_password ?? '') . "\n\n"
+                                                            . "Please keep these credentials secure.";
+                                                    $waPhone = $user->employee?->phone ?? '';
+                                                }
+                                                $waPhoneClean = preg_replace('/[^0-9]/', '', $waPhone);
+                                                if (strlen($waPhoneClean) === 10) {
+                                                    $waPhoneClean = '91' . $waPhoneClean;
+                                                }
+                                                $waUrl = "https://wa.me/" . $waPhoneClean . "?text=" . urlencode($waText);
+                                            @endphp
+
+                                            <a href="{{ $waUrl }}" target="_blank" class="btn btn-sm btn-success text-white px-2 py-1 d-inline-flex align-items-center" title="Share via WhatsApp">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
+
+                                            <button type="button" class="btn btn-sm btn-light border px-2 py-1" onclick="copyToClipboard('{{ addslashes($waText) }}', 'Full Credentials')" title="Copy Full Credentials">
+                                                <i class="fas fa-copy text-primary"></i>
+                                            </button>
+
                                             <a href="{{ route('credentials.edit', $user->id) }}" class="btn btn-sm btn-outline-primary" title="Edit Credential">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('credentials.destroy', $user->id) }}" method="POST" onsubmit="return confirmAction(event, 'Are you sure you want to delete this credential? This will also remove login access.')">
+                                            <form action="{{ route('credentials.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this credential? This will also remove login access.');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Credential">
