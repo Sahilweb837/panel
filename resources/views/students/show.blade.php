@@ -279,6 +279,9 @@
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Update Password</small>
                             <div class="input-group input-group-sm">
                                 <input type="text" id="show-new-password" class="form-control" placeholder="New Password..." minlength="6">
+                                <button class="btn btn-outline-secondary" type="button" onclick="generateAndFillPassword()" title="Generate Password">
+                                    <i class="fas fa-magic"></i> Generate
+                                </button>
                                 <button class="btn btn-primary" type="button" onclick="updateStudentPasswordDirect({{ $student->user_id }})">
                                     <i class="fas fa-save me-1"></i>Save
                                 </button>
@@ -330,6 +333,15 @@
                 </div>
 
                 <script>
+                    function generateAndFillPassword() {
+                        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+                        let password = "";
+                        for (let i = 0; i < 10; i++) {
+                            password += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                        document.getElementById('show-new-password').value = password;
+                    }
+
                     function copyFullCredentials(e) {
                         const text = e.currentTarget.getAttribute('data-text');
                         navigator.clipboard.writeText(text).then(() => {

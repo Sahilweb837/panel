@@ -21,7 +21,7 @@ class SubAdminController extends Controller
                 return redirect()->route('dashboard')->with('error', 'Unauthorized access.');
             }
             return $next($request);
-        });
+        })->except(['showPassword', 'updatePassword']);
     }
 
     /**
