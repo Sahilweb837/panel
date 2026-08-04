@@ -169,7 +169,25 @@
                             <label for="login_password" class="fw-semibold mb-2">
                                 <i class="fas fa-key text-first me-2"></i>Login Password <small class="text-muted fw-normal">(Optional)</small>
                             </label>
-                            <input type="text" id="login_password" name="login_password" value="{{ old('login_password') }}" placeholder="Auto (DOB/Admn No)" class="form-input {{ $errors->has('login_password') ? 'is-invalid' : '' }}" />
+                            <div class="d-flex gap-2">
+                                <div class="position-relative flex-grow-1">
+                                    <input 
+                                        type="password" 
+                                        id="login_password" 
+                                        name="login_password" 
+                                        value="{{ old('login_password') }}" 
+                                        placeholder="Auto (DOB/Admn No)" 
+                                        class="form-input {{ $errors->has('login_password') ? 'is-invalid' : '' }}" 
+                                        style="padding-right: 40px;"
+                                    />
+                                    <button type="button" onclick="togglePasswordVisibility('login_password')" class="position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent pe-3 text-muted" style="z-index: 10; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-eye" id="login_password_eye"></i>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="autoGeneratePassword('login_password')" class="button button-secondary flex-shrink-0" style="padding: 10px 15px; margin: 0; display: flex; align-items: center; gap: 6px; height: 48px;">
+                                    <i class="fas fa-magic"></i> Generate
+                                </button>
+                            </div>
                             @error('login_password')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
@@ -417,7 +435,65 @@
 
     <!-- Javascript mapping address triggers -->
     <script>
+        function generateSecurePassword(length = 10) {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return password;
+        }
+
+        function autoGeneratePassword(passwordInputId, confirmInputId = null) {
+            const pwd = generateSecurePassword(10);
+            const pwdInput = document.getElementById(passwordInputId);
+            if (pwdInput) {
+                pwdInput.value = pwd;
+                pwdInput.type = 'text'; // Make it visible initially
+            }
+            if (confirmInputId) {
+                const confirmInput = document.getElementById(confirmInputId);
+                if (confirmInput) {
+                    confirmInput.value = pwd;
+                    confirmInput.type = 'text';
+                }
+            }
+            // Update toggle eye icon to show it is visible
+            const eyeIcon = document.getElementById(passwordInputId + '_eye');
+            if (eyeIcon) {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+            const confirmEyeIcon = document.getElementById(confirmInputId + '_eye');
+            if (confirmEyeIcon) {
+                confirmEyeIcon.classList.remove('fa-eye');
+                confirmEyeIcon.classList.add('fa-eye-slash');
+            }
+        }
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(inputId + '_eye');
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (eyeIcon) {
+                        eyeIcon.classList.remove('fa-eye');
+                        eyeIcon.classList.add('fa-eye-slash');
+                    }
+                } else {
+                    input.type = 'password';
+                    if (eyeIcon) {
+                        eyeIcon.classList.remove('fa-eye-slash');
+                        eyeIcon.classList.add('fa-eye');
+                    }
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Auto-generate password on load
+            autoGeneratePassword('login_password');
             const curInput = document.getElementById('current_address');
             const permInput = document.getElementById('permanent_address');
             const sameCheck = document.getElementById('same_as_current');

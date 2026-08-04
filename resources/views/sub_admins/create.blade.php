@@ -132,14 +132,25 @@
                             <label for="password" class="fw-semibold mb-2">
                                 <i class="fas fa-lock text-first me-2"></i>Password
                             </label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                required 
-                                placeholder="Enter strong password (min. 6 characters)"
-                                class="form-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
-                            />
+                            <div class="d-flex gap-2">
+                                <div class="position-relative flex-grow-1">
+                                    <input 
+                                        type="password" 
+                                        id="password" 
+                                        name="password" 
+                                        required 
+                                        placeholder="Enter strong password (min. 6 characters)"
+                                        class="form-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                                        style="padding-right: 40px;"
+                                    />
+                                    <button type="button" onclick="togglePasswordVisibility('password')" class="position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent pe-3 text-muted" style="z-index: 10; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-eye" id="password_eye"></i>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="autoGeneratePassword('password', 'password_confirmation')" class="button button-secondary flex-shrink-0" style="padding: 10px 15px; margin: 0; display: flex; align-items: center; gap: 6px; height: 48px;">
+                                    <i class="fas fa-magic"></i> Generate
+                                </button>
+                            </div>
                             @error('password')
                                 <small style="color: var(--danger-text);" class="mt-1 d-block">{{ $message }}</small>
                             @enderror
@@ -149,14 +160,20 @@
                             <label for="password_confirmation" class="fw-semibold mb-2">
                                 <i class="fas fa-lock text-first me-2"></i>Confirm Password
                             </label>
-                            <input 
-                                type="password" 
-                                id="password_confirmation" 
-                                name="password_confirmation" 
-                                required 
-                                placeholder="Confirm security password"
-                                class="form-input"
-                            />
+                            <div class="position-relative">
+                                <input 
+                                    type="password" 
+                                    id="password_confirmation" 
+                                    name="password_confirmation" 
+                                    required 
+                                    placeholder="Confirm security password"
+                                    class="form-input"
+                                    style="padding-right: 40px;"
+                                />
+                                <button type="button" onclick="togglePasswordVisibility('password_confirmation')" class="position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent pe-3 text-muted" style="z-index: 10; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-eye" id="password_confirmation_eye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -292,6 +309,62 @@
     </div>
 
     <script>
+        function generateSecurePassword(length = 10) {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return password;
+        }
+
+        function autoGeneratePassword(passwordInputId, confirmInputId = null) {
+            const pwd = generateSecurePassword(10);
+            const pwdInput = document.getElementById(passwordInputId);
+            if (pwdInput) {
+                pwdInput.value = pwd;
+                pwdInput.type = 'text'; // Make it visible initially
+            }
+            if (confirmInputId) {
+                const confirmInput = document.getElementById(confirmInputId);
+                if (confirmInput) {
+                    confirmInput.value = pwd;
+                    confirmInput.type = 'text';
+                }
+            }
+            // Update toggle eye icon to show it is visible
+            const eyeIcon = document.getElementById(passwordInputId + '_eye');
+            if (eyeIcon) {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+            const confirmEyeIcon = document.getElementById(confirmInputId + '_eye');
+            if (confirmEyeIcon) {
+                confirmEyeIcon.classList.remove('fa-eye');
+                confirmEyeIcon.classList.add('fa-eye-slash');
+            }
+        }
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(inputId + '_eye');
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (eyeIcon) {
+                        eyeIcon.classList.remove('fa-eye');
+                        eyeIcon.classList.add('fa-eye-slash');
+                    }
+                } else {
+                    input.type = 'password';
+                    if (eyeIcon) {
+                        eyeIcon.classList.remove('fa-eye-slash');
+                        eyeIcon.classList.add('fa-eye');
+                    }
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('page-skeleton');
             const content = document.getElementById('page-content');
@@ -299,6 +372,9 @@
                 if (skeleton) skeleton.classList.add('fade-out');
                 if (content) content.style.opacity = '1';
             }, 600);
+
+            // Auto-generate password on load
+            autoGeneratePassword('password', 'password_confirmation');
         });
 
         function toggleStudentFields(role) {

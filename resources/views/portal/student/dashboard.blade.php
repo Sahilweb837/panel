@@ -161,7 +161,7 @@
                 </h3>
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-slate-400 text-xs uppercase tracking-widest font-label-sm mb-1">Outstanding Balance</p>
+                        <p class="text-slate-400 text-xs uppercase tracking-widest font-label-sm mb-1">Outstanding Course Fee</p>
                         <p class="text-3xl font-bold font-headline-lg text-white">₹{{ number_format($remainingCourseFee, 2) }}</p>
                     </div>
                     <button type="button" class="bg-white text-inverse-surface px-4 py-2 rounded-lg font-button text-xs font-bold hover:bg-slate-200 transition-colors border-0 cursor-pointer" onclick="document.getElementById('openPayNowModalBtn').click();">
@@ -174,7 +174,7 @@
                     $paidPercent = min(100, round(($coursePaid / $totalBase) * 100));
                 @endphp
 
-                <div class="space-y-2 pt-3 border-t border-slate-700/60 text-xs">
+                <div class="space-y-3 pt-3 border-t border-slate-700/60 text-xs">
                     <div class="flex justify-between text-slate-300">
                         <span>Paid: <strong>₹{{ number_format($coursePaid, 0) }}</strong></span>
                         <span>Total: <strong>₹{{ number_format($netCourseFee ?? $totalFees, 0) }}</strong></span>
@@ -182,6 +182,29 @@
                     <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
                         <div class="h-full bg-success-green" style="width: {{ $paidPercent }}%;"></div>
                     </div>
+                    
+                    <!-- Overall Total Fees Summary -->
+                    <div class="pt-2 border-t border-slate-800 space-y-1 text-slate-400 text-[11px]">
+                        <div class="flex justify-between">
+                            <span>Admission Fees:</span>
+                            <span class="text-slate-300">₹{{ number_format(($student->registration_fee ?? 0) + ($student->prospectus_fee ?? 0), 0) }}</span>
+                        </div>
+                        @if($biometricFine > 0)
+                        <div class="flex justify-between">
+                            <span>Fines Charged:</span>
+                            <span class="text-error">₹{{ number_format($biometricFine, 0) }}</span>
+                        </div>
+                        @endif
+                        <div class="flex justify-between font-bold text-white pt-1 border-t border-slate-800/50">
+                            <span>Overall Total Paid:</span>
+                            <span class="text-success-green">₹{{ number_format($paidFees, 0) }}</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-white">
+                            <span>Overall Total Due:</span>
+                            <span class="text-error">₹{{ number_format($dueFees, 0) }}</span>
+                        </div>
+                    </div>
+
                     @if($netMonthlyFee > 0)
                         <div class="flex items-center justify-between text-success-green text-[11px] font-label-sm pt-1">
                             <span class="flex items-center gap-1">
@@ -389,6 +412,57 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center py-6 text-secondary">No fee invoices recorded yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance History Section -->
+    <div class="w-full mt-8">
+        <div class="bg-white p-6 rounded-xl border border-border-subtle shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h5 class="font-title-md text-lg font-bold text-on-surface">Attendance History</h5>
+                    <p class="text-xs text-secondary mb-0">View your daily check-in records for the past 30 days.</p>
+                </div>
+                <div class="flex gap-2">
+                    <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-success-green/10 text-success-green">Present: {{ $presentDays }}</span>
+                    <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-error-container/20 text-error">Absent: {{ $absentDays }}</span>
+                    <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-info-blue/10 text-info-blue">Late: {{ $lateDays }}</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-slate border-b border-border-subtle font-label-sm text-xs text-secondary uppercase">
+                            <th class="px-4 py-3">Date</th>
+                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3">Check-in Time</th>
+                            <th class="px-4 py-3">Check-out Time</th>
+                            <th class="px-4 py-3">Fine Charged</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-subtle text-sm">
+                        @forelse($attendances as $att)
+                            <tr class="hover:bg-surface-slate transition-colors">
+                                <td class="px-4 py-3.5 font-semibold text-on-surface">{{ \Carbon\Carbon::parse($att->attendance_date)->format('d M, Y') }}</td>
+                                <td class="px-4 py-3.5">
+                                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-{{ $att->status === 'Present' ? 'success-green/10 text-success-green' : ($att->status === 'Late' ? 'info-blue/10 text-info-blue' : 'error-container/20 text-error') }}">
+                                        {{ $att->status }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3.5 text-secondary">{{ $att->check_in ? \Carbon\Carbon::parse($att->check_in)->format('h:i A') : '--' }}</td>
+                                <td class="px-4 py-3.5 text-secondary">{{ $att->check_out ? \Carbon\Carbon::parse($att->check_out)->format('h:i A') : '--' }}</td>
+                                <td class="px-4 py-3.5 font-semibold {{ $att->fine > 0 ? 'text-error' : 'text-secondary' }}">
+                                    {{ $att->fine > 0 ? '₹'.number_format($att->fine, 0) : 'None' }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-6 text-secondary">No attendance records found.</td>
                             </tr>
                         @endforelse
                     </tbody>
