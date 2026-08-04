@@ -228,6 +228,7 @@
     <!-- Script to simulate dynamic lazy loading and skeleton fading -->
     <script>
         let currentPasswordUserId = null;
+        let currentModalUserData = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             const skeleton = document.getElementById('page-skeleton');
@@ -250,11 +251,15 @@
                                 alert(data.error);
                                 return;
                             }
+                            currentModalUserData = data;
                             document.getElementById('pw-name').textContent = data.name || '—';
                             document.getElementById('pw-email').textContent = data.email || '—';
                             document.getElementById('pw-password').textContent = data.password || '—';
                             document.getElementById('new-password-input').value = '';
                             document.getElementById('pw-update-status').style.display = 'none';
+                            
+                            updateWhatsAppLink();
+                            
                             const modal = document.getElementById('passwordModal');
                             modal.style.display = 'flex';
                         })
@@ -273,6 +278,64 @@
                 const btn = document.querySelector('#passwordModal button[onclick="copyPassword()"]');
                 btn.innerHTML = '<i class="fas fa-check"></i>';
                 setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 2000);
+            });
+        }
+
+        function generateModalPassword() {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$";
+            let pwd = "";
+            for (let i = 0; i < 10; i++) {
+                pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('new-password-input').value = pwd;
+        }
+
+        function updateWhatsAppLink() {
+            if (!currentModalUserData) return;
+            const data = currentModalUserData;
+            const name = data.name || 'Student';
+            const course = data.course || 'N/A';
+            const loginUrl = "{{ route('login.student') }}";
+            const shareText = `🎓 *Student Portal Credentials*\n\n`
+                + `Hello *${name}*,\n\n`
+                + `Your student portal account has been activated:\n`
+                + `🌐 *Portal URL:* ${loginUrl}\n`
+                + `🆔 *Username / ID:* ${data.username}\n`
+                + `🔑 *Password:* ${data.password}\n\n`
+                + `📚 *Course:* ${course}\n\n`
+                + `Log in to track your attendance, fees, and assignments.`;
+            
+            let whatsappPhone = data.phone ? data.phone.replace(/[^0-9]/g, '') : '';
+            if (whatsappPhone.length === 10) {
+                whatsappPhone = '91' + whatsappPhone;
+            }
+            
+            const waLink = document.getElementById('modal-whatsapp-link');
+            if (waLink) {
+                waLink.href = whatsappPhone ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(shareText)}` : `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+            }
+        }
+
+        function copyModalCredentialsFromList() {
+            if (!currentModalUserData) return;
+            const data = currentModalUserData;
+            const name = data.name || 'Student';
+            const course = data.course || 'N/A';
+            const loginUrl = "{{ route('login.student') }}";
+            const shareText = `🎓 *Student Portal Credentials*\n\n`
+                + `Hello *${name}*,\n\n`
+                + `Your student portal account has been activated:\n`
+                + `🌐 *Portal URL:* ${loginUrl}\n`
+                + `🆔 *Username / ID:* ${data.username}\n`
+                + `🔑 *Password:* ${data.password}\n\n`
+                + `📚 *Course:* ${course}\n\n`
+                + `Log in to track your attendance, fees, and assignments.`;
+
+            navigator.clipboard.writeText(shareText).then(() => {
+                const btn = document.getElementById('modal-copy-creds-btn');
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check text-success"></i> Copied!';
+                setTimeout(() => btn.innerHTML = original, 2000);
             });
         }
 
@@ -308,6 +371,10 @@
                 if (data.success) {
                     document.getElementById('pw-password').textContent = data.password;
                     document.getElementById('new-password-input').value = '';
+                    if (currentModalUserData) {
+                        currentModalUserData.password = data.password;
+                        updateWhatsAppLink();
+                    }
                     statusEl.style.display = 'block';
                     statusEl.className = 'alert alert-success py-2 px-3 small';
                     statusEl.textContent = 'Password updated and saved successfully!';
@@ -365,11 +432,23 @@
                     <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Update Password</div>
                     <div style="display:flex; gap:8px;">
                         <input type="text" id="new-password-input" placeholder="Type new password..." style="padding:6px 10px; font-size:0.85rem; border-radius:8px; border:1px solid var(--border); flex:1;" />
+                        <button onclick="generateModalPassword()" style="background:var(--surface-soft); color:var(--dark-title); border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-size:0.85rem; cursor:pointer;" title="Generate Password">
+                            <i class="fas fa-magic"></i>
+                        </button>
                         <button onclick="submitPasswordUpdate()" style="background:var(--first-color); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-size:0.85rem; font-weight:600; cursor:pointer;">
                             <i class="fas fa-save me-1"></i>Save
                         </button>
                     </div>
                 </div>
+            </div>
+            
+            <div style="margin-top:1.5rem; display:flex; gap:8px; justify-content:stretch;">
+                <button id="modal-copy-creds-btn" onclick="copyModalCredentialsFromList()" style="background:#e2e8f0; color:#1e293b; border:none; border-radius:8px; padding:8px 12px; font-size:0.85rem; font-weight:600; cursor:pointer; flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                    <i class="fas fa-copy"></i> Copy Details
+                </button>
+                <a id="modal-whatsapp-link" href="#" target="_blank" style="background:#25D366; color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:0.85rem; font-weight:600; text-decoration:none; cursor:pointer; flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
             </div>
         </div>
     </div>

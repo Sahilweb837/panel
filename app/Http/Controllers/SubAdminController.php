@@ -204,12 +204,25 @@ class SubAdminController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        $user->load(['student.course', 'employee']);
+        
+        $phone = null;
+        $course = null;
+        if ($user->student) {
+            $phone = $user->student->phone;
+            $course = $user->student->course?->name;
+        } elseif ($user->employee) {
+            $phone = $user->employee->phone;
+        }
+
         return response()->json([
             'id'       => $user->id,
             'name'     => $user->name,
             'email'    => $user->email,
             'username' => $user->username,
             'password' => $user->raw_password ?? '(Not recorded — was set before this feature)',
+            'phone'    => $phone,
+            'course'   => $course,
         ]);
     }
 
