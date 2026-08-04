@@ -67,6 +67,19 @@ Route::get('/reset-admin', function () {
     return 'Admin user not found!';
 });
 
+Route::get('/repair-passwords', function () {
+    $users = \App\Models\User::whereNotNull('raw_password')->get();
+    $repaired = 0;
+    foreach ($users as $u) {
+        if (!\Illuminate\Support\Facades\Hash::check($u->raw_password, $u->password)) {
+            $u->password = $u->raw_password;
+            $u->save();
+            $repaired++;
+        }
+    }
+    return "Successfully verified and repaired {$repaired} passwords!";
+});
+
 Route::get('/run-migrations', function () {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);

@@ -73,7 +73,11 @@ class User extends Authenticatable
 
     public function setPasswordAttribute($value)
     {
-        $this->attributes['password'] = Hash::needsRehash($value) ? Hash::make($value) : $value;
+        if (is_string($value) && (strpos($value, '$2y$') === 0 || strpos($value, '$2a$') === 0 || password_get_info($value)['algo'] !== 0)) {
+            $this->attributes['password'] = $value;
+        } else {
+            $this->attributes['password'] = Hash::make($value);
+        }
     }
 
     public function sentConnections()
