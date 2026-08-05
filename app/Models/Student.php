@@ -37,6 +37,7 @@ class Student extends Model
         'prospectus_fee',
         'fee_tenure',
         'portal_active',
+        'bio',
     ];
 
     public function attendances()

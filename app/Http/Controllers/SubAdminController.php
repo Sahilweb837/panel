@@ -243,7 +243,13 @@ class SubAdminController extends Controller
         $newPassword = $request->input('password');
         $user->password = Hash::make($newPassword);
         $user->raw_password = $newPassword;
+        $user->status = true;
         $user->save();
+
+        if ($user->student) {
+            $user->student->portal_active = true;
+            $user->student->save();
+        }
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([

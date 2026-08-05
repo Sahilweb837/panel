@@ -99,6 +99,45 @@
     <div class="bento-grid">
         <!-- Course Progress & Fee Column (Spans 4) -->
         <div class="col-span-12 lg:col-span-4 space-y-6">
+            <!-- Student Profile & Bio Card -->
+            <div class="glass-card p-6 rounded-xl relative overflow-hidden">
+                <div class="flex items-center gap-4 mb-4">
+                    <!-- Profile Pic Container -->
+                    <div class="relative group" style="width: 72px; height: 72px; flex-shrink: 0;">
+                        @if($student->user && $student->user->profile_pic)
+                            <img src="{{ asset('uploads/profiles/' . $student->user->profile_pic) }}" alt="Profile" class="w-full h-full rounded-2xl object-cover border border-border-subtle shadow-sm" id="dashboard-profile-pic">
+                        @else
+                            <div class="w-full h-full rounded-2xl bg-primary-container text-white flex items-center justify-center font-bold text-2xl shadow-sm">
+                                {{ strtoupper(substr($student->first_name, 0, 1)) }}
+                            </div>
+                        @endif
+                        <button type="button" class="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity border-0 text-white cursor-pointer" data-bs-toggle="modal" data-bs-target="#appProfilePicModal" title="Upload New Photo">
+                            <span class="material-symbols-outlined text-xl">photo_camera</span>
+                        </button>
+                    </div>
+                    <div>
+                        <h3 class="font-title-md text-lg font-bold text-on-surface mb-0.5">
+                            {{ $student->first_name }} {{ $student->last_name }}
+                        </h3>
+                        <p class="text-xs text-secondary mb-0">ID: {{ $student->admission_no }}</p>
+                        <p class="text-[11px] text-primary-container font-semibold mt-0.5">{{ $student->course?->name ?? 'No Course Enrolled' }}</p>
+                    </div>
+                </div>
+
+                <!-- Bio Text Section -->
+                <div class="pt-3 border-t border-border-subtle">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-secondary uppercase tracking-wider font-label-sm">Bio</span>
+                        <button type="button" onclick="openEditBioModal()" class="text-xs text-primary-container font-bold hover:underline bg-transparent border-0 cursor-pointer flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit
+                        </button>
+                    </div>
+                    <p class="text-xs text-on-surface/80 leading-relaxed mb-0 font-medium" id="display-bio-text">
+                        {{ $student->bio ?: 'No bio written yet. Click Edit to write something about yourself!' }}
+                    </p>
+                </div>
+            </div>
+
             <!-- Attendance & Course Progress Card -->
             <div class="glass-card p-6 rounded-xl">
                 <div class="flex justify-between items-center mb-6">
@@ -138,6 +177,10 @@
                     <div class="flex items-center justify-between text-xs font-label-sm">
                         <span class="text-secondary">Present: <strong class="text-success-green">{{ $presentDays }} days</strong></span>
                         <span class="text-secondary">Absent: <strong class="text-error">{{ $absentDays }} days</strong></span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs font-label-sm pt-0.5">
+                        <span class="text-secondary">Late Check-ins: <strong class="text-info-blue">{{ $totalLateDays }} days</strong></span>
+                        <span class="text-secondary">Late Rate: <strong class="text-info-blue">{{ $totalDays > 0 ? round(($totalLateDays / $totalDays) * 100) : 0 }}%</strong></span>
                     </div>
                     <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
                         <div class="h-full bg-primary-container" style="width: {{ min(100, $attendancePercentage) }}%;"></div>
@@ -638,5 +681,39 @@
             });
         });
     });
+
+    function openEditBioModal() {
+        const editBioModal = new bootstrap.Modal(document.getElementById('editBioModal'));
+        editBioModal.show();
+    }
 </script>
+
+<!-- Edit Bio Modal -->
+<div class="modal fade" id="editBioModal" tabindex="-1" aria-hidden="true" style="font-family: 'Poppins', 'Outfit', sans-serif;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-xl rounded-2xl overflow-hidden">
+            <div class="modal-header text-white p-4" style="background: linear-gradient(135deg, #ff5532 0%, #e04423 100%); border-bottom: none;">
+                <h6 class="modal-title font-bold text-base flex items-center gap-2 mb-0 text-white">
+                    <span class="material-symbols-outlined">edit_note</span>
+                    Update Profile Bio
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('student.update-bio') }}" method="POST">
+                @csrf
+                <div class="modal-body p-6">
+                    <div class="mb-3 text-left">
+                        <label for="bio-textarea" class="form-label font-bold text-xs uppercase text-secondary mb-2">About Yourself</label>
+                        <textarea id="bio-textarea" name="bio" class="form-control rounded-xl text-sm" placeholder="Tell us about yourself, your goals, or your tech journey..." rows="4" maxlength="1000">{{ $student->bio }}</textarea>
+                        <div class="form-text text-[11px] text-muted mt-2"><i class="fas fa-info-circle me-1"></i> Max 1000 characters.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-3">
+                    <button type="button" class="btn btn-secondary btn-sm px-4 py-2" style="border-radius: 8px;" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 py-2" style="border-radius: 8px; background-color: var(--first-color, #ff5532); border-color: var(--first-color, #ff5532);">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection

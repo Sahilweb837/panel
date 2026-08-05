@@ -125,13 +125,15 @@ class StudentPortalController extends Controller
         $unreadMessageCount = \App\Models\Message::forUser($userId, session('user_role_slug'))->unread()->count();
         $recentMessages = \App\Models\Message::forUser($userId, session('user_role_slug'))->latest()->limit(5)->get();
 
+        $totalLateDays = Attendance::where('student_id', $student->id)->where('status', 'Late')->count();
+
         return view('portal.student.dashboard', compact(
             'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
             'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices',
             'dueFees', 'paidFees', 'totalFees', 'milestones', 'completedMilestones',
             'totalMilestones', 'milestoneProgress', 'coursePaid', 'remainingCourseFee',
-            'unreadMessageCount', 'recentMessages'
+            'unreadMessageCount', 'recentMessages', 'totalLateDays'
         ));
     }
 
@@ -255,5 +257,22 @@ class StudentPortalController extends Controller
         $invoice->save();
 
         return response()->json(['success' => true, 'message' => 'Payment confirmation received! Invoice status updated to Paid.']);
+    }
+
+    public function updateBio(Request $request)
+    {
+        $userId = session('user_id');
+        $student = Student::where('user_id', $userId)->first();
+        if (!$student) {
+            return back()->with('error', 'Student profile not found.');
+        }
+
+        $request->validate([
+            'bio' => 'nullable|string|max:1000',
+        ]);
+
+        $student->update(['bio' => $request->bio]);
+
+        return back()->with('success', 'Your bio has been updated successfully.');
     }
 }
