@@ -185,7 +185,7 @@ class StudentController extends Controller
         $student = Student::create($data);
 
         // Auto-create user account
-        $role = Role::where('slug', 'student')->first();
+        $role = Role::firstOrCreate(['slug' => 'student'], ['role_name' => 'Student', 'description' => 'Enrolled student.']);
         if ($role) {
             $cleanAdmissionNo = str_ireplace(['NT-ENR-', 'NT-'], '', $student->admission_no);
             $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$cleanAdmissionNo);
@@ -439,7 +439,7 @@ class StudentController extends Controller
 
             $student->user->update($userData);
         } else {
-            $role = Role::where('slug', 'student')->first();
+            $role = Role::firstOrCreate(['slug' => 'student'], ['role_name' => 'Student', 'description' => 'Enrolled student.']);
             if ($role) {
                 $cleanAdmissionNo = str_ireplace(['NT-ENR-', 'NT-'], '', $student->admission_no);
                 $username = $request->login_username ?: (strtolower(str_replace(' ', '', $student->first_name)).$cleanAdmissionNo);

@@ -45,6 +45,10 @@ class CredentialController extends Controller
 
     public function create()
     {
+        // Ensure student and staff roles exist
+        Role::firstOrCreate(['slug' => 'student'], ['role_name' => 'Student', 'description' => 'Enrolled student.']);
+        Role::firstOrCreate(['slug' => 'staff'], ['role_name' => 'Staff', 'description' => 'Teaching or office staff.']);
+
         $roles = Role::whereIn('slug', ['student', 'staff'])->get();
         $students = Student::with(['user', 'course'])->orderBy('first_name')->get();
         $employees = Employee::with(['user'])->get()->sortBy(function($emp) {
@@ -60,21 +64,28 @@ class CredentialController extends Controller
         $student = null;
         $employee = null;
 
+        // Ensure student and staff roles exist in the database
+        $studentRole = Role::firstOrCreate(['slug' => 'student'], ['role_name' => 'Student', 'description' => 'Enrolled student.']);
+        $staffRole = Role::firstOrCreate(['slug' => 'staff'], ['role_name' => 'Staff', 'description' => 'Teaching or office staff.']);
+
         if ($request->filled('student_id')) {
             $student = Student::find($request->student_id);
             if ($student && $student->user_id) {
                 $targetUser = User::find($student->user_id);
             }
-            
-            // Auto-assign student role_id if missing or present
-            $studentRole = Role::where('slug', 'student')->first();
-            if ($studentRole) {
-                $request->merge(['role_id' => $studentRole->id]);
-            }
+            $request->merge(['role_id' => $studentRole->id]);
         } elseif ($request->filled('employee_id')) {
             $employee = Employee::find($request->employee_id);
             if ($employee && $employee->user_id) {
                 $targetUser = User::find($employee->user_id);
+            }
+            if (!$request->filled('role_id')) {
+                $request->merge(['role_id' => $staffRole->id]);
+            }
+        } else {
+            // Fallback for manual creation
+            if (!$request->filled('role_id')) {
+                $request->merge(['role_id' => $studentRole->id]);
             }
         }
 

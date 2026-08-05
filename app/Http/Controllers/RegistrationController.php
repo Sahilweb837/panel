@@ -46,10 +46,7 @@ class RegistrationController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $studentRole = Role::where('slug', 'student')->first();
-        if (!$studentRole) {
-            return back()->withErrors(['email' => 'Student role not found in system.'])->withInput();
-        }
+        $studentRole = Role::firstOrCreate(['slug' => 'student'], ['role_name' => 'Student', 'description' => 'Enrolled student.']);
 
         DB::transaction(function () use ($request, $studentRole) {
             $user = User::create([
@@ -98,10 +95,7 @@ class RegistrationController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $staffRole = Role::where('slug', 'staff')->first();
-        if (!$staffRole) {
-            return back()->withErrors(['email' => 'Staff role not found in system.'])->withInput();
-        }
+        $staffRole = Role::firstOrCreate(['slug' => 'staff'], ['role_name' => 'Staff', 'description' => 'Teaching or office staff.']);
 
         DB::transaction(function () use ($request, $staffRole) {
             $user = User::create([
