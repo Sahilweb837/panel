@@ -248,6 +248,7 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/pay-now', [\App\Http\Controllers\StudentPortalController::class, 'payNow'])->name('student.pay-now');
         Route::post('/confirm-payment', [\App\Http\Controllers\StudentPortalController::class, 'submitPaymentConfirmation'])->name('student.confirm-payment');
         Route::get('/attendance', [\App\Http\Controllers\FaceAttendanceController::class, 'captureView'])->name('student.attendance.capture');
+        Route::post('/attendance/punch', [\App\Http\Controllers\StudentPortalController::class, 'punchAttendance'])->name('student.attendance.punch');
         Route::post('/update-bio', [\App\Http\Controllers\StudentPortalController::class, 'updateBio'])->name('student.update-bio');
     });
 
@@ -255,6 +256,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::prefix('staff')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\StaffPortalController::class, 'dashboard'])->name('staff.dashboard');
         Route::get('/attendance', [\App\Http\Controllers\FaceAttendanceController::class, 'captureView'])->name('staff.attendance.capture');
+        Route::post('/attendance/punch', [\App\Http\Controllers\StaffPortalController::class, 'punchAttendance'])->name('staff.attendance.punch');
         Route::get('/offer-letters', [\App\Http\Controllers\StaffPortalController::class, 'offerLetters'])->name('staff.offer-letters');
         Route::get('/leave', [\App\Http\Controllers\StaffPortalController::class, 'leaveApplications'])->name('staff.leave');
         Route::get('/income', [\App\Http\Controllers\StaffPortalController::class, 'incomeRecords'])->name('staff.income');

@@ -86,7 +86,20 @@
                     You're making great progress in <span class="text-primary-container font-bold">{{ $student->course?->name ?? 'Enrolled Academy Program' }}</span>. Keep it up!
                 </p>
             </div>
-            <div class="flex gap-3">
+            <div class="flex gap-2 flex-wrap">
+                @if(!$isFullyCompleted)
+                    <button type="button" 
+                            id="studentQuickPunchBtn" 
+                            onclick="executeStudentQuickPunch()" 
+                            class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-button text-sm shadow-md hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-2 border-0 cursor-pointer">
+                        <span class="material-symbols-outlined text-lg" id="studentQuickPunchIcon">{{ $canCheckOut ? 'logout' : 'login' }}</span>
+                        <span id="studentQuickPunchText">{{ $canCheckOut ? 'Punch Out' : 'Punch In' }}</span>
+                    </button>
+                @endif
+                <a href="{{ route('student.attendance.capture') }}" class="bg-surface-container-high text-on-surface px-4 py-2.5 rounded-xl font-button text-sm shadow-sm hover:bg-surface-container-highest transition-all flex items-center gap-2 text-decoration-none border border-border-subtle">
+                    <span class="material-symbols-outlined text-lg text-primary-container">camera_alt</span>
+                    AI Face Scan
+                </a>
                 <button type="button" id="openPayNowModalBtn" class="bg-primary-container text-white px-5 py-2.5 rounded-xl font-button text-sm shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 border-0">
                     <span class="material-symbols-outlined text-lg">account_balance_wallet</span>
                     Pay Fee Online
@@ -173,7 +186,28 @@
                     </div>
                 </div>
 
-                <div class="mt-5 space-y-3 pt-3 border-t border-border-subtle">
+                <!-- Today's Attendance Real-time Status -->
+                <div class="mt-4 p-3 bg-surface-container-low rounded-xl border border-border-subtle">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-bold uppercase text-secondary font-label-sm">Today's Punch</span>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold {{ $isFullyCompleted ? 'bg-emerald-100 text-emerald-800' : ($canCheckOut ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800') }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isFullyCompleted ? 'bg-emerald-500' : ($canCheckOut ? 'bg-indigo-500 animate-pulse' : 'bg-amber-500') }}"></span>
+                            {{ $isFullyCompleted ? 'Completed' : ($canCheckOut ? 'Checked In' : 'Not Marked') }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-mono font-bold text-on-surface">
+                            IN: {{ $todayCheckIn ?? '--' }} | OUT: {{ $todayCheckOut ?? '--' }}
+                        </span>
+                        @if($todayWorkedDuration)
+                            <span class="text-[11px] font-bold text-primary-container">
+                                {{ $todayWorkedDuration }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="mt-4 space-y-3 pt-3 border-t border-border-subtle">
                     <div class="flex items-center justify-between text-xs font-label-sm">
                         <span class="text-secondary">Present: <strong class="text-success-green">{{ $presentDays }} days</strong></span>
                         <span class="text-secondary">Absent: <strong class="text-error">{{ $absentDays }} days</strong></span>
@@ -686,6 +720,71 @@
         const editBioModal = new bootstrap.Modal(document.getElementById('editBioModal'));
         editBioModal.show();
     }
+
+    // 1-Click Student Quick Punch
+    window.executeStudentQuickPunch = function() {
+        const btn = document.getElementById('studentQuickPunchBtn');
+        const icon = document.getElementById('studentQuickPunchIcon');
+        const text = document.getElementById('studentQuickPunchText');
+
+        if (!btn) return;
+
+        btn.disabled = true;
+        const originalText = text ? text.textContent : '';
+        if (text) text.textContent = 'Recording...';
+        if (icon) {
+            icon.textContent = 'autorenew';
+            icon.classList.add('animate-spin');
+        }
+
+        fetch('{{ route("student.attendance.punch") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.action === 'check_out' ? 'Punch Out Recorded!' : 'Punch In Recorded!',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    alert(data.message);
+                    location.reload();
+                }
+            } else {
+                throw new Error(data.message || 'Could not record punch.');
+            }
+        })
+        .catch(err => {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Punch Failed',
+                    text: err.message,
+                    confirmButtonColor: 'var(--first-color, #ff5532)'
+                });
+            } else {
+                alert(err.message);
+            }
+            btn.disabled = false;
+            if (text) text.textContent = originalText;
+            if (icon) {
+                icon.classList.remove('animate-spin');
+                icon.textContent = 'login';
+            }
+        });
+    };
 </script>
 
 <!-- Edit Bio Modal -->

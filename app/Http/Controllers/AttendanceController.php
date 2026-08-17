@@ -30,48 +30,127 @@ class AttendanceController extends Controller
         return view('attendances.index', compact('attendances', 'students'));
     }
 
-    public function live()
+    public function live(Request $request)
     {
+        $today = date('Y-m-d');
         // Get today's attendances for both students and staff
-        $studentAttendances = Attendance::with('student')->whereDate('attendance_date', date('Y-m-d'))->latest()->get();
-        $staffAttendances = \App\Models\EmployeeAttendance::with('employee.user')->whereDate('attendance_date', date('Y-m-d'))->latest()->get();
+        $studentAttendances = Attendance::with(['student.course'])->whereDate('attendance_date', $today)->latest('updated_at')->get();
+        $staffAttendances = \App\Models\EmployeeAttendance::with(['employee.user'])->whereDate('attendance_date', $today)->latest('updated_at')->get();
 
         $allAttendances = collect();
         
         foreach ($studentAttendances as $a) {
+            $studentName = trim(($a->student?->first_name ?? '') . ' ' . ($a->student?->last_name ?? ''));
+            if (empty($studentName)) {
+                $studentName = $a->student?->admission_no ?? 'Student #' . $a->student_id;
+            }
+
             $checkIn = $a->check_in_time ? \Carbon\Carbon::parse($a->check_in_time)->format('h:i A') : null;
             $checkOut = $a->check_out_time ? \Carbon\Carbon::parse($a->check_out_time)->format('h:i A') : null;
             
+            $duration = null;
+            if ($a->check_in_time && $a->check_out_time) {
+                try {
+                    $in = \Carbon\Carbon::parse($today . ' ' . $a->check_in_time);
+                    $out = \Carbon\Carbon::parse($today . ' ' . $a->check_out_time);
+                    if ($out->gte($in)) {
+                        $diffMins = $in->diffInMinutes($out);
+                        $hours = intdiv($diffMins, 60);
+                        $mins = $diffMins % 60;
+                        $duration = ($hours > 0 ? "{$hours}h " : "") . "{$mins}m";
+                    }
+                } catch (\Exception $e) {}
+            } elseif ($a->check_in_time && $a->status !== 'Absent') {
+                try {
+                    $in = \Carbon\Carbon::parse($today . ' ' . $a->check_in_time);
+                    $now = \Carbon\Carbon::now();
+                    if ($now->gte($in)) {
+                        $diffMins = $in->diffInMinutes($now);
+                        $hours = intdiv($diffMins, 60);
+                        $mins = $diffMins % 60;
+                        $duration = "Active (" . ($hours > 0 ? "{$hours}h " : "") . "{$mins}m)";
+                    }
+                } catch (\Exception $e) {}
+            }
+
+            // Clean photo path
+            $photo = $a->photo_path;
+            if ($photo && !str_starts_with($photo, 'http') && !str_starts_with($photo, 'storage/') && !str_starts_with($photo, 'uploads/')) {
+                $photo = 'storage/' . ltrim($photo, '/');
+            }
+
             $allAttendances->push((object)[
                 'id' => 's_'.$a->id,
-                'name' => $a->student->first_name . ' ' . $a->student->last_name,
+                'db_id' => $a->id,
+                'name' => $studentName,
+                'code' => $a->student?->admission_no ?? '-',
+                'sub_title' => $a->student?->course?->name ?? 'Student',
                 'role' => 'Student',
                 'check_in' => $checkIn,
                 'check_out' => $checkOut,
-                'time' => $checkIn ?? $a->created_at->format('h:i A'),
-                'timestamp' => $a->created_at,
+                'duration' => $duration,
+                'time' => $checkOut ?? $checkIn ?? $a->updated_at?->format('h:i A') ?? $a->created_at->format('h:i A'),
+                'timestamp' => $a->updated_at ?? $a->created_at,
                 'status' => $a->status,
-                'photo' => $a->photo_path,
-                'device' => $a->device_name,
+                'photo' => $photo,
+                'device' => $a->device_name ?? 'Web Portal',
                 'fine' => $a->fine
             ]);
         }
 
         foreach ($staffAttendances as $a) {
+            $staffName = $a->employee?->user?->name ?? $a->employee?->employee_code ?? 'Staff #' . $a->employee_id;
             $checkIn = $a->check_in_time ? \Carbon\Carbon::parse($a->check_in_time)->format('h:i A') : null;
             $checkOut = $a->check_out_time ? \Carbon\Carbon::parse($a->check_out_time)->format('h:i A') : null;
             
+            $duration = null;
+            if ($a->check_in_time && $a->check_out_time) {
+                try {
+                    $in = \Carbon\Carbon::parse($today . ' ' . $a->check_in_time);
+                    $out = \Carbon\Carbon::parse($today . ' ' . $a->check_out_time);
+                    if ($out->gte($in)) {
+                        $diffMins = $in->diffInMinutes($out);
+                        $hours = intdiv($diffMins, 60);
+                        $mins = $diffMins % 60;
+                        $duration = ($hours > 0 ? "{$hours}h " : "") . "{$mins}m";
+                    }
+                } catch (\Exception $e) {}
+            } elseif ($a->check_in_time && $a->status !== 'Absent') {
+                try {
+                    $in = \Carbon\Carbon::parse($today . ' ' . $a->check_in_time);
+                    $now = \Carbon\Carbon::now();
+                    if ($now->gte($in)) {
+                        $diffMins = $in->diffInMinutes($now);
+                        $hours = intdiv($diffMins, 60);
+                        $mins = $diffMins % 60;
+                        $duration = "On Duty (" . ($hours > 0 ? "{$hours}h " : "") . "{$mins}m)";
+                    }
+                } catch (\Exception $e) {}
+            }
+
+            // Clean photo path or profile photo fallback
+            $photo = $a->photo_path;
+            if ($photo && !str_starts_with($photo, 'http') && !str_starts_with($photo, 'storage/') && !str_starts_with($photo, 'uploads/')) {
+                $photo = 'storage/' . ltrim($photo, '/');
+            } elseif (!$photo && $a->employee?->user?->profile_pic && $a->employee->user->profile_pic !== 'default.png') {
+                $photo = 'uploads/profiles/' . $a->employee->user->profile_pic;
+            }
+
             $allAttendances->push((object)[
                 'id' => 'e_'.$a->id,
-                'name' => $a->employee?->user?->name ?? $a->employee?->employee_code ?? 'N/A',
+                'db_id' => $a->id,
+                'name' => $staffName,
+                'code' => $a->employee?->employee_code ?? '-',
+                'sub_title' => $a->employee?->designation ?? $a->employee?->department ?? 'Faculty Staff',
                 'role' => 'Staff',
                 'check_in' => $checkIn,
                 'check_out' => $checkOut,
-                'time' => $checkIn ?? $a->created_at->format('h:i A'),
-                'timestamp' => $a->created_at,
+                'duration' => $duration,
+                'time' => $checkOut ?? $checkIn ?? $a->updated_at?->format('h:i A') ?? $a->created_at->format('h:i A'),
+                'timestamp' => $a->updated_at ?? $a->created_at,
                 'status' => $a->status,
-                'photo' => $a->photo_path,
-                'device' => $a->device_name,
+                'photo' => $photo,
+                'device' => $a->device_name ?? 'Web Portal',
                 'fine' => 0
             ]);
         }
@@ -83,21 +162,43 @@ class AttendanceController extends Controller
         $absentToday = $allAttendances->where('status', 'Absent')->count();
         $lateToday = $allAttendances->where('status', 'Late')->count();
         $faceCaptures = $allAttendances->whereNotNull('photo')->count();
+        $staffCount = $allAttendances->where('role', 'Staff')->count();
+        $studentCount = $allAttendances->where('role', 'Student')->count();
+
+        $roleFilter = $request->query('role', 'all');
+        $filteredAttendances = $allAttendances;
+        if ($roleFilter === 'staff') {
+            $filteredAttendances = $allAttendances->where('role', 'Staff')->values();
+        } elseif ($roleFilter === 'student') {
+            $filteredAttendances = $allAttendances->where('role', 'Student')->values();
+        }
 
         if (request()->ajax()) {
-            $html = view('attendances.partials.live_table', compact('allAttendances'))->render();
+            $html = view('attendances.partials.live_table', ['allAttendances' => $filteredAttendances])->render();
             return response()->json([
                 'html' => $html,
+                'total' => $filteredAttendances->count(),
                 'stats' => [
                     'present' => $presentToday,
                     'absent' => $absentToday,
                     'late' => $lateToday,
-                    'face' => $faceCaptures
+                    'face' => $faceCaptures,
+                    'staff' => $staffCount,
+                    'students' => $studentCount
                 ]
             ]);
         }
 
-        return view('attendances.live', compact('allAttendances', 'presentToday', 'absentToday', 'lateToday', 'faceCaptures'));
+        return view('attendances.live', [
+            'allAttendances' => $filteredAttendances,
+            'presentToday' => $presentToday,
+            'absentToday' => $absentToday,
+            'lateToday' => $lateToday,
+            'faceCaptures' => $faceCaptures,
+            'staffCount' => $staffCount,
+            'studentCount' => $studentCount,
+            'currentRole' => $roleFilter
+        ]);
     }
 
     public function create(Request $request)

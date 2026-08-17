@@ -1,23 +1,56 @@
 @extends('layouts.app')
 
-@section('title', 'Mark Attendance')
+@section('title', $actionType === 'check_out' ? 'Punch Out - AI Camera' : 'Punch In - AI Camera')
 @section('page-title', 'Face Recognition Attendance')
 
 @section('content')
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-7">
         @if($alreadyMarked)
-            <div class="alert alert-warning shadow-sm border-0 rounded-4 p-4 text-center">
-                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                <h4 class="fw-bold">Attendance Already Marked!</h4>
-                <p class="mb-0">You have already successfully marked your attendance for today.</p>
-                <a href="{{ $type === 'student' ? route('student.dashboard') : route('staff.dashboard') }}" class="btn btn-primary mt-3 rounded-pill px-4">Return to Dashboard</a>
+            <div class="card shadow-sm border-0 rounded-4 p-5 text-center bg-white">
+                <div class="mb-3">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10" style="width: 80px; height: 80px;">
+                        <i class="fas fa-check-double fa-2x text-success"></i>
+                    </div>
+                </div>
+                <h4 class="fw-black text-dark mb-1">Today's Attendance Completed!</h4>
+                <p class="text-muted small mb-4">Both Check-In and Check-Out punches have been safely recorded for today.</p>
+                
+                <div class="row g-3 justify-content-center mb-4">
+                    <div class="col-6 col-sm-5">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="text-muted small text-uppercase d-block" style="font-size: 0.7rem; font-weight: 700;">Check-In Time</span>
+                            <span class="fs-5 fw-bold text-success font-monospace">{{ $checkInTimeFormatted }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-5">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="text-muted small text-uppercase d-block" style="font-size: 0.7rem; font-weight: 700;">Check-Out Time</span>
+                            <span class="fs-5 fw-bold text-danger font-monospace">{{ $checkOutTimeFormatted }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <a href="{{ $type === 'student' ? route('student.dashboard') : route('staff.dashboard') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Return to Dashboard
+                    </a>
+                </div>
             </div>
         @else
+            <!-- Active Scanner Card -->
             <div class="card shadow border-0 rounded-4 overflow-hidden">
                 <div class="card-header bg-dark text-white border-bottom-0 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-camera me-2"></i> Face Scanning System</h5>
-                    <div id="live-clock" class="fw-bold fs-5 font-monospace text-info"></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge {{ $actionType === 'check_out' ? 'bg-danger' : 'bg-success' }} rounded-pill px-3 py-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                            <i class="fas {{ $actionType === 'check_out' ? 'fa-sign-out-alt' : 'fa-sign-in-alt' }} me-1"></i>
+                            {{ $actionType === 'check_out' ? 'Check-Out (Punch Out)' : 'Check-In (Punch In)' }}
+                        </span>
+                        @if($actionType === 'check_out' && $checkInTimeFormatted)
+                            <small class="text-white-50" style="font-size: 0.75rem;">(In: {{ $checkInTimeFormatted }})</small>
+                        @endif
+                    </div>
+                    <div id="live-clock" class="fw-bold fs-5 font-monospace text-warning"></div>
                 </div>
                 
                 <div class="card-body p-0 position-relative bg-black" style="min-height: 480px; display: flex; align-items: center; justify-content: center;">
@@ -34,14 +67,16 @@
                         <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <h5 id="status-text" class="fw-bold">Initializing AI Models...</h5>
+                        <h5 id="status-text" class="fw-bold">Initializing AI Face Models...</h5>
                         <p class="small text-muted" id="status-subtext">Please wait, loading neural networks.</p>
                     </div>
                 </div>
                 
                 <div class="card-footer bg-white border-top-0 p-4 text-center">
-                    <h5 class="fw-bold mb-1">{{ $user->first_name ?? $user->employee_code }} {{ $user->last_name ?? '' }}</h5>
-                    <p class="text-muted mb-0 small" id="instruction-text">Please look directly at the camera. Make sure lighting is good.</p>
+                    <h5 class="fw-bold mb-1 text-dark">{{ $user->first_name ?? $user->user?->name ?? $user->employee_code }} {{ $user->last_name ?? '' }}</h5>
+                    <p class="text-muted mb-0 small" id="instruction-text">
+                        {{ $actionType === 'check_out' ? 'Please look at the camera to verify face and Punch Out.' : 'Please look directly at the camera. Make sure lighting is good.' }}
+                    </p>
                 </div>
             </div>
         @endif
@@ -57,6 +92,9 @@
 <style>
 #webcam {
     transition: opacity 0.5s ease;
+}
+.fw-black {
+    font-weight: 900;
 }
 </style>
 
@@ -81,6 +119,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     const userId = {{ $user->id }};
     const userType = '{{ $type }}';
+    const actionType = '{{ $actionType }}';
     
     let stream = null;
     let referenceDescriptor = null;
@@ -90,7 +129,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function loadModels() {
         try {
             statusSubtext.innerText = "Loading SSD MobileNet V1...";
-            // Use the public raw github url to fetch the models reliably
             const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
             
             await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
@@ -102,17 +140,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
             
             statusText.innerText = 'Analyzing Profile Photo...';
-            statusSubtext.innerText = 'Computing facial descriptor from your registered profile picture.';
+            statusSubtext.innerText = 'Computing facial descriptor from your profile photo.';
             
             // 2. Compute reference descriptor
             const refDetection = await faceapi.detectSingleFace(referenceImage).withFaceLandmarks().withFaceDescriptor();
             
             if (!refDetection) {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Profile Photo Error',
-                    text: 'We could not detect a clear face in your saved profile photo. Please contact Admin to update your photo.',
-                    confirmButtonText: 'Go Back',
+                    icon: 'warning',
+                    title: 'Clear Face Not Detected',
+                    text: 'We could not detect a clear reference face from your profile photo. You can still use the 1-click punch on your dashboard.',
+                    confirmButtonText: 'Return to Dashboard',
                     allowOutsideClick: false
                 }).then(() => {
                     window.location.href = userType === 'student' ? '{{ route("student.dashboard") }}' : '{{ route("staff.dashboard") }}';
@@ -129,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             
         } catch (err) {
             console.error(err);
-            Swal.fire('Error', 'Failed to load AI models. Check your internet connection.', 'error');
+            Swal.fire('Error', 'Failed to load AI models. Please check your internet connection or use 1-click punch on your dashboard.', 'error');
         }
     }
 
@@ -141,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             video.srcObject = stream;
         } catch (err) {
             console.error('Error accessing camera:', err);
-            Swal.fire('Camera Error', 'Camera access denied or not available. Please allow permissions.', 'error');
+            Swal.fire('Camera Error', 'Camera access denied or not available. Please allow permissions in browser.', 'error');
         }
     }
 
@@ -149,14 +187,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     video.addEventListener('play', () => {
         loadingOverlay.classList.add('d-none');
         video.classList.remove('opacity-50');
-        instructionText.innerText = "Scanning face... Hold still.";
+        instructionText.innerText = actionType === 'check_out' ? "Scanning face for Punch Out... Hold still." : "Scanning face for Punch In... Hold still.";
         
         const displaySize = { width: video.clientWidth, height: video.clientHeight };
         faceapi.matchDimensions(overlayCanvas, displaySize);
 
-        // Run detection every 100ms
+        // Run detection loop
         const detectionInterval = setInterval(async () => {
-            if (isProcessing) return; // Prevent overlapping checks
+            if (isProcessing) return;
             isProcessing = true;
 
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
@@ -173,7 +211,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             if (detections.length === 0) {
-                instructionText.innerText = "No face detected. Please look at the camera.";
+                instructionText.innerText = "No face detected. Please look directly at the camera.";
                 isProcessing = false;
                 return;
             }
@@ -187,9 +225,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (distance < 0.6) {
                 // MATCH!
                 clearInterval(detectionInterval);
-                instructionText.innerHTML = "<span class='text-success fw-bold'><i class='fas fa-check-circle'></i> Identity Verified! Capturing...</span>";
+                const actionLabel = actionType === 'check_out' ? 'Punch Out Verified!' : 'Punch In Verified!';
+                instructionText.innerHTML = "<span class='text-success fw-bold'><i class='fas fa-check-circle'></i> " + actionLabel + " Capturing...</span>";
                 
-                // Pause video slightly to show success box
                 const box = resizedDetections[0].detection.box;
                 const drawBox = new faceapi.draw.DrawBox(box, { label: 'Verified Match!', boxColor: 'green' });
                 drawBox.draw(overlayCanvas);
@@ -200,7 +238,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
             } else {
                 // MISMATCH
-                instructionText.innerHTML = `<span class='text-danger fw-bold'><i class='fas fa-times-circle'></i> Face mismatch! Identity could not be verified. (${distance.toFixed(2)})</span>`;
+                instructionText.innerHTML = `<span class='text-danger fw-bold'><i class='fas fa-times-circle'></i> Face mismatch! (${distance.toFixed(2)})</span>`;
                 const box = resizedDetections[0].detection.box;
                 const drawBox = new faceapi.draw.DrawBox(box, { label: 'Unknown Person', boxColor: 'red' });
                 drawBox.draw(overlayCanvas);
@@ -212,8 +250,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     function executeCapture() {
         loadingOverlay.classList.remove('d-none');
-        statusText.innerText = 'Saving Attendance...';
-        statusSubtext.innerText = 'Uploading encrypted photo securely.';
+        statusText.innerText = actionType === 'check_out' ? 'Saving Punch Out...' : 'Saving Punch In...';
+        statusSubtext.innerText = 'Securely uploading verified punch...';
         document.querySelector('.spinner-border').style.display = 'inline-block';
         
         captureCanvas.width = video.videoWidth;
@@ -224,17 +262,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Add Live Timestamp Watermark
         const now = new Date();
         const timestamp = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'medium' });
+        const punchTypeLabel = actionType === 'check_out' ? 'PUNCH OUT' : 'PUNCH IN';
         
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Semi-transparent black background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
         ctx.fillRect(10, captureCanvas.height - 40, captureCanvas.width - 20, 30);
         
-        ctx.font = '20px monospace';
-        ctx.fillStyle = '#00ff00'; // Matrix green text
-        ctx.fillText("LIVE CAPTURE: " + timestamp, 20, captureCanvas.height - 18);
+        ctx.font = 'bold 18px monospace';
+        ctx.fillStyle = actionType === 'check_out' ? '#ff4d4d' : '#00ff00';
+        ctx.fillText(punchTypeLabel + " CAPTURE: " + timestamp, 20, captureCanvas.height - 18);
 
-        const imageData = captureCanvas.toDataURL('image/jpeg', 0.5);
+        const imageData = captureCanvas.toDataURL('image/jpeg', 0.55);
         
-        stream.getTracks().forEach(track => track.stop());
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
         
         fetch('{{ route("attendance.face.store") }}', {
             method: 'POST',
@@ -249,8 +290,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (data.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Attendance Marked!',
-                    text: 'Your attendance has been recorded successfully.',
+                    title: data.action === 'check_out' ? 'Punch Out Successful!' : 'Punch In Successful!',
+                    text: data.message,
                     showConfirmButton: false,
                     timer: 2000
                 }).then(() => {
@@ -263,7 +304,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         .catch(err => {
             Swal.fire({
                 icon: 'error',
-                title: 'Submission Failed',
+                title: 'Punch Recording Failed',
                 text: err.message,
                 confirmButtonText: 'Try Again'
             }).then(() => {
@@ -272,9 +313,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // Start everything
+    // Start loading AI models
     loadModels();
 });
 </script>
 @endif
 @endsection
+

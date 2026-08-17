@@ -136,7 +136,7 @@
     @endif
 
     <!-- Header & Greeting Row -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
         <div>
             <div class="flex items-center gap-2 mb-1">
                 <span class="px-2.5 py-0.5 rounded-full bg-primary-container/10 text-primary-container font-label-sm text-xs font-bold uppercase tracking-wider">
@@ -154,12 +154,83 @@
         <div class="flex gap-3 flex-wrap">
             <a href="{{ route('staff.attendance.capture') }}" class="flex items-center gap-2 px-4 py-2.5 bg-primary-container text-white rounded-lg hover:brightness-110 transition-all font-button text-xs font-bold text-decoration-none shadow-md shadow-primary/20">
                 <span class="material-symbols-outlined text-lg">photo_camera</span>
-                Mark Attendance
+                AI Face Scan
             </a>
             <a href="{{ route('messages.index') }}" class="flex items-center gap-2 px-4 py-2.5 border border-border-subtle bg-white text-on-surface rounded-lg hover:bg-surface-slate transition-all font-button text-xs font-bold text-decoration-none shadow-sm">
                 <span class="material-symbols-outlined text-lg">campaign</span>
                 Post Announcement
             </a>
+        </div>
+    </div>
+
+    <!-- Daily Attendance Quick-Punch Banner Widget -->
+    <div class="bento-card p-5 mb-8 shadow-sm border border-border-subtle relative overflow-hidden" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.04) 0%, rgba(255, 85, 50, 0.04) 100%);">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <!-- Left Info: Clock & Status -->
+            <div class="flex items-center gap-4">
+                <div class="p-3.5 rounded-2xl flex items-center justify-center shadow-sm" style="background: {{ $isFullyCompleted ? '#10b981' : ($canCheckOut ? '#6366f1' : 'var(--first-color, #ff5532)') }}; color: #ffffff;">
+                    <span class="material-symbols-outlined text-3xl">
+                        {{ $isFullyCompleted ? 'task_alt' : ($canCheckOut ? 'timer' : 'fingerprint') }}
+                    </span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-bold uppercase tracking-wider text-secondary font-label-sm">Today's Attendance</span>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold {{ $isFullyCompleted ? 'bg-emerald-100 text-emerald-800' : ($canCheckOut ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800') }}" id="staff-att-status-badge">
+                            <span class="w-2 h-2 rounded-full {{ $isFullyCompleted ? 'bg-emerald-500' : ($canCheckOut ? 'bg-indigo-500 animate-pulse' : 'bg-amber-500 animate-ping') }}"></span>
+                            {{ $isFullyCompleted ? 'Day Completed' : ($canCheckOut ? 'Checked In (Active)' : 'Not Checked In') }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span class="font-mono text-xl font-black text-on-surface" id="staff-live-clock">--:--:--</span>
+                        <span class="text-xs text-secondary">| {{ \Carbon\Carbon::now()->format('l, M d, Y') }}</span>
+                        
+                        @if($todayCheckIn)
+                            <span class="px-2.5 py-1 rounded-md bg-white border text-xs font-semibold text-emerald-700 shadow-2xs" id="display-checkin-pill">
+                                <i class="fas fa-sign-in-alt text-emerald-600 me-1"></i> IN: {{ $todayCheckIn }}
+                            </span>
+                        @endif
+
+                        @if($todayCheckOut)
+                            <span class="px-2.5 py-1 rounded-md bg-white border text-xs font-semibold text-rose-700 shadow-2xs" id="display-checkout-pill">
+                                <i class="fas fa-sign-out-alt text-rose-600 me-1"></i> OUT: {{ $todayCheckOut }}
+                            </span>
+                        @endif
+
+                        @if($todayWorkedDuration)
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-800" id="display-duration-pill">
+                                <i class="fas fa-stopwatch text-indigo-600 me-1"></i> {{ $todayWorkedDuration }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Action: 1-Click Quick Punch & Camera Scan -->
+            <div class="flex items-center gap-2.5 flex-wrap w-full lg:w-auto justify-end">
+                @if(!$isFullyCompleted)
+                    <button type="button" 
+                            id="quickPunchBtn" 
+                            onclick="executeQuickPunch()" 
+                            class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-button text-sm font-bold text-white shadow-md transition-all active:scale-95 border-0 cursor-pointer {{ $canCheckOut ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }}">
+                        <span class="material-symbols-outlined text-xl" id="quickPunchIcon">
+                            {{ $canCheckOut ? 'logout' : 'login' }}
+                        </span>
+                        <span id="quickPunchText">{{ $canCheckOut ? 'Punch Out (Check-Out)' : 'Punch In (Check-In)' }}</span>
+                    </button>
+                @else
+                    <div class="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold">
+                        <span class="material-symbols-outlined text-lg text-emerald-600">verified</span>
+                        Punches Completed For Today
+                    </div>
+                @endif
+
+                <a href="{{ route('staff.attendance.capture') }}" class="flex items-center gap-2 px-4 py-3 bg-white border border-border-subtle rounded-xl font-button text-xs font-bold text-on-surface hover:bg-surface-slate transition-all text-decoration-none shadow-sm" title="Scan with AI Camera">
+                    <span class="material-symbols-outlined text-lg text-primary-container">camera_alt</span>
+                    Face Scanner
+                </a>
+            </div>
         </div>
     </div>
 
@@ -878,14 +949,71 @@
                         confirmButtonColor: 'var(--first-color, #ff5532)'
                     });
                 })
-                .finally(() => {
-                    btn.disabled = false;
-                    btnIcon.textContent = originalIcon;
-                    btnIcon.classList.remove('animate-spin');
-                    btnText.textContent = originalText;
-                });
-            });
+    // Realtime Staff Live Clock
+    function updateStaffClock() {
+        const clockEl = document.getElementById('staff-live-clock');
+        if (clockEl) {
+            const now = new Date();
+            clockEl.textContent = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
-    });
+    }
+    setInterval(updateStaffClock, 1000);
+    updateStaffClock();
+
+    // 1-Click Quick Punch Function
+    window.executeQuickPunch = function() {
+        const btn = document.getElementById('quickPunchBtn');
+        const icon = document.getElementById('quickPunchIcon');
+        const text = document.getElementById('quickPunchText');
+
+        if (!btn) return;
+
+        btn.disabled = true;
+        const originalText = text ? text.textContent : '';
+        if (text) text.textContent = 'Recording Punch...';
+        if (icon) {
+            icon.textContent = 'autorenew';
+            icon.classList.add('animate-spin');
+        }
+
+        fetch('{{ route("staff.attendance.punch") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: data.action === 'check_out' ? 'Punch Out Recorded!' : 'Punch In Recorded!',
+                    text: data.message,
+                    timer: 2500,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                throw new Error(data.message || 'Could not record punch.');
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Punch Failed',
+                text: err.message,
+                confirmButtonColor: 'var(--first-color, #ff5532)'
+            });
+            btn.disabled = false;
+            if (text) text.textContent = originalText;
+            if (icon) {
+                icon.classList.remove('animate-spin');
+                icon.textContent = 'login';
+            }
+        });
+    };
 </script>
 @endsection

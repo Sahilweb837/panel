@@ -127,13 +127,40 @@ class StudentPortalController extends Controller
 
         $totalLateDays = Attendance::where('student_id', $student->id)->where('status', 'Late')->count();
 
+        // ── Today's Attendance Realtime Status ────────────────────────
+        $todayDate = Carbon::now()->toDateString();
+        $todayAttendance = Attendance::where('student_id', $student->id)
+            ->whereDate('attendance_date', $todayDate)
+            ->first();
+
+        $todayCheckIn = $todayAttendance?->check_in_time ? Carbon::parse($todayAttendance->check_in_time)->format('h:i A') : null;
+        $todayCheckOut = $todayAttendance?->check_out_time ? Carbon::parse($todayAttendance->check_out_time)->format('h:i A') : null;
+        $isFullyCompleted = ($todayCheckIn && $todayCheckOut);
+        $canCheckIn = !$todayAttendance || !$todayAttendance->check_in_time;
+        $canCheckOut = $todayAttendance && $todayAttendance->check_in_time && !$todayAttendance->check_out_time;
+
+        $todayWorkedDuration = null;
+        if ($todayAttendance && $todayAttendance->check_in_time) {
+            try {
+                $inTime = Carbon::parse($todayDate . ' ' . $todayAttendance->check_in_time);
+                $outTime = $todayAttendance->check_out_time ? Carbon::parse($todayDate . ' ' . $todayAttendance->check_out_time) : Carbon::now();
+                if ($outTime->gte($inTime)) {
+                    $diffMins = $inTime->diffInMinutes($outTime);
+                    $hrs = intdiv($diffMins, 60);
+                    $mins = $diffMins % 60;
+                    $todayWorkedDuration = ($hrs > 0 ? "{$hrs}h " : "") . "{$mins}m";
+                }
+            } catch (\Exception $e) {}
+        }
+
         return view('portal.student.dashboard', compact(
             'student', 'attendances', 'presentDays', 'absentDays', 'lateDays',
             'attendancePercentage', 'courses', 'monthlyCourseFee', 'monthlyDiscount',
             'netMonthlyFee', 'biometricFine', 'fineDetails', 'invoices',
             'dueFees', 'paidFees', 'totalFees', 'milestones', 'completedMilestones',
             'totalMilestones', 'milestoneProgress', 'coursePaid', 'remainingCourseFee',
-            'unreadMessageCount', 'recentMessages', 'totalLateDays'
+            'unreadMessageCount', 'recentMessages', 'totalLateDays',
+            'todayAttendance', 'todayCheckIn', 'todayCheckOut', 'canCheckIn', 'canCheckOut', 'isFullyCompleted', 'todayWorkedDuration'
         ));
     }
 
@@ -274,5 +301,65 @@ class StudentPortalController extends Controller
         $student->update(['bio' => $request->bio]);
 
         return back()->with('success', 'Your bio has been updated successfully.');
+    }
+
+    public function punchAttendance(Request $request)
+    {
+        $userId = session('user_id');
+        $student = Student::where('user_id', $userId)->firstOrFail();
+
+        $today = date('Y-m-d');
+        $nowTime = date('H:i:s');
+        $displayTime = date('h:i A');
+
+        $existing = Attendance::where('student_id', $student->id)
+            ->whereDate('attendance_date', $today)
+            ->first();
+
+        // If already both checked in and checked out
+        if ($existing && $existing->check_in_time && $existing->check_out_time) {
+            $msg = 'Your attendance for today is already completed (In: ' . Carbon::parse($existing->check_in_time)->format('h:i A') . ', Out: ' . Carbon::parse($existing->check_out_time)->format('h:i A') . ').';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg]);
+            }
+            return back()->with('info', $msg);
+        }
+
+        $isCheckOut = ($existing && $existing->check_in_time && !$existing->check_out_time);
+        $status = (strtotime($nowTime) > strtotime('10:00:00')) ? 'Late' : 'Present';
+
+        if ($isCheckOut) {
+            $existing->update([
+                'check_out_time' => $nowTime,
+                'device_name' => $existing->device_name ? $existing->device_name . ', Web Portal (Student)' : 'Web Portal (Student)',
+            ]);
+            $message = "Punch Out recorded successfully at {$displayTime}!";
+            $action = 'check_out';
+        } else {
+            $existing = Attendance::updateOrCreate(
+                ['student_id' => $student->id, 'attendance_date' => $today],
+                [
+                    'check_in_time' => $nowTime,
+                    'status' => $status,
+                    'device_name' => 'Web Portal (Student)',
+                ]
+            );
+            $message = "Punch In recorded successfully at {$displayTime} (" . ($status === 'Late' ? 'Late Check-in' : 'On Time') . ")!";
+            $action = 'check_in';
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'action' => $action,
+                'message' => $message,
+                'check_in' => $existing->check_in_time ? Carbon::parse($existing->check_in_time)->format('h:i A') : null,
+                'check_out' => $existing->check_out_time ? Carbon::parse($existing->check_out_time)->format('h:i A') : null,
+                'status' => $existing->status,
+                'time' => $displayTime
+            ]);
+        }
+
+        return back()->with('success', $message);
     }
 }
