@@ -62,3 +62,4 @@ class LogAdminActivity
         return $response;
     }
 }
+

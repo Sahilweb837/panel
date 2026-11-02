@@ -65,6 +65,12 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/clear-cache', [DashboardController::class, 'clearCache'])->name('clear-cache');
     Route::post('/profile/photo', [AuthController::class, 'updateProfilePic'])->name('profile.photo.update');
+    
+    // LMS Management & Auto Fee Registration
+    Route::get('/lms', [\App\Http\Controllers\LmsController::class, 'index'])->name('lms.index');
+    Route::post('/lms/enroll', [\App\Http\Controllers\LmsController::class, 'enrollAndRegisterFee'])->name('lms.enroll');
+    Route::post('/lms/toggle-portal/{id}', [\App\Http\Controllers\LmsController::class, 'togglePortal'])->name('lms.toggle-portal');
+
     Route::get('student-expenses', [StudentExpenseController::class, 'index'])->name('student_expenses.index');
     
     // Export CSV and PDF routes (must be defined BEFORE resource controllers so they aren't caught by wildcard resource routes)

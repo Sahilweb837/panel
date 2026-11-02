@@ -39,3 +39,4 @@ return new class extends Migration
         Schema::dropIfExists('admin_activity_logs');
     }
 };
+

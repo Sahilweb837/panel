@@ -58,3 +58,4 @@ class VerifyApiSecret
         ], 401);
     }
 }
+

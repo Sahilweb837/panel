@@ -80,7 +80,7 @@ class EnsureUserIsAuthenticated
 
         $allowed = false;
 
-        if ($request->routeIs('dashboard', 'logout', 'clear-cache')) {
+        if ($request->routeIs('dashboard', 'logout', 'clear-cache') || str_starts_with($route, 'lms.')) {
             $allowed = true;
         } elseif (str_starts_with($route, 'courses.') && in_array('courses', $access)) {
             $allowed = true;

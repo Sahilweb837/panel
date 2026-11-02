@@ -615,9 +615,19 @@
             </div>
             
             <div class="offcanvas-body d-flex flex-column p-0 overflow-y-auto">
-                <div class="d-none d-lg-flex p-4 mb-2 align-items-center justify-content-center">
-                    <a href="{{ url('/') }}" class="text-decoration-none w-100 text-center">
-                        <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" style="height: 48px; max-width: 100%; object-fit: contain;">
+                <div class="d-none d-lg-flex p-4 mb-2 align-items-center justify-content-start">
+                    <a href="{{ url('/') }}" class="text-decoration-none d-flex align-items-center gap-2">
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #ff5733, #e0441d); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(255,87,51,0.35);">
+                            N
+                        </div>
+                        <div>
+                            <div class="text-white lh-1" style="font-size: 1.25rem; letter-spacing: -0.5px; font-weight: 800;">
+                                netcoder<span style="color: #ff5733;">&bull;</span>
+                            </div>
+                            <div style="font-size: 0.6rem; color: #8e8e98; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; margin-top: 2px;">
+                                TECHNOLOGY
+                            </div>
+                        </div>
                     </a>
                 </div>
 
@@ -631,21 +641,41 @@
             @endphp
             
             @if($roleSlug === 'student')
-                <div class="sidebar-section-header">Student Hub</div>
+                <div class="sidebar-section-header">LEARNING</div>
                 <a href="{{ route('student.dashboard') }}" class="nav-link{{ request()->routeIs('student.dashboard') ? ' active' : '' }}">
-                    <i class="fas fa-home"></i>
+                    <i class="fas fa-th-large"></i>
                     <span>Dashboard</span>
                 </a>
+                <a href="{{ route('student.select-course') }}" class="nav-link{{ request()->routeIs('student.select-course') ? ' active' : '' }}">
+                    <i class="fas fa-compass"></i>
+                    <span>Explore Courses</span>
+                </a>
+                <a href="{{ route('student.dashboard') }}" class="nav-link">
+                    <i class="fas fa-book-open"></i>
+                    <span>My Learning</span>
+                </a>
                 
-                <div class="sidebar-section-header">Communication</div>
+                <div class="sidebar-section-header">MY ACTIVITIES</div>
+                <a href="{{ route('student.attendance.capture') }}" class="nav-link{{ request()->routeIs('student.attendance.*') ? ' active' : '' }}">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Schedule & Attendance</span>
+                </a>
                 <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
                     <i class="fas fa-envelope"></i>
                     <span>Messages</span>
                     @if($unreadMessages > 0)
                         <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge">{{ $unreadMessages }}</span>
-                    @else
-                        <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge" style="display:none;"></span>
                     @endif
+                </a>
+
+                <div class="sidebar-section-header">ACCOUNT</div>
+                <a href="{{ route('student.dashboard') }}" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="{{ route('student.dashboard') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
                 </a>
             @elseif($roleSlug === 'staff')
                 <div class="sidebar-section-header">Staff Hub</div>
@@ -676,12 +706,18 @@
                     <span>Work Logs</span>
                 </a>
             @else
-                <div class="sidebar-section-header">Overview</div>
+                <div class="sidebar-section-header">Overview & LMS</div>
                 <a href="{{ route('dashboard') }}" class="nav-link{{ request()->routeIs('dashboard') ? ' active' : '' }}">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
                 
+                <a href="{{ route('lms.index') }}" class="nav-link{{ request()->routeIs('lms.*') ? ' active' : '' }}">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>LMS Hub & Auto-Fee</span>
+                    <span class="badge ms-auto rounded-pill" style="background:#ff5733; color:#fff; font-size: 0.65rem; font-weight:700;">Live Sync</span>
+                </a>
+
                 <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
                     <i class="fas fa-envelope"></i>
                     <span>Messages</span>
