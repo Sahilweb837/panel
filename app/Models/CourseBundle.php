@@ -37,3 +37,4 @@ class CourseBundle extends Model
         });
     }
 }
+

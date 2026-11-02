@@ -698,6 +698,12 @@
                     @endif
                 </a>
 
+                <a href="{{ route('workspace.index') }}" class="nav-link{{ request()->routeIs('workspace.*') ? ' active' : '' }}">
+                    <i class="fab fa-slack" style="color: #c084fc;"></i>
+                    <span>Slack Workspaces</span>
+                    <span class="badge ms-auto rounded-pill" style="background:#3f0e40; color:#fff; font-size: 0.65rem; font-weight:700;">Slack Suite</span>
+                </a>
+
                 <div class="sidebar-section-header">My Desk</div>
                 <a href="{{ route('tasks.index') }}" class="nav-link{{ request()->routeIs('tasks.*') ? ' active' : '' }}">
                     <i class="fas fa-tasks"></i>
@@ -735,6 +741,12 @@
                     @else
                         <span class="badge bg-danger ms-auto rounded-pill" id="globalUnreadBadge" style="display:none;"></span>
                     @endif
+                </a>
+
+                <a href="{{ route('workspace.index') }}" class="nav-link{{ request()->routeIs('workspace.*') ? ' active' : '' }}">
+                    <i class="fab fa-slack" style="color: #c084fc;"></i>
+                    <span>Slack Workspaces</span>
+                    <span class="badge ms-auto rounded-pill" style="background:#3f0e40; color:#fff; font-size: 0.65rem; font-weight:700;">Slack Suite</span>
                 </a>
                 
                 <div class="sidebar-section-header">Academics & Attendance</div>

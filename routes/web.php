@@ -23,6 +23,11 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\NetChatController;
+use App\Http\Controllers\WorkspaceController;
+use App\Http\Controllers\ChannelController;
+use App\Http\Controllers\WorkspaceMessageController;
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\WorkspaceInviteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -238,6 +243,26 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/netchat/huddle/leave', [NetChatController::class, 'leaveHuddle'])->name('netchat.huddle.leave');
     Route::post('/netchat/huddle/signal', [NetChatController::class, 'postHuddleSignal'])->name('netchat.huddle.signal');
     Route::get('/netchat/huddle/poll', [NetChatController::class, 'pollHuddleSignals'])->name('netchat.huddle.poll');
+
+    // Slack-Style Workspace Suite Routes
+    Route::prefix('workspace')->name('workspace.')->group(function () {
+        Route::get('/', [WorkspaceController::class, 'index'])->name('index');
+        Route::get('/create', [WorkspaceController::class, 'create'])->name('create');
+        Route::post('/', [WorkspaceController::class, 'store'])->name('store');
+        Route::get('/{workspace}', [WorkspaceController::class, 'show'])->name('show');
+        Route::post('/{workspace}/channels', [ChannelController::class, 'store'])->name('channels.store');
+        Route::get('/{workspace}/channels/{channel}', [ChannelController::class, 'show'])->name('channels.show');
+        Route::post('/{workspace}/channels/{channel}/join', [ChannelController::class, 'join'])->name('channels.join');
+        Route::post('/messages', [WorkspaceMessageController::class, 'store'])->name('messages.store');
+        Route::get('/messages/poll', [WorkspaceMessageController::class, 'poll'])->name('messages.poll');
+        Route::get('/messages/{id}/replies', [WorkspaceMessageController::class, 'replies'])->name('messages.replies');
+        Route::post('/messages/{id}/reaction', [WorkspaceMessageController::class, 'toggleReaction'])->name('messages.reaction');
+        Route::delete('/messages/{id}', [WorkspaceMessageController::class, 'destroy'])->name('messages.destroy');
+        Route::get('/messages/search', [WorkspaceMessageController::class, 'search'])->name('messages.search');
+        Route::post('/conversations', [ConversationController::class, 'store'])->name('conversations.store');
+        Route::post('/{workspace}/invite', [WorkspaceInviteController::class, 'invite'])->name('invite');
+        Route::get('/invite/accept/{token}', [WorkspaceInviteController::class, 'accept'])->name('invite.accept');
+    });
 
     // Legacy messaging fallback routes
     Route::get('/messages/chat/{user?}', [\App\Http\Controllers\MessageController::class, 'chat'])->name('messages.chat');

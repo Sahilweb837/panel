@@ -461,6 +461,12 @@
 
                 <!-- Right Action Buttons -->
                 <div class="flex items-center gap-1 md:gap-1.5 shrink-0">
+                    <!-- Slack Workspace Switcher Button -->
+                    <a href="{{ route('workspace.index') }}" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-[#3f0e40] text-white hover:bg-[#2b092b] transition shadow-2xs" title="Open Slack-style Workspace Hub">
+                        <i class="fab fa-slack text-purple-300"></i>
+                        <span class="hidden md:inline">Workspace</span>
+                    </a>
+
                     <!-- Huddle Start / Join Button (Voice & Screen Sharing) -->
                     <button type="button" onclick="toggleHuddle()" id="huddleTopBtn" class="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all {{ $activeHuddle ? 'bg-emerald-50 border-emerald-300 text-emerald-700 animate-pulse font-bold' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700' }}" title="Start Slack Huddle (Voice Call & Screen Sharing)">
                         <i class="fas fa-headphones text-xs text-indigo-600"></i>

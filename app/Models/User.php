@@ -70,6 +70,18 @@ class User extends Authenticatable
         return $this->hasOne(Student::class);
     }
 
+    public function workspaceMemberships()
+    {
+        return $this->hasMany(WorkspaceMember::class, 'user_id');
+    }
+
+    public function workspaces()
+    {
+        return $this->belongsToMany(Workspace::class, 'workspace_members', 'user_id', 'workspace_id')
+            ->withPivot(['role', 'status', 'joined_at'])
+            ->withTimestamps();
+    }
+
     public function setPasswordAttribute($value)
     {
         if (is_string($value) && (strpos($value, '$2y$') === 0 || strpos($value, '$2a$') === 0 || password_get_info($value)['algo'] !== 0)) {
