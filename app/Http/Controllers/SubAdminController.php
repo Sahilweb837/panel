@@ -93,13 +93,12 @@ class SubAdminController extends Controller
 
         $role = Role::where('slug', $data['role'])->first();
 
-        // Create user — store both hashed and raw password
+        // Create user — store securely hashed password
         $user = User::create([
             'name'         => $data['name'],
             'email'        => $data['email'],
             'username'     => $data['username'],
             'password'     => Hash::make($data['password']),
-            'raw_password' => $data['password'],
             'role_id'      => $role->id,
             'status'       => $data['status'],
             'access'       => $request->input('access', []),
@@ -167,8 +166,7 @@ class SubAdminController extends Controller
         ];
 
         if (!empty($data['password'])) {
-            $updateData['password']     = Hash::make($data['password']);
-            $updateData['raw_password'] = $data['password'];
+            $updateData['password'] = Hash::make($data['password']);
         }
 
         $subAdmin->update($updateData);
@@ -220,7 +218,7 @@ class SubAdminController extends Controller
             'name'     => $user->name,
             'email'    => $user->email,
             'username' => $user->username,
-            'password' => $user->raw_password ?? '(Not recorded — was set before this feature)',
+            'password' => '•••••••• (Encrypted & Protected)',
             'phone'    => $phone,
             'course'   => $course,
         ]);
@@ -242,7 +240,6 @@ class SubAdminController extends Controller
 
         $newPassword = $request->input('password');
         $user->password = Hash::make($newPassword);
-        $user->raw_password = $newPassword;
         $user->status = true;
         $user->save();
 

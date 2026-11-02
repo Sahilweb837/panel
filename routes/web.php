@@ -22,6 +22,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ProspectController;
+use App\Http\Controllers\NetChatController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,13 +30,16 @@ Route::get('/', function () {
 });
 
 // ZKTeco ADMS (Push) Webhook Routes
-Route::get('/iclock/cdata', [\App\Http\Controllers\ZKTecoADMSController::class, 'handshake']);
-Route::post('/iclock/cdata', [\App\Http\Controllers\ZKTecoADMSController::class, 'receiveData']);
-Route::get('/iclock/getrequest', [\App\Http\Controllers\ZKTecoADMSController::class, 'getRequest']);
-Route::post('/iclock/devicecmd', [\App\Http\Controllers\ZKTecoADMSController::class, 'deviceCmd']);
+Route::middleware('throttle:120,1')->group(function () {
+    Route::get('/iclock/cdata', [\App\Http\Controllers\ZKTecoADMSController::class, 'handshake']);
+    Route::post('/iclock/cdata', [\App\Http\Controllers\ZKTecoADMSController::class, 'receiveData']);
+    Route::get('/iclock/getrequest', [\App\Http\Controllers\ZKTecoADMSController::class, 'getRequest']);
+    Route::post('/iclock/devicecmd', [\App\Http\Controllers\ZKTecoADMSController::class, 'deviceCmd']);
+});
 
+// Authentication Routes with Rate Limiting (5 attempts per minute)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Direct login routes
@@ -49,86 +53,12 @@ Route::get('/superadmin', function () {
     return redirect()->route('login.admin');
 });
 
-
-// Registration Routes
-Route::get('/register/student', [\App\Http\Controllers\RegistrationController::class, 'showStudentRegistration'])->name('register.student');
-Route::post('/register/student', [\App\Http\Controllers\RegistrationController::class, 'registerStudent']);
-Route::get('/register/staff', [\App\Http\Controllers\RegistrationController::class, 'showStaffRegistration'])->name('register.staff');
-Route::post('/register/staff', [\App\Http\Controllers\RegistrationController::class, 'registerStaff']);
-
-Route::get('/reset-admin', function () {
-    $user = \App\Models\User::find(1);
-    if ($user) {
-        $user->email = 'superadmin@gmail.com';
-        $user->password = \Illuminate\Support\Facades\Hash::make('admin123');
-        $user->save();
-        return 'Admin credentials reset successfully! You can now log in with email: superadmin@gmail.com and password: admin123';
-    }
-    return 'Admin user not found!';
-});
-
-Route::get('/repair-passwords', function () {
-    $users = \App\Models\User::whereNotNull('raw_password')->get();
-    $repaired = 0;
-    foreach ($users as $u) {
-        if (!\Illuminate\Support\Facades\Hash::check($u->raw_password, $u->password)) {
-            $u->password = $u->raw_password;
-            $u->save();
-            $repaired++;
-        }
-    }
-    return "Successfully verified and repaired {$repaired} passwords!";
-});
-
-Route::get('/run-migrations', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return 'Migrations run successfully! Output: <pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
-    } catch (\Exception $e) {
-        return 'Error running migrations: ' . $e->getMessage();
-    }
-});
-
-Route::get('/clear-all', function () {
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    \Illuminate\Support\Facades\Artisan::call('route:clear');
-    \Illuminate\Support\Facades\Artisan::call('view:clear');
-    \Illuminate\Support\Facades\Artisan::call('config:clear');
-    return 'All caches completely cleared! Try logging in now.';
-});
-
-Route::get('/test-student', function () {
-    $role = \App\Models\Role::firstOrCreate(['slug' => 'student'], ['role_name' => 'Student', 'status' => 1]);
-    $user = \App\Models\User::updateOrCreate(
-        ['email' => 'student@example.com'],
-        [
-            'name' => 'Test Student',
-            'username' => 'teststudent',
-            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
-            'role_id' => $role->id,
-            'status' => 1
-        ]
-    );
-    
-    $student = \App\Models\Student::updateOrCreate(
-        ['user_id' => $user->id],
-        [
-            'first_name' => 'Test',
-            'last_name' => 'Student',
-            'admission_no' => 'STD001',
-            'roll_no' => 'R001',
-            'status' => 1,
-            'admission_date' => now()
-        ]
-    );
-    
-    return 'Test student ready! <br><br><b>Login URL:</b> <a href="/fees-manager/fees-manager-laravel/public/students">/students</a><br><b>Email:</b> student@example.com<br><b>Student ID:</b> STD001<br><b>Password:</b> password123';
-});
-
-Route::get('/run-migrations', function () {
-    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-    return 'Migrations ran successfully! You can now use the biometric features.';
+// Registration Routes with Rate Limiting
+Route::middleware('throttle:10,1')->group(function () {
+    Route::get('/register/student', [\App\Http\Controllers\RegistrationController::class, 'showStudentRegistration'])->name('register.student');
+    Route::post('/register/student', [\App\Http\Controllers\RegistrationController::class, 'registerStudent']);
+    Route::get('/register/staff', [\App\Http\Controllers\RegistrationController::class, 'showStaffRegistration'])->name('register.staff');
+    Route::post('/register/staff', [\App\Http\Controllers\RegistrationController::class, 'registerStaff']);
 });
 
 Route::middleware(['auth.custom'])->group(function () {
@@ -273,19 +203,30 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/tasks/{id}/status', [\App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.update_status');
     Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show', 'edit', 'update']);
 
-    // Internal Messaging Suite routes
-    Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    // NetChat Collaboration Suite & Messaging routes
+    Route::get('/messages', [NetChatController::class, 'index'])->name('messages.index');
+    Route::get('/messages/full', [NetChatController::class, 'index'])->name('messages.full');
+    Route::get('/netchat', [NetChatController::class, 'index'])->name('netchat.index');
+    Route::post('/netchat/send', [NetChatController::class, 'sendMessage'])->name('netchat.send');
+    Route::post('/netchat/voice', [NetChatController::class, 'uploadVoice'])->name('netchat.voice');
+    Route::get('/netchat/poll', [NetChatController::class, 'poll'])->name('netchat.poll');
+    Route::post('/netchat/reaction/{id}', [NetChatController::class, 'toggleReaction'])->name('netchat.reaction');
+    Route::post('/netchat/channel/create', [NetChatController::class, 'createChannel'])->name('netchat.channel.create');
+    Route::post('/netchat/huddle/start', [NetChatController::class, 'startHuddle'])->name('netchat.huddle.start');
+    Route::post('/netchat/huddle/leave', [NetChatController::class, 'leaveHuddle'])->name('netchat.huddle.leave');
+    Route::post('/netchat/huddle/signal', [NetChatController::class, 'postHuddleSignal'])->name('netchat.huddle.signal');
+    Route::get('/netchat/huddle/poll', [NetChatController::class, 'pollHuddleSignals'])->name('netchat.huddle.poll');
+
+    // Legacy messaging fallback routes
     Route::get('/messages/chat/{user?}', [\App\Http\Controllers\MessageController::class, 'chat'])->name('messages.chat');
     Route::post('/messages/chat/send', [\App\Http\Controllers\MessageController::class, 'storeChat'])->name('messages.chat.store');
-    Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
+    Route::post('/messages/store', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
     Route::post('/messages/{id}/read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.read');
     Route::delete('/messages/{id}', [\App\Http\Controllers\MessageController::class, 'destroy'])->name('messages.destroy');
     Route::put('/messages/{id}', [\App\Http\Controllers\MessageController::class, 'updateMessage'])->name('messages.update_msg');
-    // AJAX polling for live chat
     Route::get('/api/messages/poll/{userId}', [\App\Http\Controllers\MessageController::class, 'pollChat'])->name('messages.poll');
     Route::get('/api/messages/unread-count', [\App\Http\Controllers\MessageController::class, 'unreadCount'])->name('messages.unread-count');
     Route::get('/api/messages/inbox-poll', [\App\Http\Controllers\MessageController::class, 'pollInbox'])->name('messages.inbox-poll');
-    Route::get('/messages/full', [\App\Http\Controllers\MessageController::class, 'fullPage'])->name('messages.full');
 
     // Connections Routes
     Route::get('/connections', [\App\Http\Controllers\EmployeeConnectionController::class, 'index'])->name('connections.index');

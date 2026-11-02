@@ -74,7 +74,6 @@ class EmployeeController extends Controller
             'email' => $email,
             'username' => $username,
             'password' => $password,
-            'raw_password' => $request->login_password ?: 'staff123',
             'role_id' => $staffRole?->id,
             'status' => $data['status'],
             'access' => $request->input('access', []),
@@ -191,7 +190,6 @@ class EmployeeController extends Controller
 
         if ($request->filled('login_password')) {
             $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->login_password);
-            $userData['raw_password'] = $request->login_password;
         }
 
         if ($employee->user) {
@@ -199,7 +197,6 @@ class EmployeeController extends Controller
         } else {
             if (!isset($userData['password'])) {
                 $userData['password'] = \Illuminate\Support\Facades\Hash::make('staff123');
-                $userData['raw_password'] = 'staff123';
             }
             $userData['role_id'] = $staffRole?->id;
             $newUser = User::create($userData);

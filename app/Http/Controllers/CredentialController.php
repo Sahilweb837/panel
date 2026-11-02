@@ -105,7 +105,6 @@ class CredentialController extends Controller
                 'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'raw_password' => $request->password,
                 'role_id' => $request->role_id,
                 'status' => true,
             ]);
@@ -116,7 +115,6 @@ class CredentialController extends Controller
                 'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'raw_password' => $request->password,
                 'role_id' => $request->role_id,
                 'status' => true,
             ]);
@@ -193,7 +191,6 @@ class CredentialController extends Controller
 
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
-            $data['raw_password'] = $request->password;
         }
 
         $credential->update($data);
