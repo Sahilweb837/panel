@@ -220,6 +220,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/messages', [NetChatController::class, 'index'])->name('messages.index');
     Route::get('/messages/full', [NetChatController::class, 'index'])->name('messages.full');
     Route::get('/netchat', [NetChatController::class, 'index'])->name('netchat.index');
+    Route::get('/netchat/messages/older', [NetChatController::class, 'loadOlderMessages'])->name('netchat.messages.older');
     Route::post('/netchat/send', [NetChatController::class, 'sendMessage'])->name('netchat.send');
     Route::post('/netchat/voice', [NetChatController::class, 'uploadVoice'])->name('netchat.voice');
     Route::get('/netchat/poll', [NetChatController::class, 'poll'])->name('netchat.poll');

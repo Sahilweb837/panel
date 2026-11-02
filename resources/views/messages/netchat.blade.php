@@ -14,7 +14,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $pageTitle }} — Conceptzilla</title>
+    <title>{{ $pageTitle }} — {{ \App\Models\Setting::get('institute_name', config('app.name', 'NetChat')) }}</title>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -96,7 +96,7 @@
 </style>
 
 <!-- Main Workspace App Shell -->
-<div class="netchat-container w-full bg-white flex flex-col overflow-hidden {{ $isPopup ? 'h-screen' : 'rounded-2xl border border-slate-200/90 shadow-sm' }}" style="{{ !$isPopup ? 'height: calc(100vh - 120px);' : '' }}" id="netchatApp">
+<div class="netchat-container w-full bg-white flex flex-col overflow-hidden {{ $isPopup ? 'h-screen' : 'rounded-2xl border border-slate-200/90 shadow-sm' }}" style="{{ !$isPopup ? 'height: calc(100vh - 110px); min-height: 540px;' : '' }}" id="netchatApp">
 
     @if($isPopup)
     <!-- Top macOS Desktop Window Chrome -->
@@ -110,7 +110,7 @@
         <!-- Window title -->
         <div class="text-xs font-semibold text-slate-500 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Conceptzilla — NetChat Desktop</span>
+            <span>{{ \App\Models\Setting::get('institute_name', config('app.name', 'Netcoder Workspace')) }} — NetChat</span>
         </div>
         <!-- Actions -->
         <div class="flex items-center gap-2 text-xs text-slate-400">
@@ -119,17 +119,17 @@
     </div>
     @endif
 
-    <!-- Body Layout: 3-4 Columns (Icon Rail + Left Sidebar + Chat Center + Right Info) -->
+    <!-- Body Layout: Responsive Multi-Column (Icon Rail + Left Sidebar + Chat Center + Right Info) -->
     <div class="flex-grow flex overflow-hidden w-full relative">
 
-        <!-- COLUMN 1: Far-Left Lavender / Purple Icon Rail (matches photo) -->
-        <div class="w-[64px] bg-[#e3e8f8] border-r border-[#d5def5] flex flex-col items-center py-4 justify-between shrink-0 select-none z-20">
+        <!-- COLUMN 1: Far-Left Icon Rail (Desktop) -->
+        <div class="hidden md:flex w-[56px] lg:w-[64px] bg-[#e3e8f8] border-r border-[#d5def5] flex-col items-center py-4 justify-between shrink-0 select-none z-20">
             <!-- Top brand icons -->
             <div class="flex flex-col items-center gap-3.5 w-full">
-                <!-- Conceptzilla Logo (Black rounded square with white C) -->
-                <button type="button" class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center font-black text-xl shadow-xs hover:scale-105 active:scale-95 transition-all" title="Conceptzilla Workspace">
-                    <span>C</span>
-                </button>
+                <!-- System Brand Logo with Fallback -->
+                <a href="{{ route('dashboard') }}" class="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center p-1.5 hover:scale-105 active:scale-95 transition-all overflow-hidden" title="{{ \App\Models\Setting::get('institute_name', 'Workspace Dashboard') }}">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="Logo" loading="lazy" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='{{ asset('image.png') }}';">
+                </a>
 
                 <!-- Workspace switcher / sync icon -->
                 <button type="button" class="w-10 h-10 rounded-xl bg-transparent hover:bg-black/5 text-slate-700 flex items-center justify-center text-base transition-colors" title="Switch Workspace">
@@ -157,7 +157,7 @@
             <!-- Bottom User Profile Avatar with bright green online dot -->
             <div class="relative group cursor-pointer" onclick="toggleUserStatusModal()">
                 @if($currentUser->profile_pic)
-                    <img src="{{ asset('uploads/profiles/'.$currentUser->profile_pic) }}" alt="{{ $currentUser->name }}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs">
+                    <img src="{{ asset('uploads/profiles/'.$currentUser->profile_pic) }}" alt="{{ $currentUser->name }}" loading="lazy" onerror="this.onerror=null; this.src='{{ asset('image.png') }}';" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs">
                 @else
                     <div class="w-10 h-10 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-sm border-2 border-white shadow-xs">
                         {{ strtoupper(substr($currentUser->name, 0, 1)) }}
@@ -167,17 +167,39 @@
             </div>
         </div>
 
-        <!-- COLUMN 2: Secondary Left Sidebar (White Navigation Tree) -->
-        <div class="w-[245px] bg-white border-r border-slate-200/80 flex flex-col shrink-0 select-none overflow-hidden">
+        <!-- COLUMN 2: Secondary Left Sidebar (Channels & DMs Navigation Tree) -->
+        <div class="w-full md:w-[240px] lg:w-[260px] bg-white border-r border-slate-200/80 flex flex-col shrink-0 select-none overflow-hidden transition-all duration-200" id="channelsSidebar">
             <!-- Header: Workspace Name & Dropdown + Search -->
-            <div class="h-14 border-b border-slate-100 px-4 flex items-center justify-between shrink-0">
-                <button type="button" class="flex items-center gap-2 font-bold text-slate-900 text-[15px] hover:text-indigo-600 transition-colors truncate">
-                    <span>Conceptzilla</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
-                </button>
-                <button type="button" class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" onclick="focusSearch()">
-                    <i class="fas fa-magnifying-glass"></i>
-                </button>
+            <div class="h-14 border-b border-slate-100 px-3.5 md:px-4 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2 min-w-0">
+                    <!-- Mobile logo inside sidebar header -->
+                    <div class="md:hidden w-8 h-8 rounded-lg bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0">
+                        <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="Logo" loading="lazy" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='{{ asset('image.png') }}';">
+                    </div>
+                    <button type="button" class="flex items-center gap-1.5 font-bold text-slate-900 text-sm md:text-[15px] hover:text-indigo-600 transition-colors truncate">
+                        <span class="truncate">{{ \App\Models\Setting::get('institute_name', config('app.name', 'Netcoder Workspace')) }}</span>
+                        <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+                    </button>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button type="button" class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" onclick="focusSearch()" title="Filter channels & users">
+                        <i class="fas fa-magnifying-glass"></i>
+                    </button>
+                    <button type="button" onclick="openCreateChannelModal()" class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs transition-colors md:hidden" title="New channel">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Instant Search Input -->
+            <div class="px-3 pt-2 pb-1 border-b border-slate-50" id="sidebarSearchBox">
+                <div class="flex items-center gap-2 bg-slate-100/90 rounded-xl px-2.5 py-1.5 border border-slate-200/60 focus-within:bg-white focus-within:border-indigo-400 transition-all">
+                    <i class="fas fa-magnifying-glass text-slate-400 text-xs"></i>
+                    <input type="text" id="sidebarSearchInput" placeholder="Filter channels & people..." class="w-full bg-transparent border-0 text-xs focus:outline-hidden text-slate-800 placeholder-slate-400" oninput="handleSidebarSearch(this.value)">
+                    <button type="button" onclick="clearSidebarSearch()" id="clearSearchBtn" class="hidden text-slate-400 hover:text-slate-600 text-[10px] p-0.5">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Scrollable Nav List -->
@@ -402,85 +424,113 @@
         </div>
 
         <!-- COLUMN 3: Center Chat Canvas -->
-        <div class="flex-grow flex flex-col bg-white overflow-hidden relative">
+        <div class="flex-grow flex flex-col bg-white overflow-hidden relative w-full hidden md:flex" id="chatCanvasArea">
 
             <!-- Chat Header Bar -->
-            <div class="h-14 border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 bg-white z-10">
-                <!-- Breadcrumbs Path -->
+            <div class="h-14 border-b border-slate-200/80 px-3 md:px-6 flex items-center justify-between shrink-0 bg-white z-10">
+                <!-- Left: Mobile Back Button + Breadcrumbs Path -->
                 <div class="flex items-center gap-2 min-w-0">
-                    <span class="text-slate-400 font-bold text-sm">#</span>
-                    <div class="flex items-center gap-1.5 text-sm font-bold text-slate-900 truncate">
+                    <!-- Mobile Back Button -->
+                    <button type="button" onclick="showMobileChannels()" class="md:hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all shrink-0 shadow-2xs">
+                        <i class="fas fa-chevron-left text-[11px]"></i>
+                        <span>Channels</span>
+                    </button>
+
+                    <span class="text-slate-400 font-bold text-sm hidden md:inline">#</span>
+                    <div class="flex items-center gap-1.5 text-xs md:text-sm font-bold text-slate-900 truncate">
                         @if($activeChannel)
                             @php
                                 $crumbs = $activeChannel->breadcrumbs;
                             @endphp
                             @foreach($crumbs as $idx => $crumb)
-                                <span>{{ $crumb['name'] }}</span>
+                                <span class="truncate">{{ $crumb['name'] }}</span>
                                 @if(!$loop->last)
                                     <span class="text-slate-300 font-normal">/</span>
                                 @endif
                             @endforeach
                             <!-- Canvas tab icon -->
-                            <span class="text-slate-400 text-xs ms-1.5 cursor-pointer hover:text-slate-700" title="Open canvas">
+                            <span class="text-slate-400 text-xs ms-1.5 cursor-pointer hover:text-slate-700 hidden sm:inline" title="Open canvas">
                                 <i class="far fa-window-maximize"></i>
                             </span>
                         @elseif($activeDmUser)
-                            <span>Direct Chat with {{ $activeDmUser->name }}</span>
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 ms-1"></span>
+                            <span class="truncate">Direct: {{ $activeDmUser->name }}</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 ms-1 shrink-0"></span>
                         @endif
                     </div>
                 </div>
 
                 <!-- Right Action Buttons -->
-                <div class="flex items-center gap-1.5 shrink-0">
+                <div class="flex items-center gap-1 md:gap-1.5 shrink-0">
                     <!-- Huddle Start / Join Button (Voice & Screen Sharing) -->
-                    <button type="button" onclick="toggleHuddle()" id="huddleTopBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all {{ $activeHuddle ? 'bg-emerald-50 border-emerald-300 text-emerald-700 animate-pulse font-bold' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700' }}" title="Start Slack Huddle (Voice Call & Screen Sharing)">
+                    <button type="button" onclick="toggleHuddle()" id="huddleTopBtn" class="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all {{ $activeHuddle ? 'bg-emerald-50 border-emerald-300 text-emerald-700 animate-pulse font-bold' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700' }}" title="Start Slack Huddle (Voice Call & Screen Sharing)">
                         <i class="fas fa-headphones text-xs text-indigo-600"></i>
-                        <span id="huddleTopBtnText">{{ $activeHuddle ? 'Join Huddle (' . $activeHuddle->participants->count() . ')' : 'Huddle' }}</span>
+                        <span id="huddleTopBtnText" class="hidden sm:inline">{{ $activeHuddle ? 'Join Huddle (' . $activeHuddle->participants->count() . ')' : 'Huddle' }}</span>
                     </button>
 
                     <!-- Open in New Window Button (Explicitly requested by user) -->
                     @if(!$isPopup)
-                        <button type="button" onclick="openNetChatWindow()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs" title="Open NetChat in Dedicated Window">
+                        <button type="button" onclick="openNetChatWindow()" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs" title="Open NetChat in Dedicated Window">
                             <i class="fas fa-arrow-up-right-from-square text-xs text-slate-500"></i>
-                            <span class="hidden md:inline">Open in Window</span>
+                            <span class="hidden md:inline">Window</span>
                         </button>
                     @endif
 
                     <!-- More options ... -->
-                    <button type="button" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm transition-colors" title="More options">
+                    <button type="button" class="w-7 h-7 md:w-8 md:h-8 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm transition-colors" title="More options">
                         <i class="fas fa-ellipsis"></i>
                     </button>
 
                     <!-- AI Sparkle Assistant ✨ -->
-                    <button type="button" onclick="suggestAiResponse()" class="w-8 h-8 rounded-lg hover:bg-pink-50 text-pink-600 flex items-center justify-center text-xs transition-colors" title="AI Assistant Prompt">
+                    <button type="button" onclick="suggestAiResponse()" class="w-7 h-7 md:w-8 md:h-8 rounded-lg hover:bg-pink-50 text-pink-600 flex items-center justify-center text-xs transition-colors" title="AI Assistant Prompt">
                         <i class="fas fa-wand-magic-sparkles"></i>
                     </button>
 
                     <!-- Info Toggle ⓘ -->
-                    <button type="button" onclick="toggleRightSidebar()" id="infoToggleBtn" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs transition-colors" title="Toggle Channel Details">
+                    <button type="button" onclick="toggleRightSidebar()" id="infoToggleBtn" class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs transition-colors" title="Toggle Channel Details">
                         <i class="fas fa-circle-info"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Messages Stream Area -->
-            <div class="flex-grow overflow-y-auto custom-scrollbar relative py-4" id="chatMessageStream">
+            <!-- Messages Stream Area with Infinite Scroll / Lazy Loading -->
+            <div class="flex-grow overflow-y-auto custom-scrollbar relative py-3 md:py-4" id="chatMessageStream">
+                <!-- Lazy Load Earlier Messages Trigger -->
+                <div id="loadOlderContainer" class="py-2.5 px-4 flex flex-col items-center justify-center {{ empty($hasOlderMessages) ? 'hidden' : '' }}">
+                    <button type="button" onclick="fetchOlderMessages()" id="btnLoadOlder" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold flex items-center gap-2 transition-all shadow-2xs hover:shadow-xs">
+                        <i class="fas fa-arrow-up text-[10px] text-slate-400" id="iconLoadOlderArrow"></i>
+                        <i class="fas fa-spinner fa-spin text-xs text-indigo-600 hidden" id="iconLoadOlderSpinner"></i>
+                        <span id="textLoadOlder">Load earlier messages</span>
+                    </button>
+                </div>
+                <div id="historyStartBadge" class="py-3 text-center text-xs font-medium text-slate-400 flex items-center justify-center gap-2 {{ !empty($hasOlderMessages) ? 'hidden' : '' }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                    <span>Beginning of message history</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                </div>
+
                 <div class="space-y-1" id="messagesListContainer">
                     @forelse($messages as $msg)
                         @include('messages.partials.single_message', ['msg' => $msg, 'currentUser' => $currentUser])
                     @empty
-                        <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                        <div class="flex flex-col items-center justify-center py-20 text-slate-400" id="emptyStatePlaceholder">
                             <i class="fas fa-comments text-4xl mb-3 opacity-30"></i>
                             <h4 class="text-sm font-bold text-slate-700">No messages in this channel yet</h4>
-                            <p class="text-xs text-slate-400">Be the first to share an update, start a huddle or post a Figma file!</p>
+                            <p class="text-xs text-slate-400">Be the first to share an update, start a huddle or post a file!</p>
                         </div>
                     @endforelse
                 </div>
             </div>
 
+            <!-- Floating New Messages Pill -->
+            <div id="newMessagesBelowPill" class="hidden absolute bottom-24 left-1/2 -translate-x-1/2 z-20">
+                <button type="button" onclick="scrollChatToBottom(true)" class="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-black text-white text-xs font-bold shadow-lg flex items-center gap-2 transition-transform hover:scale-105 active:scale-95">
+                    <i class="fas fa-arrow-down text-xs"></i>
+                    <span>New messages below</span>
+                </button>
+            </div>
+
             <!-- FLOATING SLACK HUDDLE BAR (Voice Call & Screen Sharing) -->
-            <div id="floatingHuddleBar" class="hidden absolute bottom-28 left-6 right-6 md:left-auto md:right-8 md:w-[480px] bg-slate-900/95 backdrop-blur-md text-white rounded-2xl p-3.5 shadow-2xl border border-slate-700/80 z-30 transition-all duration-300">
+            <div id="floatingHuddleBar" class="hidden absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-[480px] bg-slate-900/95 backdrop-blur-md text-white rounded-2xl p-3.5 shadow-2xl border border-slate-700/80 z-30 transition-all duration-300">
                 <div class="flex items-center justify-between gap-3">
                     <!-- Left: Wave & Channel Name -->
                     <div class="flex items-center gap-3 min-w-0">
@@ -542,15 +592,15 @@
                 </div>
             </div>
 
-            <!-- Bottom Floating Message Composer (Matches Photo Pixel-for-Pixel) -->
-            <div class="p-6 pt-2 shrink-0 bg-white">
-                <form id="slackComposerForm" onsubmit="handleSendMessage(event)" class="relative bg-white rounded-2xl border border-slate-200/90 shadow-sm focus-within:border-slate-400 focus-within:shadow-md transition-all duration-200 p-3.5">
+            <!-- Bottom Floating Message Composer -->
+            <div class="p-2.5 md:p-5 pt-1.5 shrink-0 bg-white">
+                <form id="slackComposerForm" onsubmit="handleSendMessage(event)" class="relative bg-white rounded-2xl border border-slate-200/90 shadow-sm focus-within:border-slate-400 focus-within:shadow-md transition-all duration-200 p-2.5 md:p-3.5">
                     @csrf
                     <input type="hidden" name="channel_id" value="{{ $activeChannel ? $activeChannel->id : '' }}">
                     <input type="hidden" name="receiver_id" value="{{ $activeDmUser ? $activeDmUser->id : '' }}">
 
                     <!-- Expand modal icon top-right -->
-                    <button type="button" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-slate-700 text-xs" title="Expand composer">
+                    <button type="button" class="absolute top-3 right-3 text-slate-400 hover:text-slate-700 text-xs hidden sm:block" title="Expand composer">
                         <i class="fas fa-up-right-and-down-left-from-center text-[11px]"></i>
                     </button>
 
@@ -559,16 +609,22 @@
                         name="message" 
                         id="messageInputText" 
                         rows="2" 
-                        class="w-full bg-transparent border-0 focus:ring-0 focus:outline-hidden text-[13.5px] leading-relaxed text-slate-800 placeholder-slate-400 resize-none pr-8 custom-scrollbar" 
-                        placeholder="{{ $activeChannel ? 'Everything looks pretty good. Finish the states and we\'ll start development...' : 'Message ' . ($activeDmUser ? $activeDmUser->name : 'team') . '...' }}"
+                        class="w-full bg-transparent border-0 focus:ring-0 focus:outline-hidden text-xs md:text-[13.5px] leading-relaxed text-slate-800 placeholder-slate-400 resize-none pr-8 custom-scrollbar" 
+                        placeholder="{{ $activeChannel ? 'Message #' . $activeChannel->name . '...' : 'Message ' . ($activeDmUser ? $activeDmUser->name : 'team') . '...' }}"
                         onkeydown="handleComposerKeydown(event)"
                     ></textarea>
 
-                    <!-- Selected Attachment Preview Pill (if file selected) -->
-                    <div id="attachmentPreviewBar" class="hidden mb-2 inline-flex items-center gap-2 px-2.5 py-1 bg-slate-100 rounded-lg text-xs text-slate-700">
-                        <i class="fas fa-paperclip text-slate-400"></i>
-                        <span id="attachmentFileName" class="truncate max-w-[200px]">file.png</span>
-                        <button type="button" onclick="clearAttachment()" class="text-slate-400 hover:text-rose-500 ms-1">
+                    <!-- Selected Attachment Preview Pill with image thumbnail and remove -->
+                    <div id="attachmentPreviewBar" class="hidden mb-2 p-2 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2.5">
+                        <div id="attachmentThumbContainer" class="w-9 h-9 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center shrink-0">
+                            <img id="attachmentThumbImg" src="" alt="preview" class="w-full h-full object-cover hidden">
+                            <i class="fas fa-file text-slate-400 text-sm" id="attachmentFileIcon"></i>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div id="attachmentFileName" class="text-xs font-bold text-slate-800 truncate">file.png</div>
+                            <div id="attachmentFileSize" class="text-[10px] text-slate-400 font-mono">0 KB</div>
+                        </div>
+                        <button type="button" onclick="clearAttachment()" class="w-6 h-6 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors">
                             <i class="fas fa-xmark text-xs"></i>
                         </button>
                     </div>
@@ -577,55 +633,56 @@
                     <input type="file" name="attachment" id="chatFileInput" class="hidden" onchange="handleFileSelected(event)">
 
                     <!-- Bottom Toolbar -->
-                    <div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-1">
+                    <div class="flex items-center justify-between pt-1.5 md:pt-2 border-t border-slate-100 mt-1 gap-2">
                         <!-- Left Tools: ✨ @ Aa 😊 📎 🎙️ ⚡ -->
-                        <div class="flex items-center gap-1 text-slate-400">
+                        <div class="flex items-center gap-0.5 md:gap-1 text-slate-400 overflow-x-auto no-scrollbar py-0.5 max-w-[calc(100%-110px)]">
                             <!-- ✨ AI Assistant Rewrite -->
-                            <button type="button" onclick="suggestAiResponse()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" title="AI Assistant">
+                            <button type="button" onclick="suggestAiResponse()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors shrink-0" title="AI Assistant">
                                 <i class="fas fa-sparkles"></i>
                             </button>
 
                             <!-- @ Mention -->
-                            <button type="button" onclick="insertMentionTag()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" title="Mention someone">
+                            <button type="button" onclick="insertMentionTag()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors shrink-0" title="Mention someone">
                                 <i class="fas fa-at"></i>
                             </button>
 
                             <!-- Aa Formatting -->
-                            <button type="button" onclick="applyBoldFormat()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors font-bold" title="Formatting">
+                            <button type="button" onclick="applyBoldFormat()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs font-bold transition-colors shrink-0" title="Formatting">
                                 Aa
                             </button>
 
                             <!-- 😊 Emoji Picker -->
-                            <button type="button" onclick="toggleEmojiPicker(event)" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" title="Add emoji">
+                            <button type="button" onclick="toggleEmojiPicker(event)" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors shrink-0" title="Add emoji">
                                 <i class="far fa-face-smile"></i>
                             </button>
 
                             <!-- 📎 File Attachment -->
-                            <button type="button" onclick="document.getElementById('chatFileInput').click()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" title="Attach file or Figma preview">
+                            <button type="button" onclick="document.getElementById('chatFileInput').click()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors shrink-0" title="Attach file or image">
                                 <i class="fas fa-paperclip"></i>
                             </button>
 
                             <!-- 🎙️ Voice Message Recording -->
-                            <button type="button" onclick="toggleVoiceRecording()" id="voiceRecordBtn" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" title="Record Voice Note">
+                            <button type="button" onclick="toggleVoiceRecording()" id="voiceRecordBtn" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors shrink-0" title="Record Voice Note">
                                 <i class="fas fa-microphone" id="voiceMicIcon"></i>
                             </button>
 
                             <!-- ⚡ Slash Commands -->
-                            <button type="button" onclick="insertSlashCommand()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors" title="Shortcuts">
+                            <button type="button" onclick="insertSlashCommand()" class="w-7 h-7 rounded-lg hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center text-xs transition-colors shrink-0 hidden sm:flex" title="Shortcuts">
                                 <i class="fas fa-bolt"></i>
                             </button>
                         </div>
 
                         <!-- Right Actions: Discard & Send -->
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5 shrink-0">
                             <!-- Discard -->
-                            <button type="button" onclick="clearComposer()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+                            <button type="button" onclick="clearComposer()" class="hidden sm:inline px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
                                 Discard
                             </button>
 
                             <!-- Send (Solid Black Button matching photo) -->
-                            <button type="submit" id="sendMsgBtn" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-black text-white hover:bg-slate-800 active:scale-95 transition-all shadow-xs flex items-center gap-1.5">
+                            <button type="submit" id="sendMsgBtn" class="px-3.5 md:px-4 py-1.5 rounded-xl text-xs font-bold bg-slate-950 text-white hover:bg-slate-800 active:scale-95 transition-all shadow-xs flex items-center gap-1.5">
                                 <span>Send</span>
+                                <i class="fas fa-paper-plane text-[10px]"></i>
                             </button>
                         </div>
                     </div>
@@ -634,17 +691,23 @@
 
         </div>
 
-        <!-- COLUMN 4: Right Info Sidebar (Matches Photo Pixel-for-Pixel) -->
-        <div class="w-[280px] bg-white border-l border-slate-200/80 flex flex-col shrink-0 select-none overflow-hidden transition-all duration-300" id="rightInfoSidebar">
+        <!-- COLUMN 4: Right Info Sidebar (Slide-over drawer on mobile, static on desktop) -->
+        <!-- Mobile Backdrop -->
+        <div id="rightSidebarBackdrop" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 md:hidden" onclick="toggleRightSidebar()"></div>
 
-            <!-- Top Tabs: [ Info ] Pins Files Links -->
+        <div class="fixed inset-y-0 right-0 z-40 w-full max-w-xs md:max-w-none md:static md:w-[280px] bg-white border-l border-slate-200/80 flex flex-col shrink-0 select-none overflow-hidden transition-all duration-300 md:translate-x-0 hidden md:flex" id="rightInfoSidebar">
+
+            <!-- Top Tabs: [ Info ] Pins Files Links & Mobile Close -->
             <div class="h-14 border-b border-slate-200/80 px-4 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-bold text-slate-600">
-                    <button type="button" onclick="switchRightTab('info')" id="tabBtnInfo" class="px-3 py-1 rounded-lg bg-white text-slate-900 shadow-2xs">Info</button>
-                    <button type="button" onclick="switchRightTab('pins')" id="tabBtnPins" class="px-3 py-1 rounded-lg hover:text-slate-900 transition-colors">Pins</button>
-                    <button type="button" onclick="switchRightTab('files')" id="tabBtnFiles" class="px-3 py-1 rounded-lg hover:text-slate-900 transition-colors">Files</button>
-                    <button type="button" onclick="switchRightTab('links')" id="tabBtnLinks" class="px-3 py-1 rounded-lg hover:text-slate-900 transition-colors">Links</button>
+                    <button type="button" onclick="switchRightTab('info')" id="tabBtnInfo" class="px-2.5 md:px-3 py-1 rounded-lg bg-white text-slate-900 shadow-2xs">Info</button>
+                    <button type="button" onclick="switchRightTab('pins')" id="tabBtnPins" class="px-2.5 md:px-3 py-1 rounded-lg hover:text-slate-900 transition-colors">Pins</button>
+                    <button type="button" onclick="switchRightTab('files')" id="tabBtnFiles" class="px-2.5 md:px-3 py-1 rounded-lg hover:text-slate-900 transition-colors">Files</button>
+                    <button type="button" onclick="switchRightTab('links')" id="tabBtnLinks" class="px-2.5 md:px-3 py-1 rounded-lg hover:text-slate-900 transition-colors">Links</button>
                 </div>
+                <button type="button" onclick="toggleRightSidebar()" class="md:hidden w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs">
+                    <i class="fas fa-xmark"></i>
+                </button>
             </div>
 
             <!-- Tab Content: Scrollable -->
@@ -879,6 +942,29 @@
     </div>
 </div>
 
+<!-- Fullscreen Image Lightbox Modal -->
+<div id="imageLightboxModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 select-none" onclick="closeImageLightbox()">
+    <div class="relative max-w-4xl w-full max-h-[92vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+        <!-- Top controls -->
+        <div class="w-full flex items-center justify-between pb-3 text-white">
+            <span id="lightboxCaption" class="text-xs md:text-sm font-semibold truncate max-w-[240px] md:max-w-md text-white/90"></span>
+            <div class="flex items-center gap-2">
+                <a id="lightboxDownloadBtn" href="#" download class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white flex items-center gap-1.5 transition-colors">
+                    <i class="fas fa-download text-xs"></i>
+                    <span class="hidden sm:inline">Download</span>
+                </a>
+                <button type="button" onclick="closeImageLightbox()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm transition-colors" title="Close">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Image display with fallback -->
+        <div class="max-h-[80vh] flex items-center justify-center overflow-hidden rounded-xl border border-white/10 shadow-2xl bg-black/40">
+            <img id="lightboxImg" src="" alt="Full view" class="max-h-[78vh] max-w-full object-contain" onerror="this.onerror=null; this.src='{{ asset('image.png') }}';">
+        </div>
+    </div>
+</div>
+
 <!-- Floating Emoji Picker Popover -->
 <div id="emojiPickerPopover" class="hidden absolute bg-white border border-slate-200 rounded-2xl shadow-xl p-3 z-50 w-64 text-lg grid grid-cols-6 gap-2">
     @php
@@ -891,7 +977,7 @@
     @endforeach
 </div>
 
-<!-- Audio Chimes Synthesizer (Slack join/leave/message tones) -->
+<!-- Audio Chimes Synthesizer & Client State -->
 <script>
     const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
     const CURRENT_USER_ID = {{ $currentUser->id }};
@@ -899,73 +985,252 @@
     const ACTIVE_CHANNEL_ID = {{ $activeChannel ? $activeChannel->id : 'null' }};
     const ACTIVE_DM_USER_ID = {{ $activeDmUser ? $activeDmUser->id : 'null' }};
 
+    // Mobile view state management
+    function showMobileChannels() {
+        const sidebar = document.getElementById('channelsSidebar');
+        const chat = document.getElementById('chatCanvasArea');
+        if (sidebar && chat) {
+            sidebar.classList.remove('hidden');
+            chat.classList.add('hidden');
+            chat.classList.remove('flex');
+        }
+    }
+
+    function showMobileChat() {
+        const sidebar = document.getElementById('channelsSidebar');
+        const chat = document.getElementById('chatCanvasArea');
+        if (sidebar && chat) {
+            sidebar.classList.add('hidden');
+            chat.classList.remove('hidden');
+            chat.classList.add('flex');
+            scrollChatToBottom(false);
+        }
+    }
+
+    // Auto-setup mobile initial view
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.innerWidth < 768) {
+            const hasActiveChat = ACTIVE_CHANNEL_ID || ACTIVE_DM_USER_ID;
+            const chat = document.getElementById('chatCanvasArea');
+            const sidebar = document.getElementById('channelsSidebar');
+            if (hasActiveChat && chat && sidebar) {
+                sidebar.classList.add('hidden');
+                chat.classList.remove('hidden');
+                chat.classList.add('flex');
+            }
+        }
+    });
+
+    // Image lightbox modal
+    function openImageLightbox(url, name) {
+        const modal = document.getElementById('imageLightboxModal');
+        const img = document.getElementById('lightboxImg');
+        const caption = document.getElementById('lightboxCaption');
+        const dlBtn = document.getElementById('lightboxDownloadBtn');
+        if (modal && img) {
+            img.src = url;
+            caption.textContent = name || 'Image Preview';
+            if (dlBtn) dlBtn.href = url;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    function closeImageLightbox() {
+        const modal = document.getElementById('imageLightboxModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeImageLightbox();
+    });
+
+    // Real-time Sidebar Filter Search
+    function handleSidebarSearch(query) {
+        const q = (query || '').trim().toLowerCase();
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) clearBtn.classList.toggle('hidden', !q);
+
+        const links = document.querySelectorAll('#channelsSidebar a');
+        links.forEach(a => {
+            const text = a.innerText.toLowerCase();
+            if (!q || text.includes(q)) {
+                a.style.display = '';
+            } else {
+                a.style.display = 'none';
+            }
+        });
+    }
+
+    function clearSidebarSearch() {
+        const input = document.getElementById('sidebarSearchInput');
+        if (input) {
+            input.value = '';
+            handleSidebarSearch('');
+        }
+    }
+
+    function focusSearch() {
+        const input = document.getElementById('sidebarSearchInput');
+        if (input) {
+            input.focus();
+            input.select();
+        }
+    }
+
     // Synthesized Web Audio Chimes
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playChime(type) {
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        try {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
-        const now = audioCtx.currentTime;
-        if (type === 'huddle_join') {
-            osc.frequency.setValueAtTime(329.63, now); // E4
-            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.18); // E5
-            gain.gain.setValueAtTime(0.12, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-            osc.start(now);
-            osc.stop(now + 0.4);
-        } else if (type === 'huddle_leave') {
-            osc.frequency.setValueAtTime(523.25, now); // C5
-            osc.frequency.exponentialRampToValueAtTime(261.63, now + 0.2); // C4
-            gain.gain.setValueAtTime(0.12, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-            osc.start(now);
-            osc.stop(now + 0.35);
-        } else if (type === 'message_sent') {
-            osc.frequency.setValueAtTime(440, now);
-            osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-            gain.gain.setValueAtTime(0.08, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-            osc.start(now);
-            osc.stop(now + 0.2);
+            const now = audioCtx.currentTime;
+            if (type === 'huddle_join') {
+                osc.frequency.setValueAtTime(329.63, now); // E4
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.18); // E5
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'huddle_leave') {
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(261.63, now + 0.2); // C4
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'message_sent') {
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        } catch (e) {
+            // Audio context not allowed before user interaction
         }
     }
 
     // Auto-scroll chat to bottom
-    function scrollChatToBottom() {
+    function scrollChatToBottom(smooth = false) {
         const stream = document.getElementById('chatMessageStream');
         if (stream) {
-            stream.scrollTop = stream.scrollHeight;
+            if (smooth) {
+                stream.scrollTo({ top: stream.scrollHeight, behavior: 'smooth' });
+            } else {
+                stream.scrollTop = stream.scrollHeight;
+            }
+        }
+        document.getElementById('newMessagesBelowPill')?.classList.add('hidden');
+    }
+    window.addEventListener('load', () => scrollChatToBottom(false));
+
+    // ==========================================
+    // LAZY LOADING / INFINITE SCROLL OLDER MESSAGES
+    // ==========================================
+    let oldestLoadedId = {{ $messages->first() ? $messages->first()->id : 'null' }};
+    let isLoadingOlder = false;
+    let hasMoreOlder = {{ !empty($hasOlderMessages) ? 'true' : 'false' }};
+
+    async function fetchOlderMessages() {
+        if (isLoadingOlder || !hasMoreOlder || !oldestLoadedId) return;
+
+        isLoadingOlder = true;
+        const arrow = document.getElementById('iconLoadOlderArrow');
+        const spinner = document.getElementById('iconLoadOlderSpinner');
+        const btnText = document.getElementById('textLoadOlder');
+        if (arrow) arrow.classList.add('hidden');
+        if (spinner) spinner.classList.remove('hidden');
+        if (btnText) btnText.textContent = 'Loading earlier messages...';
+
+        const stream = document.getElementById('chatMessageStream');
+        const prevScrollHeight = stream.scrollHeight;
+        const prevScrollTop = stream.scrollTop;
+
+        const channelParam = ACTIVE_CHANNEL_ID ? `&channel_id=${ACTIVE_CHANNEL_ID}` : '';
+        const dmParam = ACTIVE_DM_USER_ID ? `&dm_user_id=${ACTIVE_DM_USER_ID}` : '';
+
+        try {
+            const res = await fetch(`{{ route('netchat.messages.older') }}?before_id=${oldestLoadedId}${channelParam}${dmParam}&limit=25`);
+            const data = await res.json();
+
+            if (data.success && data.messages && data.messages.length > 0) {
+                const container = document.getElementById('messagesListContainer');
+                const html = data.messages.map(m => m.html).join('');
+                container.insertAdjacentHTML('afterbegin', html);
+
+                oldestLoadedId = data.oldest_id;
+                hasMoreOlder = data.has_more;
+
+                // Maintain exact scroll position to prevent view jumping
+                const newScrollHeight = stream.scrollHeight;
+                stream.scrollTop = (newScrollHeight - prevScrollHeight) + prevScrollTop;
+            } else {
+                hasMoreOlder = false;
+            }
+
+            if (!hasMoreOlder) {
+                document.getElementById('loadOlderContainer')?.classList.add('hidden');
+                document.getElementById('historyStartBadge')?.classList.remove('hidden');
+            }
+        } catch (err) {
+            console.error('Error loading older messages:', err);
+        } finally {
+            isLoadingOlder = false;
+            if (arrow) arrow.classList.remove('hidden');
+            if (spinner) spinner.classList.add('hidden');
+            if (btnText) btnText.textContent = 'Load earlier messages';
         }
     }
-    window.addEventListener('load', scrollChatToBottom);
+
+    // Stream scroll listener for auto infinite scroll & new messages pill
+    const chatStream = document.getElementById('chatMessageStream');
+    if (chatStream) {
+        chatStream.addEventListener('scroll', () => {
+            if (chatStream.scrollTop < 80 && hasMoreOlder && !isLoadingOlder) {
+                fetchOlderMessages();
+            }
+
+            const distFromBottom = chatStream.scrollHeight - chatStream.scrollTop - chatStream.clientHeight;
+            if (distFromBottom < 150) {
+                document.getElementById('newMessagesBelowPill')?.classList.add('hidden');
+            }
+        });
+    }
 
     // Collapsible sections
     function toggleCollapse(contentId, arrowId) {
         const el = document.getElementById(contentId);
         const arrow = document.getElementById(arrowId);
-        if (el) {
-            el.classList.toggle('hidden');
-        }
-        if (arrow) {
-            arrow.classList.toggle('-rotate-90');
-        }
+        if (el) el.classList.toggle('hidden');
+        if (arrow) arrow.classList.toggle('-rotate-90');
     }
 
-    // Toggle Right Info Sidebar
+    // Toggle Right Info Sidebar (Drawer on mobile, column on desktop)
     function toggleRightSidebar() {
         const sidebar = document.getElementById('rightInfoSidebar');
+        const backdrop = document.getElementById('rightSidebarBackdrop');
         const btn = document.getElementById('infoToggleBtn');
         if (sidebar.classList.contains('hidden')) {
             sidebar.classList.remove('hidden');
-            btn.classList.add('bg-slate-100');
+            sidebar.classList.add('flex');
+            if (backdrop) backdrop.classList.remove('hidden');
+            if (btn) btn.classList.add('bg-slate-200');
         } else {
             sidebar.classList.add('hidden');
-            btn.classList.remove('bg-slate-100');
+            sidebar.classList.remove('flex');
+            if (backdrop) backdrop.classList.add('hidden');
+            if (btn) btn.classList.remove('bg-slate-200');
         }
     }
 
@@ -1014,12 +1279,14 @@
             sendBtn.disabled = false;
             sendBtn.classList.remove('opacity-50');
             if (data.success && data.html) {
+                // Remove empty state placeholder if present
+                document.getElementById('emptyStatePlaceholder')?.remove();
                 const container = document.getElementById('messagesListContainer');
                 container.insertAdjacentHTML('beforeend', data.html);
                 textInput.value = '';
                 clearAttachment();
                 playChime('message_sent');
-                scrollChatToBottom();
+                scrollChatToBottom(true);
             }
         })
         .catch(err => {
@@ -1041,18 +1308,45 @@
         clearAttachment();
     }
 
+    // Image & File attachment preview with thumbnail
     function handleFileSelected(e) {
         const file = e.target.files[0];
         if (file) {
-            document.getElementById('attachmentPreviewBar').classList.remove('hidden');
-            document.getElementById('attachmentFileName').textContent = file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+            const previewBar = document.getElementById('attachmentPreviewBar');
+            const thumbImg = document.getElementById('attachmentThumbImg');
+            const fileIcon = document.getElementById('attachmentFileIcon');
+            const nameEl = document.getElementById('attachmentFileName');
+            const sizeEl = document.getElementById('attachmentFileSize');
+
+            previewBar.classList.remove('hidden');
+            nameEl.textContent = file.name;
+            sizeEl.textContent = (file.size / 1024).toFixed(1) + ' KB';
+
+            if (file.type && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    thumbImg.src = ev.target.result;
+                    thumbImg.classList.remove('hidden');
+                    fileIcon.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                thumbImg.classList.add('hidden');
+                fileIcon.classList.remove('hidden');
+            }
         }
     }
 
     function clearAttachment() {
         const fileInput = document.getElementById('chatFileInput');
-        fileInput.value = '';
-        document.getElementById('attachmentPreviewBar').classList.add('hidden');
+        if (fileInput) fileInput.value = '';
+        const previewBar = document.getElementById('attachmentPreviewBar');
+        if (previewBar) previewBar.classList.add('hidden');
+        const thumbImg = document.getElementById('attachmentThumbImg');
+        if (thumbImg) {
+            thumbImg.src = '';
+            thumbImg.classList.add('hidden');
+        }
     }
 
     // Toggle Reaction
@@ -1575,21 +1869,30 @@
             const data = await res.json();
             if (data.messages && data.messages.length > 0) {
                 const container = document.getElementById('messagesListContainer');
+                const stream = document.getElementById('chatMessageStream');
+                const isNearBottom = stream ? (stream.scrollHeight - stream.scrollTop - stream.clientHeight < 160) : true;
+
                 data.messages.forEach(m => {
                     if (m.id > lastPollMsgId) {
                         lastPollMsgId = m.id;
                         if (m.sender_id !== CURRENT_USER_ID) {
+                            document.getElementById('emptyStatePlaceholder')?.remove();
                             container.insertAdjacentHTML('beforeend', m.html);
                             playChime('message_sent');
-                            scrollChatToBottom();
                         }
                     }
                 });
+
+                if (isNearBottom) {
+                    scrollChatToBottom(true);
+                } else {
+                    document.getElementById('newMessagesBelowPill')?.classList.remove('hidden');
+                }
             }
         } catch (e) {
             // silent poll
         }
-    }, 4000);
+    }, 3500);
 </script>
 
 @if(!$isPopup)

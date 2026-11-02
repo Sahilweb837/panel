@@ -73,11 +73,27 @@ class DashboardController extends Controller
             
         $maxStudentsInCourse = $coursesPopularity->max('students_count') ?: 1;
 
+        // Rich data for Edaca Course Bundles & LMS Hub
+        $allCourses = \App\Models\Course::withCount('students')->latest()->get();
+        $cohorts = class_exists(\App\Models\Cohort::class) ? \App\Models\Cohort::with('course')->latest()->get() : collect();
+        $masterclasses = class_exists(\App\Models\Masterclass::class) ? \App\Models\Masterclass::latest()->get() : collect();
+
+        // Audit & Login Logs for Admin
+        $loginLogs = class_exists(\App\Models\AdminActivityLog::class) ? \App\Models\AdminActivityLog::latest()->limit(25)->get() : collect();
+
+        // Staff & Operations Today
+        $staffAttendanceToday = \App\Models\EmployeeAttendance::with('employee')
+            ->whereDate('attendance_date', today())
+            ->latest('check_in_time')
+            ->limit(15)
+            ->get();
+
         return view('dashboard', compact(
             'studentCount', 'employeeCount', 'attendanceCount', 'expenseCount',
             'dueInvoices', 'recentAttendances', 'recentInvoices', 'recentStudents',
             'recentStaff', 'totalIncome', 'totalExpense', 'totalPendingFees', 'biometricDevice',
-            'workingHoursEmployeesCount', 'coursesCount', 'coursesPopularity', 'maxStudentsInCourse'
+            'workingHoursEmployeesCount', 'coursesCount', 'coursesPopularity', 'maxStudentsInCourse',
+            'allCourses', 'cohorts', 'masterclasses', 'loginLogs', 'staffAttendanceToday'
         ));
     }
 

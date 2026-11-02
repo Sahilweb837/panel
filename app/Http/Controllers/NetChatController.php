@@ -67,26 +67,50 @@ class NetChatController extends Controller
             }
         }
 
-        // 3. Fetch messages for active context
+        // 3. Fetch messages for active context with pagination / lazy loading
         $messages = collect();
+        $hasOlderMessages = false;
+        $initialLimit = 35;
+
         if ($activeChannel) {
-            $messages = ChatMessage::with('sender.role')
+            $rawMessages = ChatMessage::with('sender.role')
                 ->where('channel_id', $activeChannel->id)
                 ->whereNull('parent_id')
-                ->orderBy('created_at', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->take($initialLimit)
                 ->get();
+            $messages = $rawMessages->reverse()->values();
+
+            if ($messages->isNotEmpty()) {
+                $oldestLoadedId = $messages->first()->id;
+                $hasOlderMessages = ChatMessage::where('channel_id', $activeChannel->id)
+                    ->whereNull('parent_id')
+                    ->where('id', '<', $oldestLoadedId)
+                    ->exists();
+            }
         } elseif ($activeDmUser) {
             $currentId = $currentUser->id;
             $dmId = $activeDmUser->id;
-            $messages = ChatMessage::with('sender.role')
+            $rawMessages = ChatMessage::with('sender.role')
                 ->where(function ($q) use ($currentId, $dmId) {
                     $q->where('sender_id', $currentId)->where('receiver_id', $dmId);
                 })
                 ->orWhere(function ($q) use ($currentId, $dmId) {
                     $q->where('sender_id', $dmId)->where('receiver_id', $currentId);
                 })
-                ->orderBy('created_at', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->take($initialLimit)
                 ->get();
+            $messages = $rawMessages->reverse()->values();
+
+            if ($messages->isNotEmpty()) {
+                $oldestLoadedId = $messages->first()->id;
+                $hasOlderMessages = ChatMessage::where(function ($q) use ($currentId, $dmId) {
+                    $q->where('sender_id', $currentId)->where('receiver_id', $dmId);
+                })->orWhere(function ($q) use ($currentId, $dmId) {
+                    $q->where('sender_id', $dmId)->where('receiver_id', $currentId);
+                })->where('id', '<', $oldestLoadedId)->exists();
+            }
         }
 
         // 4. Fetch all workspace users for Direct Messages and Mentions
@@ -137,6 +161,7 @@ class NetChatController extends Controller
             'activeChannel',
             'activeDmUser',
             'messages',
+            'hasOlderMessages',
             'workspaceUsers',
             'favoriteUser',
             'favoriteChannel',
@@ -144,6 +169,74 @@ class NetChatController extends Controller
             'creator',
             'channelMembers'
         ));
+    }
+
+    /**
+     * Lazy load older chat messages for infinite scrolling history
+     */
+    public function loadOlderMessages(Request $request)
+    {
+        $currentUser = $this->getCurrentUser();
+        $beforeId    = (int) $request->query('before_id');
+        $channelId   = $request->query('channel_id');
+        $dmUserId    = $request->query('dm_user_id');
+        $limit       = (int) $request->query('limit', 25);
+
+        if (!$beforeId) {
+            return response()->json(['messages' => [], 'has_more' => false]);
+        }
+
+        $query = ChatMessage::with('sender.role')->where('id', '<', $beforeId);
+
+        if ($channelId) {
+            $query->where('channel_id', $channelId)->whereNull('parent_id');
+        } elseif ($dmUserId) {
+            $currentId = $currentUser->id;
+            $query->where(function ($q) use ($currentId, $dmUserId) {
+                $q->where('sender_id', $currentId)->where('receiver_id', $dmUserId);
+            })->orWhere(function ($q) use ($currentId, $dmUserId) {
+                $q->where('sender_id', $dmUserId)->where('receiver_id', $currentId);
+            });
+        } else {
+            return response()->json(['messages' => [], 'has_more' => false]);
+        }
+
+        $rawOlder = $query->orderBy('created_at', 'desc')->take($limit)->get();
+        $olderMessages = $rawOlder->reverse()->values();
+
+        $oldestId = $olderMessages->first()?->id;
+        $hasMore = false;
+        if ($oldestId) {
+            $hasMore = ChatMessage::where('id', '<', $oldestId)
+                ->when($channelId, fn($q) => $q->where('channel_id', $channelId)->whereNull('parent_id'))
+                ->when($dmUserId, function($q) use ($currentUser, $dmUserId) {
+                    $currentId = $currentUser->id;
+                    $q->where(function ($sub) use ($currentId, $dmUserId) {
+                        $sub->where('sender_id', $currentId)->where('receiver_id', $dmUserId);
+                    })->orWhere(function ($sub) use ($currentId, $dmUserId) {
+                        $sub->where('sender_id', $dmUserId)->where('receiver_id', $currentId);
+                    });
+                })
+                ->exists();
+        }
+
+        $rendered = [];
+        foreach ($olderMessages as $msg) {
+            $rendered[] = [
+                'id'   => $msg->id,
+                'html' => view('messages.partials.single_message', [
+                    'msg'         => $msg,
+                    'currentUser' => $currentUser,
+                ])->render(),
+            ];
+        }
+
+        return response()->json([
+            'success'   => true,
+            'messages'  => $rendered,
+            'has_more'  => $hasMore,
+            'oldest_id' => $oldestId,
+        ]);
     }
 
     /**
@@ -170,8 +263,12 @@ class NetChatController extends Controller
         $attachments = null;
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
+            $uploadDir = public_path('uploads/chat_attachments');
+            if (!file_exists($uploadDir)) {
+                @mkdir($uploadDir, 0777, true);
+            }
             $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/chat_attachments'), $filename);
+            $file->move($uploadDir, $filename);
             $attachments = [[
                 'name' => $file->getClientOriginalName(),
                 'url'  => asset('uploads/chat_attachments/' . $filename),
@@ -197,7 +294,7 @@ class NetChatController extends Controller
             $url = $urlMatch[0];
             if (Str::contains($url, 'figma.com')) {
                 $linkPreview = [
-                    'title'       => 'Conceptzilla website v3.0',
+                    'title'       => 'Design System & UI Preview',
                     'subtitle'    => 'www.figma.com',
                     'url'         => $url,
                     'icon'        => 'figma',
@@ -257,8 +354,12 @@ class NetChatController extends Controller
         ]);
 
         $audioFile = $request->file('audio');
+        $uploadDir = public_path('uploads/chat_voice');
+        if (!file_exists($uploadDir)) {
+            @mkdir($uploadDir, 0777, true);
+        }
         $filename = 'voice_' . time() . '_' . uniqid() . '.webm';
-        $audioFile->move(public_path('uploads/chat_voice'), $filename);
+        $audioFile->move($uploadDir, $filename);
 
         $chatMsg = ChatMessage::create([
             'channel_id'  => $request->channel_id,

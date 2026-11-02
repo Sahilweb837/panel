@@ -615,20 +615,23 @@
             </div>
             
             <div class="offcanvas-body d-flex flex-column p-0 overflow-y-auto">
-                <div class="d-none d-lg-flex p-4 mb-2 align-items-center justify-content-start">
+                <div class="d-none d-lg-flex p-3 px-4 mb-2 align-items-center justify-content-between border-bottom" style="border-color: #f1f5f9 !important;">
                     <a href="{{ url('/') }}" class="text-decoration-none d-flex align-items-center gap-2">
-                        <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #ff5733, #e0441d); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(255,87,51,0.35);">
-                            N
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(37,99,235,0.35);">
+                            <i class="fas fa-graduation-cap"></i>
                         </div>
                         <div>
-                            <div class="text-white lh-1" style="font-size: 1.25rem; letter-spacing: -0.5px; font-weight: 800;">
-                                netcoder<span style="color: #ff5733;">&bull;</span>
+                            <div class="lh-1" style="font-size: 1.2rem; letter-spacing: -0.5px; font-weight: 800; color: #0f172a;">
+                                Netcoder<span style="color: #2563eb;">.</span>
                             </div>
-                            <div style="font-size: 0.6rem; color: #8e8e98; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; margin-top: 2px;">
-                                TECHNOLOGY
+                            <div style="font-size: 0.58rem; color: #64748b; letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; margin-top: 2px;">
+                                LMS &amp; ERP
                             </div>
                         </div>
                     </a>
+                    <button type="button" id="sidebarCollapseBtn" class="btn btn-sm btn-light border p-1 rounded-2 text-slate-500" title="Collapse Sidebar" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-color: #e2e8f0 !important; color: #64748b;">
+                        <i class="fas fa-chevron-left" style="font-size: 0.75rem;"></i>
+                    </button>
                 </div>
 
         <nav class="nav-menu accordion" id="sidebarAccordion">
@@ -996,49 +999,76 @@
                 </div>
             @endif
             <header class="d-flex justify-content-between align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
-                <div class="d-flex align-items-center gap-3">
-                    <!-- Logo in desktop header for quick brand visibility -->
-                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('institute_name', 'Netcoder') }} Logo" class="d-none d-lg-block" style="height: 38px; max-width: 140px; object-fit: contain;">
-                    <div class="vr d-none d-lg-block" style="height: 30px; opacity: 0.15; width: 1px; background-color: var(--border);"></div>
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+                    <a href="javascript:history.back()" class="btn btn-sm btn-light border rounded-circle text-slate-500 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-color: #e2e8f0 !important;" title="Go Back">
+                        <i class="fas fa-chevron-left" style="font-size: 0.75rem; color: #64748b;"></i>
+                    </a>
                     <div>
-                        <h4 class="mb-1 fw-bold">@yield('page-title', 'Management')</h4>
-                        @if(session('user_role_slug') === 'student')
-                            <p class="text-muted small mb-0 d-none d-md-block">Welcome back! Access your courses, track fee status, and view attendance.</p>
-                        @elseif(session('user_role_slug') === 'staff')
-                            <p class="text-muted small mb-0 d-none d-md-block">Welcome back! Manage your classes, view tasks, and log daily updates.</p>
-                        @else
-                            <p class="text-muted small mb-0 d-none d-md-block">Manage courses, students, fees, attendance, salaries and expenses.</p>
-                        @endif
+                        <h4 class="mb-0 fw-bold" style="color: #0f172a; font-size: 1.15rem;">@yield('page-title', 'Management')</h4>
+                        <div class="d-none d-md-block text-slate-500 small" style="font-size: 0.75rem; color: #64748b;">Netcoder Institute &amp; LMS ERP</div>
                     </div>
                 </div>
             
-            <div class="d-flex align-items-center gap-3">
-                @php
-                    $navUnreadCount = 0;
-                    if (session('user_id')) {
-                        $navUnreadCount = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->where('is_read', false)->count();
-                    }
-                @endphp
-                <a href="{{ route('messages.full') }}" class="btn position-relative" title="Message & Notice Center" style="background: var(--surface-soft, #f8f9fa); border: 1px solid var(--border, #e9ecef); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-color, #333);">
-                    <i class="fas fa-envelope"></i>
-                    @if($navUnreadCount > 0)
-                        <span id="topbarUnreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
-                            {{ $navUnreadCount }}
-                        </span>
-                    @else
-                        <span id="topbarUnreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; display:none;">
-                        </span>
-                    @endif
-                </a>
-                <div class="search-bar position-relative d-none d-lg-block">
-                    <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
-                    <input type="text" class="form-control rounded-pill ps-5" placeholder="Search dashboard..." style="width: 260px; background-color: var(--surface-soft, #f8f9fa); border-color: var(--border, #e9ecef); color: var(--text-color, #333);">
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+                    @php
+                        $navUnreadCount = 0;
+                        if (session('user_id')) {
+                            $navUnreadCount = \App\Models\Message::forUser(session('user_id'), session('user_role_slug'))->where('is_read', false)->count();
+                        }
+                    @endphp
+                    <div class="position-relative d-none d-lg-flex align-items-center">
+                        <i class="fas fa-search position-absolute text-muted" style="left: 14px; font-size: 0.85rem; color: #94a3b8 !important;"></i>
+                        <input type="text" id="topNavSearchInput" class="form-control rounded-pill ps-5 pe-5 py-2 text-sm" placeholder="Search dashboard..." style="width: 240px; background-color: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.82rem; color: #1e293b;">
+                        <span class="position-absolute end-0 me-2 badge bg-white border text-secondary" style="font-size: 0.65rem; border-color: #cbd5e1 !important; color: #64748b !important;">⌘ K</span>
+                    </div>
+
+                    <button type="button" class="btn btn-light border rounded-circle text-slate-600 d-none d-sm-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-color: #e2e8f0 !important; color: #64748b;" title="Scan QR">
+                        <i class="fas fa-qrcode" style="font-size: 0.85rem;"></i>
+                    </button>
+                    <button type="button" class="btn btn-light border rounded-circle text-slate-600 d-none d-sm-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-color: #e2e8f0 !important; color: #2563eb;" title="AI Assistant">
+                        <i class="fas fa-wand-magic-sparkles" style="font-size: 0.85rem;"></i>
+                    </button>
+                    <button type="button" class="btn btn-light border rounded-circle text-slate-600 d-none d-md-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-color: #e2e8f0 !important; color: #64748b;" title="Apps">
+                        <i class="fas fa-th" style="font-size: 0.85rem;"></i>
+                    </button>
+                    <button type="button" class="btn btn-light border rounded-circle text-slate-600 d-none d-md-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-color: #e2e8f0 !important; color: #64748b;" title="Help & Support">
+                        <i class="fas fa-question-circle" style="font-size: 0.85rem;"></i>
+                    </button>
+
+                    <a href="{{ route('messages.full') }}" class="btn btn-light border position-relative rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-color: #e2e8f0 !important; color: #64748b;" title="Notifications & Messages">
+                        <i class="fas fa-bell" style="font-size: 0.85rem;"></i>
+                        @if($navUnreadCount > 0)
+                            <span id="topbarUnreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                                {{ $navUnreadCount }}
+                            </span>
+                        @else
+                            <span id="topbarUnreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; display:none;">
+                            </span>
+                        @endif
+                    </a>
+
+                    <div class="d-flex align-items-center gap-2 ps-2 border-start" style="border-color: #e2e8f0 !important;">
+                        <div class="position-relative">
+                            @if($currentUser && $currentUser->profile_pic)
+                                <img src="{{ asset('uploads/profiles/' . $currentUser->profile_pic) }}" alt="Profile" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;" loading="lazy">
+                            @else
+                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width:36px;height:36px;background:linear-gradient(135deg, #2563eb, #1d4ed8);font-size:0.9rem;">
+                                    {{ strtoupper(substr(session('user_name', 'A'), 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style="width: 10px; height: 10px;"></span>
+                        </div>
+                        <div class="d-none d-xl-block text-start">
+                            <div class="fw-bold lh-1" style="font-size: 0.85rem; color: #0f172a;">{{ session('user_name', 'Admin') }}</div>
+                            <small style="font-size: 0.7rem; color: #64748b;">{{ session('user_role', 'Administrator') }}</small>
+                        </div>
+                    </div>
+
+                    <button type="button" class="theme-toggle d-none d-md-flex ms-1" data-theme-toggle title="Toggle Dark/Light Mode">
+                        <span class="theme-icon-wrapper"><i class="fas fa-moon"></i></span>
+                    </button>
                 </div>
-                <button type="button" class="theme-toggle d-none d-md-flex" data-theme-toggle title="Toggle Dark/Light Mode">
-                    <span class="theme-icon-wrapper"><i class="fas fa-moon"></i></span>
-                </button>
-            </div>
-        </header>
+            </header>
 
         <section class="page-body">
             @if(session('success'))
@@ -1047,7 +1077,7 @@
                     <div>{{ session('success') }}</div>
                 </div>
             @endif
-            @if($errors->any())
+            @if(isset($errors) && $errors->any())
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle"></i>
                     <ul>

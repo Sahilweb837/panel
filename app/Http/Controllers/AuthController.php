@@ -85,6 +85,14 @@ class AuthController extends Controller
         }
 
         if (! $user) {
+            \App\Models\AdminActivityLog::record(
+                "Failed Login: Unknown User '{$loginId}'",
+                null,
+                $loginId ?: 'Unknown',
+                'guest',
+                ['account_type' => $request->account_type, 'reason' => 'User not found', 'ip' => $request->ip(), 'agent' => $request->userAgent()],
+                401
+            );
             Session::flash('login_error', 'No management account found with these credentials.');
             $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
 
@@ -94,6 +102,14 @@ class AuthController extends Controller
         // Strictly disallow student accounts from logging into the management panel
         $roleSlug = strtolower($user->role?->slug ?? '');
         if ($roleSlug === 'student' || $user->student) {
+            \App\Models\AdminActivityLog::record(
+                "Rejected Login: Student Account '{$user->email}'",
+                $user->id,
+                $user->name,
+                'student',
+                ['account_type' => $request->account_type, 'reason' => 'Student accounts must use LMS portal', 'ip' => $request->ip()],
+                403
+            );
             Session::flash('login_error', 'Access Denied: Student accounts cannot access the management panel. Please log into the Student LMS Portal.');
 
             return back()->withErrors(['email' => 'Access Denied: Student accounts cannot access this panel. Use the Student LMS Portal.']);
@@ -103,6 +119,14 @@ class AuthController extends Controller
         $passwordMatches = Hash::check($request->password, $user->password);
 
         if (! $passwordMatches) {
+            \App\Models\AdminActivityLog::record(
+                "Failed Login: Wrong Password for '{$user->email}'",
+                $user->id,
+                $user->name,
+                $roleSlug,
+                ['account_type' => $request->account_type, 'reason' => 'Incorrect password', 'ip' => $request->ip(), 'agent' => $request->userAgent()],
+                401
+            );
             Session::flash('login_error', 'Incorrect password. Please try again.');
             $inputKey = $request->filled('login_id') ? 'login_id' : 'email';
 
@@ -160,6 +184,16 @@ class AuthController extends Controller
         Session::put('user_name', $displayName);
         Session::put('user_role', $user->role?->role_name ?? ucfirst($roleSlug ?? 'User'));
         Session::put('user_role_slug', strtolower($roleSlug ?? 'user'));
+
+        // Log successful login
+        \App\Models\AdminActivityLog::record(
+            "Successful Login ({$roleSlug})",
+            $user->id,
+            $displayName,
+            $roleSlug,
+            ['email' => $user->email, 'ip' => request()->ip(), 'agent' => request()->userAgent()],
+            200
+        );
     }
 
     public function redirectByRole($roleSlug)
@@ -176,6 +210,17 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        if (session('user_id')) {
+            \App\Models\AdminActivityLog::record(
+                "User Logged Out",
+                session('user_id'),
+                session('user_name'),
+                session('user_role_slug'),
+                ['ip' => $request->ip()],
+                200
+            );
+        }
+
         Session::flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

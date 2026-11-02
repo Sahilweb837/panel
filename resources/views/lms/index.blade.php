@@ -6,20 +6,22 @@
 @section('content')
 <style>
     :root {
-        --nc-bg-dark: #0f0f12;
-        --nc-card-dark: #18181c;
-        --nc-card-hover: #1f1f26;
-        --nc-border-dark: rgba(255, 255, 255, 0.08);
-        --nc-coral: #ff5733;
-        --nc-coral-gradient: linear-gradient(135deg, #ff5733, #e0441d);
-        --nc-coral-glow: rgba(255, 87, 51, 0.28);
-        --nc-text-muted: #8e8e9c;
+        --edaca-bg: #f8fafc;
+        --edaca-card: #ffffff;
+        --edaca-border: #e2e8f0;
+        --edaca-text-main: #0f172a;
+        --edaca-text-muted: #64748b;
+        --edaca-primary: #2563eb;
+        --edaca-primary-hover: #1d4ed8;
+        --nc-coral: #2563eb;
+        --nc-coral-gradient: linear-gradient(135deg, #2563eb, #1d4ed8);
+        --nc-coral-glow: rgba(37, 99, 235, 0.25);
     }
 
     body {
-        background-color: var(--nc-bg-dark) !important;
-        color: #f3f3f8 !important;
-        font-family: 'Inter', -apple-system, sans-serif;
+        background-color: var(--edaca-bg) !important;
+        color: var(--edaca-text-main) !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
 
     .lms-suite-container {
@@ -29,15 +31,16 @@
     }
 
     .lms-panel-card {
-        background: var(--nc-card-dark);
-        border: 1px solid var(--nc-border-dark);
-        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid var(--edaca-border);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         transition: all 0.25s ease;
     }
 
     .lms-panel-card:hover {
-        border-color: rgba(255, 87, 51, 0.28);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        border-color: #cbd5e1;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
     }
 
     .btn-coral {
@@ -59,14 +62,14 @@
 
     .btn-coral:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(255, 87, 51, 0.45);
-        background: linear-gradient(135deg, #ff6b48, #ff5733);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
     }
 
     .badge-coral {
-        background: rgba(255, 87, 51, 0.12);
-        color: var(--nc-coral);
-        border: 1px solid rgba(255, 87, 51, 0.25);
+        background: rgba(37, 99, 235, 0.1);
+        color: #2563eb;
+        border: 1px solid rgba(37, 99, 235, 0.25);
         font-size: 0.75rem;
         font-weight: 700;
         border-radius: 8px;
@@ -75,12 +78,12 @@
 
     /* Tab Navigation Styles */
     .nav-tabs-dark {
-        border-bottom: 1px solid var(--nc-border-dark);
+        border-bottom: 2px solid var(--edaca-border);
         gap: 8px;
     }
 
     .nav-tabs-dark .nav-link {
-        color: var(--nc-text-muted);
+        color: var(--edaca-text-muted);
         border: 1px solid transparent;
         border-radius: 10px 10px 0 0;
         padding: 12px 20px;
@@ -90,16 +93,16 @@
     }
 
     .nav-tabs-dark .nav-link:hover {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.04);
-        border-color: var(--nc-border-dark) var(--nc-border-dark) transparent;
+        color: #0f172a;
+        background: #f1f5f9;
+        border-color: var(--edaca-border) var(--edaca-border) transparent;
     }
 
     .nav-tabs-dark .nav-link.active {
-        color: #fff !important;
-        background: var(--nc-card-dark) !important;
-        border-color: var(--nc-coral) var(--nc-border-dark) transparent !important;
-        border-top: 3px solid var(--nc-coral) !important;
+        color: #2563eb !important;
+        background: #ffffff !important;
+        border-color: var(--edaca-border) var(--edaca-border) transparent !important;
+        border-top: 3px solid #2563eb !important;
     }
 
     .lms-custom-table {
@@ -109,7 +112,7 @@
     }
 
     .lms-custom-table thead th {
-        color: var(--nc-text-muted);
+        color: var(--edaca-text-muted);
         font-size: 0.78rem;
         font-weight: 700;
         text-transform: uppercase;
@@ -119,14 +122,15 @@
     }
 
     .lms-custom-table tbody tr {
-        background: #18181c;
-        border: 1px solid var(--nc-border-dark);
+        background: #ffffff;
+        border: 1px solid var(--edaca-border);
         border-radius: 12px;
         transition: transform 0.2s, background 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
     .lms-custom-table tbody tr:hover {
-        background: #202028;
+        background: #f8fafc;
         transform: translateY(-1px);
     }
 
@@ -134,6 +138,7 @@
         padding: 15px 16px;
         border: none;
         vertical-align: middle;
+        color: #334155;
     }
 
     .lms-custom-table td:first-child {
@@ -147,29 +152,30 @@
     }
 
     .modal-dark .modal-content {
-        background: #18181c;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: #f1f1f5;
+        background: #ffffff;
+        border: 1px solid var(--edaca-border);
+        color: #0f172a;
         border-radius: 18px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
 
     .modal-dark .form-control, .modal-dark .form-select {
-        background: #121215;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: #fff;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #0f172a;
         border-radius: 10px;
         padding: 10px 14px;
     }
 
     .modal-dark .form-control:focus, .modal-dark .form-select:focus {
-        border-color: var(--nc-coral);
-        box-shadow: 0 0 0 2px var(--nc-coral-glow);
-        background: #15151a;
-        color: #fff;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        background: #ffffff;
+        color: #0f172a;
     }
 
     .skeleton-mode .skeleton-elem {
-        background: linear-gradient(90deg, #18181c 25%, #25252c 50%, #18181c 75%) !important;
+        background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%) !important;
         background-size: 200% 100% !important;
         animation: lmsShimmer 1.5s infinite !important;
         color: transparent !important;
@@ -198,7 +204,7 @@
                 </span>
                 <span style="color: var(--nc-text-muted); font-size: 0.82rem;">Admin &amp; Mentor Management Console</span>
             </div>
-            <h1 class="h2 fw-bold text-white mb-1">Academy LMS &amp; Course Publishing Hub</h1>
+            <h1 class="h2 fw-bold text-slate-900 mb-1">Academy LMS &amp; Course Publishing Hub</h1>
             <p style="color: var(--nc-text-muted); font-size: 0.92rem;" class="mb-0">
                 Manage Courses, Batches/Cohorts, Live Masterclasses, Track Student Performance, and Auto-Register Invoices.
             </p>
@@ -230,7 +236,7 @@
                     <span style="color: var(--nc-text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">Enrolled Students</span>
                     <i class="fas fa-user-graduate" style="color: var(--nc-coral);"></i>
                 </div>
-                <div class="h2 fw-bold text-white mb-1">{{ number_format($totalEnrolled) }}</div>
+                <div class="h2 fw-bold text-slate-900 mb-1">{{ number_format($totalEnrolled) }}</div>
                 <div style="color: #10b981; font-size: 0.78rem;"><i class="fas fa-check me-1"></i> {{ $activePortalUsers }} Portal Active</div>
             </div>
         </div>
@@ -241,7 +247,7 @@
                     <span style="color: var(--nc-text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">Active Cohorts</span>
                     <i class="fas fa-users-class text-info" style="color: #38bdf8;"></i>
                 </div>
-                <div class="h2 fw-bold text-white mb-1">{{ number_format($totalCohorts) }}</div>
+                <div class="h2 fw-bold text-slate-900 mb-1">{{ number_format($totalCohorts) }}</div>
                 <div style="color: #38bdf8; font-size: 0.78rem;">Live Batches Running</div>
             </div>
         </div>
@@ -252,7 +258,7 @@
                     <span style="color: var(--nc-text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">Live Masterclasses</span>
                     <i class="fas fa-video text-warning" style="color: #f59e0b;"></i>
                 </div>
-                <div class="h2 fw-bold text-white mb-1">{{ number_format($totalMasterclasses) }}</div>
+                <div class="h2 fw-bold text-slate-900 mb-1">{{ number_format($totalMasterclasses) }}</div>
                 <div style="color: #f59e0b; font-size: 0.78rem;">Scheduled Interactive Labs</div>
             </div>
         </div>
@@ -263,7 +269,7 @@
                     <span style="color: var(--nc-text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">LMS Fees Collected</span>
                     <i class="fas fa-file-invoice-dollar text-success" style="color: #10b981;"></i>
                 </div>
-                <div class="h2 fw-bold text-white mb-1">₹{{ number_format($totalLmsRevenue) }}</div>
+                <div class="h2 fw-bold text-slate-900 mb-1">₹{{ number_format($totalLmsRevenue) }}</div>
                 <div style="color: #ef4444; font-size: 0.78rem;">Pending: ₹{{ number_format($pendingLmsFees) }}</div>
             </div>
         </div>
@@ -306,11 +312,11 @@
             <div class="lms-panel-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <div>
-                        <h4 class="fw-bold text-white mb-0">Enrolled Students &amp; Automated Fee Ledger</h4>
+                        <h4 class="fw-bold text-slate-900 mb-0">Enrolled Students &amp; Automated Fee Ledger</h4>
                         <small style="color: var(--nc-text-muted);">View all enrolled learners, auto-issued receipts, and portal states</small>
                     </div>
                     <form method="GET" action="{{ route('lms.index') }}" class="d-flex gap-2">
-                        <input type="text" name="search" class="form-control form-control-sm bg-dark border-secondary text-white" placeholder="Search student or ID..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control form-control-sm bg-white border-slate-200 text-slate-900" placeholder="Search student or ID..." value="{{ request('search') }}">
                         <button type="submit" class="btn btn-sm btn-outline-light"><i class="fas fa-search"></i></button>
                     </form>
                 </div>
@@ -349,7 +355,7 @@
                                                 {{ strtoupper(substr($st->first_name, 0, 1)) }}
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-white">{{ $st->first_name }} {{ $st->last_name }}</div>
+                                                <div class="fw-bold text-slate-900">{{ $st->first_name }} {{ $st->last_name }}</div>
                                                 <small style="color: var(--nc-text-muted);">{{ $st->email }}</small>
                                             </div>
                                         </div>
@@ -364,7 +370,7 @@
                                         <span class="badge {{ $badgeClass }} px-2 py-1">{{ $status }}</span>
                                     </td>
                                     <td>
-                                        <div class="text-white fw-bold">₹{{ number_format($tot) }}</div>
+                                        <div class="text-slate-900 fw-bold">₹{{ number_format($tot) }}</div>
                                         @if($due > 0)
                                             <small class="text-danger">Due: ₹{{ number_format($due) }}</small>
                                         @else
@@ -418,7 +424,7 @@
             <div class="lms-panel-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <div>
-                        <h4 class="fw-bold text-white mb-0">Cohorts &amp; Batches Management</h4>
+                        <h4 class="fw-bold text-slate-900 mb-0">Cohorts &amp; Batches Management</h4>
                         <small style="color: var(--nc-text-muted);">Group students into cohorts, allocate mentors, and control enrollment status</small>
                     </div>
                     <button type="button" class="btn-coral" data-bs-toggle="modal" data-bs-target="#createCohortModal">
@@ -437,7 +443,7 @@
                                     </span>
                                     <span style="color: var(--nc-text-muted); font-size: 0.75rem;">Cap: {{ $cohort->capacity }} Students</span>
                                 </div>
-                                <h5 class="fw-bold text-white mb-1">{{ $cohort->name }}</h5>
+                                <h5 class="fw-bold text-slate-900 mb-1">{{ $cohort->name }}</h5>
                                 <div class="badge-coral mb-3 d-inline-block">{{ $cohort->course?->name ?? 'Course' }}</div>
                                 
                                 <div class="small text-secondary mb-2">
@@ -447,7 +453,7 @@
                                 </div>
 
                                 <div class="mt-auto pt-3 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                                    <span class="small text-muted">Status: <strong class="text-white">{{ ucfirst($cohort->status) }}</strong></span>
+                                    <span class="small text-muted">Status: <strong class="text-slate-900">{{ ucfirst($cohort->status) }}</strong></span>
                                     <form action="{{ route('lms.cohorts.publish', $cohort->id) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="btn btn-sm {{ $cohort->is_published ? 'btn-outline-warning' : 'btn-outline-success' }} py-1 px-3">
@@ -472,7 +478,7 @@
             <div class="lms-panel-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <div>
-                        <h4 class="fw-bold text-white mb-0">Live Masterclasses &amp; Webinar Schedule</h4>
+                        <h4 class="fw-bold text-slate-900 mb-0">Live Masterclasses &amp; Webinar Schedule</h4>
                         <small style="color: var(--nc-text-muted);">Publish interactive live masterclasses with mentors, Google Meet / Zoom links, and recordings</small>
                     </div>
                     <button type="button" class="btn-coral" data-bs-toggle="modal" data-bs-target="#scheduleMasterclassModal">
@@ -498,7 +504,7 @@
                             @forelse($masterclasses as $mc)
                                 <tr>
                                     <td>
-                                        <div class="fw-bold text-white">{{ $mc->title }}</div>
+                                        <div class="fw-bold text-slate-900">{{ $mc->title }}</div>
                                         <small style="color: var(--nc-text-muted);">{{ Str::limit($mc->description, 60) }}</small>
                                     </td>
                                     <td>
@@ -511,7 +517,7 @@
                                         <span class="badge-coral">{{ $mc->course?->name ?? 'General Industry' }}</span>
                                     </td>
                                     <td>
-                                        <div class="text-white">{{ $mc->scheduled_at ? $mc->scheduled_at->format('M d, Y') : 'TBA' }}</div>
+                                        <div class="text-slate-900">{{ $mc->scheduled_at ? $mc->scheduled_at->format('M d, Y') : 'TBA' }}</div>
                                         <small style="color: var(--nc-text-muted);">{{ $mc->scheduled_at ? $mc->scheduled_at->format('h:i A') : '' }} ({{ $mc->duration_minutes }}m)</small>
                                     </td>
                                     <td>
@@ -555,7 +561,7 @@
             <div class="lms-panel-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <div>
-                        <h4 class="fw-bold text-white mb-0">Track Student Performance &amp; Course Progress</h4>
+                        <h4 class="fw-bold text-slate-900 mb-0">Track Student Performance &amp; Course Progress</h4>
                         <small style="color: var(--nc-text-muted);">Monitor completion velocity, syllabus progress percentage, grades, and certificate issuance</small>
                     </div>
                 </div>
@@ -577,7 +583,7 @@
                             @forelse($progressRecords as $prog)
                                 <tr>
                                     <td>
-                                        <div class="fw-bold text-white">{{ $prog->student?->first_name }} {{ $prog->student?->last_name }}</div>
+                                        <div class="fw-bold text-slate-900">{{ $prog->student?->first_name }} {{ $prog->student?->last_name }}</div>
                                         <small style="color: var(--nc-text-muted);">ID: {{ $prog->student?->admission_no }}</small>
                                     </td>
                                     <td>
@@ -593,7 +599,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="text-white fw-bold">{{ $prog->completed_lessons }}</span>
+                                        <span class="text-slate-900 fw-bold">{{ $prog->completed_lessons }}</span>
                                         <span style="color: var(--nc-text-muted);">/ {{ $prog->total_lessons }} Lessons</span>
                                     </td>
                                     <td>
@@ -622,20 +628,20 @@
                                             <form action="{{ route('lms.progress.update', $prog->id) }}" method="POST">
                                                 @csrf
                                                 <div class="modal-header border-secondary">
-                                                    <h5 class="modal-title fw-bold text-white">Update Progress: {{ $prog->student?->first_name }}</h5>
+                                                    <h5 class="modal-title fw-bold text-slate-900">Update Progress: {{ $prog->student?->first_name }}</h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body p-4">
                                                     <div class="mb-3">
-                                                        <label class="form-label text-white small fw-bold">Completed Lessons</label>
+                                                        <label class="form-label text-slate-900 small fw-bold">Completed Lessons</label>
                                                         <input type="number" name="completed_lessons" class="form-control" value="{{ $prog->completed_lessons }}" min="0" max="{{ $prog->total_lessons }}">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label text-white small fw-bold">Total Lessons in Syllabus</label>
+                                                        <label class="form-label text-slate-900 small fw-bold">Total Lessons in Syllabus</label>
                                                         <input type="number" name="total_lessons" class="form-control" value="{{ $prog->total_lessons }}" min="1">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label text-white small fw-bold">Grade Awarded</label>
+                                                        <label class="form-label text-slate-900 small fw-bold">Grade Awarded</label>
                                                         <select name="grade" class="form-select">
                                                             <option value="A+" {{ $prog->grade === 'A+' ? 'selected' : '' }}>A+ (Outstanding)</option>
                                                             <option value="A" {{ $prog->grade === 'A' ? 'selected' : '' }}>A (Excellent)</option>
@@ -645,7 +651,7 @@
                                                     </div>
                                                     <div class="form-check mt-3">
                                                         <input class="form-check-input" type="checkbox" name="is_certified" value="1" id="certCheck{{ $prog->id }}" {{ $prog->is_certified ? 'checked' : '' }}>
-                                                        <label class="form-check-label text-white" for="certCheck{{ $prog->id }}">
+                                                        <label class="form-check-label text-slate-900" for="certCheck{{ $prog->id }}">
                                                             Award Official LMS Completion Certificate
                                                         </label>
                                                     </div>
@@ -676,7 +682,7 @@
             <div class="lms-panel-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <div>
-                        <h4 class="fw-bold text-white mb-0">Master Courses Catalog &amp; Publishing</h4>
+                        <h4 class="fw-bold text-slate-900 mb-0">Master Courses Catalog &amp; Publishing</h4>
                         <small style="color: var(--nc-text-muted);">Admin &amp; Mentors can publish, unpublish, and manage fee structures across all programs</small>
                     </div>
                     <a href="{{ route('courses.create') }}" class="btn-coral">
@@ -693,9 +699,9 @@
                                     <span class="badge {{ $c->status ? 'bg-success' : 'bg-secondary' }} px-2.5 py-1 rounded-pill">
                                         {{ $c->status ? 'Published' : 'Draft' }}
                                     </span>
-                                    <span class="text-white fw-bold">₹{{ number_format($c->fee) }}</span>
+                                    <span class="text-slate-900 fw-bold">₹{{ number_format($c->fee) }}</span>
                                 </div>
-                                <h5 class="fw-bold text-white mb-1">{{ $c->name }}</h5>
+                                <h5 class="fw-bold text-slate-900 mb-1">{{ $c->name }}</h5>
                                 <div class="font-monospace text-secondary small mb-3">Code: {{ $c->code }} | Duration: {{ $c->duration }}</div>
                                 <div class="small text-muted mb-3">
                                     <i class="fas fa-user-graduate me-1 text-coral"></i> Active Students: <strong>{{ $c->students_count }}</strong>
@@ -734,7 +740,7 @@
                 <div class="modal-header border-secondary">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge-coral"><i class="fas fa-bolt"></i> One-Click</span>
-                        <h5 class="modal-title fw-bold text-white mb-0">Enroll in LMS &amp; Auto-Generate Fee</h5>
+                        <h5 class="modal-title fw-bold text-slate-900 mb-0">Enroll in LMS &amp; Auto-Generate Fee</h5>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -744,13 +750,13 @@
                         <div class="d-flex gap-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="student_type" id="typeNew" value="new" checked onchange="toggleStudentType('new')">
-                                <label class="form-check-label text-white" for="typeNew">
+                                <label class="form-check-label text-slate-900" for="typeNew">
                                     Register New Student &amp; Account
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="student_type" id="typeExisting" value="existing" onchange="toggleStudentType('existing')">
-                                <label class="form-check-label text-white" for="typeExisting">
+                                <label class="form-check-label text-slate-900" for="typeExisting">
                                     Existing Student
                                 </label>
                             </div>
@@ -758,7 +764,7 @@
                     </div>
 
                     <div id="existingStudentSection" class="mb-3" style="display: none;">
-                        <label class="form-label text-white fw-semibold">Select Student</label>
+                        <label class="form-label text-slate-900 fw-semibold">Select Student</label>
                         <select name="student_id" class="form-select">
                             <option value="">-- Choose Existing Student --</option>
                             @foreach($students as $st)
@@ -770,19 +776,19 @@
                     <div id="newStudentSection">
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label text-white fw-semibold">First Name *</label>
+                                <label class="form-label text-slate-900 fw-semibold">First Name *</label>
                                 <input type="text" name="first_name" class="form-control" placeholder="e.g. Rahul">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-white fw-semibold">Last Name</label>
+                                <label class="form-label text-slate-900 fw-semibold">Last Name</label>
                                 <input type="text" name="last_name" class="form-control" placeholder="e.g. Sharma">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-white fw-semibold">Email Address *</label>
+                                <label class="form-label text-slate-900 fw-semibold">Email Address *</label>
                                 <input type="email" name="email" class="form-control" placeholder="rahul@example.com">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-white fw-semibold">Phone Number</label>
+                                <label class="form-label text-slate-900 fw-semibold">Phone Number</label>
                                 <input type="text" name="phone" class="form-control" placeholder="+91 9876543210">
                             </div>
                         </div>
@@ -794,7 +800,7 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label text-white fw-semibold">Target LMS Course *</label>
+                            <label class="form-label text-slate-900 fw-semibold">Target LMS Course *</label>
                             <select name="course_id" id="courseSelector" class="form-select" required onchange="updateCourseFee(this)">
                                 <option value="">-- Select Course --</option>
                                 @foreach($courses as $course)
@@ -805,15 +811,15 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-white fw-semibold">Total Course Fee (₹) *</label>
+                            <label class="form-label text-slate-900 fw-semibold">Total Course Fee (₹) *</label>
                             <input type="number" step="0.01" name="course_fee" id="courseFeeInput" class="form-control" required placeholder="0.00">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-white fw-semibold">Initial Payment (₹)</label>
+                            <label class="form-label text-slate-900 fw-semibold">Initial Payment (₹)</label>
                             <input type="number" step="0.01" name="paid_amount" class="form-control" placeholder="0.00 (leave 0 if due)">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-white fw-semibold">Payment Mode</label>
+                            <label class="form-label text-slate-900 fw-semibold">Payment Mode</label>
                             <select name="payment_method" class="form-select">
                                 <option value="Online LMS">Online LMS Portal</option>
                                 <option value="UPI / QR">UPI / QR Code</option>
@@ -842,16 +848,16 @@
             <form action="{{ route('lms.cohorts.store') }}" method="POST">
                 @csrf
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-layer-group text-coral me-2"></i> Create New Cohort</h5>
+                    <h5 class="modal-title fw-bold text-slate-900"><i class="fas fa-layer-group text-coral me-2"></i> Create New Cohort</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Cohort Name *</label>
+                        <label class="form-label text-slate-900 small fw-bold">Cohort Name *</label>
                         <input type="text" name="name" class="form-control" placeholder="e.g. MERN Full-Stack Batch #12" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Associated Course *</label>
+                        <label class="form-label text-slate-900 small fw-bold">Associated Course *</label>
                         <select name="course_id" class="form-select" required>
                             @foreach($courses as $c)
                                 <option value="{{ $c->id }}">{{ $c->name }}</option>
@@ -859,7 +865,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Assigned Mentor / Instructor</label>
+                        <label class="form-label text-slate-900 small fw-bold">Assigned Mentor / Instructor</label>
                         <select name="mentor_id" class="form-select">
                             <option value="">-- Choose Mentor --</option>
                             @foreach($mentors as $m)
@@ -869,16 +875,16 @@
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <label class="form-label text-white small fw-bold">Start Date</label>
+                            <label class="form-label text-slate-900 small fw-bold">Start Date</label>
                             <input type="date" name="start_date" class="form-control">
                         </div>
                         <div class="col-6">
-                            <label class="form-label text-white small fw-bold">Max Capacity</label>
+                            <label class="form-label text-slate-900 small fw-bold">Max Capacity</label>
                             <input type="number" name="capacity" class="form-control" value="30">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Schedule Track</label>
+                        <label class="form-label text-slate-900 small fw-bold">Schedule Track</label>
                         <input type="text" name="schedule" class="form-control" placeholder="e.g. Mon-Fri 10:00 AM - 1:00 PM">
                     </div>
                 </div>
@@ -898,16 +904,16 @@
             <form action="{{ route('lms.masterclasses.store') }}" method="POST">
                 @csrf
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-video text-warning me-2"></i> Schedule Live Masterclass</h5>
+                    <h5 class="modal-title fw-bold text-slate-900"><i class="fas fa-video text-warning me-2"></i> Schedule Live Masterclass</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Masterclass Title *</label>
+                        <label class="form-label text-slate-900 small fw-bold">Masterclass Title *</label>
                         <input type="text" name="title" class="form-control" placeholder="e.g. System Design & Cloud Deployment" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Course / Track (Optional)</label>
+                        <label class="form-label text-slate-900 small fw-bold">Course / Track (Optional)</label>
                         <select name="course_id" class="form-select">
                             <option value="">-- General / All Courses --</option>
                             @foreach($courses as $c)
@@ -916,7 +922,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Lead Mentor / Guest Speaker</label>
+                        <label class="form-label text-slate-900 small fw-bold">Lead Mentor / Guest Speaker</label>
                         <select name="instructor_id" class="form-select">
                             <option value="">-- Choose Instructor --</option>
                             @foreach($mentors as $m)
@@ -926,20 +932,20 @@
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-8">
-                            <label class="form-label text-white small fw-bold">Date &amp; Time *</label>
+                            <label class="form-label text-slate-900 small fw-bold">Date &amp; Time *</label>
                             <input type="datetime-local" name="scheduled_at" class="form-control" required>
                         </div>
                         <div class="col-4">
-                            <label class="form-label text-white small fw-bold">Duration (Min)</label>
+                            <label class="form-label text-slate-900 small fw-bold">Duration (Min)</label>
                             <input type="number" name="duration_minutes" class="form-control" value="60">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Meeting Room Link (Google Meet / Zoom)</label>
+                        <label class="form-label text-slate-900 small fw-bold">Meeting Room Link (Google Meet / Zoom)</label>
                         <input type="text" name="meeting_link" class="form-control" placeholder="https://meet.google.com/xyz-abc-def">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white small fw-bold">Description &amp; Highlights</label>
+                        <label class="form-label text-slate-900 small fw-bold">Description &amp; Highlights</label>
                         <textarea name="description" class="form-control" rows="2" placeholder="Brief outline of the live interactive session..."></textarea>
                     </div>
                 </div>
