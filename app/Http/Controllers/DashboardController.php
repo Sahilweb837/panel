@@ -75,6 +75,7 @@ class DashboardController extends Controller
 
         // Rich data for Edaca Course Bundles & LMS Hub
         $allCourses = \App\Models\Course::withCount('students')->latest()->get();
+        $courseBundles = class_exists(\App\Models\CourseBundle::class) ? \App\Models\CourseBundle::all() : collect();
         $cohorts = class_exists(\App\Models\Cohort::class) ? \App\Models\Cohort::with('course')->latest()->get() : collect();
         $masterclasses = class_exists(\App\Models\Masterclass::class) ? \App\Models\Masterclass::latest()->get() : collect();
 
@@ -93,7 +94,7 @@ class DashboardController extends Controller
             'dueInvoices', 'recentAttendances', 'recentInvoices', 'recentStudents',
             'recentStaff', 'totalIncome', 'totalExpense', 'totalPendingFees', 'biometricDevice',
             'workingHoursEmployeesCount', 'coursesCount', 'coursesPopularity', 'maxStudentsInCourse',
-            'allCourses', 'cohorts', 'masterclasses', 'loginLogs', 'staffAttendanceToday'
+            'allCourses', 'courseBundles', 'cohorts', 'masterclasses', 'loginLogs', 'staffAttendanceToday'
         ));
     }
 

@@ -413,13 +413,16 @@ class NetChatController extends Controller
         $rendered = [];
         foreach ($newMessages as $msg) {
             $rendered[] = [
-                'id'         => $msg->id,
-                'html'       => view('messages.partials.single_message', [
+                'id'            => $msg->id,
+                'html'          => view('messages.partials.single_message', [
                     'msg'         => $msg,
                     'currentUser' => $currentUser,
                 ])->render(),
-                'sender_id'  => $msg->sender_id,
-                'created_at' => $msg->created_at->toIso8601String(),
+                'sender_id'     => $msg->sender_id,
+                'sender_name'   => $msg->sender?->name ?? 'Team Member',
+                'preview'       => Str::limit($msg->message ?: ($msg->attachment_type ? ucfirst($msg->attachment_type) . ' attachment' : 'New message'), 60),
+                'sender_avatar' => $msg->sender?->profile_pic ? asset('uploads/profiles/' . $msg->sender->profile_pic) : asset('image.png'),
+                'created_at'    => $msg->created_at->toIso8601String(),
             ];
         }
 
@@ -580,7 +583,13 @@ class NetChatController extends Controller
             $remaining = HuddleParticipant::where('room_id', $roomId)->count();
             if ($remaining === 0) {
                 HuddleSession::where('room_id', $roomId)->update(['status' => 'ended', 'ended_at' => now()]);
+                // Delete temporary participants and WebRTC signals from SQL once huddle has concluded
+                HuddleParticipant::where('room_id', $roomId)->delete();
+                HuddleSignal::where('room_id', $roomId)->delete();
             }
+
+            // Cleanup any stale signals older than 1 hour across all rooms
+            HuddleSignal::where('created_at', '<', now()->subHour())->delete();
         }
 
         return response()->json(['success' => true]);

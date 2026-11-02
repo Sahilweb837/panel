@@ -58,6 +58,26 @@ class CourseBundleController extends Controller
     }
 
     /**
+     * Show a single course bundle (for modal edit or JSON API).
+     */
+    public function show($id)
+    {
+        $bundle = CourseBundle::findOrFail($id);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'bundle'  => $bundle,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'bundle'  => $bundle,
+        ]);
+    }
+
+    /**
      * Store a newly created course bundle.
      */
     public function store(Request $request)

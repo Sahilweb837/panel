@@ -715,10 +715,16 @@
                     <span>Dashboard</span>
                 </a>
                 
-                <a href="{{ route('lms.index') }}" class="nav-link{{ request()->routeIs('lms.*') ? ' active' : '' }}">
+                <a href="{{ route('lms.index') }}" class="nav-link{{ request()->routeIs('lms.index') ? ' active' : '' }}">
                     <i class="fas fa-graduation-cap"></i>
                     <span>LMS Hub & Auto-Fee</span>
                     <span class="badge ms-auto rounded-pill" style="background:#ff5733; color:#fff; font-size: 0.65rem; font-weight:700;">Live Sync</span>
+                </a>
+
+                <a href="{{ route('lms.course_bundles.index') }}" class="nav-link{{ request()->routeIs('lms.course_bundles.*') ? ' active' : '' }}">
+                    <i class="fas fa-cubes"></i>
+                    <span>Course Bundles</span>
+                    <span class="badge ms-auto rounded-pill" style="background:#2563eb; color:#fff; font-size: 0.65rem; font-weight:700;">Edaca</span>
                 </a>
 
                 <a href="{{ route('messages.full') }}" class="nav-link{{ request()->routeIs('messages.*') ? ' active' : '' }}">
@@ -837,6 +843,7 @@
                         <ul class="nav flex-column">
                             @if($isSuperOrRoot || in_array('courses', $access))
                             <li><a href="{{ route('courses.index') }}" class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}"><span>Master Courses</span></a></li>
+                            <li><a href="{{ route('lms.course_bundles.index') }}" class="nav-link {{ request()->routeIs('lms.course_bundles.*') ? 'active' : '' }}"><span>Course Bundles (Edaca)</span></a></li>
                             <li><a href="{{ route('training_courses.index') }}" class="nav-link {{ request()->routeIs('training_courses.*') ? 'active' : '' }}"><span>Training Courses</span></a></li>
                             @endif
                             @if($isSuperOrRoot || in_array('trainings', $access))

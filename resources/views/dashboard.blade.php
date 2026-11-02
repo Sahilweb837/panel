@@ -570,8 +570,12 @@
                     </div>
 
                     {{-- + Add New Bundle CTA (Image 2) --}}
-                    <a href="{{ route('lms.index') }}" class="btn-edaca-primary">
+                    <a href="{{ route('lms.course_bundles.index') }}" class="btn-edaca-primary">
                         <i class="fas fa-plus"></i> Add New Bundle
+                    </a>
+
+                    <a href="{{ route('lms.course_bundles.index') }}" class="btn-edaca-outline" title="Open Full Edaca LMS Experience">
+                        <i class="fas fa-external-link-alt"></i> Open Edaca Suite
                     </a>
                 </div>
             </div>
@@ -590,7 +594,105 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($allCourses as $index => $course)
+                        @if(isset($courseBundles) && $courseBundles->isNotEmpty())
+                            @foreach($courseBundles as $index => $bundle)
+                                @php
+                                    $coursesArr = is_array($bundle->courses) ? $bundle->courses : json_decode($bundle->courses ?? '[]', true);
+                                    if (empty($coursesArr)) {
+                                        $coursesArr = ['Master Course Track: ' . $bundle->title, 'Capstone Projects & Live Lab Deployments', 'Verified Industry Certification'];
+                                    }
+                                    $statusClass = strtolower($bundle->status);
+                                @endphp
+                                <tr class="bundle-row" data-status="{{ $statusClass }}">
+                                    {{-- Bundle Column: Thumbnail + Title --}}
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            @if($bundle->thumbnail)
+                                                <img src="{{ $bundle->thumbnail }}" alt="{{ $bundle->title }}" class="bundle-thumb" style="object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('image.png') }}';">
+                                            @else
+                                                <div class="bundle-thumb">
+                                                    <i class="fas fa-box"></i>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <div class="fw-bold text-slate-900 bundle-name" style="font-size: 0.9rem; color: #0f172a;">
+                                                    {{ $bundle->title }}
+                                                </div>
+                                                <small class="text-slate-500" style="font-size: 0.74rem; color: #64748b;">
+                                                    {{ $bundle->slug }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    {{-- Courses Included Column --}}
+                                    <td>
+                                        <ul class="course-bullet-list">
+                                            @foreach($coursesArr as $cItem)
+                                                <li>{{ $cItem }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+
+                                    {{-- Subscription Limit Column --}}
+                                    <td>
+                                        <span class="text-slate-700 fw-medium" style="font-size: 0.84rem; color: #334155;">
+                                            {{ $bundle->subscription_limit }}
+                                        </span>
+                                    </td>
+
+                                    {{-- Price Column --}}
+                                    <td>
+                                        <span class="fw-bold text-slate-900" style="font-size: 0.9rem; color: #0f172a;">
+                                            ${{ number_format($bundle->price, 0) }}
+                                        </span>
+                                    </td>
+
+                                    {{-- Status Column --}}
+                                    <td>
+                                        <span class="status-pill {{ $statusClass }}">
+                                            {{ $bundle->status }}
+                                        </span>
+                                    </td>
+
+                                    {{-- Actions Column --}}
+                                    <td class="text-end">
+                                        <div class="dropdown d-inline-block">
+                                            <button class="action-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end edaca-dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item edaca-dropdown-item primary-item" href="{{ route('lms.course_bundles.index') }}">
+                                                        <i class="fas fa-pen-to-square"></i> Edit Course
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <form action="{{ route('lms.course_bundles.status', $bundle->id) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="status" value="{{ $bundle->status === 'Paused' ? 'Active' : 'Paused' }}">
+                                                        <button type="submit" class="dropdown-item edaca-dropdown-item w-100 text-start">
+                                                            <i class="fas {{ $bundle->status === 'Paused' ? 'fa-play' : 'fa-pause' }}"></i> {{ $bundle->status === 'Paused' ? 'Activate' : 'Pause' }}
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li><hr class="dropdown-divider my-1"></li>
+                                                <li>
+                                                    <form action="{{ route('lms.course_bundles.destroy', $bundle->id) }}" method="POST" onsubmit="return confirm('Delete this course bundle?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item edaca-dropdown-item text-danger w-100 text-start">
+                                                            <i class="fas fa-trash-alt"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            @forelse($allCourses as $index => $course)
                             @php
                                 $tenureDays = match(true) {
                                     str_contains(strtolower($course->duration ?? ''), '1 year') || str_contains(strtolower($course->duration ?? ''), '12 month') => '365 Days (1 Year)',
@@ -706,6 +808,7 @@
                                 </td>
                             </tr>
                         @endforelse
+                        @endif
                     </tbody>
                 </table>
 

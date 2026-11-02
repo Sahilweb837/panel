@@ -977,6 +977,9 @@
     @endforeach
 </div>
 
+<!-- Floating Notification Toasts Container -->
+<div id="netchatToastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full"></div>
+
 <!-- Audio Chimes Synthesizer & Client State -->
 <script>
     const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
@@ -984,6 +987,65 @@
     const CURRENT_USER_NAME = "{{ addslashes($currentUser->name) }}";
     const ACTIVE_CHANNEL_ID = {{ $activeChannel ? $activeChannel->id : 'null' }};
     const ACTIVE_DM_USER_ID = {{ $activeDmUser ? $activeDmUser->id : 'null' }};
+
+    // Real-Time Notification Toast Engine
+    function showChatToast(senderName, previewText, avatarUrl, isHuddle = false) {
+        const container = document.getElementById('netchatToastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = 'pointer-events-auto flex items-start gap-3 p-3.5 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/90 text-slate-800 transition-all duration-300 transform translate-x-10 opacity-0 hover:scale-[1.02] cursor-pointer';
+
+        const safeAvatar = avatarUrl || '{{ asset('image.png') }}';
+        const iconBadge = isHuddle
+            ? '<span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]"><i class="fas fa-headphones"></i></span>'
+            : '<span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px]"><i class="fas fa-comment"></i></span>';
+
+        toast.innerHTML = `
+            <div class="relative shrink-0">
+                <img src="${safeAvatar}" alt="${senderName}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-xs" onerror="this.onerror=null; this.src='{{ asset('image.png') }}';">
+                ${iconBadge}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-1 mb-0.5">
+                    <span class="text-xs font-bold text-slate-900 truncate">${senderName}</span>
+                    <span class="text-[10px] text-slate-400 font-medium">Now</span>
+                </div>
+                <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${previewText}</p>
+            </div>
+            <button type="button" onclick="event.stopPropagation(); this.closest('.pointer-events-auto').remove();" class="text-slate-400 hover:text-slate-600 p-1 text-xs">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        toast.onclick = () => {
+            if (isHuddle) {
+                toggleHuddle();
+            } else {
+                const stream = document.getElementById('chatMessageStream');
+                if (stream) stream.scrollTop = stream.scrollHeight;
+            }
+            toast.remove();
+        };
+
+        container.appendChild(toast);
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-x-10', 'opacity-0');
+        });
+
+        setTimeout(() => {
+            toast.classList.add('translate-x-10', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 4500);
+
+        // Native notification if window is blurred/hidden
+        if (document.hidden && window.Notification && Notification.permission === "granted") {
+            new Notification(isHuddle ? `🎧 Huddle in channel` : `💬 ${senderName}`, {
+                body: previewText,
+                icon: safeAvatar
+            });
+        }
+    }
 
     // Mobile view state management
     function showMobileChannels() {
@@ -1879,9 +1941,24 @@
                             document.getElementById('emptyStatePlaceholder')?.remove();
                             container.insertAdjacentHTML('beforeend', m.html);
                             playChime('message_sent');
+                            showChatToast(m.sender_name || 'Team Member', m.preview || 'New message received', m.sender_avatar);
                         }
                     }
                 });
+
+                // Huddle notifications
+                if (data.activeHuddle && !isHuddleActive && !window.huddleAlertShown) {
+                    window.huddleAlertShown = true;
+                    showChatToast('Live Huddle Started', `${data.activeHuddle.participant_count} member(s) active in audio/video call. Click to join.`, null, true);
+                    const topBtn = document.getElementById('huddleTopBtn');
+                    if (topBtn) {
+                        topBtn.className = 'flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all bg-emerald-50 border-emerald-300 text-emerald-700 animate-pulse font-bold';
+                        const txt = document.getElementById('huddleTopBtnText');
+                        if (txt) txt.textContent = `Join Huddle (${data.activeHuddle.participant_count})`;
+                    }
+                } else if (!data.activeHuddle) {
+                    window.huddleAlertShown = false;
+                }
 
                 if (isNearBottom) {
                     scrollChatToBottom(true);

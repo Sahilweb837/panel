@@ -78,6 +78,14 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/lms/courses/publish/{id}', [\App\Http\Controllers\LmsController::class, 'togglePublishCourse'])->name('lms.courses.publish');
     Route::post('/lms/progress/update/{id}', [\App\Http\Controllers\LmsController::class, 'updateStudentProgress'])->name('lms.progress.update');
 
+    // LMS Course Bundles Suite (Edaca)
+    Route::get('/lms/course-bundles', [\App\Http\Controllers\CourseBundleController::class, 'index'])->name('lms.course_bundles.index');
+    Route::post('/lms/course-bundles', [\App\Http\Controllers\CourseBundleController::class, 'store'])->name('lms.course_bundles.store');
+    Route::get('/lms/course-bundles/{id}', [\App\Http\Controllers\CourseBundleController::class, 'show'])->name('lms.course_bundles.show');
+    Route::put('/lms/course-bundles/{id}', [\App\Http\Controllers\CourseBundleController::class, 'update'])->name('lms.course_bundles.update');
+    Route::delete('/lms/course-bundles/{id}', [\App\Http\Controllers\CourseBundleController::class, 'destroy'])->name('lms.course_bundles.destroy');
+    Route::post('/lms/course-bundles/{id}/status', [\App\Http\Controllers\CourseBundleController::class, 'toggleStatus'])->name('lms.course_bundles.status');
+
     Route::get('student-expenses', [StudentExpenseController::class, 'index'])->name('student_expenses.index');
     
     // Export CSV and PDF routes (must be defined BEFORE resource controllers so they aren't caught by wildcard resource routes)

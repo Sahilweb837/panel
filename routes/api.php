@@ -87,6 +87,16 @@ Route::prefix('v1')->group(function () {
 Route::get('/courses', [ApiCourseController::class, 'index'])->middleware('throttle:60,1');
 Route::get('/online-courses', [ApiCourseController::class, 'onlineCourses'])->middleware('throttle:60,1');
 
+// LMS Course Bundles API Endpoints (Sync & Management)
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/lms/course-bundles', [\App\Http\Controllers\CourseBundleController::class, 'index'])->name('api.lms.course_bundles.index');
+    Route::post('/lms/course-bundles', [\App\Http\Controllers\CourseBundleController::class, 'store'])->name('api.lms.course_bundles.store');
+    Route::get('/lms/course-bundles/{id}', [\App\Http\Controllers\CourseBundleController::class, 'show'])->name('api.lms.course_bundles.show');
+    Route::put('/lms/course-bundles/{id}', [\App\Http\Controllers\CourseBundleController::class, 'update'])->name('api.lms.course_bundles.update');
+    Route::delete('/lms/course-bundles/{id}', [\App\Http\Controllers\CourseBundleController::class, 'destroy'])->name('api.lms.course_bundles.destroy');
+    Route::post('/lms/course-bundles/{id}/status', [\App\Http\Controllers\CourseBundleController::class, 'toggleStatus'])->name('api.lms.course_bundles.status');
+});
+
 // Legacy Sanctum user endpoint
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
