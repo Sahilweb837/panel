@@ -208,3 +208,4 @@ class LmsController extends Controller
         return back()->with('success', "LMS Portal access {$state} for {$student->first_name}.");
     }
 }
+
