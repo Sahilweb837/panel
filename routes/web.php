@@ -42,21 +42,22 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Direct login routes
-Route::get('/student', [AuthController::class, 'showStudentLogin'])->name('login.student');
-Route::get('/students/login', function () {
-    return redirect()->route('login.student');
-});
+// Direct secure management login routes (Admin, Mentor, Staff only)
+Route::get('/mentor', [AuthController::class, 'showMentorLogin'])->name('login.mentor');
 Route::get('/staff', [AuthController::class, 'showStaffLogin'])->name('login.staff');
 Route::get('/admin', [AuthController::class, 'showAdminLogin'])->name('login.admin');
 Route::get('/superadmin', function () {
     return redirect()->route('login.admin');
 });
 
-// Registration Routes with Rate Limiting
+// Student Login Redirect (Students must use LMS Web Application)
+Route::get('/student', [AuthController::class, 'showStudentLogin'])->name('login.student');
+Route::get('/students/login', function () {
+    return redirect()->route('login')->with('info', 'Students must log in via the LMS Web Application.');
+});
+
+// Registration Routes with Rate Limiting (Staff & Faculty only)
 Route::middleware('throttle:10,1')->group(function () {
-    Route::get('/register/student', [\App\Http\Controllers\RegistrationController::class, 'showStudentRegistration'])->name('register.student');
-    Route::post('/register/student', [\App\Http\Controllers\RegistrationController::class, 'registerStudent']);
     Route::get('/register/staff', [\App\Http\Controllers\RegistrationController::class, 'showStaffRegistration'])->name('register.staff');
     Route::post('/register/staff', [\App\Http\Controllers\RegistrationController::class, 'registerStaff']);
 });
@@ -66,10 +67,16 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/clear-cache', [DashboardController::class, 'clearCache'])->name('clear-cache');
     Route::post('/profile/photo', [AuthController::class, 'updateProfilePic'])->name('profile.photo.update');
     
-    // LMS Management & Auto Fee Registration
+    // LMS Management: Cohorts, Masterclasses, Course Publishing, Performance Tracking & Auto Fee Registration
     Route::get('/lms', [\App\Http\Controllers\LmsController::class, 'index'])->name('lms.index');
     Route::post('/lms/enroll', [\App\Http\Controllers\LmsController::class, 'enrollAndRegisterFee'])->name('lms.enroll');
     Route::post('/lms/toggle-portal/{id}', [\App\Http\Controllers\LmsController::class, 'togglePortal'])->name('lms.toggle-portal');
+    Route::post('/lms/cohorts/store', [\App\Http\Controllers\LmsController::class, 'storeCohort'])->name('lms.cohorts.store');
+    Route::post('/lms/cohorts/publish/{id}', [\App\Http\Controllers\LmsController::class, 'togglePublishCohort'])->name('lms.cohorts.publish');
+    Route::post('/lms/masterclasses/store', [\App\Http\Controllers\LmsController::class, 'storeMasterclass'])->name('lms.masterclasses.store');
+    Route::post('/lms/masterclasses/publish/{id}', [\App\Http\Controllers\LmsController::class, 'togglePublishMasterclass'])->name('lms.masterclasses.publish');
+    Route::post('/lms/courses/publish/{id}', [\App\Http\Controllers\LmsController::class, 'togglePublishCourse'])->name('lms.courses.publish');
+    Route::post('/lms/progress/update/{id}', [\App\Http\Controllers\LmsController::class, 'updateStudentProgress'])->name('lms.progress.update');
 
     Route::get('student-expenses', [StudentExpenseController::class, 'index'])->name('student_expenses.index');
     

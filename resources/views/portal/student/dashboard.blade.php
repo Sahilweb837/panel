@@ -28,7 +28,7 @@
         margin: 0 auto;
         padding: 20px 24px 60px;
     }
-
+    
     .breadcrumb-dark {
         color: var(--nc-text-muted);
         font-size: 0.82rem;

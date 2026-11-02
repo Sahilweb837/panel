@@ -523,16 +523,22 @@
 
                 @if(!request()->has('type'))
                 <div class="role-selector">
-                    <button type="button" class="role-btn active" data-type="institute">
-                        <i class="fas fa-building"></i> Admin
+                    <button type="button" class="role-btn {{ old('account_type', request('type', 'institute')) === 'institute' ? 'active' : '' }}" data-type="institute">
+                        <i class="fas fa-shield-alt"></i> Admin
                     </button>
-                    <button type="button" class="role-btn" data-type="staff">
-                        <i class="fas fa-chalkboard-teacher"></i> Staff
+                    <button type="button" class="role-btn {{ old('account_type', request('type')) === 'mentor' ? 'active' : '' }}" data-type="mentor">
+                        <i class="fas fa-chalkboard-teacher"></i> Mentor
                     </button>
-                    <button type="button" class="role-btn" data-type="student">
-                        <i class="fas fa-user-graduate"></i> Student
+                    <button type="button" class="role-btn {{ old('account_type', request('type')) === 'staff' ? 'active' : '' }}" data-type="staff">
+                        <i class="fas fa-users-cog"></i> Staff
                     </button>
                 </div>
+                @endif
+
+                @if(session('info'))
+                    <div class="alert alert-info p-3 mb-3" style="border-radius: 14px; font-size: 0.85rem;">
+                        <i class="fas fa-info-circle me-1"></i> {{ session('info') }}
+                    </div>
                 @endif
 
                 @if ($errors->any())
@@ -550,8 +556,8 @@
                     <input type="hidden" name="account_type" id="account_type" value="{{ request('type', old('account_type', 'institute')) }}">
 
                     <div class="form-floating">
-                        <input type="text" class="form-control @error('email') is-invalid @enderror" id="login_id" name="login_id" value="{{ old('login_id', old('email')) }}" placeholder="Email, Username, or Student ID" required autocomplete="username">
-                        <label for="login_id"><i class="fas fa-user-circle"></i> Email / Username / Student ID</label>
+                        <input type="text" class="form-control @error('email') is-invalid @enderror" id="login_id" name="login_id" value="{{ old('login_id', old('email')) }}" placeholder="Email, Username, or Employee Code" required autocomplete="username">
+                        <label for="login_id"><i class="fas fa-user-circle"></i> Email / Username / Staff Code</label>
                     </div>
 
                     <div class="form-floating position-relative">
@@ -562,12 +568,20 @@
 
                     <label class="checkbox-container">
                         <input type="checkbox" name="remember" id="remember">
-                        <span>Remember me on this device</span>
+                        <span>Remember me on this secure workstation</span>
                     </label>
 
                     <button type="submit" class="btn-primary-custom">
-                        <span>Sign In</span> <i class="fas fa-arrow-right ms-1"></i>
+                        <span>Sign In Securely</span> <i class="fas fa-arrow-right ms-1"></i>
                     </button>
+
+                    <div class="mt-4 p-3 rounded-3 text-center" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.82rem; color: var(--text-muted);">
+                        <i class="fas fa-graduation-cap me-1 text-warning"></i>
+                        Are you an enrolled student?
+                        <a href="http://127.0.0.1:8000/login" target="_blank" style="color: var(--brand-primary); font-weight: 700; text-decoration: none;">
+                            Go to Student LMS &rarr;
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
@@ -619,25 +633,25 @@
                 color: '#ff5532',
                 colorRGB: '255, 85, 50'
             },
+            mentor: {
+                title: 'Inspire & Mentor<br>Your Students',
+                subtitle: 'Manage live masterclasses, curriculum, cohorts & track learning progress.',
+                features: [
+                    { icon: 'fa-chalkboard-teacher', title: 'Live Masterclasses', desc: 'Schedule interactive webinars, video sessions & labs.' },
+                    { icon: 'fa-user-graduate', title: 'Cohort & Velocity', desc: 'Monitor student completion, velocity & assessments.' }
+                ],
+                color: '#3b82f6',
+                colorRGB: '59, 130, 246'
+            },
             staff: {
-                title: 'Empower Your<br>Teaching Staff',
-                subtitle: 'Streamlined, digital-first tools for modern educators.',
+                title: 'Empower Your<br>Operations Team',
+                subtitle: 'Streamlined, digital-first tools for institute administration.',
                 features: [
                     { icon: 'fa-clipboard-check', title: 'Automated Attendance', desc: 'Seamless integration with biometrics and schedules.' },
-                    { icon: 'fa-wallet', title: 'Payroll History', desc: 'Instant access to monthly salary slips.' }
+                    { icon: 'fa-wallet', title: 'Task & Work Logs', desc: 'Daily activity tracking and department collaboration.' }
                 ],
                 color: '#10b981',
                 colorRGB: '16, 185, 129'
-            },
-            student: {
-                title: 'Accelerate Your<br>Learning Journey',
-                subtitle: 'Your personalized academic student portal.',
-                features: [
-                    { icon: 'fa-book-reader', title: 'Course Hub', desc: 'Access enrollment detail and download syllabus.' },
-                    { icon: 'fa-file-invoice-dollar', title: 'Fee Management', desc: 'View unpaid receipts and clear dues online.' }
-                ],
-                color: '#6366f1',
-                colorRGB: '99, 102, 241'
             }
         };
 

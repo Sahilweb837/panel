@@ -66,6 +66,26 @@ class EnsureUserIsAuthenticated
         }
 
         // ----------------------------------------------------------------
+        // MENTOR / INSTRUCTOR: access LMS, Courses, Cohorts, Masterclasses, Attendance & Meetings
+        // ----------------------------------------------------------------
+        if (in_array($roleSlug, ['mentor', 'instructor'])) {
+            $route = $request->route() ? $request->route()->getName() : '';
+            if (
+                $request->routeIs('dashboard', 'logout', 'profile.photo.update') ||
+                str_starts_with($route, 'lms.') ||
+                str_starts_with($route, 'courses.') ||
+                str_starts_with($route, 'attendances.') ||
+                str_starts_with($route, 'meetings.') ||
+                str_starts_with($route, 'messages.') ||
+                str_starts_with($route, 'tasks.')
+            ) {
+                return $next($request);
+            }
+            return redirect()->route('lms.index')
+                ->with('error', 'Access restricted to Mentor & LMS modules.');
+        }
+
+        // ----------------------------------------------------------------
         // SUPER ADMIN: unrestricted access
         // ----------------------------------------------------------------
         if ($isSuperOrRoot) {
